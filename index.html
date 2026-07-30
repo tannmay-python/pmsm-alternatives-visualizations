@@ -29,6 +29,38 @@
   input[type=range] { -webkit-appearance: none; appearance: none; background: transparent; }
   input[type=range]::-webkit-slider-runnable-track { height: 2px; background: rgba(20,21,26,.18); }
   input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #14151a; margin-top: -6px; }
+  [data-copy-zone] { position: relative; z-index: 1; }
+  [data-copy-zone="opening"] { max-width: min(620px, 40vw) !important; }
+  [data-copy-zone="closing"] { max-width: min(720px, 46vw) !important; }
+  @media (max-width: 1180px), (max-height: 700px) {
+    [data-copy-zone="opening"] { max-width: 40vw !important; }
+    [data-copy-zone="opening"] h1 { font-size: clamp(35px, 4.55vw, 48px) !important; }
+    [data-copy-zone="opening"] p { font-size: 15px !important; }
+    [data-copy-zone="closing"] { max-width: 46vw !important; }
+    [data-copy-zone="closing"] h2 { font-size: clamp(28px, 4vw, 42px) !important; }
+    [data-copy-zone="closing"] p { font-size: 14px !important; }
+  }
+  @media (max-width: 700px) {
+    [data-chapter-rail] { display: none !important; }
+    [data-lab] [data-card] { max-width: 210px; white-space: normal !important; }
+    [data-copy-zone="opening"],
+    [data-copy-zone="closing"] { max-width: 100% !important; }
+    [data-copy-zone="opening"] h1 { font-size: clamp(34px, 10vw, 46px) !important; }
+    [data-copy-zone="closing"] h2 { font-size: clamp(29px, 8.5vw, 40px) !important; }
+    #ch0 { align-items: flex-start !important; padding: 110px 7vw 0 !important; }
+    #ch1, #ch2, #ch3, #ch4, #ch5 {
+      align-items: flex-end !important;
+      justify-content: flex-start !important;
+      padding: 0 20px 32px !important;
+    }
+    #ch1 > div, #ch2 > div, #ch3 > div, #ch4 > div, #ch5 > div {
+      width: 100%;
+      max-width: none !important;
+      padding: 22px 22px 24px !important;
+    }
+    #ch6 { padding-left: 20px !important; padding-right: 20px !important; }
+    #ch7 { align-items: flex-start !important; padding: 230px 7vw 0 !important; }
+  }
   @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
   @keyframes hint { 0%,100% { transform: translateY(0); opacity: .45 } 50% { transform: translateY(6px); opacity: 1 } }
 </style>
@@ -184,7 +216,7 @@
     </div>
   </header>
 
-  <nav ref="{{ railRef }}" style="position: fixed; z-index: 3; right: 26px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 12px; align-items: flex-end;">
+  <nav ref="{{ railRef }}" data-chapter-rail style="position: fixed; z-index: 3; right: 26px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 12px; align-items: flex-end;">
     <a href="#ch0" data-rail="0" style="display: block; width: 26px; height: 2px; background: #14151a; opacity: .8;"></a>
     <a href="#ch1" data-rail="1" style="display: block; width: 26px; height: 2px; background: #14151a; opacity: .18;"></a>
     <a href="#ch2" data-rail="2" style="display: block; width: 26px; height: 2px; background: #14151a; opacity: .18;"></a>
@@ -198,7 +230,7 @@
   <main style="position: relative; z-index: 2; pointer-events: none;">
 
     <section id="ch0" data-chapter="0" data-screen-label="01 Question" style="min-height: 100vh; display: flex; align-items: center; padding: 0 7vw;">
-      <div style="max-width: 620px; pointer-events: auto;">
+      <div data-copy-zone="opening" style="max-width: 620px; pointer-events: auto;">
         <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: #b4622a;">The question</div>
         <h1 style="margin: 18px 0 0; font-size: clamp(38px, 5.4vw, 74px); line-height: 1.02; letter-spacing: -.03em; font-weight: 500; text-wrap: pretty;">Can an electric car keep the performance of a magnet motor <span style="color: #b4622a;">without the magnets?</span></h1>
         <p style="margin: 22px 0 0; font-size: clamp(16px, 1.35vw, 19px); line-height: 1.55; color: #4a4a52; max-width: 46ch;">To answer that, you have to see what the magnets are actually doing. So we start with the whole car, and we don't stop until we are holding a single block of neodymium.</p>
@@ -325,7 +357,7 @@
     </section>
 
     <section id="ch7" data-chapter="7" data-screen-label="08 Close" style="min-height: 110vh; display: flex; align-items: center; padding: 0 7vw;">
-      <div style="max-width: 720px; pointer-events: auto;">
+      <div data-copy-zone="closing" style="max-width: 720px; pointer-events: auto;">
         <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: #b4622a;">The answer</div>
         <h2 style="margin: 18px 0 0; font-size: clamp(30px, 4vw, 52px); line-height: 1.06; letter-spacing: -.03em; font-weight: 500; text-wrap: pretty;">Yes — the field can come from somewhere else. The purpose of the machine never changes; the tradeoffs move into copper, steel, heat and control.</h2>
         <p style="margin: 22px 0 0; font-size: 16px; line-height: 1.6; color: #4a4a52; max-width: 56ch;">That is the whole argument for a rare-earth-free drivetrain, and it is why the engineering fight has shifted from mining to geometry and software.</p>
@@ -931,6 +963,9 @@ class Component extends DCLogic {
     const el = this.canvasRef.current.parentElement;
     const w = el.clientWidth, h = el.clientHeight;
     this.renderer.setSize(w, h, false);
+    this.compactFrame = w < 1180 || h < 700;
+    this.mobileFrame = w < 700;
+    this.cam.fov = this.mobileFrame ? 52 : (this.compactFrame ? 38 : 32);
     this.cam.aspect = w / h; this.cam.updateProjectionMatrix();
     this.vw = w; this.vh = h;
   }
@@ -978,6 +1013,14 @@ class Component extends DCLogic {
     const t = this.ss(0.2, 1.0, p - i0);
     const A = this.CAMS[i0], B = this.CAMS[i1];
     const px = this.lp(A.p[0], B.p[0], t), py = this.lp(A.p[1], B.p[1], t), pz = this.lp(A.p[2], B.p[2], t);
+    const wideShifts = [0.16, 0.13, -0.13, 0.12, -0.13, 0.12, 0, 0.27];
+    const compactShifts = [0.18, 0.17, -0.17, 0.16, -0.17, 0.16, 0, 0.32];
+    const mobileShifts = [0, 0, 0, 0, 0, 0, 0, 0];
+    const mobileYShifts = [0.28, -0.25, -0.25, -0.25, -0.25, -0.25, -0.22, -0.36];
+    const shifts = this.mobileFrame ? mobileShifts : (this.compactFrame ? compactShifts : wideShifts);
+    this.sceneShiftX = this.lp(shifts[i0], shifts[i1], t) * this.vw;
+    this.sceneShiftY = this.mobileFrame ? this.lp(mobileYShifts[i0], mobileYShifts[i1], t) * this.vh : 0;
+    this.canvasRef.current.style.transform = "translate3d(" + this.sceneShiftX.toFixed(1) + "px," + this.sceneShiftY.toFixed(1) + "px,0)";
     this.mouse.x += (this.mouse.tx - this.mouse.x) * dt * 2.4;
     this.mouse.y += (this.mouse.ty - this.mouse.y) * dt * 2.4;
     const near = this.ss(1.6, 2.6, p);
@@ -992,6 +1035,8 @@ class Component extends DCLogic {
     this.gCar.visible = carVis > 0.004;
     if (this.gCar.visible) {
       const o = carVis;
+      const closeScale = this.mobileFrame ? 0.42 : (this.compactFrame ? 0.48 : 0.5);
+      this.gCar.scale.setScalar(this.lp(1, closeScale, carBack));
       this.carGlass.material.opacity = 0.16 * o;
       this.carEdges.material.opacity = 0.3 * o;
       this.gCar.traverse(n => { if (n.material && n !== this.carGlass && n !== this.carEdges) { n.material.transparent = true; if (n.material.userData.b == null) n.material.userData.b = n.material.opacity; n.material.opacity = n.material.userData.b * o; } });
@@ -1003,6 +1048,7 @@ class Component extends DCLogic {
       const mg = this.ss(0.45, 1.0, p);
       [this.frontMotor, this.rearMotor].forEach(m => m.traverse(n => { if (n.material && n.material.emissive) n.material.emissiveIntensity = 0.12 + 0.5 * mg * (0.6 + 0.4 * Math.sin(now / 620)); }));
     }
+    this.shadow.scale.setScalar(this.lp(1, this.mobileFrame ? 0.46 : 0.56, carBack));
     this.shadow.material.opacity = 0.9 * Math.max((1 - this.ss(1.42, 1.92, p)) * this.ss(-0.2, 0.4, p), carBack);
     this.shadow.position.y = 0.002;
 
@@ -1126,7 +1172,7 @@ class Component extends DCLogic {
       if (v.z > 1) { L.el.style.opacity = 0; return; }
       // the wrapper always stays on the projected anchor (that is where the dot is);
       // collisions are resolved by choosing this frame's card offset instead
-      const x = (v.x * 0.5 + 0.5) * this.vw, y = (-v.y * 0.5 + 0.5) * this.vh;
+      const x = (v.x * 0.5 + 0.5) * this.vw + (this.sceneShiftX || 0), y = (-v.y * 0.5 + 0.5) * this.vh + (this.sceneShiftY || 0);
       L.el.style.opacity = nx;
       L.el.style.transform = "translate3d(" + x.toFixed(1) + "px," + y.toFixed(1) + "px,0)";
       if (!L.card) return;
