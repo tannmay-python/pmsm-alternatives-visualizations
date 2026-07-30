@@ -33,16 +33,22 @@ npm run preview
 
 ## Interaction model
 
-The experience uses a single persistent WebGL scene. Scroll progress transforms that one scene through six physical chapters:
+The experience uses one continuous, light-theme WebGL scene. Scroll progress
+transforms it through eight chapters:
 
-1. transparent dual-motor vehicle;
-2. extracted rear drive unit;
-3. exploded PMSM;
-4. rotating stator field and following rotor;
-5. magnet mass and supply-chain scale;
-6. five mechanically distinct rotor architectures.
+1. the rare-earth question;
+2. a transparent dual-motor vehicle;
+3. an extracted drive unit shown at real scale;
+4. an exploded PMSM teardown;
+5. the rotating stator field and following rotor;
+6. the sixteen individual NdFeB magnet blocks;
+7. six mechanically distinct rotor architectures;
+8. the rare-earth-free conclusion.
 
-The field chapter includes a pause control and shaft-load input. The alternatives chapter is keyboard-operable and updates both the 3D specimen and its tradeoff explanation.
+The field chapter includes a pause control and shaft-load input. The alternatives
+chapter switches between permanent-magnet, wound-field, induction, synchronous-
+reluctance, switched-reluctance, and ferrite-assisted rotors while preserving the
+same stator.
 
 ## Sources
 
@@ -54,6 +60,9 @@ The field chapter includes a pause control and shaft-load input. The alternative
 
 The 1-2 kg figure refers to typical permanent-magnet material per EV motor in the cited DOE supply-chain assessment. Vehicle and motor designs vary.
 
-## Visual references
+## Implementation
 
-The image-first art-direction renders used for this build are preserved under `design/references/`. The live experience is rendered in WebGL rather than using those images as the primary explanatory medium.
+The supplied redesign is implemented directly in `index.html`. `public/support.js`
+provides the small declarative component runtime used by that source file; the
+motor, vehicle, magnets, and alternative rotors are all generated as live Three.js
+geometry rather than pre-rendered images.

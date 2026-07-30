@@ -1,38 +1,1169 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0b0d0e" />
-    <meta
-      name="description"
-      content="A 3D visual explanation of how an electric vehicle motor works, where rare-earth magnets enter the machine, and what can replace them."
-    />
-    <meta property="og:title" content="Inside the electric car | PMSM Visualizations" />
-    <meta
-      property="og:description"
-      content="One car. Two motors. A supply-chain question."
-    />
-    <meta property="og:type" content="website" />
-    <meta
-      property="og:url"
-      content="https://tannmay-python.github.io/PMSM-Visualizations/"
-    />
-    <meta
-      property="og:image"
-      content="https://tannmay-python.github.io/PMSM-Visualizations/og-hero.png"
-    />
-    <link
-      rel="preload"
-      as="image"
-      href="/PMSM-Visualizations/car-hero.jpg"
-      fetchpriority="high"
-    />
-    <link rel="canonical" href="https://tannmay-python.github.io/PMSM-Visualizations/" />
-    <title>Inside the electric car | PMSM Visualizations</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f4f3ef">
+<meta name="description" content="A scroll-driven 3D teardown of an electric vehicle motor, its rare-earth magnets, and the motor architectures that can replace them.">
+<meta property="og:title" content="PMSM Visual Teardown">
+<meta property="og:description" content="Start with the whole electric car. End with one block of neodymium—and the rare-earth-free alternatives.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://tannmay-python.github.io/PMSM-Visualizations/">
+<link rel="canonical" href="https://tannmay-python.github.io/PMSM-Visualizations/">
+<title>PMSM Visual Teardown</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: #f4f3ef; color: #14151a; -webkit-font-smoothing: antialiased; }
+  * { box-sizing: border-box; }
+  a { color: #b4622a; text-decoration: none; }
+  a:hover { color: #8e4b1e; text-decoration: underline; }
+  ::selection { background: #dfe4f7; }
+  input[type=range] { -webkit-appearance: none; appearance: none; background: transparent; }
+  input[type=range]::-webkit-slider-runnable-track { height: 2px; background: rgba(20,21,26,.18); }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #14151a; margin-top: -6px; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  @keyframes hint { 0%,100% { transform: translateY(0); opacity: .45 } 50% { transform: translateY(6px); opacity: 1 } }
+</style>
+</helmet>
+<div style="position: relative; font-family: 'Instrument Sans', 'Helvetica Neue', Helvetica, sans-serif; background: #f4f3ef; color: #14151a;">
+
+  <div style="position: fixed; inset: 0; z-index: 0; background: radial-gradient(120% 90% at 50% 5%, #fbfaf7 0%, #f0efe9 55%, #e7e6df 100%);">
+    <canvas ref="{{ canvasRef }}" style="position: absolute; inset: 0; width: 100%; height: 100%; display: block;"></canvas>
+    <div ref="{{ overlayRef }}" style="position: absolute; inset: 0; overflow: hidden; pointer-events: none;">
+
+      <div data-lab data-anchor="frontMotor" data-ch="1" data-dx="-42" data-dy="104" style="position: absolute; left: 0; top: 0; opacity: 0;">
+        <div data-dot style="position: absolute; width: 7px; height: 7px; border-radius: 50%; background: #b4622a; transform: translate(-50%, -50%);"></div>
+        <div data-line style="position: absolute; height: 1px; background: rgba(20,21,26,.32); transform-origin: 0 50%;"></div>
+        <div data-card style="position: absolute; transform: translate(-50%, -50%); white-space: nowrap; background: rgba(252,251,248,.92); border: 1px solid rgba(20,21,26,.14); border-radius: 3px; padding: 7px 10px 8px;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; color: #b4622a;">Motor 01</div>
+          <div style="font-size: 13px; margin-top: 2px;">Front drive unit</div>
+        </div>
+      </div>
+
+      <div data-lab data-anchor="rearMotor" data-ch="1" data-dx="118" data-dy="-62" style="position: absolute; left: 0; top: 0; opacity: 0;">
+        <div data-dot style="position: absolute; width: 7px; height: 7px; border-radius: 50%; background: #b4622a; transform: translate(-50%, -50%);"></div>
+        <div data-line style="position: absolute; height: 1px; background: rgba(20,21,26,.32); transform-origin: 0 50%;"></div>
+        <div data-card style="position: absolute; transform: translate(-50%, -50%); white-space: nowrap; background: rgba(252,251,248,.92); border: 1px solid rgba(20,21,26,.14); border-radius: 3px; padding: 7px 10px 8px;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; color: #b4622a;">Motor 02</div>
+          <div style="font-size: 13px; margin-top: 2px;">Rear drive unit</div>
+        </div>
+      </div>
+
+      <div data-lab data-anchor="pack" data-ch="1" data-dx="-92" data-dy="-104" style="position: absolute; left: 0; top: 0; opacity: 0;">
+        <div data-dot style="position: absolute; width: 7px; height: 7px; border-radius: 50%; background: #14151a; transform: translate(-50%, -50%);"></div>
+        <div data-line style="position: absolute; height: 1px; background: rgba(20,21,26,.32); transform-origin: 0 50%;"></div>
+        <div data-card style="position: absolute; transform: translate(-50%, -50%); white-space: nowrap; background: rgba(252,251,248,.92); border: 1px solid rgba(20,21,26,.14); border-radius: 3px; padding: 7px 10px 8px;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; color: #6b6b73;">Battery</div>
+          <div style="font-size: 13px; margin-top: 2px;">Stores energy. Moves nothing.</div>
+        </div>
+      </div>
+
+      <div data-lab data-anchor="carDim" data-ch="1" data-dx="0" data-dy="52" style="position: absolute; left: 0; top: 0; opacity: 0;">
+        <div data-card style="position: absolute; transform: translate(-50%, -50%); white-space: nowrap; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .1em; color: #6b6b73;">4.6 m</div>
+      </div>
+
+      <div data-lab data-anchor="unit" data-ch="2" data-dx="132" data-dy="-84" style="position: absolute; left: 0; top: 0; opacity: 0;">
+        <div data-dot style="position: absolute; width: 7px; height: 7px; border-radius: 50%; background: #b4622a; transform: translate(-50%, -50%);"></div>
+        <div data-line style="position: absolute; height: 1px; background: rgba(20,21,26,.32); transform-origin: 0 50%;"></div>
+        <div data-card style="position: absolute; transform: translate(-50%, -50%); white-space: nowrap; background: rgba(252,251,248,.92); border: 1px solid rgba(20,21,26,.14); border-radius: 3px; padding: 7px 10px 8px;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; color: #b4622a;">The machine</div>
+          <div style="font-size: 13px; margin-top: 2px;">Motor housing</div>
+        </div>
+      </div>
+
+      <div data-lab data-anchor="gearbox" data-ch="2" data-dx="112" data-dy="76" style="position: absolute; left: 0; top: 0; opacity: 0;">
+        <div data-dot style="position: absolute; width: 7px; height: 7px; border-radius: 50%; background: #14151a; transform: translate(-50%, -50%);"></div>
+        <div data-line style="position: absolute; height: 1px; background: rgba(20,21,26,.32); transform-origin: 0 50%;"></div>
+        <div data-card style="position: absolute; transform: translate(-50%, -50%); white-space: nowrap; background: rgba(252,251,248,.92); border: 1px solid rgba(20,21,26,.14); border-radius: 3px; padding: 7px 10px 8px;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; color: #6b6b73;">Reduction</div>
+          <div style="font-size: 13px; margin-top: 2px;">Gearbox to the axle</div>
+        </div>
+      </div>
+
+      <div data-lab data-anchor="unitDim" data-ch="2" data-dx="0" data-dy="-30" style="position: absolute; left: 0; top: 0; opacity: 0;">
+        <div data-card style="position: absolute; transform: translate(-50%, -50%); white-space: nowrap; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .1em; color: #6b6b73;">300 mm</div>
+      </div>
+
+      <div data-lab data-anchor="cap" data-ch="3" data-dx="76" data-dy="166" style="position: absolute; left: 0; top: 0; opacity: 0;">
+        <div data-dot style="position: absolute; width: 7px; height: 7px; border-radius: 50%; background: #14151a; transform: translate(-50%, -50%);"></div>
+        <div data-line style="position: absolute; height: 1px; background: rgba(20,21,26,.32); transform-origin: 0 50%;"></div>
+        <div data-card style="position: absolute; transform: translate(-50%, -50%); white-space: nowrap; background: rgba(252,251,248,.92); border: 1px solid rgba(20,21,26,.14); border-radius: 3px; padding: 7px 10px 8px;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; color: #6b6b73;">01 · Housing</div>
+          <div style="font-size: 13px; margin-top: 2px;">Aluminium case and bearings</div>
+        </div>
+      </div>
+
+      <div data-lab data-anchor="stator" data-ch="3" data-dx="0" data-dy="112" style="position: absolute; left: 0; top: 0; opacity: 0;">
+        <div data-dot style="position: absolute; width: 7px; height: 7px; border-radius: 50%; background: #b4622a; transform: translate(-50%, -50%);"></div>
+        <div data-line style="position: absolute; height: 1px; background: rgba(20,21,26,.32); transform-origin: 0 50%;"></div>
+        <div data-card style="position: absolute; transform: translate(-50%, -50%); white-space: nowrap; background: rgba(252,251,248,.92); border: 1px solid rgba(20,21,26,.14); border-radius: 3px; padding: 7px 10px 8px;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; color: #b4622a;">02 · Stator</div>
+          <div style="font-size: 13px; margin-top: 2px;">Steel teeth, copper in every slot</div>
+        </div>
+      </div>
+
+      <div data-lab data-anchor="gap" data-ch="3" data-dx="104" data-dy="-172" style="position: absolute; left: 0; top: 0; opacity: 0;">
+        <div data-dot style="position: absolute; width: 7px; height: 7px; border-radius: 50%; background: #4b6bd6; transform: translate(-50%, -50%);"></div>
+        <div data-line style="position: absolute; height: 1px; background: rgba(20,21,26,.32); transform-origin: 0 50%;"></div>
+        <div data-card style="position: absolute; transform: translate(-50%, -50%); white-space: nowrap; background: rgba(252,251,248,.92); border: 1px solid rgba(20,21,26,.14); border-radius: 3px; padding: 7px 10px 8px;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; color: #4b6bd6;">03 · Air gap</div>
+          <div style="font-size: 13px; margin-top: 2px;">1 mm of nothing carries all the force</div>
+        </div>
+      </div>
+
+      <div data-lab data-anchor="rotor" data-ch="3" data-dx="-40" data-dy="-104" style="position: absolute; left: 0; top: 0; opacity: 0;">
+        <div data-dot style="position: absolute; width: 7px; height: 7px; border-radius: 50%; background: #14151a; transform: translate(-50%, -50%);"></div>
+        <div data-line style="position: absolute; height: 1px; background: rgba(20,21,26,.32); transform-origin: 0 50%;"></div>
+        <div data-card style="position: absolute; transform: translate(-50%, -50%); white-space: nowrap; background: rgba(252,251,248,.92); border: 1px solid rgba(20,21,26,.14); border-radius: 3px; padding: 7px 10px 8px;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; color: #6b6b73;">04 · Rotor</div>
+          <div style="font-size: 13px; margin-top: 2px;">Laminated steel, magnets buried in V-pockets</div>
+        </div>
+      </div>
+
+      <div data-lab data-anchor="shaft" data-ch="3" data-dx="-46" data-dy="166" style="position: absolute; left: 0; top: 0; opacity: 0;">
+        <div data-dot style="position: absolute; width: 7px; height: 7px; border-radius: 50%; background: #14151a; transform: translate(-50%, -50%);"></div>
+        <div data-line style="position: absolute; height: 1px; background: rgba(20,21,26,.32); transform-origin: 0 50%;"></div>
+        <div data-card style="position: absolute; transform: translate(-50%, -50%); white-space: nowrap; background: rgba(252,251,248,.92); border: 1px solid rgba(20,21,26,.14); border-radius: 3px; padding: 7px 10px 8px;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; color: #6b6b73;">05 · Shaft</div>
+          <div style="font-size: 13px; margin-top: 2px;">The only part that leaves the motor</div>
+        </div>
+      </div>
+
+      <div data-lab data-anchor="phaseU" data-ch="4" data-dx="-62" data-dy="32" style="position: absolute; left: 0; top: 0; opacity: 0;">
+        <div data-card style="position: absolute; transform: translate(-50%, -50%); white-space: nowrap; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: #6b6b73; background: rgba(252,251,248,.9); border: 1px solid rgba(20,21,26,.12); border-radius: 999px; padding: 4px 9px;">Phase U</div>
+      </div>
+      <div data-lab data-anchor="phaseV" data-ch="4" data-dx="0" data-dy="-36" style="position: absolute; left: 0; top: 0; opacity: 0;">
+        <div data-card style="position: absolute; transform: translate(-50%, -50%); white-space: nowrap; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: #6b6b73; background: rgba(252,251,248,.9); border: 1px solid rgba(20,21,26,.12); border-radius: 999px; padding: 4px 9px;">Phase V</div>
+      </div>
+      <div data-lab data-anchor="phaseW" data-ch="4" data-dx="62" data-dy="32" style="position: absolute; left: 0; top: 0; opacity: 0;">
+        <div data-card style="position: absolute; transform: translate(-50%, -50%); white-space: nowrap; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: #6b6b73; background: rgba(252,251,248,.9); border: 1px solid rgba(20,21,26,.12); border-radius: 999px; padding: 4px 9px;">Phase W</div>
+      </div>
+      <div data-lab data-anchor="fieldTip" data-ch="4" data-dx="152" data-dy="-58" style="position: absolute; left: 0; top: 0; opacity: 0;">
+        <div data-card style="position: absolute; transform: translate(-50%, -50%); white-space: nowrap; background: rgba(252,251,248,.94); border: 1px solid rgba(75,107,214,.35); border-radius: 3px; padding: 6px 9px 7px;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; color: #4b6bd6;">Rotating field</div>
+          <div style="font-size: 12.5px; margin-top: 2px;">The rotor chases it, always a little behind</div>
+        </div>
+      </div>
+
+      <div data-lab data-anchor="magOne" data-ch="5" data-dx="-104" data-dy="-58" style="position: absolute; left: 0; top: 0; opacity: 0;">
+        <div data-dot style="position: absolute; width: 7px; height: 7px; border-radius: 50%; background: #4b6bd6; transform: translate(-50%, -50%);"></div>
+        <div data-line style="position: absolute; height: 1px; background: rgba(20,21,26,.32); transform-origin: 0 50%;"></div>
+        <div data-card style="position: absolute; transform: translate(-50%, -50%); white-space: nowrap; background: rgba(252,251,248,.92); border: 1px solid rgba(20,21,26,.14); border-radius: 3px; padding: 7px 10px 8px;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; color: #4b6bd6;">One block</div>
+          <div style="font-size: 13px; margin-top: 2px;">50 × 45 × 12 mm sintered NdFeB</div>
+        </div>
+      </div>
+      <div data-lab data-anchor="magAll" data-ch="5" data-dx="0" data-dy="196" style="position: absolute; left: 0; top: 0; opacity: 0;">
+        <div data-card style="position: absolute; transform: translate(-50%, -50%); white-space: nowrap; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .12em; color: #6b6b73;">16 blocks · 8 poles · 1–2 kg per motor</div>
+      </div>
+
+      <div data-lab data-anchor="altSpec" data-ch="6" data-dx="0" data-dy="-138" style="position: absolute; left: 0; top: 0; opacity: 0;">
+        <div data-card style="position: absolute; transform: translate(-50%, -50%); white-space: nowrap; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: #6b6b73;">Same stator · different rotor</div>
+      </div>
+    </div>
+
+    <div ref="{{ loaderRef }}" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: #9a9aa0; transition: opacity .6s ease;">Assembling the motor</div>
+  </div>
+
+  <header style="position: fixed; z-index: 3; top: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 18px 26px; pointer-events: none;">
+    <div style="display: flex; align-items: baseline; gap: 10px; pointer-events: auto;">
+      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .2em; text-transform: uppercase;">PMSM</span>
+      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: #9a9aa0;">Visual teardown</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: #6b6b73; pointer-events: auto;">
+      <span style="color: #b4622a;">{{ chapterNo }}</span>
+      <span>{{ chapterName }}</span>
+    </div>
+  </header>
+
+  <nav ref="{{ railRef }}" style="position: fixed; z-index: 3; right: 26px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 12px; align-items: flex-end;">
+    <a href="#ch0" data-rail="0" style="display: block; width: 26px; height: 2px; background: #14151a; opacity: .8;"></a>
+    <a href="#ch1" data-rail="1" style="display: block; width: 26px; height: 2px; background: #14151a; opacity: .18;"></a>
+    <a href="#ch2" data-rail="2" style="display: block; width: 26px; height: 2px; background: #14151a; opacity: .18;"></a>
+    <a href="#ch3" data-rail="3" style="display: block; width: 26px; height: 2px; background: #14151a; opacity: .18;"></a>
+    <a href="#ch4" data-rail="4" style="display: block; width: 26px; height: 2px; background: #14151a; opacity: .18;"></a>
+    <a href="#ch5" data-rail="5" style="display: block; width: 26px; height: 2px; background: #14151a; opacity: .18;"></a>
+    <a href="#ch6" data-rail="6" style="display: block; width: 26px; height: 2px; background: #14151a; opacity: .18;"></a>
+    <a href="#ch7" data-rail="7" style="display: block; width: 26px; height: 2px; background: #14151a; opacity: .18;"></a>
+  </nav>
+
+  <main style="position: relative; z-index: 2; pointer-events: none;">
+
+    <section id="ch0" data-chapter="0" data-screen-label="01 Question" style="min-height: 100vh; display: flex; align-items: center; padding: 0 7vw;">
+      <div style="max-width: 620px; pointer-events: auto;">
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: #b4622a;">The question</div>
+        <h1 style="margin: 18px 0 0; font-size: clamp(38px, 5.4vw, 74px); line-height: 1.02; letter-spacing: -.03em; font-weight: 500; text-wrap: pretty;">Can an electric car keep the performance of a magnet motor <span style="color: #b4622a;">without the magnets?</span></h1>
+        <p style="margin: 22px 0 0; font-size: clamp(16px, 1.35vw, 19px); line-height: 1.55; color: #4a4a52; max-width: 46ch;">To answer that, you have to see what the magnets are actually doing. So we start with the whole car, and we don't stop until we are holding a single block of neodymium.</p>
+        <div style="margin-top: 34px; display: flex; align-items: center; gap: 14px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: #6b6b73;">
+          <span style="animation: hint 2.4s ease-in-out infinite;">Scroll</span>
+          <span style="width: 46px; height: 1px; background: rgba(20,21,26,.25);"></span>
+          <span>7 stops</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="ch1" data-chapter="1" data-screen-label="02 The car" style="min-height: 130vh; display: flex; align-items: center; padding: 0 7vw;">
+      <div style="max-width: 400px; pointer-events: auto; background: rgba(250,249,246,.72); backdrop-filter: blur(6px); border: 1px solid rgba(20,21,26,.1); border-radius: 4px; padding: 26px 26px 28px;">
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; color: #6b6b73;">01 · The car</div>
+        <h2 style="margin: 14px 0 0; font-size: 30px; line-height: 1.12; letter-spacing: -.02em; font-weight: 500;">Two motors move this car.</h2>
+        <p style="margin: 14px 0 0; font-size: 15.5px; line-height: 1.6; color: #4a4a52;">One at each axle. Everything else in the floor — battery, inverter, cooling — exists to feed them. The motors are the only parts that turn electricity into movement.</p>
+        <div style="margin-top: 22px; display: flex; gap: 26px;">
+          <div>
+            <div style="font-size: 34px; line-height: 1; letter-spacing: -.03em;">2</div>
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: #6b6b73; margin-top: 6px;">Traction motors</div>
+          </div>
+          <div>
+            <div style="font-size: 34px; line-height: 1; letter-spacing: -.03em;">~30<span style="font-size: 17px;"> cm</span></div>
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: #6b6b73; margin-top: 6px;">Across, each</div>
+          </div>
+        </div>
+        <p style="margin: 18px 0 0; font-size: 12.5px; line-height: 1.5; color: #8a8a90;">Many EVs use one motor. Performance and off-road platforms use three or four.</p>
+      </div>
+    </section>
+
+    <section id="ch2" data-chapter="2" data-screen-label="03 Drive unit" style="min-height: 130vh; display: flex; align-items: center; justify-content: flex-end; padding: 0 7vw;">
+      <div style="max-width: 400px; pointer-events: auto; background: rgba(250,249,246,.72); backdrop-filter: blur(6px); border: 1px solid rgba(20,21,26,.1); border-radius: 4px; padding: 26px 26px 28px;">
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; color: #6b6b73;">02 · The drive unit</div>
+        <h2 style="margin: 14px 0 0; font-size: 30px; line-height: 1.12; letter-spacing: -.02em; font-weight: 500;">Pull one out. It fits in a cabin bag.</h2>
+        <p style="margin: 14px 0 0; font-size: 15.5px; line-height: 1.6; color: #4a4a52;">A drive unit is a motor bolted to a single-speed reduction gearbox. Roughly 300 mm across, 40 kg, and good for 150–250 kW — more power per kilogram than any engine that came before it.</p>
+        <div style="margin-top: 20px; border-top: 1px solid rgba(20,21,26,.12); padding-top: 16px; display: grid; gap: 10px; font-size: 14px; color: #4a4a52;">
+          <div style="display: flex; justify-content: space-between; gap: 12px;"><span>Peak power</span><span style="font-family: 'IBM Plex Mono', monospace;">~200 kW</span></div>
+          <div style="display: flex; justify-content: space-between; gap: 12px;"><span>Max speed</span><span style="font-family: 'IBM Plex Mono', monospace;">~16,000 rpm</span></div>
+          <div style="display: flex; justify-content: space-between; gap: 12px;"><span>Magnet mass</span><span style="font-family: 'IBM Plex Mono', monospace; color: #b4622a;">1–2 kg</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="ch3" data-chapter="3" data-screen-label="04 Teardown" style="min-height: 150vh; display: flex; align-items: flex-start; padding: 13vh 7vw 0;">
+      <div style="max-width: 350px; pointer-events: auto; background: rgba(250,249,246,.72); backdrop-filter: blur(6px); border: 1px solid rgba(20,21,26,.1); border-radius: 4px; padding: 26px 26px 28px;">
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; color: #6b6b73;">03 · Teardown</div>
+        <h2 style="margin: 14px 0 0; font-size: 30px; line-height: 1.12; letter-spacing: -.02em; font-weight: 500;">Five parts, and only one of them moves.</h2>
+        <p style="margin: 14px 0 0; font-size: 15.5px; line-height: 1.6; color: #4a4a52;">The stator is a stack of steel teeth with copper wound through every slot. It stays still. Inside it, separated by about a millimetre of air, sits the rotor. That's the whole machine.</p>
+        <div style="margin-top: 20px; display: grid; gap: 12px;">
+          <div style="display: flex; gap: 12px; align-items: baseline;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #b4622a;">02</span><div><div style="font-size: 14.5px;">Copper does the asking</div><div style="font-size: 13px; color: #8a8a90;">Current in the slots builds a magnetic field</div></div></div>
+          <div style="display: flex; gap: 12px; align-items: baseline;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #b4622a;">04</span><div><div style="font-size: 14.5px;">Magnets do the answering</div><div style="font-size: 13px; color: #8a8a90;">A permanent field the rotor cannot lose</div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="ch4" data-chapter="4" data-screen-label="05 The field" style="min-height: 150vh; display: flex; align-items: center; justify-content: flex-end; padding: 0 7vw;">
+      <div style="max-width: 400px; pointer-events: auto; background: rgba(250,249,246,.72); backdrop-filter: blur(6px); border: 1px solid rgba(20,21,26,.1); border-radius: 4px; padding: 26px 26px 28px;">
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; color: #6b6b73;">04 · The field</div>
+        <h2 style="margin: 14px 0 0; font-size: 30px; line-height: 1.12; letter-spacing: -.02em; font-weight: 500;">Nothing spins the copper. The copper spins a field.</h2>
+        <p style="margin: 14px 0 0; font-size: 15.5px; line-height: 1.6; color: #4a4a52;">Three sets of coils are fed currents timed a third of a cycle apart. Their fields add up to one magnetic direction that sweeps around the bore. The rotor's magnets lock onto it and are dragged along — permanently in step, always a few degrees behind.</p>
+        <div style="margin-top: 20px; display: flex; align-items: center; gap: 10px; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: #6b6b73;">
+          <span>Current</span><span style="width: 22px; height: 1px; background: rgba(20,21,26,.25);"></span>
+          <span style="color: #4b6bd6;">Field</span><span style="width: 22px; height: 1px; background: rgba(20,21,26,.25);"></span>
+          <span style="color: #b4622a;">Torque</span>
+        </div>
+        <div style="margin-top: 20px; border-top: 1px solid rgba(20,21,26,.12); padding-top: 18px; display: grid; gap: 16px;">
+          <button type="button" onClick="{{ togglePause }}" style="justify-self: start; display: inline-flex; align-items: center; gap: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; background: #14151a; color: #f4f3ef; border: 0; border-radius: 999px; padding: 9px 16px; cursor: pointer;">{{ playLabel }}</button>
+          <label style="display: grid; gap: 8px;">
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: #6b6b73;">Shaft load — lag angle {{ lagLabel }}</span>
+            <input type="range" min="0" max="100" value="{{ load }}" onInput="{{ setLoad }}" style="width: 100%; height: 14px;" />
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <section id="ch5" data-chapter="5" data-screen-label="06 The magnet" style="min-height: 150vh; display: flex; align-items: center; padding: 0 7vw;">
+      <div style="max-width: 400px; pointer-events: auto; background: rgba(250,249,246,.72); backdrop-filter: blur(6px); border: 1px solid rgba(20,21,26,.1); border-radius: 4px; padding: 26px 26px 28px;">
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; color: #6b6b73;">05 · The material</div>
+        <h2 style="margin: 14px 0 0; font-size: 30px; line-height: 1.12; letter-spacing: -.02em; font-weight: 500;">This is the part that ties the car to a map.</h2>
+        <p style="margin: 14px 0 0; font-size: 15.5px; line-height: 1.6; color: #4a4a52;">Sixteen sintered blocks. Buried in pairs, tilted into a V so the steel bridges hold them against 16,000 rpm and shield them from the stator's own field. Together they weigh one to two kilograms.</p>
+        <div style="margin-top: 22px; display: flex; flex-wrap: wrap; gap: 8px;">
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .08em; border: 1px solid rgba(20,21,26,.16); border-radius: 999px; padding: 5px 11px;">Nd</span>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .08em; border: 1px solid rgba(20,21,26,.16); border-radius: 999px; padding: 5px 11px;">Pr</span>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .08em; border: 1px solid rgba(20,21,26,.16); border-radius: 999px; padding: 5px 11px;">Fe</span>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .08em; border: 1px solid rgba(20,21,26,.16); border-radius: 999px; padding: 5px 11px;">B</span>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .08em; border: 1px solid rgba(180,98,42,.4); color: #b4622a; border-radius: 999px; padding: 5px 11px;">+ Dy / Tb for heat</span>
+        </div>
+        <div style="margin-top: 22px; border-top: 1px solid rgba(20,21,26,.12); padding-top: 18px;">
+          <div style="display: flex; align-items: baseline; gap: 10px;"><span style="font-size: 40px; line-height: 1; letter-spacing: -.03em; color: #b4622a;">94%</span><span style="font-size: 14px; color: #4a4a52; max-width: 20ch;">of the world's sintered magnets are made in one country</span></div>
+          <div style="margin-top: 14px; height: 6px; background: rgba(20,21,26,.1); border-radius: 999px; overflow: hidden;"><div style="width: 94%; height: 100%; background: #b4622a;"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="ch6" data-chapter="6" data-screen-label="07 Alternatives" style="min-height: 170vh; display: flex; align-items: flex-end; padding: 0 7vw 8vh;">
+      <div style="width: 100%; pointer-events: auto;">
+        <div style="max-width: 560px;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; color: #6b6b73;">06 · Rare-earth-free</div>
+          <h2 style="margin: 14px 0 0; font-size: clamp(28px, 3.4vw, 42px); line-height: 1.08; letter-spacing: -.025em; font-weight: 500;">Keep the stator. Change what answers it.</h2>
+          <p style="margin: 14px 0 0; font-size: 15.5px; line-height: 1.6; color: #4a4a52;">The rotating field stays exactly the same. Every alternative is a different way of giving that field something to pull on — a wound coil, an induced current, or just the shape of the steel.</p>
+        </div>
+        <div style="margin-top: 26px; display: flex; flex-wrap: wrap; gap: 8px;">
+          <button type="button" data-alt="0" onClick="{{ pickAlt }}" style="font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; border: 1px solid rgba(20,21,26,.16); border-radius: 999px; padding: 9px 15px; background: transparent; color: #14151a; cursor: pointer;">Magnets</button>
+          <button type="button" data-alt="1" onClick="{{ pickAlt }}" style="font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; border: 1px solid rgba(20,21,26,.16); border-radius: 999px; padding: 9px 15px; background: transparent; color: #14151a; cursor: pointer;">Wound field</button>
+          <button type="button" data-alt="2" onClick="{{ pickAlt }}" style="font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; border: 1px solid rgba(20,21,26,.16); border-radius: 999px; padding: 9px 15px; background: transparent; color: #14151a; cursor: pointer;">Induction</button>
+          <button type="button" data-alt="3" onClick="{{ pickAlt }}" style="font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; border: 1px solid rgba(20,21,26,.16); border-radius: 999px; padding: 9px 15px; background: transparent; color: #14151a; cursor: pointer;">Reluctance</button>
+          <button type="button" data-alt="4" onClick="{{ pickAlt }}" style="font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; border: 1px solid rgba(20,21,26,.16); border-radius: 999px; padding: 9px 15px; background: transparent; color: #14151a; cursor: pointer;">Switched</button>
+          <button type="button" data-alt="5" onClick="{{ pickAlt }}" style="font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; border: 1px solid rgba(20,21,26,.16); border-radius: 999px; padding: 9px 15px; background: transparent; color: #14151a; cursor: pointer;">Ferrite</button>
+        </div>
+        <div style="margin-top: 18px; background: rgba(250,249,246,.78); backdrop-filter: blur(6px); border: 1px solid rgba(20,21,26,.1); border-radius: 4px; padding: 22px 24px; max-width: 940px;">
+          <div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px;">
+            <h3 style="margin: 0; font-size: 21px; font-weight: 500; letter-spacing: -.015em;">{{ altName }}</h3>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: #b4622a;">{{ altTag }}</span>
+          </div>
+          <p style="margin: 10px 0 0; font-size: 15.5px; line-height: 1.55; color: #4a4a52; max-width: 62ch;">{{ altPrinciple }}</p>
+          <div style="margin-top: 18px; display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 18px; border-top: 1px solid rgba(20,21,26,.1); padding-top: 16px;">
+            <div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase; color: #9a9aa0;">In the rotor</div><div style="margin-top: 5px; font-size: 14.5px;">{{ altRotor }}</div></div>
+            <div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase; color: #9a9aa0;">Gains</div><div style="margin-top: 5px; font-size: 14.5px;">{{ altGain }}</div></div>
+            <div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase; color: #9a9aa0;">Costs</div><div style="margin-top: 5px; font-size: 14.5px;">{{ altCost }}</div></div>
+            <div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase; color: #9a9aa0;">Rare earth</div><div style="margin-top: 5px; font-size: 14.5px;">{{ altRee }}</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="ch7" data-chapter="7" data-screen-label="08 Close" style="min-height: 110vh; display: flex; align-items: center; padding: 0 7vw;">
+      <div style="max-width: 720px; pointer-events: auto;">
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: #b4622a;">The answer</div>
+        <h2 style="margin: 18px 0 0; font-size: clamp(30px, 4vw, 52px); line-height: 1.06; letter-spacing: -.03em; font-weight: 500; text-wrap: pretty;">Yes — the field can come from somewhere else. The purpose of the machine never changes; the tradeoffs move into copper, steel, heat and control.</h2>
+        <p style="margin: 22px 0 0; font-size: 16px; line-height: 1.6; color: #4a4a52; max-width: 56ch;">That is the whole argument for a rare-earth-free drivetrain, and it is why the engineering fight has shifted from mining to geometry and software.</p>
+        <div style="margin-top: 30px; display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 13.5px;">
+          <a href="https://www.iea.org/reports/rare-earth-elements/executive-summary" target="_blank" rel="noreferrer">IEA · Rare Earth Elements</a>
+          <a href="https://www.energy.gov/cmei/vehicles/electric-motors-research-and-development" target="_blank" rel="noreferrer">DOE · Electric Motor R&amp;D</a>
+          <a href="https://www.renaultgroup.com/en/magazine/energy-and-motorization/all-about-electric-motors-with-no-rare-earths/" target="_blank" rel="noreferrer">Renault · Motors without rare earths</a>
+          <a href="https://www.abb.com/global/en/areas/motion/motors-generators/low-voltage-motors/iec-low-voltage-motors/synchronous-reluctance-motors" target="_blank" rel="noreferrer">ABB · Synchronous reluctance</a>
+        </div>
+        <p style="margin: 26px 0 0; font-size: 12.5px; line-height: 1.55; color: #9a9aa0; max-width: 60ch;">Geometry is representative rather than a specific production drive unit. Figures are typical values for a passenger-EV traction motor.</p>
+      </div>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  state = { chapter: 0, alt: 0, paused: false, load: 34 };
+
+  constructor(props) {
+    super(props);
+    this.canvasRef = React.createRef();
+    this.overlayRef = React.createRef();
+    this.railRef = React.createRef();
+    this.loaderRef = React.createRef();
+    this.p = 0; this.pT = 0; this.theta = 0; this.rotorAng = 0;
+    this.mouse = { x: 0, y: 0, tx: 0, ty: 0 };
+    this.ALTS = [
+      { name: "Permanent-magnet synchronous", tag: "Today's default", principle: "A permanent field sits inside the rotor. The stator's rotating field simply grabs it and pulls. Nothing has to be sent into the rotor, so almost no energy is wasted there.", rotor: "Sintered NdFeB blocks in V-pockets", gain: "Smallest, lightest, most efficient", cost: "1–2 kg of rare earth per motor", ree: "Yes — Nd, Pr, Dy, Tb" },
+      { name: "Wound-field synchronous", tag: "In production now", principle: "Swap the magnets for a copper winding and feed it current. You now control how strong the rotor's field is — turn it down at motorway speed and the drag that permanent magnets always cause disappears.", rotor: "Copper coils fed through a contactless transmitter", gain: "Field you can dial to zero; strong at high speed", cost: "Rotor heat, excitation hardware, more length", ree: "None" },
+      { name: "Induction", tag: "Mature", principle: "Put a conductive cage in the rotor and let the moving field induce current in it. The rotor makes its own field for free, but it must slip behind the field to keep doing so, and that slip becomes heat.", rotor: "Cast copper or aluminium bars and end rings", gain: "Rugged, cheap, well understood", cost: "Slip losses; weaker at part load", ree: "None" },
+      { name: "Synchronous reluctance", tag: "Scaling in light EVs", principle: "No magnets, no rotor current — only shape. Air barriers cut into the steel make one direction magnetically easy and the other hard, and the rotor twists to line up its easy axis with the field.", rotor: "Laminated steel and precisely cut air", gain: "Nothing to heat in the rotor; very cheap", cost: "10–15% larger and heavier; needs fast control", ree: "None" },
+      { name: "Switched reluctance", tag: "Emerging", principle: "The same reluctance idea, taken to its bluntest form: plain steel teeth, and stator poles energised one after another so the nearest tooth is always being yanked into line.", rotor: "Salient steel teeth, no copper, no magnets", gain: "Heat-tolerant, fully recyclable, very high speed", cost: "Noise and torque ripple; demands the inverter", ree: "None" },
+      { name: "Ferrite-assisted / axial flux", tag: "Cost-disruptive", principle: "Keep permanent magnets, but use iron-oxide ferrite — roughly a ninth the field strength and a tenth the price. The lost strength is bought back with geometry: flux-concentrating arrays or a short, wide axial-flux layout.", rotor: "Strontium ferrite in concentrating arrays", gain: "Abundant material, no export exposure", cost: "Bigger volume or a new motor shape", ree: "None" }
+    ];
+    this.CAMS = [
+      { p: [5.2, 2.5, 6.2], t: [-0.5, 0.6, 0] },
+      { p: [3.3, 1.85, 5.9], t: [-0.42, 0.52, 0] },
+      { p: [0.8, 1.2, 1.42], t: [0.12, 0.92, 0] },
+      { p: [2.6, 1.3, 0.42], t: [-0.05, 1.0, 0.04] },
+      { p: [0.07, 0.9, 1.18], t: [0.13, 0.9, 0] },
+      { p: [0.04, 0.92, 0.66], t: [-0.1, 0.9, 0] },
+      { p: [0.6, 1.1, 0.8], t: [0.0, 0.85, 0.02] },
+      { p: [-4.3, 2.15, 5.6], t: [0.45, 0.6, 0] }
+    ];
+  }
+
+  cl(v, a, b) { return Math.max(a, Math.min(b, v)); }
+  ss(a, b, x) { const t = this.cl((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); }
+  lp(a, b, t) { return a + (b - a) * t; }
+
+  renderVals() {
+    const a = this.ALTS[this.state.alt];
+    const names = ["Question", "The car", "Drive unit", "Teardown", "The field", "The material", "Rare-earth-free", "The answer"];
+    return {
+      canvasRef: this.canvasRef, overlayRef: this.overlayRef, railRef: this.railRef, loaderRef: this.loaderRef,
+      chapterNo: String(this.state.chapter + 1).padStart(2, "0"),
+      chapterName: names[this.state.chapter],
+      playLabel: this.state.paused ? "Run the field" : "Pause the field",
+      lagLabel: (this.state.load * 0.18).toFixed(0) + "°",
+      load: this.state.load,
+      togglePause: () => this.setState(s => ({ paused: !s.paused })),
+      setLoad: e => this.setState({ load: Number(e.target.value) }),
+      pickAlt: e => this.setState({ alt: Number(e.currentTarget.dataset.alt) }),
+      altName: a.name, altTag: a.tag, altPrinciple: a.principle, altRotor: a.rotor, altGain: a.gain, altCost: a.cost, altRee: a.ree
+    };
+  }
+
+  async componentDidMount() {
+    const THREE = await import("https://cdn.jsdelivr.net/npm/three@0.179.1/build/three.module.js");
+    this.T = THREE;
+    if (!this.canvasRef.current) return;
+    window.__story = this;
+    this.build();
+    this.bind();
+    this.loop();
+  }
+
+  componentWillUnmount() {
+    cancelAnimationFrame(this.raf);
+    if (this.ro) this.ro.disconnect();
+    if (this.onMove) window.removeEventListener("pointermove", this.onMove);
+    if (this.renderer) this.renderer.dispose();
+  }
+
+  mat(color, o) {
+    o = o || {};
+    const m = new this.T.MeshStandardMaterial({ color: new this.T.Color(color), roughness: o.rough != null ? o.rough : 0.55, metalness: o.metal != null ? o.metal : 0.15 });
+    if (o.op != null) { m.transparent = true; m.opacity = o.op; }
+    if (o.emissive) { m.emissive = new this.T.Color(o.emissive); m.emissiveIntensity = o.ei || 0; }
+    if (o.side) m.side = o.side;
+    return m;
+  }
+
+  build() {
+    const T = this.T;
+    const canvas = this.canvasRef.current;
+    const r = new T.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    r.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+    r.outputColorSpace = T.SRGBColorSpace;
+    this.renderer = r;
+
+    const scene = new T.Scene();
+    this.scene = scene;
+    const cam = new T.PerspectiveCamera(32, 1, 0.05, 60);
+    cam.position.set(4.9, 2.3, 5.8);
+    this.cam = cam;
+
+    scene.add(new T.HemisphereLight(0xffffff, 0xdedbd2, 1.05));
+    const d1 = new T.DirectionalLight(0xffffff, 1.5); d1.position.set(3.4, 5.2, 3.6); scene.add(d1);
+    const d2 = new T.DirectionalLight(0xdfe6ff, 0.75); d2.position.set(-3.6, 1.8, -3.2); scene.add(d2);
+    const d3 = new T.DirectionalLight(0xffe9d6, 0.5); d3.position.set(0.6, -2.4, 2.2); scene.add(d3);
+
+    // soft ground blob
+    const gc = document.createElement("canvas"); gc.width = gc.height = 256;
+    const gx = gc.getContext("2d");
+    const grad = gx.createRadialGradient(128, 128, 6, 128, 128, 126);
+    grad.addColorStop(0, "rgba(20,21,26,0.34)"); grad.addColorStop(0.55, "rgba(20,21,26,0.12)"); grad.addColorStop(1, "rgba(20,21,26,0)");
+    gx.fillStyle = grad; gx.fillRect(0, 0, 256, 256);
+    const shadow = new T.Mesh(new T.PlaneGeometry(6.6, 3.2), new T.MeshBasicMaterial({ map: new T.CanvasTexture(gc), transparent: true, depthWrite: false }));
+    shadow.rotation.x = -Math.PI / 2; shadow.position.y = 0.002;
+    scene.add(shadow); this.shadow = shadow;
+
+    this.gCar = new T.Group(); scene.add(this.gCar);
+    this.buildCar();
+
+    this.gUnit = new T.Group(); scene.add(this.gUnit);
+    this.buildUnit();
+
+    this.gStage = new T.Group(); this.gStage.position.set(0, 0.9, 0); scene.add(this.gStage);
+    this.buildMotor();
+    this.buildMagGrid();
+    this.buildAlts();
+
+    this.anchors = {
+      frontMotor: { o: this.frontMotor }, rearMotor: { o: this.rearMotor }, pack: { o: this.pack },
+      carDim: { o: this.carDim }, unit: { o: this.unitBody, off: [0, 0.09, 0] }, gearbox: { o: this.gearbox },
+      unitDim: { o: this.unitDim }, cap: { o: this.capA }, stator: { o: this.statorCore, off: [0, 0.14, 0] },
+      gap: { o: this.gapRing, off: [0.1, 0.06, 0] }, rotor: { o: this.rotorGrp, off: [0, -0.06, 0] },
+      shaft: { o: this.shaft, off: [0, -0.03, 0.2] }, phaseU: { o: this.pU }, phaseV: { o: this.pV }, phaseW: { o: this.pW },
+      fieldTip: { o: this.pV, off: [0.05, 0.09, 0] }, magOne: { o: this.magHero }, magAll: { o: this.magGrid },
+      altSpec: { o: this.altRow, off: [0, 0.16, 0] }
+    };
+
+    this.labels = Array.from(this.overlayRef.current.querySelectorAll("[data-lab]")).map(el => {
+      const dx = Number(el.dataset.dx || 0), dy = Number(el.dataset.dy || 0);
+      const line = el.querySelector("[data-line]");
+      const card = el.querySelector("[data-card]");
+      if (line) {
+        line.style.width = Math.hypot(dx, dy) + "px";
+        line.style.transform = "rotate(" + Math.atan2(dy, dx) + "rad)";
+      }
+      if (card) { card.style.left = dx + "px"; card.style.top = dy + "px"; }
+      return { el, ch: Number(el.dataset.ch), anchor: el.dataset.anchor, dx: dx, dy: dy, cdx: dx, cdy: dy, card: card, line: line, v: new this.T.Vector3() };
+    });
+
+    this.rails = Array.from(this.railRef.current.querySelectorAll("[data-rail]"));
+    this.altBtns = Array.from(document.querySelectorAll("[data-alt]"));
+    this.resize();
+  }
+
+  buildCar() {
+    const T = this.T, g = this.gCar;
+    const s = new T.Shape();
+    const pts = [[-2.3, 0.28], [-2.3, 0.5], [-2.18, 0.66], [-1.86, 0.74], [-1.3, 0.82], [-0.86, 0.9], [-0.42, 1.28], [-0.16, 1.42], [0.5, 1.45], [0.98, 1.4], [1.44, 1.14], [1.86, 0.98], [2.18, 0.88], [2.3, 0.68], [2.3, 0.28]];
+    s.moveTo(pts[0][0], pts[0][1]);
+    for (let i = 1; i < pts.length; i++) s.lineTo(pts[i][0], pts[i][1]);
+    s.lineTo(-2.3, 0.28);
+    const body = new T.Mesh(new T.ExtrudeGeometry(s, { depth: 1.82, bevelEnabled: true, bevelSize: 0.05, bevelThickness: 0.05, bevelSegments: 3 }), this.mat("#cfd6e6", { op: 0.16, rough: 0.2, metal: 0.05 }));
+    body.material.depthWrite = false;
+    body.position.z = -0.91;
+    g.add(body);
+    const edges = new T.LineSegments(new T.EdgesGeometry(body.geometry, 22), new T.LineBasicMaterial({ color: 0x14151a, transparent: true, opacity: 0.3 }));
+    edges.position.z = -0.91; g.add(edges);
+    this.carGlass = body; this.carEdges = edges;
+
+    const rimM = this.mat("#2a2b31", { rough: 0.5, metal: 0.3 });
+    const tyreM = this.mat("#1c1d22", { rough: 0.85, metal: 0 });
+    this.wheels = [];
+    [[-1.5, 0.82], [-1.5, -0.82], [1.5, 0.82], [1.5, -0.82]].forEach(w => {
+      const grp = new T.Group();
+      const tyre = new T.Mesh(new T.CylinderGeometry(0.34, 0.34, 0.23, 40), tyreM);
+      tyre.rotation.x = Math.PI / 2; grp.add(tyre);
+      const rim = new T.Mesh(new T.CylinderGeometry(0.215, 0.215, 0.245, 32), rimM);
+      rim.rotation.x = Math.PI / 2; grp.add(rim);
+      [-1, 1].forEach(s => {
+        const face = new T.Mesh(new T.CylinderGeometry(0.2, 0.2, 0.012, 32), this.mat("#e3e5ea", { rough: 0.4, metal: 0.4 }));
+        face.rotation.x = Math.PI / 2; face.position.z = s * 0.122; grp.add(face);
+        const hub = new T.Mesh(new T.CylinderGeometry(0.055, 0.055, 0.02, 20), this.mat("#9ea2ab", { rough: 0.4, metal: 0.5 }));
+        hub.rotation.x = Math.PI / 2; hub.position.z = s * 0.13; grp.add(hub);
+        for (let k = 0; k < 5; k++) {
+          const a = (k / 5) * Math.PI * 2;
+          const spoke = new T.Mesh(new T.BoxGeometry(0.028, 0.13, 0.014), this.mat("#c7cad1", { rough: 0.45, metal: 0.35 }));
+          spoke.position.set(Math.cos(a) * 0.105, Math.sin(a) * 0.105, s * 0.128);
+          spoke.rotation.z = a - Math.PI / 2; grp.add(spoke);
+        }
+      });
+      grp.position.set(w[0], 0.34, w[1]);
+      g.add(grp); this.wheels.push(grp);
+    });
+
+    const pack = new T.Mesh(new T.BoxGeometry(3.05, 0.13, 1.42), this.mat("#b8bcc6", { op: 0.72, rough: 0.6, metal: 0.1 }));
+    pack.position.set(0, 0.28, 0); g.add(pack); this.pack = pack;
+    const packEdges = new T.LineSegments(new T.EdgesGeometry(pack.geometry), new T.LineBasicMaterial({ color: 0x14151a, transparent: true, opacity: 0.22 }));
+    packEdges.position.copy(pack.position); g.add(packEdges);
+    for (let i = -6; i <= 6; i++) {
+      const cell = new T.Mesh(new T.BoxGeometry(0.02, 0.14, 1.3), new T.MeshBasicMaterial({ color: 0x14151a, transparent: true, opacity: 0.08 }));
+      cell.position.set(i * 0.22, 0.28, 0); g.add(cell);
+    }
+
+    const glow = this.mat("#b4622a", { rough: 0.35, metal: 0.2, emissive: "#b4622a", ei: 0.35 });
+    const mk = x => {
+      const m = new T.Group();
+      const body2 = new T.Mesh(new T.CylinderGeometry(0.15, 0.15, 0.3, 28), glow);
+      body2.rotation.x = Math.PI / 2; m.add(body2);
+      const gb = new T.Mesh(new T.BoxGeometry(0.17, 0.2, 0.16), this.mat("#8d8f98", { rough: 0.6 }));
+      gb.position.set(0.13, -0.02, 0.24); m.add(gb);
+      const shaftL = new T.Mesh(new T.CylinderGeometry(0.035, 0.035, 1.5, 14), this.mat("#7f818a", { metal: 0.5, rough: 0.35 }));
+      shaftL.rotation.x = Math.PI / 2; m.add(shaftL);
+      m.position.set(x, 0.4, 0);
+      return m;
+    };
+    this.frontMotor = mk(-1.5); this.rearMotor = mk(1.5);
+    g.add(this.frontMotor); g.add(this.rearMotor);
+
+    const dimM = new T.LineBasicMaterial({ color: 0x14151a, transparent: true, opacity: 0.35 });
+    const dimG = new T.BufferGeometry().setFromPoints([new T.Vector3(-2.3, 0, 1.15), new T.Vector3(2.3, 0, 1.15), new T.Vector3(2.3, 0.09, 1.15), new T.Vector3(2.3, -0.09, 1.15), new T.Vector3(2.3, 0, 1.15), new T.Vector3(-2.3, 0, 1.15), new T.Vector3(-2.3, 0.09, 1.15), new T.Vector3(-2.3, -0.09, 1.15)]);
+    const dim = new T.Line(dimG, dimM); dim.position.y = 0.02; g.add(dim);
+    this.carDim = new T.Object3D(); this.carDim.position.set(0, 0.02, 1.15); g.add(this.carDim);
+    this.carDimLine = dim;
+  }
+
+  buildUnit() {
+    const T = this.T, g = this.gUnit;
+    const body = new T.Mesh(new T.CylinderGeometry(0.152, 0.152, 0.3, 56), this.mat("#d3d6dd", { rough: 0.36, metal: 0.42 }));
+    body.rotation.x = Math.PI / 2; g.add(body); this.unitBody = body;
+    [-0.1, 0, 0.1].forEach(z => {
+      const rib = new T.Mesh(new T.TorusGeometry(0.155, 0.006, 8, 56), this.mat("#c2c5cd", { rough: 0.42, metal: 0.36 }));
+      rib.position.z = z; g.add(rib);
+    });
+    [-1, 1].forEach(s => {
+      const cap = new T.Mesh(new T.CylinderGeometry(0.156, 0.156, 0.02, 56), this.mat("#b6bac3", { rough: 0.45, metal: 0.42 }));
+      cap.rotation.x = Math.PI / 2; cap.position.z = s * 0.155; g.add(cap);
+      const boss = new T.Mesh(new T.CylinderGeometry(0.048, 0.048, 0.03, 28), this.mat("#a3a7b1", { rough: 0.38, metal: 0.5 }));
+      boss.rotation.x = Math.PI / 2; boss.position.z = s * 0.172; g.add(boss);
+      for (let i = 0; i < 6; i++) {
+        const a = (i / 6) * Math.PI * 2 + 0.3;
+        const bolt = new T.Mesh(new T.CylinderGeometry(0.0085, 0.0085, 0.024, 12), this.mat("#8e929c", { rough: 0.35, metal: 0.6 }));
+        bolt.rotation.x = Math.PI / 2; bolt.position.set(Math.cos(a) * 0.132, Math.sin(a) * 0.132, s * 0.163); g.add(bolt);
+      }
+    });
+    const gb = new T.Mesh(new T.BoxGeometry(0.19, 0.23, 0.17), this.mat("#b0b4be", { rough: 0.5, metal: 0.32 }));
+    gb.position.set(0.14, -0.03, 0.25); g.add(gb); this.gearbox = gb;
+    const gbE = new T.LineSegments(new T.EdgesGeometry(gb.geometry), new T.LineBasicMaterial({ color: 0x14151a, transparent: true, opacity: 0.16 }));
+    gbE.position.copy(gb.position); g.add(gbE);
+    const gear = new T.Mesh(new T.CylinderGeometry(0.075, 0.075, 0.03, 30), this.mat("#c4763f", { rough: 0.4, metal: 0.5 }));
+    gear.rotation.x = Math.PI / 2; gear.position.set(0.14, -0.03, 0.335); g.add(gear);
+    const out = new T.Mesh(new T.CylinderGeometry(0.032, 0.032, 0.42, 18), this.mat("#8e929c", { metal: 0.55, rough: 0.3 }));
+    out.rotation.x = Math.PI / 2; out.position.set(0.14, -0.03, 0.44); g.add(out);
+    const cool = new T.Mesh(new T.TorusGeometry(0.157, 0.0075, 8, 56), this.mat("#4b6bd6", { rough: 0.4, op: 0.85 }));
+    cool.position.z = -0.05; g.add(cool);
+
+    const dm = new T.LineBasicMaterial({ color: 0x14151a, transparent: true, opacity: 0.4 });
+    const dg = new T.BufferGeometry().setFromPoints([new T.Vector3(-0.152, -0.215, 0), new T.Vector3(0.152, -0.215, 0), new T.Vector3(0.152, -0.19, 0), new T.Vector3(0.152, -0.24, 0), new T.Vector3(0.152, -0.215, 0), new T.Vector3(-0.152, -0.215, 0), new T.Vector3(-0.152, -0.19, 0), new T.Vector3(-0.152, -0.24, 0)]);
+    const dim = new T.Line(dg, dm); g.add(dim); this.unitDimLine = dim;
+    this.unitDim = new T.Object3D(); this.unitDim.position.set(0, -0.215, 0); g.add(this.unitDim);
+
+    g.position.set(1.5, 0.4, 0);
+    this.gUnit.traverse(o => { if (o.material && o.material.transparent === undefined) o.material.transparent = true; });
+  }
+
+  statorGeom() {
+    const T = this.T;
+    if (this._sg) return this._sg;
+    const shape = new T.Shape();
+    shape.absarc(0, 0, 0.132, 0, Math.PI * 2, false);
+    const N = 36, rTip = 0.086, rSlot = 0.108, TAU = Math.PI * 2;
+    const pts = [];
+    for (let i = 0; i < N; i++) {
+      const a = (i / N) * TAU, p = TAU / N, tw = p * 0.6;
+      for (let k = 0; k <= 3; k++) { const t = a + tw * k / 3; pts.push(new T.Vector2(Math.cos(t) * rTip, Math.sin(t) * rTip)); }
+      pts.push(new T.Vector2(Math.cos(a + tw) * rSlot, Math.sin(a + tw) * rSlot));
+      pts.push(new T.Vector2(Math.cos(a + p) * rSlot, Math.sin(a + p) * rSlot));
+    }
+    const hole = new T.Path(); hole.setFromPoints(pts); hole.closePath();
+    shape.holes.push(hole);
+    const geo = new T.ExtrudeGeometry(shape, { depth: 0.17, bevelEnabled: false, curveSegments: 64 });
+    geo.translate(0, 0, -0.085);
+    this._sg = geo;
+    return geo;
+  }
+
+  buildStator(parent, opts) {
+    const T = this.T;
+    const grp = new T.Group();
+    const core = new T.Mesh(this.statorGeom(), this.mat("#c3c7d0", { rough: 0.52, metal: 0.34 }));
+    core.material.transparent = true;
+    grp.add(core);
+    const coils = [];
+    const NS = 36, PITCH = Math.PI * 2 / NS;
+    const PHC = ["#c4763f", "#4b6bd6", "#adb1ba"];
+    for (let i = 0; i < NS; i++) {
+      const a = i * PITCH + PITCH * 0.8;
+      const ph = i % 3;
+      const m = this.mat(PHC[ph], { rough: 0.38, metal: 0.5, emissive: PHC[ph], ei: 0 });
+      m.transparent = true;
+      const c = new T.Mesh(new T.BoxGeometry(0.021, 0.0082, 0.2), m);
+      c.position.set(Math.cos(a) * 0.0975, Math.sin(a) * 0.0975, 0);
+      c.rotation.z = a;
+      grp.add(c); coils.push({ mesh: c, a: a, phase: ph });
+    }
+    const rings = [];
+    [-1, 1].forEach(s => {
+      const m = this.mat("#c4763f", { rough: 0.36, metal: 0.55 }); m.transparent = true;
+      const ring = new T.Mesh(new T.TorusGeometry(0.1, 0.0115, 10, 56), m);
+      ring.position.z = s * 0.1; grp.add(ring); rings.push(ring);
+    });
+    parent.add(grp);
+    if (opts && opts.main) { this.statorGrp = grp; this.statorCore = core; this.coils = coils; this.endRings = rings; }
+    return grp;
+  }
+
+  magSlots() {
+    // V-pocket centres for 8 poles, computed once and shared by geometry + magnets
+    if (this._slots) return this._slots;
+    const out = [];
+    for (let p = 0; p < 8; p++) {
+      const A = (p / 8) * Math.PI * 2;
+      [-1, 1].forEach(s => {
+        const lx = s * 0.027, ly = 0.047;
+        const ang = Math.PI / 2 - s * 0.44 + A;
+        out.push({
+          x: lx * Math.cos(A) - ly * Math.sin(A),
+          y: lx * Math.sin(A) + ly * Math.cos(A),
+          ang: ang, pole: p
+        });
+      });
+    }
+    this._slots = out;
+    return out;
+  }
+
+  rotorGeom() {
+    const T = this.T;
+    if (this._rg) return this._rg;
+    const shape = new T.Shape();
+    shape.absarc(0, 0, 0.081, 0, Math.PI * 2, false);
+    const bore = new T.Path(); bore.absarc(0, 0, 0.0235, 0, Math.PI * 2, true); shape.holes.push(bore);
+    const L = 0.05, W = 0.0165;
+    this.magSlots().forEach(sl => {
+      const c = Math.cos(sl.ang), s = Math.sin(sl.ang);
+      const pts = [[-L / 2, -W / 2], [L / 2, -W / 2], [L / 2, W / 2], [-L / 2, W / 2]];
+      const path = new T.Path();
+      path.setFromPoints(pts.map(q => new T.Vector2(sl.x + q[0] * c - q[1] * s, sl.y + q[0] * s + q[1] * c)));
+      path.closePath();
+      shape.holes.push(path);
+    });
+    const geo = new T.ExtrudeGeometry(shape, { depth: 0.2, bevelEnabled: false, curveSegments: 64 });
+    geo.translate(0, 0, -0.1);
+    this._rg = geo;
+    return geo;
+  }
+
+  rotorPM(main) {
+    const T = this.T;
+    const grp = new T.Group();
+    const cm = this.mat("#b7bcc6", { rough: 0.5, metal: 0.4 }); cm.transparent = true;
+    const core = new T.Mesh(this.rotorGeom(), cm);
+    grp.add(core);
+    if (main) this.rotorCore = core;
+    this.magSlots().forEach(sl => {
+      const m = this.mat(sl.pole % 2 ? "#4b6bd6" : "#2f3a52", { rough: 0.28, metal: 0.1 }); m.transparent = true;
+      const mag = new T.Mesh(new T.BoxGeometry(0.0498, 0.0163, 0.202), m);
+      mag.position.set(sl.x, sl.y, 0);
+      mag.rotation.z = sl.ang;
+      grp.add(mag);
+    });
+    return grp;
+  }
+
+  buildMotor() {
+    const T = this.T, g = new T.Group();
+    this.gMotor = g; this.gStage.add(g);
+
+    const gh = new T.Group(); g.add(gh); this.gHousing = gh;
+    const hm = this.mat("#cdd0d8", { rough: 0.38, metal: 0.4 });
+    hm.side = T.DoubleSide; hm.transparent = true;
+    const housing = new T.Mesh(new T.CylinderGeometry(0.152, 0.152, 0.3, 56, 1, true), hm);
+    housing.rotation.x = Math.PI / 2; gh.add(housing);
+    this.housing = housing;
+    [-0.09, 0.02, 0.11].forEach(z => {
+      const m = this.mat("#bcbfc8", { rough: 0.45, metal: 0.35 }); m.transparent = true;
+      const rib = new T.Mesh(new T.TorusGeometry(0.155, 0.006, 8, 56), m);
+      rib.position.z = z; gh.add(rib);
+    });
+    const capMat = () => { const m = this.mat("#9fa2ac", { rough: 0.5, metal: 0.4 }); m.transparent = true; return m; };
+    this.capA = new T.Group(); this.capB = new T.Group();
+    [[this.capA, -1], [this.capB, 1]].forEach(([grp, s]) => {
+      const disc = new T.Mesh(new T.CylinderGeometry(0.156, 0.156, 0.022, 44), capMat());
+      disc.rotation.x = Math.PI / 2; grp.add(disc);
+      const boss = new T.Mesh(new T.CylinderGeometry(0.05, 0.05, 0.028, 24), capMat());
+      boss.rotation.x = Math.PI / 2; boss.position.z = s * 0.02; grp.add(boss);
+      for (let i = 0; i < 6; i++) {
+        const a = (i / 6) * Math.PI * 2;
+        const bolt = new T.Mesh(new T.CylinderGeometry(0.008, 0.008, 0.026, 12), capMat());
+        bolt.rotation.x = Math.PI / 2; bolt.position.set(Math.cos(a) * 0.14, Math.sin(a) * 0.14, 0); grp.add(bolt);
+      }
+      grp.position.z = s * 0.16;
+      g.add(grp);
+    });
+
+    this.buildStator(g, { main: true });
+
+    this.pads = [];
+    for (let i = 0; i < 36; i++) {
+      const a = (i / 36) * Math.PI * 2;
+      const m = new T.MeshBasicMaterial({ color: 0x4b6bd6, transparent: true, opacity: 0 });
+      const pad = new T.Mesh(new T.BoxGeometry(0.005, 0.0132, 0.208), m);
+      pad.position.set(Math.cos(a) * 0.0838, Math.sin(a) * 0.0838, 0);
+      pad.rotation.z = a;
+      g.add(pad); this.pads.push({ mesh: pad, a: a });
+    }
+
+    this.rotorGrp = this.rotorPM(true);
+    g.add(this.rotorGrp);
+    const sm = this.mat("#7f818a", { metal: 0.6, rough: 0.28 }); sm.transparent = true;
+    this.shaft = new T.Mesh(new T.CylinderGeometry(0.021, 0.021, 0.46, 24), sm);
+    this.shaft.rotation.x = Math.PI / 2; g.add(this.shaft);
+
+    const gm = new T.MeshBasicMaterial({ color: 0x4b6bd6, transparent: true, opacity: 0 });
+    this.gapRing = new T.Mesh(new T.TorusGeometry(0.0835, 0.0025, 6, 72), gm);
+    g.add(this.gapRing);
+
+    const fa = new T.Group();
+    const stem = new T.Mesh(new T.CylinderGeometry(0.0045, 0.0045, 0.115, 10), new T.MeshBasicMaterial({ color: 0x4b6bd6, transparent: true, opacity: 0 }));
+    stem.position.y = 0.0575; fa.add(stem);
+    const tip = new T.Mesh(new T.ConeGeometry(0.014, 0.032, 18), new T.MeshBasicMaterial({ color: 0x4b6bd6, transparent: true, opacity: 0 }));
+    tip.position.y = 0.131; fa.add(tip);
+    const hub = new T.Mesh(new T.CylinderGeometry(0.008, 0.008, 0.006, 16), new T.MeshBasicMaterial({ color: 0x4b6bd6, transparent: true, opacity: 0 }));
+    hub.rotation.x = Math.PI / 2; fa.add(hub);
+    fa.position.z = 0.125;
+    this.fieldArrow = fa; this.fieldParts = [stem, tip, hub]; g.add(fa);
+
+    const arcM = new T.MeshBasicMaterial({ color: 0x4b6bd6, transparent: true, opacity: 0 });
+    this.fieldArc = new T.Mesh(new T.TorusGeometry(0.118, 0.0022, 6, 72, Math.PI * 0.5), arcM);
+    this.fieldArc.position.z = 0.124; g.add(this.fieldArc);
+
+    this.pU = new T.Object3D(); this.pU.position.set(-0.143, -0.083, 0.1); g.add(this.pU);
+    this.pV = new T.Object3D(); this.pV.position.set(0, 0.165, 0.1); g.add(this.pV);
+    this.pW = new T.Object3D(); this.pW.position.set(0.143, -0.083, 0.1); g.add(this.pW);
+  }
+
+  buildMagGrid() {
+    const T = this.T;
+    const grid = new T.Group(); grid.visible = false; this.gStage.add(grid); this.magGrid = grid;
+    grid.rotation.set(-0.2, 0.4, 0);
+    this.gridMags = [];
+    for (let i = 0; i < 16; i++) {
+      const col = i % 4, row = Math.floor(i / 4);
+      const m = this.mat(i % 2 ? "#4b6bd6" : "#39435c", { rough: 0.26, metal: 0.12 }); m.transparent = true;
+      const b = new T.Mesh(new T.BoxGeometry(0.05, 0.045, 0.012), m);
+      b.position.set((col - 1.5) * 0.066, (1.5 - row) * 0.06, 0);
+      grid.add(b); this.gridMags.push(b);
+      const e = new T.LineSegments(new T.EdgesGeometry(b.geometry), new T.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.16 }));
+      e.position.copy(b.position); grid.add(e);
+    }
+    this.magHero = new T.Object3D(); this.magHero.position.set(-0.102, 0.093, 0.01); grid.add(this.magHero);
+    const rulerM = new T.LineBasicMaterial({ color: 0x14151a, transparent: true, opacity: 0.4 });
+    const rg = new T.BufferGeometry().setFromPoints([new T.Vector3(-0.127, 0.128, 0.01), new T.Vector3(-0.077, 0.128, 0.01), new T.Vector3(-0.077, 0.14, 0.01), new T.Vector3(-0.077, 0.116, 0.01), new T.Vector3(-0.077, 0.128, 0.01), new T.Vector3(-0.127, 0.128, 0.01), new T.Vector3(-0.127, 0.14, 0.01), new T.Vector3(-0.127, 0.116, 0.01)]);
+    this.magRuler = new T.Line(rg, rulerM); grid.add(this.magRuler);
+  }
+
+  buildAlts() {
+    const T = this.T;
+    const wrap = new T.Group(); wrap.visible = false; this.gStage.add(wrap); this.gAlt = wrap;
+    // the stator is drawn as a wireframe so it never occludes the specimen
+    const ring = new T.Group(); wrap.add(ring); this.altStator = ring;
+    const em = new T.LineBasicMaterial({ color: 0x14151a, transparent: true, opacity: 0.3 });
+    [[0.132, 64], [0.086, 56]].forEach(([r, seg]) => {
+      const pts = [];
+      for (let i = 0; i <= seg; i++) { const a = (i / seg) * Math.PI * 2; pts.push(new T.Vector3(Math.cos(a) * r, Math.sin(a) * r, 0)); }
+      [-0.085, 0.085].forEach(z => {
+        const l = new T.Line(new T.BufferGeometry().setFromPoints(pts), em);
+        l.position.z = z; ring.add(l);
+      });
+    });
+    const cm2 = this.mat("#c3c7d0", { rough: 0.52, metal: 0.34 }); cm2.transparent = true; cm2.opacity = 0.12;
+    ring.add(new T.Mesh(this.statorGeom(), cm2));
+    const row = new T.Group(); wrap.add(row); this.altRow = row;
+    this.altSpecs = [];
+    const S = 0.62;
+
+    const steel = () => { const m = this.mat("#bcc1cb", { rough: 0.5, metal: 0.38 }); m.transparent = true; return m; };
+    const copper = () => { const m = this.mat("#c4763f", { rough: 0.38, metal: 0.55 }); m.transparent = true; return m; };
+
+    // 0 PM
+    const a0 = this.rotorPM(false); a0.position.x = 0 * S; row.add(a0); this.altSpecs.push(a0);
+
+    // 1 wound field
+    const a1 = new T.Group();
+    const c1 = new T.Mesh(new T.CylinderGeometry(0.038, 0.038, 0.2, 40), steel()); c1.rotation.x = Math.PI / 2; a1.add(c1);
+    for (let p = 0; p < 4; p++) {
+      const pv = new T.Group(); pv.rotation.z = (p / 4) * Math.PI * 2; a1.add(pv);
+      const arm = new T.Mesh(new T.BoxGeometry(0.034, 0.046, 0.2), steel()); arm.position.y = 0.05; pv.add(arm);
+      const shoe = new T.Mesh(new T.BoxGeometry(0.07, 0.013, 0.2), steel()); shoe.position.y = 0.0775; pv.add(shoe);
+      for (let k = 0; k < 4; k++) {
+        const t = new T.Mesh(new T.TorusGeometry(0.028, 0.0075, 8, 24), copper());
+        t.rotation.y = Math.PI / 2; t.position.set(0, 0.05, -0.075 + k * 0.05); pv.add(t);
+      }
+    }
+    a1.position.x = 1 * S; row.add(a1); this.altSpecs.push(a1);
+
+    // 2 induction
+    const a2 = new T.Group();
+    const c2 = new T.Mesh(new T.CylinderGeometry(0.0755, 0.0755, 0.19, 56), steel()); c2.rotation.x = Math.PI / 2; a2.add(c2);
+    for (let i = 0; i < 28; i++) {
+      const a = (i / 28) * Math.PI * 2;
+      const bar = new T.Mesh(new T.CylinderGeometry(0.0058, 0.0058, 0.212, 10), copper());
+      bar.rotation.x = Math.PI / 2; bar.position.set(Math.cos(a) * 0.0765, Math.sin(a) * 0.0765, 0); a2.add(bar);
+    }
+    [-1, 1].forEach(s => { const r = new T.Mesh(new T.TorusGeometry(0.0765, 0.0082, 8, 48), copper()); r.position.z = s * 0.101; a2.add(r); });
+    a2.position.x = 2 * S; row.add(a2); this.altSpecs.push(a2);
+
+    // 3 synrm — steel with nested V air barriers
+    const a3 = new T.Group();
+    const shape3 = new T.Shape();
+    shape3.absarc(0, 0, 0.081, 0, Math.PI * 2, false);
+    const bore3 = new T.Path(); bore3.absarc(0, 0, 0.0235, 0, Math.PI * 2, true); shape3.holes.push(bore3);
+    for (let p = 0; p < 4; p++) {
+      const A = (p / 4) * Math.PI * 2 + Math.PI / 4;
+      for (let l = 0; l < 3; l++) {
+        const rl = 0.03 + l * 0.019, L = 0.03 + l * 0.017, tilt = 0.62 - l * 0.1;
+        [-1, 1].forEach(s => {
+          const lx = s * (L / 2 + 0.004), ly = rl;
+          const ang = Math.PI / 2 - s * tilt + A;
+          const cx = lx * Math.cos(A) - ly * Math.sin(A), cy = lx * Math.sin(A) + ly * Math.cos(A);
+          const c = Math.cos(ang), si = Math.sin(ang), W = 0.0075;
+          const path = new T.Path();
+          path.setFromPoints([[-L / 2, -W / 2], [L / 2, -W / 2], [L / 2, W / 2], [-L / 2, W / 2]].map(q =>
+            new T.Vector2(cx + q[0] * c - q[1] * si, cy + q[0] * si + q[1] * c)));
+          path.closePath();
+          shape3.holes.push(path);
+        });
+      }
+    }
+    const g3 = new T.ExtrudeGeometry(shape3, { depth: 0.2, bevelEnabled: false, curveSegments: 56 });
+    g3.translate(0, 0, -0.1);
+    const a3m = new T.Mesh(g3, steel()); a3.add(a3m);
+    a3.position.x = 3 * S; row.add(a3); this.altSpecs.push(a3);
+
+    // 4 switched reluctance
+    const a4 = new T.Group();
+    const c4 = new T.Mesh(new T.CylinderGeometry(0.056, 0.056, 0.2, 48), steel()); c4.rotation.x = Math.PI / 2; a4.add(c4);
+    for (let p = 0; p < 6; p++) {
+      const pv = new T.Group(); pv.rotation.z = (p / 6) * Math.PI * 2; a4.add(pv);
+      const tooth = new T.Mesh(new T.BoxGeometry(0.046, 0.03, 0.2), steel()); tooth.position.y = 0.068; pv.add(tooth);
+      const tip = new T.Mesh(new T.BoxGeometry(0.052, 0.008, 0.2), steel()); tip.position.y = 0.079; pv.add(tip);
+    }
+    a4.position.x = 4 * S; row.add(a4); this.altSpecs.push(a4);
+
+    // 5 ferrite: thick tangential blocks in radial pockets
+    const a5 = new T.Group();
+    const shape5 = new T.Shape();
+    shape5.absarc(0, 0, 0.081, 0, Math.PI * 2, false);
+    const bore5 = new T.Path(); bore5.absarc(0, 0, 0.0235, 0, Math.PI * 2, true); shape5.holes.push(bore5);
+    const fslots = [];
+    for (let p = 0; p < 8; p++) {
+      const A = (p / 8) * Math.PI * 2;
+      fslots.push({ x: Math.cos(A) * 0.049, y: Math.sin(A) * 0.049, ang: A + Math.PI / 2 });
+    }
+    const L5 = 0.052, W5 = 0.021;
+    fslots.forEach(sl => {
+      const c = Math.cos(sl.ang), si = Math.sin(sl.ang);
+      const path = new T.Path();
+      path.setFromPoints([[-L5 / 2, -W5 / 2], [L5 / 2, -W5 / 2], [L5 / 2, W5 / 2], [-L5 / 2, W5 / 2]].map(q =>
+        new T.Vector2(sl.x + q[0] * c - q[1] * si, sl.y + q[0] * si + q[1] * c)));
+      path.closePath();
+      shape5.holes.push(path);
+    });
+    const g5 = new T.ExtrudeGeometry(shape5, { depth: 0.2, bevelEnabled: false, curveSegments: 56 });
+    g5.translate(0, 0, -0.1);
+    a5.add(new T.Mesh(g5, steel()));
+    fslots.forEach(sl => {
+      const m = this.mat("#4a4d56", { rough: 0.8, metal: 0.04 }); m.transparent = true;
+      const blk = new T.Mesh(new T.BoxGeometry(0.0518, 0.0208, 0.202), m);
+      blk.position.set(sl.x, sl.y, 0); blk.rotation.z = sl.ang; a5.add(blk);
+    });
+    a5.position.x = 5 * S; row.add(a5); this.altSpecs.push(a5);
+  }
+
+  bind() {
+    this.sections = Array.from(document.querySelectorAll("[data-chapter]"));
+    this.ro = new ResizeObserver(() => this.resize());
+    this.ro.observe(this.canvasRef.current.parentElement);
+    this.onMove = e => {
+      this.mouse.tx = (e.clientX / window.innerWidth - 0.5) * 2;
+      this.mouse.ty = (e.clientY / window.innerHeight - 0.5) * 2;
+    };
+    window.addEventListener("pointermove", this.onMove, { passive: true });
+  }
+
+  resize() {
+    const el = this.canvasRef.current.parentElement;
+    const w = el.clientWidth, h = el.clientHeight;
+    this.renderer.setSize(w, h, false);
+    this.cam.aspect = w / h; this.cam.updateProjectionMatrix();
+    this.vw = w; this.vh = h;
+  }
+
+  readProgress() {
+    if (!this.sections || !this.sections.length) return 0;
+    const line = window.innerHeight * 0.5;
+    const c = this.sections.map(s => { const r = s.getBoundingClientRect(); return r.top + r.height / 2; });
+    if (line <= c[0]) return 0;
+    if (line >= c[c.length - 1]) return c.length - 1;
+    for (let i = 0; i < c.length - 1; i++) {
+      if (line >= c[i] && line <= c[i + 1]) return i + (line - c[i]) / (c[i + 1] - c[i]);
+    }
+    return 0;
+  }
+
+  setOpacity(obj, o, hideBelow) {
+    obj.visible = o > 0.002;
+    obj.traverse(n => { if (n.material) { n.material.transparent = true; n.material.opacity = (n.material.userData.base != null ? n.material.userData.base : 1) * o; } });
+  }
+
+  loop() {
+    this.raf = requestAnimationFrame(() => this.loop());
+    const T = this.T, now = performance.now();
+    const dt = Math.min(0.05, (now - (this._last || now)) / 1000); this._last = now;
+
+    this.pT = (this._lock != null) ? this._lock : this.readProgress();
+    this.p += (this.pT - this.p) * Math.min(1, dt * 5.4);
+    const p = this.p;
+
+    const ch = this.cl(Math.round(this.pT), 0, 7);
+    if (ch !== this.state.chapter) this.setState({ chapter: ch });
+    if (this.rails) this.rails.forEach((r, i) => { r.style.opacity = i === ch ? 0.85 : 0.18; r.style.width = i === ch ? "40px" : "26px"; r.style.transition = "all .4s ease"; });
+    if (this.altBtns) this.altBtns.forEach((b, i) => {
+      const on = i === this.state.alt;
+      b.style.background = on ? "#14151a" : "transparent";
+      b.style.color = on ? "#f4f3ef" : "#14151a";
+      b.style.borderColor = on ? "#14151a" : "rgba(20,21,26,.16)";
+      b.style.transition = "all .3s ease";
+    });
+    if (this.loaderRef.current && !this._hidLoader) { this._hidLoader = true; this.loaderRef.current.style.opacity = 0; }
+
+    // camera
+    const i0 = this.cl(Math.floor(p), 0, 7), i1 = Math.min(i0 + 1, 7);
+    const t = this.ss(0.2, 1.0, p - i0);
+    const A = this.CAMS[i0], B = this.CAMS[i1];
+    const px = this.lp(A.p[0], B.p[0], t), py = this.lp(A.p[1], B.p[1], t), pz = this.lp(A.p[2], B.p[2], t);
+    this.mouse.x += (this.mouse.tx - this.mouse.x) * dt * 2.4;
+    this.mouse.y += (this.mouse.ty - this.mouse.y) * dt * 2.4;
+    const near = this.ss(1.6, 2.6, p);
+    const par = this.lp(0.1, 0.02, near);
+    this.cam.position.set(px + this.mouse.x * par, py - this.mouse.y * par * 0.55, pz);
+    this.cam.lookAt(this.lp(A.t[0], B.t[0], t), this.lp(A.t[1], B.t[1], t), this.lp(A.t[2], B.t[2], t));
+
+    // car
+    const carOut = this.ss(1.42, 1.92, p);
+    const carBack = this.ss(6.45, 7.0, p);
+    const carVis = Math.max(1 - carOut, carBack);
+    this.gCar.visible = carVis > 0.004;
+    if (this.gCar.visible) {
+      const o = carVis;
+      this.carGlass.material.opacity = 0.16 * o;
+      this.carEdges.material.opacity = 0.3 * o;
+      this.gCar.traverse(n => { if (n.material && n !== this.carGlass && n !== this.carEdges) { n.material.transparent = true; if (n.material.userData.b == null) n.material.userData.b = n.material.opacity; n.material.opacity = n.material.userData.b * o; } });
+      const spin = this.ss(0, 1.4, p);
+      this.gCar.rotation.y = -0.28 * (1 - spin) + 0.05 * spin + 0.42 * this.ss(6.4, 7.4, p);
+      this.wheels.forEach(w => { w.rotation.z -= dt * 1.3 * carVis; });
+      const cd = this.ss(0.55, 1.0, p) * (1 - carOut);
+      this.carDimLine.material.opacity = 0.35 * cd;
+      const mg = this.ss(0.45, 1.0, p);
+      [this.frontMotor, this.rearMotor].forEach(m => m.traverse(n => { if (n.material && n.material.emissive) n.material.emissiveIntensity = 0.12 + 0.5 * mg * (0.6 + 0.4 * Math.sin(now / 620)); }));
+    }
+    this.shadow.material.opacity = 0.9 * Math.max((1 - this.ss(1.42, 1.92, p)) * this.ss(-0.2, 0.4, p), carBack);
+    this.shadow.position.y = 0.002;
+
+    // drive unit: from car to stage
+    const lift = this.ss(1.35, 2.15, p);
+    const unitOut = this.ss(2.45, 2.9, p);
+    this.gUnit.visible = lift > 0.001 && unitOut < 0.999;
+    if (this.gUnit.visible) {
+      this.gUnit.position.set(this.lp(1.5, 0, lift), this.lp(0.4, 0.9, lift), 0);
+      this.gUnit.rotation.y = this.lp(0, -0.5, lift);
+      const uo = Math.min(lift, 1 - unitOut);
+      this.gUnit.traverse(n => { if (n.material) { n.material.transparent = true; if (n.material.userData.b == null) n.material.userData.b = n.material.opacity; n.material.opacity = n.material.userData.b * uo; } });
+      const ud = this.ss(1.6, 1.95, p) * (1 - unitOut);
+      this.unitDimLine.material.opacity = 0.55 * ud;
+    }
+
+    // motor
+    const mIn = this.ss(2.5, 2.95, p);
+    const mOut = 1 - this.ss(6.3, 6.95, p) * 0.55;
+    this.gMotor.visible = mIn > 0.002;
+    if (this.gMotor.visible) {
+      const ex = this.ss(2.7, 3.45, p) * (1 - this.ss(3.55, 4.0, p));
+      this.capA.position.z = -0.16 - ex * 0.52;
+      this.capB.position.z = 0.16 + ex * 0.62;
+      this.rotorGrp.position.z = ex * 0.32;
+      this.shaft.position.z = ex * 0.66;
+      this.gHousing.position.z = -ex * 0.3;
+      this.gMotor.rotation.y = this.lp(-0.55, 0.0, this.ss(2.6, 3.4, p));
+
+      const housOp = (1 - this.ss(3.2, 3.9, p) * 0.72) * (1 - this.ss(3.6, 4.05, p)) * mIn;
+      this.gHousing.traverse(n => { if (n.material) n.material.opacity = housOp; });
+      const capOp = (1 - this.ss(3.6, 4.05, p)) * mIn;
+      [this.capA, this.capB].forEach(g => g.traverse(n => { if (n.material) n.material.opacity = capOp; }));
+      const fade5 = this.ss(4.45, 4.85, p);
+      this.shaft.material.opacity = mIn * (1 - fade5);
+      const statOp = mIn * (1 - fade5);
+      this.statorGrp.traverse(n => { if (n.material) n.material.opacity = statOp; });
+      const rotOp = mIn * (1 - fade5);
+      this.rotorGrp.traverse(n => { if (n.material) n.material.opacity = rotOp; });
+      if (this.rotorCore) this.rotorCore.material.opacity = rotOp * this.lp(1, 0.58, this.ss(2.85, 3.3, p));
+
+      this.gapRing.material.opacity = 0.8 * this.ss(3.1, 3.5, p) * (1 - this.ss(4.1, 4.5, p));
+
+      // field chapter
+      const fld = this.ss(3.55, 4.05, p) * (1 - this.ss(4.4, 4.85, p));
+      if (!this.state.paused) this.theta += dt * 1.35 * (0.3 + 0.7 * fld);
+      const lag = (this.state.load / 100) * 0.6;
+      this.rotorAng += ((this.theta - lag) - this.rotorAng) * Math.min(1, dt * 5);
+      this.rotorGrp.rotation.z = this.rotorAng;
+      const PH = [0xc4763f, 0x4b6bd6, 0x6b6f7a];
+      this.coils.forEach(c => {
+        const b = Math.pow(Math.max(0, Math.cos(c.a - this.theta)), 2.4);
+        c.mesh.material.emissiveIntensity = b * 2.2 * Math.max(fld, 0.1 * mIn);
+        c.mesh.material.color.setHex(PH[c.phase]);
+      });
+      this.pads.forEach(pd => {
+        const b = Math.pow(Math.max(0, Math.cos(pd.a - this.theta)), 3);
+        pd.mesh.material.opacity = b * 0.92 * fld;
+      });
+      this.endRings.forEach(r => { r.material.opacity = statOp * (1 - fld * 0.8); });
+      this.fieldArrow.rotation.z = this.theta - Math.PI / 2;
+      this.fieldParts.forEach(m => { m.material.opacity = 0.95 * fld; });
+      this.fieldArc.material.opacity = 0.45 * fld;
+      this.fieldArc.rotation.z = this.theta - 0.1;
+    }
+
+    // magnet grid
+    const gIn = this.ss(4.8, 5.15, p) * (1 - this.ss(5.5, 5.85, p));
+    this.magGrid.visible = gIn > 0.004;
+    if (this.magGrid.visible) {
+      this.magGrid.traverse(n => { if (n.material) { n.material.transparent = true; if (n.material.userData.b == null) n.material.userData.b = n.material.opacity; n.material.opacity = n.material.userData.b * gIn; } });
+      this.magGrid.rotation.y = (1 - gIn) * 0.5 + Math.sin(now / 2600) * 0.05;
+      this.magGrid.scale.setScalar(this.lp(0.82, 1, gIn));
+    }
+
+    // alternatives
+    const aIn = this.ss(5.6, 6.05, p) * (1 - this.ss(6.4, 6.9, p));
+    this.gAlt.visible = aIn > 0.004;
+    if (this.gAlt.visible) {
+      this.gAlt.traverse(n => { if (n.material) { n.material.transparent = true; if (n.material.userData.b == null) n.material.userData.b = n.material.opacity; n.material.opacity = n.material.userData.b * aIn; } });
+      const tx = -this.state.alt * 0.62;
+      this.altRow.position.x += (tx - this.altRow.position.x) * Math.min(1, dt * 6);
+      this.altSpecs.forEach((s, i) => {
+        s.rotation.z += dt * (i === this.state.alt ? 0.6 : 0);
+        const want = i === this.state.alt ? 1 : 0;
+        s.userData.o = (s.userData.o || 0) + (want - (s.userData.o || 0)) * Math.min(1, dt * 7);
+        s.visible = s.userData.o > 0.01;
+        if (s.visible) s.traverse(n => { if (n.material) { if (n.material.userData.b == null) n.material.userData.b = n.material.opacity; n.material.opacity = n.material.userData.b * aIn * s.userData.o; } });
+      });
+      this.gAlt.rotation.y = Math.sin(now / 4200) * 0.1;
+    }
+
+    // transparent meshes at zero opacity still write depth and punch holes in
+    // whatever sits behind them, so cull them explicitly every frame
+    this.scene.traverse(n => {
+      if (n.isMesh && n.material && n.material.transparent && n.parent && n.parent.visible) {
+        n.visible = n.material.opacity > 0.012;
+      }
+    });
+
+    this.updateLabels(ch);
+    this.renderer.render(this.scene, this.cam);
+  }
+
+  updateLabels(ch) {
+    const v = new this.T.Vector3();
+    const panel = this.sections && this.sections[ch] ? this.sections[ch].firstElementChild : null;
+    this.panelRect = panel ? panel.getBoundingClientRect() : null;
+    this.labels.forEach(L => {
+      const A = this.anchors[L.anchor];
+      const active = L.ch === ch && Math.abs(this.p - L.ch) < 0.46;
+      if (!A || !A.o) { L.el.style.opacity = 0; return; }
+      const cur = Number(L.el.dataset.o || 0);
+      const target = active ? 1 : 0;
+      const nx = cur + (target - cur) * 0.09;
+      L.el.dataset.o = nx;
+      if (nx < 0.01) { L.el.style.opacity = 0; return; }
+      A.o.getWorldPosition(v);
+      if (A.off) v.set(v.x + A.off[0], v.y + A.off[1], v.z + A.off[2]);
+      v.project(this.cam);
+      if (v.z > 1) { L.el.style.opacity = 0; return; }
+      // the wrapper always stays on the projected anchor (that is where the dot is);
+      // collisions are resolved by choosing this frame's card offset instead
+      const x = (v.x * 0.5 + 0.5) * this.vw, y = (-v.y * 0.5 + 0.5) * this.vh;
+      L.el.style.opacity = nx;
+      L.el.style.transform = "translate3d(" + x.toFixed(1) + "px," + y.toFixed(1) + "px,0)";
+      if (!L.card) return;
+      const cw = L.card.offsetWidth || 160, chh = L.card.offsetHeight || 40;
+      const pr = this.panelRect;
+      const score = (dx, dy) => {
+        const l = x + dx - cw / 2, r = x + dx + cw / 2, t2 = y + dy - chh / 2, b = y + dy + chh / 2;
+        let bad = 0;
+        if (l < 14) bad += 14 - l;
+        if (r > this.vw - 14) bad += r - (this.vw - 14);
+        if (t2 < 72) bad += 72 - t2;
+        if (b > this.vh - 14) bad += b - (this.vh - 14);
+        if (pr && r > pr.left - 12 && l < pr.right + 12 && b > pr.top - 10 && t2 < pr.bottom + 10) bad += 4000;
+        return bad + Math.abs(dx - L.dx) * 0.05 + Math.abs(dy - L.dy) * 0.05;
+      };
+      let bdx = L.dx, bdy = L.dy, best = score(L.dx, L.dy);
+      if (best >= 1) {
+        const cands = [[-L.dx, L.dy], [L.dx, -L.dy], [-L.dx, -L.dy]];
+        if (pr) {
+          const rightDx = pr.right + 12 + cw / 2 - x, leftDx = pr.left - 12 - cw / 2 - x;
+          cands.push([rightDx, L.dy], [leftDx, L.dy], [rightDx, -L.dy], [leftDx, -L.dy],
+            [L.dx, pr.bottom + 12 + chh / 2 - y], [L.dx, pr.top - 12 - chh / 2 - y]);
+        }
+        cands.forEach(c => { const s = score(c[0], c[1]); if (s < best) { best = s; bdx = c[0]; bdy = c[1]; } });
+      }
+      if (bdx !== L.cdx || bdy !== L.cdy) {
+        L.cdx = bdx; L.cdy = bdy;
+        L.card.style.left = bdx + "px";
+        L.card.style.top = bdy + "px";
+        if (L.line) {
+          L.line.style.width = Math.hypot(bdx, bdy) + "px";
+          L.line.style.transform = "rotate(" + Math.atan2(bdy, bdx) + "rad)";
+        }
+      }
+    });
+  }
+}
+</script>
+</body>
 </html>
