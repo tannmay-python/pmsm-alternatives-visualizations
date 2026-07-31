@@ -935,16 +935,18 @@ class Component extends DCLogic {
 
     this.rotorGrp = this.rotorPM(true);
     g.add(this.rotorGrp);
+    this.shaftAssembly = new T.Group();
+    g.add(this.shaftAssembly);
     const sm = this.mat("#7f818a", { metal: 0.6, rough: 0.28 }); sm.transparent = true;
     this.shaft = new T.Mesh(new T.CylinderGeometry(0.021, 0.021, 0.46, 24), sm);
-    this.shaft.rotation.x = Math.PI / 2; g.add(this.shaft);
+    this.shaft.rotation.x = Math.PI / 2; this.shaftAssembly.add(this.shaft);
     const keyM = this.mat("#5e626c", { metal: 0.5, rough: 0.32 }); keyM.transparent = true;
     const key = new T.Mesh(new T.BoxGeometry(0.012, 0.006, 0.22), keyM);
-    key.position.set(0, 0.021, 0.11); g.add(key);
+    key.position.set(0, 0.021, 0.11); this.shaftAssembly.add(key);
     [-0.13, 0.13].forEach(z => {
       const collarM = this.mat("#9b9fa9", { metal: 0.62, rough: 0.28 }); collarM.transparent = true;
       const collar = new T.Mesh(new T.TorusGeometry(0.022, 0.0038, 8, 28), collarM);
-      collar.position.z = z; g.add(collar);
+      collar.position.z = z; this.shaftAssembly.add(collar);
     });
 
     const gm = new T.MeshBasicMaterial({ color: 0x4b6bd6, transparent: true, opacity: 0 });
@@ -1238,7 +1240,7 @@ class Component extends DCLogic {
       this.capA.position.z = -0.16 - ex * 0.52;
       this.capB.position.z = 0.16 + ex * 0.62;
       this.rotorGrp.position.z = ex * 0.32;
-      this.shaft.position.z = ex * 0.66;
+      this.shaftAssembly.position.z = ex * 0.66;
       this.gHousing.position.z = -ex * 0.3;
       this.gMotor.rotation.y = this.lp(-0.55, 0.0, this.ss(2.6, 3.4, p));
 
@@ -1247,7 +1249,7 @@ class Component extends DCLogic {
       const capOp = (1 - this.ss(3.6, 4.05, p)) * mIn;
       [this.capA, this.capB].forEach(g => g.traverse(n => { if (n.material) n.material.opacity = capOp; }));
       const fade5 = this.ss(4.45, 4.85, p);
-      this.shaft.material.opacity = mIn * (1 - fade5);
+      this.shaftAssembly.traverse(n => { if (n.material) n.material.opacity = mIn * (1 - fade5); });
       const statOp = mIn * (1 - fade5);
       this.statorGrp.traverse(n => { if (n.material) n.material.opacity = statOp; });
       const rotOp = mIn * (1 - fade5);
