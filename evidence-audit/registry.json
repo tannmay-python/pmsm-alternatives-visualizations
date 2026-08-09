@@ -1,0 +1,429 @@
+{
+  "schemaVersion": "1.0",
+  "auditAsOf": "2026-08-09",
+  "purpose": "Launch gate for public claims in the PMSM Alternatives visualisation. A record may be rendered only at the precision its status allows.",
+  "statusGuide": {
+    "verified": "Directly supported by a primary, government, or peer-reviewed source.",
+    "qualified": "Supported in part, but the visual must retain the stated scope, date, or uncertainty.",
+    "unverified": "No qualifying source found. Omit the quantitative claim or render only as an explicitly labelled hypothesis.",
+    "contradicted": "The supplied report says something the cited source does not support. Do not repeat it."
+  },
+  "claims": [
+    {
+      "id": "market.rare_earth_free_share",
+      "canonicalClaim": "No qualifying primary or peer-reviewed source was found for the statement that only 5% of EV traction motors are rare-earth-free.",
+      "status": "unverified",
+      "source": {"title": "Emerging magnetic materials for electric vehicle drive motors", "url": "https://www.osti.gov/biblio/2391096", "date": "2024-07-02", "type": "peer-reviewed journal article"},
+      "quote": "approximately 80% of modern EV drivetrains rely on high-performance permanent magnets",
+      "visualImplication": "Do not display a 5% market-share donut. A qualitative 'small but growing' adoption band is permissible only if labelled as illustrative.",
+      "numbersMayBeShown": false,
+      "recommendation": "Use the 80% figure only with its exact scope: modern EV drivetrains relying on high-performance permanent magnets, not every vehicle or motor sold."
+    },
+    {
+      "id": "supply.china_april_2025_controls",
+      "canonicalClaim": "China's 4 April 2025 Announcement No. 18 put export controls on specified medium and heavy rare-earth related items, including Tb- and Dy-containing NdFeB permanent-magnet materials.",
+      "status": "verified",
+      "source": {"title": "Announcement No.18 of 2025 ... export control on some medium and heavy rare earth related items", "url": "https://english.mofcom.gov.cn/Policies/AnnouncementsOrders/art/2025/art_0dd87cbee7b045bf93fabe6ab2faceee.html", "date": "2025-04-04", "type": "Government export-control notice"},
+      "quote": "Terbium-containing NdFeB permanent magnet materials",
+      "visualImplication": "Show a license-control gate around Dy/Tb-related material forms, not a blanket ban graphic.",
+      "numbersMayBeShown": true,
+      "recommendation": "List the source date and state it is an export-control/licensing measure."
+    },
+    {
+      "id": "supply.ndpr_not_listed_in_notice",
+      "canonicalClaim": "Nd and Pr are not named among the seven element groups in Announcement No. 18; that notice explicitly lists Sm, Gd, Tb, Dy, Lu, Sc and Y groups.",
+      "status": "qualified",
+      "source": {"title": "Announcement No.18 of 2025 ... export control on some medium and heavy rare earth related items", "url": "https://english.mofcom.gov.cn/Policies/AnnouncementsOrders/art/2025/art_0dd87cbee7b045bf93fabe6ab2faceee.html", "date": "2025-04-04", "type": "Government export-control notice"},
+      "quote": "Samarium ... Gadolinium ... Terbium ... Dysprosium ... Lutetium ... Scandium ... Yttrium",
+      "visualImplication": "Use a dated 'covered in this announcement / not named in this announcement' split, not 'Nd/Pr are secure'.",
+      "numbersMayBeShown": false,
+      "recommendation": "Export rules can change; do not turn omission from one notice into a permanent supply-security claim."
+    },
+    {
+      "id": "magnets.dy_tb_role",
+      "canonicalClaim": "Dy and Tb are heavy rare earths used to improve NdFeB coercivity and high-temperature service stability; they are not coolant additives.",
+      "status": "verified",
+      "source": {"title": "Most frequently asked questions about the coercivity of Nd-Fe-B permanent magnets", "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8183520/", "date": "2021-06-09", "type": "peer-reviewed review article"},
+      "quote": "coercivity decreases to ~0.2 T at ~160°C",
+      "visualImplication": "The Dy/Tb animation should increase the 'resists reversal' barrier while heat and opposing field push against it.",
+      "numbersMayBeShown": true,
+      "recommendation": "Do not show an unsupported universal 0.5% per °C slope or a universal alloy recipe."
+    },
+    {
+      "id": "magnets.gbd",
+      "canonicalClaim": "Grain-boundary diffusion can concentrate Dy/Tb near grain surfaces or edges to raise coercivity while using less heavy rare earth than bulk alloying.",
+      "status": "verified",
+      "source": {"title": "Strategic coating of NdFeB magnets with Dy to improve the coercivity and energy product of permanent magnets", "url": "https://www.ornl.gov/publication/strategic-coating-ndfeb-magnets-dy-improve-coercivity-and-energy-product-permanent", "date": "2015-12-01", "type": "peer-reviewed ORNL-hosted journal article"},
+      "quote": "use Dy selectively in locations such as magnet edges and faces",
+      "visualImplication": "Make the GBD view a shell/edge treatment, contrasted with an intentionally wasteful full-volume fill; it must not imply every commercial magnet uses the identical pattern.",
+      "numbersMayBeShown": true,
+      "recommendation": "It is safe to draw the mechanism. Avoid assigning a single universal Dy reduction percentage."
+    },
+    {
+      "id": "supply.proterial_hree_free",
+      "canonicalClaim": "On 22 July 2025, Proterial announced heavy-rare-earth-free NdFeB materials intended for EV drive-motor applications; this removes Dy/Tb, not Nd/Pr.",
+      "status": "verified",
+      "source": {"title": "Proterial Develops High-Performance Heavy-Rare-Earth-Free Neodymium Sintered Magnet for Electric Vehicle Driving Motors", "url": "https://www.proterial.com/e/press/2025/n0722b.html", "date": "2025-07-22", "type": "company press release"},
+      "quote": "high-performance heavy-rare-earth-free neodymium sintered magnet",
+      "visualImplication": "Add a 'HREE-free NdFeB' route between conventional NdFeB and fully magnet-free architectures.",
+      "numbersMayBeShown": true,
+      "recommendation": "Label it HREE-free, not rare-earth-free. Pre-production samples and research-facility results must remain distinct from mass production."
+    },
+    {
+      "id": "supply.proterial_m_diffusion",
+      "canonicalClaim": "Proterial's table reports its M-Diffusion technology at about one-fifth of a stated comparison heavy-rare-earth amount, with mass production ongoing since 2019 for the cited material.",
+      "status": "verified",
+      "source": {"title": "Proterial Develops High-Performance Heavy-Rare-Earth-Free Neodymium Sintered Magnet for Electric Vehicle Driving Motors", "url": "https://www.proterial.com/e/press/2025/n0722b.html", "date": "2025-07-22", "type": "company press release"},
+      "quote": "M-Diffusion ... Approx. 1/5",
+      "visualImplication": "Use a material-specific comparison bar with a source note, never as a universal GBD performance number.",
+      "numbersMayBeShown": true,
+      "recommendation": "Keep Proterial's stated comparison basis visible in the evidence drawer."
+    },
+    {
+      "id": "cooling.audi_q6_direct_oil",
+      "canonicalClaim": "Audi says direct oil cooling in the Q6 e-tron keeps the stator winding and rotor permanent magnets in their optimum temperature range.",
+      "status": "verified",
+      "source": {"title": "The Audi Q6 e-tron: electric mobility on a new level", "url": "https://www.audi-mediacenter.com/en/the-audi-q6-e-tron-electric-mobility-on-a-new-level-15929/download", "date": "2024-06-01", "type": "OEM technical press material"},
+      "quote": "stator winding and permanent magnets in the rotor in the optimum temperature range",
+      "visualImplication": "The cooling scene can show oil reaching rotor magnets as a thermal-management strategy.",
+      "numbersMayBeShown": false,
+      "recommendation": "Do not claim from this source alone that Audi eliminated Dy/Tb or reached a particular lower operating temperature."
+    },
+    {
+      "id": "pmsm.field_weakening",
+      "canonicalClaim": "Permanent-magnet flux is fixed; field weakening injects current to buck that flux, increasing reactive-current burden and ohmic losses.",
+      "status": "verified",
+      "source": {"title": "Brushless and Permanent Magnet Free Wound Field Synchronous Motors for EV Traction", "url": "https://www.osti.gov/servlets/purl/1349258", "date": "2017-03-31", "type": "U.S. Department of Energy final technical report"},
+      "quote": "additional current ... to buck the magnetic flux",
+      "visualImplication": "Use a clean overlay: useful torque-producing current plus a separate counter-flux current at higher speed.",
+      "numbersMayBeShown": false,
+      "recommendation": "Do not describe all field-weakening current as producing zero torque in every operating point; show it as an added current burden."
+    },
+    {
+      "id": "pmsm.inverter_fault",
+      "canonicalClaim": "Always-on PM flux creates inverter-fault safety concerns; precise claims about a specific braking torque or DC-link spike need a system-specific source.",
+      "status": "qualified",
+      "source": {"title": "Brushless and Permanent Magnet Free Wound Field Synchronous Motors for EV Traction", "url": "https://www.osti.gov/servlets/purl/1349258", "date": "2017-03-31", "type": "U.S. Department of Energy final technical report"},
+      "quote": "always, 'on', leading to safety concerns during inverter faults",
+      "visualImplication": "Use a warning-state scene: spinning PM rotor remains electrically active after drive gating is removed. Do not animate a universal crash/failure outcome.",
+      "numbersMayBeShown": false,
+      "recommendation": "Omit 'uncommanded braking torque' and 'DC-link voltage spike' unless matched to an exact inverter/fault topology source."
+    },
+    {
+      "id": "pmsm.ipm_reluctance_torque",
+      "canonicalClaim": "An IPMSM's buried-magnet saliency allows torque from both the permanent-magnet interaction and reluctance effects.",
+      "status": "verified",
+      "source": {"title": "Optimization of Air-gap Profile in Interior Permanent Magnet Synchronous Machines", "url": "https://www.osti.gov/servlets/purl/1601137", "date": "2019-12-01", "type": "peer-reviewed paper hosted by OSTI"},
+      "quote": "torque of IPMSM is a combination of reaction and reluctance torques",
+      "visualImplication": "The IPM chapter must explicitly add a second 'reluctance torque' contribution; do not portray SynRM as an unrelated physics branch.",
+      "numbersMayBeShown": false,
+      "recommendation": "Use qualitative contribution arrows, not a made-up torque split."
+    },
+    {
+      "id": "induction.slip_and_cage",
+      "canonicalClaim": "An asynchronous motor uses an induced rotor field in a metal cage; the rotor runs slower than the rotating stator field.",
+      "status": "verified",
+      "source": {"title": "Charge faster, drive further: BMW Group reveals revolutionary electric drive concept with 800V technology for the Neue Klasse", "url": "https://www.press.bmwgroup.com/pressclub/p/ac/pressDetail.html?id=T0448216EN&left_menu_item=node__5251&outputChannelId=13&title=charge-faster-drive-further-bmw-group-reveals-revolutionary-electric-drive-concept-with-800v", "date": "2025-02-19", "type": "OEM technical press release"},
+      "quote": "rotor's magnetic field is induced by the stator",
+      "visualImplication": "Show a squirrel cage, induced current loops, and a field pointer that always leads the rotor pointer.",
+      "numbersMayBeShown": false,
+      "recommendation": "Omit the generic 1–3% slip number unless it is tied to one machine and load condition."
+    },
+    {
+      "id": "induction.audi_split_axle",
+      "canonicalClaim": "Audi's Q6 e-tron uses an ASM at the front axle when maximum performance is needed; Audi says it can rotate freely without significant drag losses and has no magnets or rare earths.",
+      "status": "verified",
+      "source": {"title": "The Audi Q6 e-tron: electric mobility on a new level", "url": "https://www.audi-mediacenter.com/en/the-audi-q6-e-tron-electric-mobility-on-a-new-level-15929/download", "date": "2024-06-01", "type": "OEM technical press material"},
+      "quote": "rotate freely without significant drag losses",
+      "visualImplication": "A dual-axle scene is safe: rear PSM plus front ASM that sleeps/freewheels at lower demand.",
+      "numbersMayBeShown": false,
+      "recommendation": "Attribute the design and drag statement to Audi/Q6 specifically."
+    },
+    {
+      "id": "induction.bmw_split_axle",
+      "canonicalClaim": "BMW's Gen6 architecture retains EESM at the rear and adds ASM at the front for xDrive variants.",
+      "status": "verified",
+      "source": {"title": "Charge faster, drive further: BMW Group reveals revolutionary electric drive concept with 800V technology for the Neue Klasse", "url": "https://www.press.bmwgroup.com/pressclub/p/ac/pressDetail.html?id=T0448216EN&left_menu_item=node__5251&outputChannelId=13&title=charge-faster-drive-further-bmw-group-reveals-revolutionary-electric-drive-concept-with-800v", "date": "2025-02-19", "type": "OEM technical press release"},
+      "quote": "ASM motor variants will be fitted at the front axle",
+      "visualImplication": "Use BMW as a second example of architectures stacking within one vehicle.",
+      "numbersMayBeShown": false,
+      "recommendation": "Say Gen6 / Neue Klasse; do not back-project this layout to BMW's full existing fleet."
+    },
+    {
+      "id": "eesm.production_renault_nissan_bmw",
+      "canonicalClaim": "Brushed or externally excited synchronous traction motors are not merely experimental: Renault mass-sold EESM with Zoe from 2012, Nissan says 2022 Ariya has an EESM without permanent magnets, and BMW uses EESM in Gen5/Gen6.",
+      "status": "verified",
+      "source": {"title": "An electric motor with no rare earths: cutting-edge technology", "url": "https://www.renaultgroup.com/en/magazine/energy-and-motorization/all-about-electric-motors-with-no-rare-earths/", "date": "2025-10-01", "type": "OEM explainer"},
+      "quote": "began the mass selling of EESM electric motors ... in 2012",
+      "visualImplication": "Separate 'production EESM' from 'contactless EESM' in the maturity visualization.",
+      "numbersMayBeShown": true,
+      "recommendation": "The specific claim that BMW and Ariya use brushes is not supported by the sources retained here; omit it unless OEM documentation is obtained."
+    },
+    {
+      "id": "eesm.nissan_ariya",
+      "canonicalClaim": "Nissan states that the 2022 Ariya uses an electrically excited synchronous motor without permanent magnets.",
+      "status": "verified",
+      "source": {"title": "Activities in the Development Stage", "url": "https://www.nissan-global.com/EN/SUSTAINABILITY/ENVIRONMENT/GREENPROGRAM/DEPENDENCY/PRODUCT/", "date": "2025-01-01", "type": "OEM sustainability disclosure"},
+      "quote": "2022 Nissan ARIYA has a magnet-free EV motor",
+      "visualImplication": "Use Ariya as a production EESM card, not a proof that all EESMs have the same current-transfer hardware.",
+      "numbersMayBeShown": true,
+      "recommendation": "Keep the model year in the card."
+    },
+    {
+      "id": "eesm.contactless_zf",
+      "canonicalClaim": "ZF introduced I2SM in September 2023 and said it planned to develop it to production maturity; the announcement does not establish series production.",
+      "status": "verified",
+      "source": {"title": "ZF makes magnet-free electric motor uniquely compact and competitive", "url": "https://press.zf.com/press/en/releases/release_60480.html", "date": "2023-09-01", "type": "Tier-1 supplier press release"},
+      "quote": "plans to develop the I2SM technology to production maturity",
+      "visualImplication": "Put I2SM in an 'advanced development' lane rather than the production lane.",
+      "numbersMayBeShown": true,
+      "recommendation": "ZF's stated up-to-90 mm packaging comparison is safe if its comparison condition is retained."
+    },
+    {
+      "id": "eesm.contactless_ibee",
+      "canonicalClaim": "Valeo and MAHLE announced iBEE in October 2024 as a joint development targeting 220–350 kW peak; first prototype testing was planned by the end of 2024.",
+      "status": "verified",
+      "source": {"title": "Valeo and MAHLE expand their product range ... iBEE", "url": "https://www.valeo.com/en/valeo-and-mahle-expand-their-product-range-of-magnet-free-electric-motors-to-upper-segment-applications-through-a-joint-development-of-ibee-inner-brushless-electrical-excitation/", "date": "2024-10-14", "type": "Tier-1 supplier press release"},
+      "quote": "peak power ranging from 220 kW to 350 kW",
+      "visualImplication": "Represent iBEE as a brushless/contactless EESM development path, with a visible prototype milestone.",
+      "numbersMayBeShown": true,
+      "recommendation": "No qualifying source in this audit establishes a 2028 series-production date; do not display one."
+    },
+    {
+      "id": "eesm.mahle_sct_not_magnet_free",
+      "canonicalClaim": "MAHLE's original SCT design is permanently excited and uses neodymium magnets; MCT is MAHLE's magnet-free contactless concept. They can be combined, but are not the same product.",
+      "status": "verified",
+      "source": {"title": "Compact endurance athlete — the new SCT E-motor by MAHLE on the test bench", "url": "https://www.mahle.com/global/media/global_news/2022/07-sct-e-motor/20220704_pressrelease_sct-e-motor.pdf", "date": "2022-07-04", "type": "Tier-1 supplier press release"},
+      "quote": "opted for ... a permanently excited motor",
+      "visualImplication": "Do not put SCT alone in the rare-earth-free architecture map. Show its oil-cooling technology as combinable with MCT/iBEE.",
+      "numbersMayBeShown": true,
+      "recommendation": "The 90%+ continuous-to-peak claim belongs to SCT; it must not be automatically transferred to iBEE."
+    },
+    {
+      "id": "vimag.volektra_architecture",
+      "canonicalClaim": "The underlying motor concept is a brushless rotating-transformer-excited synchronous machine with DC rotor field windings, not a separate motor-physics family from contactless EESM.",
+      "status": "verified",
+      "source": {"title": "Magnet-less and brush-less rotating transformer excited synchronous machine and method of its control", "url": "https://patents.google.com/patent/US20240178726A1/en", "date": "2024-05-30", "type": "published patent application"},
+      "quote": "main rotor ... includes Direct Current field windings",
+      "visualImplication": "Place VMSM/VMM as a software/control-intensive variant of contactless wound-field synchronous excitation, not as a sixth fundamental motor physics family.",
+      "numbersMayBeShown": false,
+      "recommendation": "The patent application names Volektra Inc. as assignee. Keep Vimag/Volektra relationship wording cautious."
+    },
+    {
+      "id": "vimag.volektra_corporate_relationship",
+      "canonicalClaim": "Public marketing and patent provenance strongly connect Vimag's VMSM messaging with Volektra's rotating-transformer patent, but this audit found no primary corporate filing that proves they are one legal entity or a single brand.",
+      "status": "qualified",
+      "source": {"title": "VMSM Technology | Software-Defined Magnet-Free Motors", "url": "https://vi-mag.com/technology.html", "date": "2026-07-01", "type": "company technology page"},
+      "quote": "A Robust Rotating Transformer Excited Synchronous Motor and Its Control",
+      "visualImplication": "Avoid placing Vimag and Volektra as independent competing architecture boxes. Show 'shared/overlapping public provenance — verify corporate relationship'.",
+      "numbersMayBeShown": false,
+      "recommendation": "Obtain corporate registry, founder, or company confirmation before presenting 'same company' as fact."
+    },
+    {
+      "id": "synrm.industry_incumbents",
+      "canonicalClaim": "SynRM is established industrial technology, not an innovation confined to Indian startups: ABB says it has delivered high-efficiency SynRM packages since 2011.",
+      "status": "verified",
+      "source": {"title": "ABB IE5 Synchronous reluctance motors", "url": "https://new.abb.com/docs/librariesprovider60/default-document-library/abb-ie5-synrm---drive-ei-may-2022.pdf?sfvrsn=ed2ea909_2", "date": "2022-05-01", "type": "manufacturer technical brochure"},
+      "quote": "Delivering high-efficiency SynRM packages since 2011",
+      "visualImplication": "Draw an industry lineage (ABB / Danfoss / Nidec), separate from India's traction-startup ecosystem.",
+      "numbersMayBeShown": true,
+      "recommendation": "Do not use this source to claim passenger-EV market penetration."
+    },
+    {
+      "id": "synrm.pm_assisted",
+      "canonicalClaim": "PM-assisted SynRM is a recognized hybrid: small rotor magnets improve power factor while both PM torque and reluctance torque contribute.",
+      "status": "verified",
+      "source": {"title": "Facts Worth Knowing: Permanent Magnet Assisted Synchronous Reluctance Motor", "url": "https://assets.danfoss.com/documents/latest/242341/AV446558536912en-000101.pdf", "date": "2025-01-01", "type": "manufacturer technical guide"},
+      "quote": "adding weak magnets to the rotor geometry",
+      "visualImplication": "Allow stacked chips: 'reluctance' plus 'permanent magnets'. Do not use mutually exclusive category cards.",
+      "numbersMayBeShown": false,
+      "recommendation": "A high-level 'magnets can improve power factor' is safe; do not quantify inverter cost impact without a design-specific source."
+    },
+    {
+      "id": "ferrite.property_distinction",
+      "canonicalClaim": "Remanence, coercivity and maximum energy product are distinct. DOE tables show typical Sr ferrite values far below NdFeB in remanence and energy product; energy-product differences should not be described as a coercivity ratio.",
+      "status": "verified",
+      "source": {"title": "Advanced Power Electronics and Electric Machines", "url": "https://www.osti.gov/servlets/purl/947389-IEagpu/", "date": "2004-04-01", "type": "U.S. Department of Energy technical roadmap"},
+      "quote": "energy product gives an indication of the sizing of the magnet",
+      "visualImplication": "Use three separate meters, never a single 'magnet strength' score. The ferrite scene should visibly compensate geometry/package rather than claim a drop-in swap.",
+      "numbersMayBeShown": true,
+      "recommendation": "Use grade-specific or labelled illustrative properties. Avoid the report's unsupported 'one-third coercivity' statement."
+    },
+    {
+      "id": "ferrite.proterial_motor_comparison",
+      "canonicalClaim": "Proterial's actual ferrite traction-motor test reported 102 kW at 15,000 rpm, against a 110 kW / 10,000 rpm NdFeB comparison; its simulation reported 105 kW / 15,000 rpm.",
+      "status": "verified",
+      "source": {"title": "Output exceeding 100 kW applicable for traction motors for BEVs and PHEVs verified on actual ferrite magnet motor", "url": "https://www.proterial.com/e/press/2023/pdf/20230724en.pdf", "date": "2023-07-24", "type": "company test report"},
+      "quote": "102 kW ... 15,000 rpm",
+      "visualImplication": "Use a two-axis power-and-speed comparison so apparent power parity cannot mislead.",
+      "numbersMayBeShown": true,
+      "recommendation": "Attach the source's simulation/actual labels and design condition."
+    },
+    {
+      "id": "ferrite.cold_demag",
+      "canonicalClaim": "For anisotropic ferrite with an insufficient permeance coefficient, cooling near −40°C can cause substantial irreversible demagnetization after return to normal temperature.",
+      "status": "verified",
+      "source": {"title": "Basic Properties of Magnets: Low Temperature Demagnetization of a Ferrite Magnet", "url": "https://tokyoferrite-ho.co.jp/en/technical_data/behavior/behavior.html", "date": "n.d.", "type": "magnet-manufacturer technical note"},
+      "quote": "cooled ... close to −40°C ... large demagnetization effect",
+      "visualImplication": "The ferrite thermal visual needs both a hot-side and a cold-start constraint, marked as grade/circuit dependent.",
+      "numbersMayBeShown": false,
+      "recommendation": "Do not claim every ferrite traction motor will fail at low temperature; show the risk condition."
+    },
+    {
+      "id": "iron_nitride.actual_vs_theory",
+      "canonicalClaim": "Iron nitride's theoretical saturation-magnetization narrative is not enough to establish a drop-in traction magnet. Niron's published variable-flux patent specifies magnets with 2,000–4,000 Oe coercivity.",
+      "status": "qualified",
+      "source": {"title": "Variable-flux-intensifying electric machines using iron nitride permanent magnets", "url": "https://patents.google.com/patent/WO2025178978A1/en", "date": "2025-08-28", "type": "published patent application"},
+      "quote": "coercivity (Hci) of 2,000 Oe to 4,000 Oe",
+      "visualImplication": "Show a two-axis material card: high possible magnetization on one axis, coercivity/thermal viability on the other. Do not crown Fe16N2 'vastly stronger' than NdFeB.",
+      "numbersMayBeShown": true,
+      "recommendation": "The 2.5 T figure is saturation magnetization, not a complete permanent-magnet performance comparison."
+    },
+    {
+      "id": "iron_nitride.thermal_constraint",
+      "canonicalClaim": "Peer-reviewed literature reports alpha-double-prime Fe16N2 decomposing at approximately 500 K in the cited material system; a universal 216–250°C vehicle-limit claim is not supported here.",
+      "status": "qualified",
+      "source": {"title": "Simultaneous tuning of the magnetic anisotropy and thermal stability of α′′-phase Fe16N2", "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8035402/", "date": "2021-03-15", "type": "peer-reviewed journal article"},
+      "quote": "decomposes ... at a low temperature of approximately 500 K",
+      "visualImplication": "Render thermal stability as an active materials-development gate rather than one deterministic red line.",
+      "numbersMayBeShown": true,
+      "recommendation": "Keep source/system qualification prominent; composition and processing change the result."
+    },
+    {
+      "id": "iron_nitride.matter_vfm",
+      "canonicalClaim": "Niron and Matter unveiled a Variable Flux Motor prototype at CES 2026 and stated they will explore integration into Matter electric-motorcycle products.",
+      "status": "verified",
+      "source": {"title": "MATTER and Niron Magnetics Unveil Next Generation Rare-Earth-Free Variable Flux Motor", "url": "https://nironmagnetics.com/news/matter-and-niron-magnetics-unveil-next-generation-rare-earth-free-variable-flux-motor", "date": "2026-01-07", "type": "company press release"},
+      "quote": "will explore integrating Iron Nitride magnet technology",
+      "visualImplication": "Show 'CES prototype / exploratory integration', not a commercial vehicle launch.",
+      "numbersMayBeShown": false,
+      "recommendation": "The concept can explain why lower coercivity may be useful in a variable-flux architecture, but production performance is not established."
+    },
+    {
+      "id": "aem.ssrd_peak_continuous",
+      "canonicalClaim": "AEM's November 2025 SSRD CV3 prototype datasheet labels the technology 'In Development' and lists 308 kW peak at 8,000 rpm, 138 kW continuous, 378 Nm peak torque, and 30,000 rpm maximum speed.",
+      "status": "verified",
+      "source": {"title": "SSRD Technology Datasheet", "url": "https://cdn.asp.events/CLIENT_CloserSt_D86EA381_5056_B739_5482D50A1A831DDD/sites/ivt-expo-europe-2025/media/libraries/exhibitor-brochures/843571-ssrd.pdf", "date": "2025-11-01", "type": "company datasheet"},
+      "quote": "Continuous Power | SSRD CV3 Prototype 138 kW",
+      "visualImplication": "The AEM card must pair peak and continuous values in a thermal envelope; no single heroic peak number.",
+      "numbersMayBeShown": true,
+      "recommendation": "Display 'prototype / in development' beside the figures."
+    },
+    {
+      "id": "renault.e7a_efficiency",
+      "canonicalClaim": "Renault's 2026 release describes a third-generation no-rare-earth EESM with 93% motorway efficiency, 275 hp and 800 V architecture, planned from 2028; earlier material described a 200 kW / around-92% development specification.",
+      "status": "verified",
+      "source": {"title": "Renault Group futuREady press release", "url": "https://assets.renaultgroup.com/uploads/2026/03/2026-03-10-Renault-Group-Press-Release-futuREady__EN.pdf", "date": "2026-03-10", "type": "OEM press release"},
+      "quote": "efficiency of 93% on the motorway",
+      "visualImplication": "Date-tag the figures and do not label the 93% motorway figure as generic 'system efficiency'.",
+      "numbersMayBeShown": true,
+      "recommendation": "When comparing releases, treat specs as version/date-specific rather than contradictory facts."
+    },
+    {
+      "id": "india.chara_funding",
+      "canonicalClaim": "Arkam Ventures announced Chara Technologies raised ₹52 crore in October 2025; a public report described the same round as $6.2 million.",
+      "status": "verified",
+      "source": {"title": "Chara Technologies Raises ₹52 Crores", "url": "https://arkamvc.com/insights/news", "date": "2025-10-01", "type": "lead-investor announcement index"},
+      "quote": "Chara Technologies Raises ₹52 Crores",
+      "visualImplication": "Use ₹52 crore as the headline figure. If USD is needed, mark it as a contemporary conversion, not a second funding round.",
+      "numbersMayBeShown": true,
+      "recommendation": "Avoid the report's $11.9m assertion."
+    },
+    {
+      "id": "india.naxatra_scope_and_funding",
+      "canonicalClaim": "Naxatra publicly describes radial- and axial-flux motors for EVs, agriculture and power tools, with an assembly line in Ahmedabad; a later Pre-Series A was reported as $3m led by Rainmatter.",
+      "status": "verified",
+      "source": {"title": "Introducing Naxatra Labs", "url": "https://zerodha.com/z-connect/rainmatter/introducing-naxatra-labs", "date": "2025-01-21", "type": "lead-investor company profile"},
+      "quote": "efficient and compact radial and axial flux motors",
+      "visualImplication": "Move Naxatra into geometry/integration examples, not virtual-magnet architecture; mark Ahmedabad.",
+      "numbersMayBeShown": true,
+      "recommendation": "Use the separate 23 Dec 2025 $3m report only with a citation; do not combine it with unrelated earlier seed financing."
+    },
+    {
+      "id": "scope.gati_not_traction_evidence",
+      "canonicalClaim": "Gati's public product page currently foregrounds 60 W and appliance/HVAC-style applications such as coolers, exhaust fans, small blowers and ventilation, not traction motors.",
+      "status": "verified",
+      "source": {"title": "Gati Drives - SSPM Motor Manufacturing", "url": "https://www.gatidrives.com/", "date": "n.d.", "type": "company product page"},
+      "quote": "Coolers Exhaust Fans Small Blowers Ventilation",
+      "visualImplication": "Place Gati on an industrial/appliance lane, not the passenger-EV traction comparison chart.",
+      "numbersMayBeShown": true,
+      "recommendation": "Its public 93% claim is company marketing and should not be used as an independently verified comparison point."
+    },
+    {
+      "id": "scope.ekmo_industrial",
+      "canonicalClaim": "EKMO's principal public offering is a licensed IE6 ferrite-motor design for industrial applications from pumps and compressors to fans, conveyors, marine propulsion and commercial HVAC; its lower frame ranges include 'in development' entries.",
+      "status": "verified",
+      "source": {"title": "EKMO — Rare-Earth-Free Motor Licensing | IE6 Ferrite Motors", "url": "https://www.ekmo.eu/", "date": "2026-01-01", "type": "company product page"},
+      "quote": "industrial drives, pumps, compressors, fans, conveyors",
+      "visualImplication": "Do not use EKMO line-start/industrial material as a current passenger-EV drop-in proof. Keep any e-mobility work as custom design.",
+      "numbersMayBeShown": true,
+      "recommendation": "Show validation/maturity by individual frame/application, not as one blanket 'production-ready 20–800 kW' banner."
+    },
+    {
+      "id": "scope.conifer_industrial_light_mobility",
+      "canonicalClaim": "Conifer publicly offers 0.5–7.5 kW ferrite axial motors for HVAC, pumping, industrial automation, robotics and medical applications; public company material also discusses small EV and off-road uses.",
+      "status": "verified",
+      "source": {"title": "Conifer Motors | Super compact and High Efficiency Motors", "url": "https://www.conifer.io/product/nema-motors", "date": "n.d.", "type": "company product page"},
+      "quote": "0.5kW to 7.5kW Direct Drive Axial Motors",
+      "visualImplication": "Keep Conifer in a ferrite-plus-axial-flux composability example, with its current public power/application scope visible.",
+      "numbersMayBeShown": true,
+      "recommendation": "Do not represent it as a disclosed full-size passenger-car traction programme."
+    },
+    {
+      "id": "market.ev_vs_industrial",
+      "canonicalClaim": "Industrial motor substitution and EV traction substitution have different incumbents and motivations: ABB markets magnet-free SynRM as an efficient industrial induction-motor retrofit, while EV traction examples focus on supply risk, packaging and drive-cycle performance.",
+      "status": "verified",
+      "source": {"title": "ABB IE5 SynRM Motors: Ultra-Efficient, Magnet-Free Power for Industrial Applications", "url": "https://www.abb.com/global/en/areas/motion/motors-generators/low-voltage-motors/iec-low-voltage-motors/process-performance-motors/ie5-synchronous-reluctance-safe-area-motors", "date": "2026-01-01", "type": "manufacturer product page"},
+      "quote": "perfect choice for retrofitting existing systems",
+      "visualImplication": "Make market a first-class filter: 'EV traction' vs 'industrial/appliance'. Never mix their maturity or replacement claims in one leaderboard.",
+      "numbersMayBeShown": false,
+      "recommendation": "This is a distinction of scope and design objective, not a claim that every industrial motor is induction or every EV motor is PMSM."
+    },
+    {
+      "id": "vehicle.swap_burden",
+      "canonicalClaim": "No qualifying universal source was found for a general 'three to five years of validation and homologation' claim for all motor swaps. Platform-level integration work is real, but duration and components are vehicle-, architecture-, and regulation-specific.",
+      "status": "unverified",
+      "source": {"title": "Charge faster, drive further: BMW Group reveals revolutionary electric drive concept with 800V technology for the Neue Klasse", "url": "https://www.press.bmwgroup.com/pressclub/p/ac/pressDetail.html?id=T0448216EN&left_menu_item=node__5251&outputChannelId=13&title=charge-faster-drive-further-bmw-group-reveals-revolutionary-electric-drive-concept-with-800v", "date": "2025-02-19", "type": "OEM technical press release"},
+      "quote": "rotor, stator and inverter have all been fully designed",
+      "visualImplication": "Use a qualitative change map: motor, inverter/control, cooling and validation can change; do not draw a false universal time bar.",
+      "numbersMayBeShown": false,
+      "recommendation": "Reserve numeric programme durations for OEM-specific cited case studies."
+    },
+    {
+      "id": "india.opportunity_policy",
+      "canonicalClaim": "India's Ministry of Heavy Industries says the PLI-Auto scheme identifies rare-earth magnets for xEV motors and promotes domestic development of alternative rare-earth-free motor technologies and components; the November 2025 REPM scheme targets domestic magnet capacity as a separate route.",
+      "status": "verified",
+      "source": {"title": "Overcoming Shortage of Rare Earth Magnets for EV Production", "url": "https://heavyindustries.gov.in/sites/default/files/2025-12/rsauq_1525.pdf", "date": "2025-12-12", "type": "Government parliamentary answer"},
+      "quote": "promote domestic development of alternative (rare earth free) motor technologies",
+      "visualImplication": "The India chapter should show two complementary policy/manufacturing paths: secure/build REPM supply and develop alternatives. Do not suggest a forced single choice.",
+      "numbersMayBeShown": true,
+      "recommendation": "A credible opportunity visual is a policy-and-capability map, not an unsourced market-share forecast."
+    }
+  ],
+  "safeForLaunch": [
+    "China's April 2025 Dy/Tb-related export-control scope (date and licensing framing retained).",
+    "Dy/Tb coercivity and grain-boundary-diffusion mechanism, without universal composition or temperature numbers.",
+    "HREE-free NdFeB as a distinct Proterial pathway, not fully rare-earth-free.",
+    "PMSM fixed flux and field-weakening current burden.",
+    "IPM reluctance torque; induction cage/slip principle; Audi and BMW mixed-architecture examples.",
+    "Production EESM examples from Renault, Nissan and BMW; contactless maturity separately for ZF and iBEE.",
+    "SynRM/PM-assisted SynRM composability and industrial-incumbent lineage.",
+    "Ferrite property layers, low-temperature risk condition, and Proterial's speed-qualified comparison.",
+    "Iron-nitride prototype/material-development status; Matter VFM as a prototype/exploration.",
+    "AEM SSRD prototype figures only when peak, continuous, speed and development status travel together.",
+    "Company-scope corrections for Gati, EKMO, Conifer and Naxatra.",
+    "India's dual strategy of domestic REPM capability and rare-earth-free motor development."
+  ],
+  "requiresLaterFactCheck": [
+    "5% rare-earth-free EV-traction market share and any market-size forecast.",
+    "A universal 1–3% induction slip or 3% range penalty.",
+    "A specific 150–180°C traction-magnet operating band, 0.5%/°C coercivity decline, or universal NdPr/Dy mass recipe.",
+    "Audi's direct oil cooling as proof of specific Dy/Tb removal or a 140°C limit.",
+    "The assertion that BMW Gen5 and Nissan Ariya rotor excitation uses brushes; retain only the verified EESM production fact.",
+    "A 2028 iBEE series-production date.",
+    "Vimag and Volektra as one legal company/brand without primary corporate confirmation.",
+    "Fe16N2 as a drop-in, 'vastly stronger' traction magnet; actual product-level properties and thermal limits need grade-specific proof.",
+    "A universal three-to-five-year vehicle redesign/validation duration.",
+    "Any claim that ferrite, axial flux, contactless excitation, or reluctance is a universal drop-in replacement."
+  ]
+}
