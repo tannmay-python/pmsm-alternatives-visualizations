@@ -1,0 +1,427 @@
+.pmsm-turn {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  overflow: hidden;
+  background: var(--stage);
+  color: var(--ink);
+  isolation: isolate;
+}
+
+.pmsm-turn__svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+}
+
+.pmsm-turn__grid line {
+  stroke: rgba(220, 226, 229, 0.035);
+  stroke-width: 1;
+}
+
+.pmsm-turn__stator-outer {
+  fill: rgba(134, 149, 154, 0.16);
+  stroke: #9ba6aa;
+  stroke-width: 2.2;
+}
+
+.pmsm-turn__stator-inner {
+  fill: var(--stage);
+  stroke: #5f6a6e;
+  stroke-width: 1.6;
+}
+
+.pmsm-turn__tooth {
+  stroke: #889398;
+  stroke-width: 5.5;
+  stroke-linecap: round;
+}
+
+.pmsm-turn__coil {
+  fill: rgba(196, 118, 63, 0.58);
+  stroke: #c4763f;
+  stroke-width: 1.6;
+}
+
+.pmsm-turn__air-gap {
+  fill: none;
+  stroke: #e3b34c;
+  stroke-width: 1.8;
+  stroke-dasharray: 3 9;
+  opacity: 0.84;
+}
+
+.pmsm-turn__phase-mark circle {
+  fill: #e3b34c;
+}
+
+.pmsm-turn__phase-mark line {
+  stroke: #e3b34c;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+}
+
+.pmsm-turn__rotor-core {
+  fill: #263034;
+  stroke: #a4afb2;
+  stroke-width: 2.1;
+}
+
+.pmsm-turn__rotor-lobe {
+  fill: rgba(159, 171, 175, 0.16);
+  stroke: #748185;
+  stroke-width: 1.4;
+}
+
+.pmsm-turn__shaft {
+  fill: #111619;
+  stroke: #c9d0d4;
+  stroke-width: 2.1;
+}
+
+.pmsm-turn__shaft.is-main {
+  fill: #161c1f;
+  stroke-width: 2.5;
+}
+
+.pmsm-turn__pole-mark {
+  stroke: #7e7bd8;
+  stroke-width: 5.5;
+  stroke-linecap: round;
+  opacity: 0;
+}
+
+.pmsm-turn__pole-mark.is-visible {
+  opacity: 0.92;
+}
+
+.pmsm-turn__rotation-hint {
+  fill: none;
+  stroke: #c9d0d4;
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.pmsm-turn__empty-bore {
+  fill: none;
+  stroke: #5d666c;
+  stroke-width: 1.5;
+  stroke-dasharray: 8 10;
+}
+
+.pmsm-turn__field-track {
+  fill: none;
+  stroke: rgba(79, 163, 190, 0.48);
+  stroke-width: 1.2;
+  stroke-dasharray: 3 12;
+}
+
+.pmsm-turn__field-ghosts {
+  opacity: 0.18;
+}
+
+.pmsm-turn__field-vector {
+  stroke: #4fa3be;
+  stroke-width: 8;
+  stroke-linecap: round;
+}
+
+.pmsm-turn__field-origin {
+  fill: #4fa3be;
+}
+
+.pmsm-turn__pole-vector {
+  stroke: #7e7bd8;
+  stroke-width: 6;
+  stroke-linecap: round;
+}
+
+.pmsm-turn__load-gap {
+  fill: rgba(227, 179, 76, 0.11);
+  stroke: #e3b34c;
+  stroke-width: 1.25;
+}
+
+.pmsm-turn__load-arrow {
+  stroke: #e3b34c;
+  stroke-width: 3.6;
+  stroke-linecap: round;
+}
+
+.pmsm-turn__ipm-shell {
+  fill: #293236;
+  stroke: #9ba6aa;
+  stroke-width: 2.2;
+}
+
+.pmsm-turn__ipm-steel {
+  fill: rgba(185, 196, 199, 0.14);
+  stroke: #728084;
+  stroke-width: 1.3;
+}
+
+.pmsm-turn__ipm-steel.is-path-focus {
+  fill: rgba(79, 163, 190, 0.16);
+  stroke: #4fa3be;
+  stroke-width: 2;
+}
+
+.pmsm-turn__flux-barrier {
+  fill: none;
+  stroke: #0a0c0d;
+  stroke-width: 16;
+  stroke-linecap: round;
+}
+
+.pmsm-turn__magnet-pair rect {
+  fill: rgba(126, 123, 216, 0.42);
+  stroke: #8d8adf;
+  stroke-width: 2;
+}
+
+.pmsm-turn__steel-bridge {
+  fill: #738084;
+  stroke: #adb8bb;
+  stroke-width: 1.2;
+  transition: fill 280ms ease, stroke 280ms ease;
+}
+
+.pmsm-turn__steel-bridge.is-highlighted {
+  fill: #c9d0d4;
+  stroke: #e3b34c;
+  stroke-width: 2.1;
+}
+
+.pmsm-turn__centrifugal line {
+  stroke: #e3b34c;
+  stroke-width: 3.4;
+  stroke-linecap: round;
+}
+
+.pmsm-turn__path-view {
+  transition: opacity 280ms ease;
+}
+
+.pmsm-turn__easy-axis {
+  stroke: #4fa3be;
+  stroke-width: 4.5;
+  stroke-dasharray: 11 8;
+  stroke-linecap: round;
+}
+
+.pmsm-turn__cutaway-frame {
+  fill: none;
+  stroke: #465156;
+  stroke-width: 1.25;
+  stroke-dasharray: 12 10;
+}
+
+.pmsm-turn__torque-vector {
+  fill: none;
+  stroke-linecap: round;
+  stroke-width: 5;
+  transition: opacity 280ms ease;
+}
+
+.pmsm-turn__torque-vector--magnet {
+  stroke: #7e7bd8;
+}
+
+.pmsm-turn__torque-vector--steel {
+  stroke: #4fa3be;
+}
+
+.pmsm-turn__callout circle {
+  fill: #c9d0d4;
+}
+
+.pmsm-turn__callout path {
+  fill: none;
+  stroke: #687478;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.pmsm-turn__callout text {
+  fill: #dce2e5;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.015em;
+}
+
+.pmsm-turn__key-label text {
+  fill: #dce2e5;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.015em;
+}
+
+.pmsm-turn__key-label circle {
+  fill: #c9d0d4;
+}
+
+.pmsm-turn__callout.is-field circle,
+.pmsm-turn__callout.is-field text,
+.pmsm-turn__key-label.is-field circle,
+.pmsm-turn__key-label.is-field text {
+  fill: #4fa3be;
+}
+
+.pmsm-turn__callout.is-field path {
+  stroke: #4fa3be;
+}
+
+.pmsm-turn__callout.is-copper circle,
+.pmsm-turn__callout.is-copper text {
+  fill: #c4763f;
+}
+
+.pmsm-turn__callout.is-copper path {
+  stroke: #c4763f;
+}
+
+.pmsm-turn__callout.is-magnet circle,
+.pmsm-turn__callout.is-magnet text,
+.pmsm-turn__key-label.is-magnet circle,
+.pmsm-turn__key-label.is-magnet text {
+  fill: #8d8adf;
+}
+
+.pmsm-turn__callout.is-magnet path {
+  stroke: #8d8adf;
+}
+
+.pmsm-turn__callout.is-amber circle,
+.pmsm-turn__callout.is-amber text {
+  fill: #e3b34c;
+}
+
+.pmsm-turn__callout.is-amber path {
+  stroke: #e3b34c;
+}
+
+.pmsm-turn__control-wrap {
+  position: absolute;
+  z-index: 3;
+  bottom: 4.5rem;
+  left: clamp(1rem, 3vw, 2rem);
+  max-width: min(33rem, calc(100% - 3rem));
+}
+
+.pmsm-turn__control {
+  display: inline-flex;
+  flex-wrap: wrap;
+  border: 1px solid var(--line-strong);
+  background: rgba(10, 12, 13, 0.92);
+}
+
+.pmsm-turn__control button {
+  min-height: 2.05rem;
+  padding: 0.42rem 0.72rem;
+  border: 0;
+  border-right: 1px solid var(--line-strong);
+  border-radius: 0;
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.67rem;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  transition: color 180ms ease, background 180ms ease;
+}
+
+.pmsm-turn__control button:last-child {
+  border-right: 0;
+}
+
+.pmsm-turn__control button:hover {
+  color: var(--ink-soft);
+}
+
+.pmsm-turn__control button.is-selected {
+  background: var(--amber);
+  color: #1a1710;
+}
+
+.pmsm-turn__control button:focus-visible {
+  position: relative;
+  z-index: 1;
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+}
+
+.pmsm-turn__control-wrap p {
+  max-width: 32rem;
+  margin: 0.5rem 0 0;
+  color: var(--muted);
+  font-size: 0.67rem;
+  line-height: 1.35;
+}
+
+.pmsm-turn__status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 1280px) and (min-width: 961px) {
+  .pmsm-turn__control-wrap {
+    bottom: 4rem;
+    left: 1.15rem;
+  }
+
+  .pmsm-turn__callout text {
+    font-size: 14px;
+  }
+
+  .pmsm-turn__key-label text {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 960px) {
+  .pmsm-turn__control-wrap {
+    bottom: 4.1rem;
+  }
+
+  .pmsm-turn__control-wrap p {
+    max-width: 25rem;
+  }
+}
+
+@media (max-width: 560px) {
+  .pmsm-turn__control-wrap {
+    bottom: 3.8rem;
+    left: 0.85rem;
+    max-width: calc(100% - 1.7rem);
+  }
+
+  .pmsm-turn__control button {
+    min-height: 1.9rem;
+    padding: 0.38rem 0.5rem;
+    font-size: 0.58rem;
+  }
+
+  .pmsm-turn__control-wrap p {
+    display: none;
+  }
+
+  .pmsm-turn__callout text {
+    font-size: 12px;
+  }
+
+  .pmsm-turn__key-label text {
+    font-size: 12px;
+  }
+}

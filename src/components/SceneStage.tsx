@@ -11,6 +11,10 @@ import {
   VehicleJourneyVisual,
   type VehicleJourneyStep,
 } from "../visuals/vehicle/VehicleJourneyVisual";
+import {
+  PmsmTurnVisual,
+  type PmsmTurnStep,
+} from "../visuals/pmsm/PmsmTurnVisual";
 
 const LazyStoryCanvas = lazy(async () => {
   const module = await import("./StoryCanvas");
@@ -22,6 +26,14 @@ const vehicleJourneyStepByStoryId: Readonly<Record<string, VehicleJourneyStep>> 
   "power-path-flow": "energy",
   "drive-unit-extract": "extract",
   "motor-isolation": "motor",
+};
+
+const pmsmTurnStepByStoryId: Readonly<Record<string, PmsmTurnStep>> = {
+  "pmsm-assemble-stator": "assemble",
+  "pmsm-three-phase-field": "field",
+  "pmsm-rotor-lock": "sync",
+  "ipm-rotor-cutaway": "buried",
+  "ipm-reluctance-overlay": "torques",
 };
 
 type CanvasState = "checking" | "loading" | "ready" | "fallback";
@@ -243,6 +255,8 @@ export function SceneStage({
 }: SceneStageProps) {
   const [canvasState, setCanvasState] = useState<CanvasState>("checking");
   const vehicleJourneyStep = vehicleJourneyStepByStoryId[step.id];
+  const pmsmTurnStep = pmsmTurnStepByStoryId[step.id];
+  const hasOwnedVisual = Boolean(vehicleJourneyStep || pmsmTurnStep);
   const signal = useRef<StorySignal>({
     progress: scene.legacyProgress,
     activeChapter: 0,
@@ -259,7 +273,7 @@ export function SceneStage({
   signal.current.alternative = step.legacyAlternative ?? "pmsm";
 
   useEffect(() => {
-    if (vehicleJourneyStep) {
+    if (hasOwnedVisual) {
       setCanvasState("fallback");
       return undefined;
     }
@@ -273,7 +287,7 @@ export function SceneStage({
       cancelled = true;
       window.cancelAnimationFrame(frame);
     };
-  }, [vehicleJourneyStep]);
+  }, [hasOwnedVisual]);
 
   return (
     <section
@@ -289,6 +303,14 @@ export function SceneStage({
             paused={paused}
             reducedMotion={reducedMotion}
             showCopy={false}
+          />
+        </div>
+      ) : pmsmTurnStep ? (
+        <div className="visual-stage__pmsm-turn">
+          <PmsmTurnVisual
+            step={pmsmTurnStep}
+            paused={paused}
+            reducedMotion={reducedMotion}
           />
         </div>
       ) : (
@@ -326,7 +348,7 @@ export function SceneStage({
         <span>{stageLens[step.visualState.mode]}</span>
       </div>
 
-      {!vehicleJourneyStep && <GeometryLabels elements={step.visualState.visibleElements} />}
+      {!hasOwnedVisual && <GeometryLabels elements={step.visualState.visibleElements} />}
 
       <div className="visual-stage__transport">
         <button
@@ -349,7 +371,7 @@ export function SceneStage({
       <p className="sr-only">
         Current visual mode: {modeLabel[step.visualState.mode]}. {step.visualState.visualChange}
       </p>
-      {canvasState === "fallback" && !vehicleJourneyStep && (
+      {canvasState === "fallback" && !hasOwnedVisual && (
         <p className="visual-stage__fallback-note" role="status">
           WebGL is unavailable. The visual guide remains available.
         </p>

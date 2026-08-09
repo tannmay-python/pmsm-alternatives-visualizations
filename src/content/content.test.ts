@@ -32,6 +32,22 @@ describe("PMSM curriculum content contracts", () => {
     expectIssue("layer-conflation", badAxis, "Ferrite must never be accepted as a torque principle.");
   });
 
+  it("keeps the Chapter 2 two-pull scene beginner-first", () => {
+    const twoPullStep = pmsmContent.chapters
+      .flatMap((chapter) => chapter.steps)
+      .find((step) => step.id === "ipm-reluctance-overlay");
+
+    expect(twoPullStep?.title).toBe("One rotor, two pulls");
+    expect(twoPullStep?.learnerQuestion).toBe("Is the magnet doing all the turning?");
+    expect(twoPullStep?.copy.glance).toBe(
+      "The magnet pulls, and the shaped steel also tries to line up. Both turn the same shaft.",
+    );
+    expect(twoPullStep?.copy.why).toContain("reluctance torque");
+    expect(twoPullStep?.copy.evidence).toContain("IPM-SynRM");
+    expect(twoPullStep?.copy.glance).not.toContain("reluctance torque");
+    expect(twoPullStep?.copy.glance).not.toContain("IPM-SynRM");
+  });
+
   it("requires provenance for performance and market claims", () => {
     const badQuantity = {
       ...pmsmContent,
