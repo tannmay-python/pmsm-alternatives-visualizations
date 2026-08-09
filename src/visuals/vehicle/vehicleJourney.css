@@ -1,0 +1,418 @@
+.vehicle-journey {
+  --vehicle-bg: #0a0c0d;
+  --vehicle-panel: #111516;
+  --vehicle-text: #e6eaeb;
+  --vehicle-muted: #9aa3a7;
+  --vehicle-dim: #4a5459;
+  --vehicle-line: #273035;
+  --vehicle-steel: #9ba4a8;
+  --vehicle-copper: #c77b43;
+  --vehicle-signal: #e3b34c;
+  --vehicle-cooling: #5e8f86;
+  position: relative;
+  overflow: clip;
+  isolation: isolate;
+  min-height: min(42rem, calc(100dvh - 5rem));
+  border: 1px solid var(--vehicle-line);
+  background: var(--vehicle-bg);
+  color: var(--vehicle-text);
+  font-family: "Avenir Next", Avenir, "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.vehicle-journey__copy {
+  position: absolute;
+  z-index: 2;
+  top: clamp(1.2rem, 3vw, 2.25rem);
+  left: clamp(1.2rem, 3.5vw, 3.3rem);
+  width: min(23rem, calc(100% - 2.4rem));
+  pointer-events: none;
+}
+
+.vehicle-journey__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.vehicle-journey__eyebrow {
+  margin: 0 0 0.6rem;
+  color: var(--vehicle-signal);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.vehicle-journey h2 {
+  max-width: 17ch;
+  margin: 0;
+  color: var(--vehicle-text);
+  font-size: clamp(1.45rem, 2.4vw, 2.45rem);
+  font-weight: 420;
+  letter-spacing: -0.045em;
+  line-height: 1.05;
+}
+
+.vehicle-journey__status {
+  max-width: 29ch;
+  margin: 0.9rem 0 0;
+  color: var(--vehicle-muted);
+  font-size: clamp(0.84rem, 1.1vw, 0.96rem);
+  line-height: 1.52;
+}
+
+.vehicle-journey__stage {
+  width: 100%;
+  min-height: min(42rem, calc(100dvh - 5rem));
+}
+
+.vehicle-journey__stage > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: inherit;
+}
+
+.vehicle-journey__grid line {
+  stroke: #151a1d;
+  stroke-width: 1;
+}
+
+.vehicle-journey__ground,
+.vehicle-journey__axis {
+  fill: none;
+  stroke: var(--vehicle-line);
+  stroke-width: 1.2;
+}
+
+.vehicle-journey__axis {
+  stroke-dasharray: 15 7 3 7;
+}
+
+.vehicle-journey__car-body,
+.vehicle-journey__wheel-tyre,
+.vehicle-journey__wheel-rim,
+.vehicle-journey__wheel line,
+.vehicle-journey__battery,
+.vehicle-journey__motor-shell,
+.vehicle-journey__stator-ring,
+.vehicle-journey__air-gap,
+.vehicle-journey__inverter,
+.vehicle-journey__gear,
+.vehicle-journey__gear-inner,
+.vehicle-journey__gear-tooth,
+.vehicle-journey__differential circle,
+.vehicle-journey__differential line,
+.vehicle-journey__half-shaft {
+  fill: none;
+  stroke: var(--vehicle-steel);
+  stroke-width: 1.35;
+}
+
+.vehicle-journey__car-body {
+  opacity: 0.58;
+}
+
+.vehicle-journey__car-body.is-ghost {
+  opacity: 0.2;
+}
+
+.vehicle-journey__car-glass {
+  fill: rgba(155, 164, 168, 0.055);
+  stroke: var(--vehicle-dim);
+  stroke-width: 1;
+}
+
+.vehicle-journey__wheel-tyre {
+  stroke-width: 2.25;
+}
+
+.vehicle-journey__wheel-rim {
+  stroke: var(--vehicle-dim);
+}
+
+.vehicle-journey__wheel-hub {
+  fill: var(--vehicle-steel);
+}
+
+.vehicle-journey__battery {
+  fill: rgba(155, 164, 168, 0.045);
+}
+
+.vehicle-journey__battery-cell,
+.vehicle-journey__inverter-detail {
+  stroke: var(--vehicle-dim);
+  stroke-width: 1;
+}
+
+.vehicle-journey__copper-coil {
+  fill: rgba(199, 123, 67, 0.75);
+  stroke: var(--vehicle-copper);
+  stroke-width: 1;
+}
+
+.vehicle-journey__air-gap {
+  stroke: var(--vehicle-signal);
+  stroke-dasharray: 2 7;
+  opacity: 0.65;
+}
+
+.vehicle-journey__rotor-core {
+  fill: #5a6469;
+  stroke: var(--vehicle-steel);
+  stroke-width: 1;
+}
+
+.vehicle-journey__shaft {
+  fill: #b9c0c2;
+}
+
+.vehicle-journey__shaft-cap {
+  fill: var(--vehicle-bg);
+  stroke: var(--vehicle-steel);
+  stroke-width: 1;
+}
+
+.vehicle-journey__inverter {
+  fill: rgba(155, 164, 168, 0.035);
+}
+
+.vehicle-journey__inverter-terminal {
+  stroke: var(--vehicle-signal);
+  stroke-width: 2;
+}
+
+.vehicle-journey__gear-tooth {
+  stroke: var(--vehicle-dim);
+}
+
+.vehicle-journey__differential circle {
+  fill: rgba(155, 164, 168, 0.04);
+}
+
+.vehicle-journey__part {
+  cursor: pointer;
+  outline: none;
+}
+
+.vehicle-journey__part:hover .vehicle-journey__battery,
+.vehicle-journey__part:hover .vehicle-journey__inverter,
+.vehicle-journey__part:hover .vehicle-journey__motor-shell,
+.vehicle-journey__part:hover .vehicle-journey__gear,
+.vehicle-journey__part:hover .vehicle-journey__wheel-tyre,
+.vehicle-journey__part:focus .vehicle-journey__battery,
+.vehicle-journey__part:focus .vehicle-journey__inverter,
+.vehicle-journey__part:focus .vehicle-journey__motor-shell,
+.vehicle-journey__part:focus .vehicle-journey__gear,
+.vehicle-journey__part:focus .vehicle-journey__wheel-tyre,
+.vehicle-journey__part.is-selected .vehicle-journey__battery,
+.vehicle-journey__part.is-selected .vehicle-journey__inverter,
+.vehicle-journey__part.is-selected .vehicle-journey__motor-shell,
+.vehicle-journey__part.is-selected .vehicle-journey__gear,
+.vehicle-journey__part.is-selected .vehicle-journey__wheel-tyre {
+  stroke: var(--vehicle-signal);
+  stroke-width: 2.2;
+}
+
+.vehicle-journey__energy-link {
+  fill: none;
+  stroke: #3a454a;
+  stroke-width: 2;
+}
+
+.vehicle-journey__energy-link.is-active {
+  stroke: var(--vehicle-signal);
+  stroke-dasharray: 7 8;
+  animation: vehicle-journey-current 920ms linear infinite;
+}
+
+.vehicle-journey__flow-caption {
+  fill: var(--vehicle-muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  letter-spacing: 0.11em;
+}
+
+.vehicle-journey__callout circle {
+  fill: var(--vehicle-muted);
+}
+
+.vehicle-journey__callout path {
+  fill: none;
+  stroke: var(--vehicle-line);
+  stroke-width: 1.1;
+}
+
+.vehicle-journey__callout text {
+  fill: var(--vehicle-muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+}
+
+.vehicle-journey__callout.is-signal circle {
+  fill: var(--vehicle-signal);
+}
+
+.vehicle-journey__callout.is-signal text {
+  fill: var(--vehicle-signal);
+}
+
+.vehicle-journey__callout.is-copper circle {
+  fill: var(--vehicle-copper);
+}
+
+.vehicle-journey__callout.is-copper text {
+  fill: var(--vehicle-copper);
+}
+
+.vehicle-journey__callout.is-cooling circle {
+  fill: var(--vehicle-cooling);
+}
+
+.vehicle-journey__callout.is-cooling text {
+  fill: var(--vehicle-cooling);
+}
+
+.vehicle-journey__layout-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--vehicle-muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.vehicle-journey__layout-toggle > span {
+  margin-right: 0.45rem;
+  color: var(--vehicle-dim);
+}
+
+.vehicle-journey__layout-toggle button {
+  min-height: 1.85rem;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid var(--vehicle-line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--vehicle-muted);
+  cursor: pointer;
+}
+
+.vehicle-journey__layout-toggle button.is-selected {
+  border-color: var(--vehicle-signal);
+  background: var(--vehicle-signal);
+  color: #19150a;
+}
+
+.vehicle-journey__layout-toggle button:focus-visible,
+.vehicle-journey__extract-control input:focus-visible {
+  outline: 2px solid var(--vehicle-signal);
+  outline-offset: 3px;
+}
+
+.vehicle-journey__drive-origin circle,
+.vehicle-journey__drive-origin rect {
+  fill: none;
+  stroke: var(--vehicle-dim);
+  stroke-dasharray: 5 6;
+  stroke-width: 1.2;
+}
+
+.vehicle-journey__drive-origin path {
+  fill: none;
+  stroke: var(--vehicle-signal);
+  stroke-dasharray: 3 6;
+  stroke-width: 1.15;
+}
+
+.vehicle-journey__cooling-path {
+  fill: none;
+  stroke: var(--vehicle-cooling);
+  stroke-dasharray: 2 6;
+  stroke-linecap: round;
+  stroke-width: 1.7;
+}
+
+.vehicle-journey__extract-control {
+  display: grid;
+  gap: 0.65rem;
+  width: 12rem;
+  color: var(--vehicle-muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.vehicle-journey__extract-control input {
+  width: 100%;
+  accent-color: var(--vehicle-signal);
+  cursor: ew-resize;
+}
+
+.vehicle-journey__extract-control input:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.vehicle-journey__wheel.is-spinning,
+.vehicle-journey__rotor.is-running {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: vehicle-journey-rotate 3.2s linear infinite;
+}
+
+@keyframes vehicle-journey-current {
+  to {
+    stroke-dashoffset: -30;
+  }
+}
+
+@keyframes vehicle-journey-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.vehicle-journey.is-still .vehicle-journey__energy-link.is-active,
+.vehicle-journey.is-still .vehicle-journey__wheel.is-spinning,
+.vehicle-journey.is-still .vehicle-journey__rotor.is-running {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vehicle-journey__energy-link.is-active,
+  .vehicle-journey__wheel.is-spinning,
+  .vehicle-journey__rotor.is-running {
+    animation: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .vehicle-journey {
+    min-height: 35rem;
+  }
+
+  .vehicle-journey__stage,
+  .vehicle-journey__stage > svg {
+    min-height: 35rem;
+  }
+
+  .vehicle-journey__copy {
+    top: 1rem;
+    left: 1rem;
+  }
+
+  .vehicle-journey__status {
+    max-width: 22ch;
+  }
+}
