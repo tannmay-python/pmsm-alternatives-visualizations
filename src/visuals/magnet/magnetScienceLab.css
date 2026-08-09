@@ -1,0 +1,129 @@
+.magnet-science-lab {
+  --msl-bg: #101514;
+  --msl-panel: #17201e;
+  --msl-panel-2: #1c2724;
+  --msl-text: #f1f5f0;
+  --msl-muted: #abb9b3;
+  --msl-line: rgba(232, 242, 236, 0.16);
+  --msl-line-strong: rgba(232, 242, 236, 0.32);
+  --msl-accent: #badb3d;
+  --msl-copper: #d08450;
+  --msl-heat: #ec7954;
+  --msl-cool: #75c5bf;
+  color: var(--msl-text);
+  font-family: "Avenir Next", Avenir, "Helvetica Neue", Arial, sans-serif;
+}
+
+.magnet-science-lab * { box-sizing: border-box; }
+
+.msl-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(18rem, .85fr);
+  gap: clamp(1.5rem, 4vw, 5rem);
+  align-items: end;
+  max-width: 1120px;
+  margin: 0 auto 1.25rem;
+}
+
+.msl-kicker, .msl-term, .msl-figure-label, .msl-axis-label, .msl-small-note {
+  margin: 0;
+  color: var(--msl-muted);
+  font-size: .69rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.msl-heading h2 { max-width: 15ch; margin: .4rem 0 0; font-size: clamp(1.75rem, 4vw, 3.5rem); letter-spacing: -.055em; line-height: .98; }
+.msl-heading > p { max-width: 42ch; margin: 0; color: var(--msl-muted); font-size: clamp(.92rem, 1.2vw, 1.05rem); line-height: 1.55; }
+
+.msl-exhibit {
+  display: grid;
+  grid-template-columns: minmax(0, 1.72fr) minmax(18rem, .88fr);
+  min-height: 500px;
+  border: 1px solid var(--msl-line);
+  border-radius: 18px;
+  overflow: hidden;
+  background: var(--msl-bg);
+}
+
+.msl-stage { position: relative; min-width: 0; background: var(--msl-bg); }
+.msl-svg { display: block; width: 100%; height: 100%; min-height: 500px; }
+.msl-live-status { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.msl-controls {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 1rem;
+  border-left: 1px solid var(--msl-line);
+  background: var(--msl-panel);
+}
+
+.msl-tabs { display: grid; gap: 2px; }
+.msl-tabs button, .msl-pagination button {
+  border: 0;
+  color: var(--msl-muted);
+  font: inherit;
+  cursor: pointer;
+}
+.msl-tabs button {
+  display: grid;
+  grid-template-columns: 1.35rem minmax(0, 1fr);
+  gap: .65rem;
+  align-items: center;
+  width: 100%;
+  min-height: 42px;
+  padding: .5rem .65rem;
+  border-radius: 9px;
+  background: transparent;
+  font-size: .78rem;
+  font-weight: 650;
+  text-align: left;
+  transition: color 160ms ease, background 160ms ease, transform 160ms ease;
+}
+.msl-tabs button:hover { background: rgba(255,255,255,.05); color: var(--msl-text); }
+.msl-tabs button:active, .msl-pagination button:active { transform: scale(.98); }
+.msl-tabs button.is-active { color: #151a10; background: var(--msl-accent); }
+.msl-tabs button:focus-visible, .msl-pagination button:focus-visible, .msl-heat-control input:focus-visible { outline: 2px solid var(--msl-accent); outline-offset: 3px; }
+.msl-atom-icon, .msl-grain-icon { display: block; width: .92rem; height: .92rem; border: 1px solid currentColor; border-radius: 50%; }
+.msl-dy-icon { font-size: .64rem; font-weight: 800; letter-spacing: -.06em; }
+.msl-grain-icon { border-radius: 3px 50% 45% 50%; transform: rotate(22deg); }
+
+.msl-detail { flex: 1; padding: 1.3rem .65rem 1rem; }
+.msl-copy-block { display: grid; gap: .42rem; }
+.msl-copy-block p, .msl-split-copy p { margin: 0 0 .9rem; color: var(--msl-muted); font-size: .84rem; line-height: 1.5; }
+.msl-term { display: block; color: var(--msl-accent); font-weight: 750; }
+.msl-split-copy { display: grid; gap: .95rem; }
+.msl-split-copy div { padding: .9rem; border-left: 2px solid var(--msl-line-strong); background: rgba(255,255,255,.025); }
+
+.msl-heat-control { display: grid; gap: 1rem; }
+.msl-heat-control label { display: grid; gap: .5rem; color: var(--msl-text); font-size: .77rem; font-weight: 650; }
+.msl-heat-control label span { display: inline-flex; gap: .45rem; align-items: center; }
+.msl-heat-control input { width: 100%; accent-color: var(--msl-accent); cursor: pointer; }
+.msl-risk { display: grid; gap: .15rem; padding: .85rem; border: 1px solid var(--msl-line); border-radius: 9px; background: rgba(255,255,255,.025); }
+.msl-risk span { color: var(--msl-muted); font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; }
+.msl-risk strong { font-size: 1rem; text-transform: capitalize; }
+.msl-risk.is-low strong { color: var(--msl-cool); }.msl-risk.is-watch strong { color: var(--msl-accent); }.msl-risk.is-high strong { color: var(--msl-heat); }
+
+.msl-pagination { display: grid; grid-template-columns: 1fr auto 1fr; gap: .35rem; align-items: center; margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--msl-line); }
+.msl-pagination button { display: inline-flex; align-items: center; gap: .4rem; padding: .5rem 0; background: transparent; font-size: .72rem; font-weight: 700; }
+.msl-pagination button:last-child { justify-content: flex-end; }.msl-pagination button:hover { color: var(--msl-text); }.msl-pagination span { color: var(--msl-muted); font-size: .68rem; font-variant-numeric: tabular-nums; }
+.msl-method-note { max-width: 1120px; margin: .8rem auto 0; color: var(--msl-muted); font-size: .74rem; line-height: 1.45; }
+
+.msl-stage-backdrop { fill: var(--msl-bg); stroke: var(--msl-line); }.msl-arrowhead { fill: var(--msl-muted); }.msl-axis { stroke: var(--msl-line-strong); stroke-width: 1.5; }.msl-axis-label { fill: var(--msl-muted); }.msl-figure-label { fill: var(--msl-muted); }.msl-callout-title { fill: var(--msl-text); font-size: 13px; font-weight: 720; letter-spacing: -.01em; }.msl-callout-copy { fill: var(--msl-muted); font-size: 12px; }.msl-small-note { fill: var(--msl-muted); font-size: 10px; letter-spacing: .04em; text-transform: none; }.msl-hatch-line { stroke: var(--msl-line); stroke-width: 1; }
+.msl-hysteresis { fill: none; stroke: var(--msl-accent); stroke-width: 4; stroke-linecap: round; }.msl-point-remanence { fill: var(--msl-accent); }.msl-point-coercivity { fill: var(--msl-copper); }.msl-measure { fill: none; stroke: var(--msl-line-strong); stroke-dasharray: 4 4; }.msl-mini-magnet rect { fill: var(--msl-copper); }.msl-mini-magnet text, .msl-slab-letter { fill: #1b1611; font-size: 15px; font-weight: 850; }.msl-mini-magnet path { fill: none; stroke: var(--msl-accent); stroke-width: 2; }
+.msl-alloy-panel { fill: var(--msl-panel); stroke: var(--msl-line); }.msl-fe-dot { fill: rgba(186,219,61,.15); stroke: var(--msl-accent); stroke-width: 1.5; }.msl-moment-line { stroke: var(--msl-accent); stroke-width: 1.5; }.msl-anisotropy-well { fill: none; stroke: var(--msl-copper); stroke-width: 3; }.msl-easy-axis { stroke: var(--msl-line-strong); stroke-dasharray: 4 4; }.msl-ndpr-dot { fill: var(--msl-copper); }.msl-connector { fill: none; stroke: var(--msl-line-strong); stroke-width: 1.5; }
+.msl-magnet-block { fill: var(--msl-panel); stroke: var(--msl-line); }.msl-hot-overlay { fill: url(#msl-hatch); opacity: .18; }.msl-magnet-word { fill: var(--msl-muted); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; }.msl-grain { fill: rgba(186,219,61,.08); stroke: var(--msl-line-strong); }.msl-grain-arrow { stroke: var(--msl-accent); stroke-width: 2; }.msl-nucleus { fill: var(--msl-heat); opacity: .78; }.msl-reversal-front { fill: none; stroke: var(--msl-heat); stroke-width: 4; stroke-linecap: round; }.msl-reverse-field { stroke: var(--msl-copper); stroke-width: 2; }.msl-stress-scale { fill: var(--msl-panel-2); }.msl-stress-fill.is-low { fill: var(--msl-cool); }.msl-stress-fill.is-watch { fill: var(--msl-accent); }.msl-stress-fill.is-high { fill: var(--msl-heat); }
+.msl-tradeoff-column, .msl-cooling-panel { fill: var(--msl-panel); stroke: var(--msl-line); }.msl-magnet-slab { fill: var(--msl-copper); }.msl-remanence-arrow { stroke: var(--msl-accent); stroke-width: 4; }.msl-remanence-arrow.is-short { stroke: var(--msl-accent); opacity: .6; }.msl-dy-dot { fill: var(--msl-heat); stroke: var(--msl-bg); stroke-width: 2; }.msl-coercivity-bracket { fill: none; stroke: var(--msl-heat); stroke-width: 3; }
+.msl-diffusion-box { fill: var(--msl-panel); stroke: var(--msl-line); }.msl-diffusion-boundary { fill: rgba(236,121,84,.17); stroke: var(--msl-heat); stroke-width: 2; }.msl-diffusion-core { fill: #202b27; stroke: var(--msl-line); }.msl-diffusion-dot { fill: var(--msl-heat); }.msl-annotation-line { stroke: var(--msl-line-strong); stroke-width: 1.2; }
+.msl-hot-rotor, .msl-cooled-rotor { fill: var(--msl-panel-2); stroke: var(--msl-line-strong); stroke-width: 2; }.msl-hot-rotor { stroke: var(--msl-heat); }.msl-cooled-rotor { stroke: var(--msl-cool); }.msl-rotor-core { fill: var(--msl-copper); }.msl-heat-waves path { fill: none; stroke: var(--msl-heat); stroke-width: 3; stroke-linecap: round; }.msl-coolant { fill: none; stroke: var(--msl-cool); stroke-width: 5; stroke-linecap: round; }.msl-fan { fill: var(--msl-cool); color: var(--msl-cool); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .msl-moment { transform-box: fill-box; transform-origin: center; animation: msl-moment 1.6s ease-in-out infinite; }.msl-roll { animation: msl-roll 2.4s ease-in-out infinite; }.msl-nucleus-pulse { transform-box: fill-box; transform-origin: center; animation: msl-pulse 1.4s ease-in-out infinite; }.msl-diffusion-breathe { transform-box: fill-box; transform-origin: center; animation: msl-breathe 1.6s ease-in-out infinite; }.msl-heat-waves { animation: msl-wave 1.8s ease-in-out infinite; }.msl-coolant-flow { stroke-dasharray: 12 11; animation: msl-flow 1.2s linear infinite; }.msl-fan { transform-box: fill-box; transform-origin: center; animation: msl-spin 2.3s linear infinite; }
+}
+.magnet-science-lab.is-reduced-motion * { animation: none !important; transition-duration: 0ms !important; }
+@keyframes msl-moment { 0%,100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }@keyframes msl-roll { 0%,100% { transform: translateY(0); } 50% { transform: translateY(12px); } }@keyframes msl-pulse { 0%,100% { opacity:.65; transform:scale(.94); } 50% { opacity:1; transform:scale(1.08); } }@keyframes msl-breathe { 0%,100% { opacity:.55; } 50% { opacity:1; } }@keyframes msl-wave { 0%,100% { transform: translateY(0); opacity:.6; } 50% { transform:translateY(-7px); opacity:1; } }@keyframes msl-flow { to { stroke-dashoffset:-46; } }@keyframes msl-spin { to { transform:rotate(360deg); } }
+
+@media (max-width: 880px) { .msl-heading { grid-template-columns: 1fr; gap:.85rem; }.msl-heading h2 { max-width: 19ch; }.msl-exhibit { grid-template-columns: 1fr; }.msl-controls { border-top:1px solid var(--msl-line); border-left:0; }.msl-tabs { grid-template-columns: repeat(3, minmax(0,1fr)); }.msl-tabs button { grid-template-columns:1fr; gap:.25rem; justify-items:center; min-height:50px; padding:.4rem; text-align:center; }.msl-tabs button span { font-size:.66rem; line-height:1.1; }.msl-detail { min-height: 180px; }.msl-svg { min-height:auto; aspect-ratio: 760 / 500; } }
+@media (max-width: 520px) { .msl-exhibit { border-radius:12px; }.msl-heading h2 { font-size:2rem; }.msl-tabs { grid-template-columns: repeat(2,minmax(0,1fr)); }.msl-method-note { font-size:.7rem; } }
+@media (prefers-reduced-motion: reduce) { .magnet-science-lab *, .magnet-science-lab *::before, .magnet-science-lab *::after { scroll-behavior:auto !important; animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; } }
