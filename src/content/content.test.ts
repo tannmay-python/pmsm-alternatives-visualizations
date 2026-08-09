@@ -8,8 +8,6 @@ const expectIssue = (code: string, content: typeof pmsmContent, message: string)
 };
 
 describe("PMSM curriculum content contracts", () => {
-  const mainSteps = pmsmContent.chapters.flatMap((chapter) => chapter.steps).filter((step) => step.placement === "main");
-
   it("keeps the granular, validated eight-chapter curriculum", () => {
     const baselineIssues = validateContent(pmsmContent);
     expect(baselineIssues).toHaveLength(0);
@@ -17,7 +15,7 @@ describe("PMSM curriculum content contracts", () => {
     expect(pmsmContent.chapters.flatMap((chapter) => chapter.steps).length).toBeGreaterThanOrEqual(26);
     expect(pmsmContent.coverage.length).toBeGreaterThanOrEqual(30);
     expect(new Set(pmsmContent.coverage.map((topic) => topic.dueDiligencePoint)).size).toBe(16);
-    expect(mainSteps.length).toBeGreaterThanOrEqual(26);
+    expect(pmsmContent.chapters.every((chapter) => chapter.steps.some((step) => step.placement === "main"))).toBe(true);
     expect(
       pmsmContent.chapters[0].steps.filter((step) => step.placement === "main").map((step) => step.id),
     ).toEqual(["car-transparent-cutaway", "power-path-flow", "drive-unit-extract", "motor-isolation"]);

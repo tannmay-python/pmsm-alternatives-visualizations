@@ -210,9 +210,26 @@ a:focus-visible {
 }
 
 .visual-stage__canvas,
-.visual-stage__blueprint {
+.visual-stage__blueprint,
+.visual-stage__vehicle-journey {
   position: absolute;
   inset: 0;
+}
+
+.visual-stage__vehicle-journey {
+  z-index: 3;
+}
+
+.visual-stage__vehicle-journey .vehicle-journey,
+.visual-stage__vehicle-journey .vehicle-journey__stage,
+.visual-stage__vehicle-journey .vehicle-journey__stage > svg {
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+}
+
+.visual-stage__vehicle-journey .vehicle-journey {
+  border: 0;
 }
 
 .visual-stage__canvas {

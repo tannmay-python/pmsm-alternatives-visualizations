@@ -7,11 +7,22 @@ import type {
   StoryStep,
   VisualMode,
 } from "../types";
+import {
+  VehicleJourneyVisual,
+  type VehicleJourneyStep,
+} from "../visuals/vehicle/VehicleJourneyVisual";
 
 const LazyStoryCanvas = lazy(async () => {
   const module = await import("./StoryCanvas");
   return { default: module.StoryCanvas };
 });
+
+const vehicleJourneyStepByStoryId: Readonly<Record<string, VehicleJourneyStep>> = {
+  "car-transparent-cutaway": "location",
+  "power-path-flow": "energy",
+  "drive-unit-extract": "extract",
+  "motor-isolation": "motor",
+};
 
 type CanvasState = "checking" | "loading" | "ready" | "fallback";
 
@@ -231,6 +242,7 @@ export function SceneStage({
   onTogglePause,
 }: SceneStageProps) {
   const [canvasState, setCanvasState] = useState<CanvasState>("checking");
+  const vehicleJourneyStep = vehicleJourneyStepByStoryId[step.id];
   const signal = useRef<StorySignal>({
     progress: scene.legacyProgress,
     activeChapter: 0,
@@ -247,6 +259,11 @@ export function SceneStage({
   signal.current.alternative = step.legacyAlternative ?? "pmsm";
 
   useEffect(() => {
+    if (vehicleJourneyStep) {
+      setCanvasState("fallback");
+      return undefined;
+    }
+
     let cancelled = false;
     const frame = window.requestAnimationFrame(() => {
       if (!cancelled) setCanvasState(supportsWebGl() ? "loading" : "fallback");
@@ -256,7 +273,7 @@ export function SceneStage({
       cancelled = true;
       window.cancelAnimationFrame(frame);
     };
-  }, []);
+  }, [vehicleJourneyStep]);
 
   return (
     <section
@@ -265,38 +282,51 @@ export function SceneStage({
       data-reduced-motion={reducedMotion || undefined}
       aria-label={`${chapter.content.title}: ${step.content.title}`}
     >
-      <div className="visual-stage__canvas" aria-hidden="true">
-        {(canvasState === "checking" || canvasState === "loading") && <StageSkeleton />}
-        {canvasState !== "fallback" && (
-          <CanvasErrorBoundary onFailure={() => setCanvasState("fallback")}>
-            <Suspense fallback={<StageSkeleton />}>
-              <LazyStoryCanvas
-                signal={signal}
-                onReady={() => setCanvasState("ready")}
-              />
-            </Suspense>
-          </CanvasErrorBoundary>
-        )}
-      </div>
-
-      <div className="visual-stage__blueprint">
-        {scene.asset ? (
-          <img
-            className="scene-asset"
-            src={reducedMotion ? scene.asset.reducedMotionSrc ?? scene.asset.src : scene.asset.src}
-            alt={scene.asset.alt}
+      {vehicleJourneyStep ? (
+        <div className="visual-stage__vehicle-journey">
+          <VehicleJourneyVisual
+            step={vehicleJourneyStep}
+            paused={paused}
+            reducedMotion={reducedMotion}
+            showCopy={false}
           />
-        ) : (
-          <Blueprint scene={scene} />
-        )}
-      </div>
+        </div>
+      ) : (
+        <>
+          <div className="visual-stage__canvas" aria-hidden="true">
+            {(canvasState === "checking" || canvasState === "loading") && <StageSkeleton />}
+            {canvasState !== "fallback" && (
+              <CanvasErrorBoundary onFailure={() => setCanvasState("fallback")}>
+                <Suspense fallback={<StageSkeleton />}>
+                  <LazyStoryCanvas
+                    signal={signal}
+                    onReady={() => setCanvasState("ready")}
+                  />
+                </Suspense>
+              </CanvasErrorBoundary>
+            )}
+          </div>
+
+          <div className="visual-stage__blueprint">
+            {scene.asset ? (
+              <img
+                className="scene-asset"
+                src={reducedMotion ? scene.asset.reducedMotionSrc ?? scene.asset.src : scene.asset.src}
+                alt={scene.asset.alt}
+              />
+            ) : (
+              <Blueprint scene={scene} />
+            )}
+          </div>
+        </>
+      )}
 
       <div className="visual-stage__meta">
         <span>Scene {String(chapterNumber).padStart(2, "0")}.{stepNumber} · {step.content.title}</span>
         <span>{stageLens[step.visualState.mode]}</span>
       </div>
 
-      <GeometryLabels elements={step.visualState.visibleElements} />
+      {!vehicleJourneyStep && <GeometryLabels elements={step.visualState.visibleElements} />}
 
       <div className="visual-stage__transport">
         <button
@@ -319,7 +349,7 @@ export function SceneStage({
       <p className="sr-only">
         Current visual mode: {modeLabel[step.visualState.mode]}. {step.visualState.visualChange}
       </p>
-      {canvasState === "fallback" && (
+      {canvasState === "fallback" && !vehicleJourneyStep && (
         <p className="visual-stage__fallback-note" role="status">
           WebGL is unavailable. The visual guide remains available.
         </p>

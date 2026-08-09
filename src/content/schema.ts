@@ -218,8 +218,22 @@ export type ChapterStep = {
   reducedMotionState: string;
 };
 
+/** A stable bridge between the editorial curriculum and the story router. */
+export const chapterIds = [
+  "where-the-motor-lives",
+  "how-a-pmsm-turns",
+  "why-the-magnet-needs-nd-dy-tb",
+  "reduce-exposure-or-replace-pmsm",
+  "alternative-motor-laboratory",
+  "change-the-magnet-or-geometry",
+  "what-the-vehicle-must-change",
+  "what-is-real-and-indias-opening",
+] as const;
+
+export type ContentChapterId = (typeof chapterIds)[number];
+
 export type ChapterManifest = {
-  id: string;
+  id: ContentChapterId;
   number: number;
   title: string;
   premise: string;

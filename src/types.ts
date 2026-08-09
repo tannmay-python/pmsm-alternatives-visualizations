@@ -13,7 +13,7 @@ export type StorySignal = {
  * The content schema owns chapter identifiers. Keeping the route type derived
  * from it prevents the visual shell drifting from the editorial curriculum.
  */
-export type ChapterId = import("./content/schema").ChapterManifest["id"];
+export type ChapterId = import("./content/schema").ContentChapterId;
 
 export type SceneId =
   | "vehicle-overview"

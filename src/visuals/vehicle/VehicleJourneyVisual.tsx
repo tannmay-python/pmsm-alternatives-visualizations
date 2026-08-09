@@ -153,27 +153,25 @@ function Wheel({
   faded?: boolean;
 }) {
   return (
-    <g
-      className={`vehicle-journey__wheel ${spinning ? "is-spinning" : ""}`}
-      opacity={faded ? 0.34 : 1}
-      transform={`translate(${x} ${y})`}
-    >
-      <circle r="69" className="vehicle-journey__wheel-tyre" />
-      <circle r="46" className="vehicle-journey__wheel-rim" />
-      <circle r="8" className="vehicle-journey__wheel-hub" />
-      {Array.from({ length: 8 }, (_, index) => {
-        const angle = index * 45;
-        return (
-          <line
-            key={angle}
-            x1="10"
-            y1="0"
-            x2="41"
-            y2="0"
-            transform={`rotate(${angle})`}
-          />
-        );
-      })}
+    <g opacity={faded ? 0.34 : 1} transform={`translate(${x} ${y})`}>
+      <g className={`vehicle-journey__wheel ${spinning ? "is-spinning" : ""}`}>
+        <circle r="69" className="vehicle-journey__wheel-tyre" />
+        <circle r="46" className="vehicle-journey__wheel-rim" />
+        <circle r="8" className="vehicle-journey__wheel-hub" />
+        {Array.from({ length: 8 }, (_, index) => {
+          const angle = index * 45;
+          return (
+            <line
+              key={angle}
+              x1="10"
+              y1="0"
+              x2="41"
+              y2="0"
+              transform={`rotate(${angle})`}
+            />
+          );
+        })}
+      </g>
     </g>
   );
 }
@@ -480,22 +478,35 @@ function EnergyStage({
   setSelectedPart,
   spinning,
   showAllEnergyLinks,
+  showSelectedStatus,
 }: {
   activeEnergyIndex: number;
   selectedPart: VehiclePart;
   setSelectedPart: (part: VehiclePart) => void;
   spinning: boolean;
   showAllEnergyLinks: boolean;
+  showSelectedStatus: boolean;
 }) {
+  const selectedLabel = PART_LABELS[selectedPart].toUpperCase();
+
   return (
-    <VehicleModel
-      mode="energy"
-      activeEnergyIndex={activeEnergyIndex}
-      selectedPart={selectedPart}
-      onSelect={setSelectedPart}
-      spinning={spinning}
-      showAllEnergyLinks={showAllEnergyLinks}
-    />
+    <>
+      <VehicleModel
+        mode="energy"
+        activeEnergyIndex={activeEnergyIndex}
+        selectedPart={selectedPart}
+        onSelect={setSelectedPart}
+        spinning={spinning}
+        showAllEnergyLinks={showAllEnergyLinks}
+      />
+      {showSelectedStatus ? (
+        <g className="vehicle-journey__selected-status" aria-hidden="true">
+          <rect x="74" y="76" width="286" height="58" rx="3" />
+          <text x="90" y="99" className="vehicle-journey__selected-status-label">SELECTED PART</text>
+          <text x="90" y="120" className="vehicle-journey__selected-status-value">{selectedLabel}</text>
+        </g>
+      ) : null}
+    </>
   );
 }
 
@@ -540,9 +551,9 @@ function ExtractStage({
       </g>
       {isOpen ? (
         <>
-          <Callout label="INVERTER" target={[725 + transform.x, 374 + transform.y]} labelAt={[667, 166]} align="end" />
-          <Callout label="MOTOR" target={[839 + transform.x, 430 + transform.y]} labelAt={[871, 166]} tone="signal" />
-          <Callout label="REDUCTION + DIFFERENTIAL" target={[949 + transform.x, 446 + transform.y]} labelAt={[1150, 136]} align="end" />
+          <Callout label="INVERTER" target={[725 + transform.x, 374 + transform.y]} labelAt={[620, 118]} align="end" />
+          <Callout label="MOTOR" target={[839 + transform.x, 430 + transform.y]} labelAt={[842, 154]} tone="signal" />
+          <Callout label="REDUCTION + DIFFERENTIAL" target={[949 + transform.x, 446 + transform.y]} labelAt={[1150, 210]} align="end" />
           <Callout label="COOLING PATH" target={[855 + transform.x, 518 + transform.y]} labelAt={[856, 601]} tone="cooling" />
         </>
       ) : (
@@ -649,6 +660,7 @@ export function VehicleJourneyVisual({
               setSelectedPart={setSelectedPart}
               spinning={!isStill}
               showAllEnergyLinks={reducedMotion}
+              showSelectedStatus={!showCopy}
             />
           ) : null}
           {step === "extract" ? (

@@ -239,6 +239,29 @@
   letter-spacing: 0.11em;
 }
 
+.vehicle-journey__selected-status rect {
+  fill: rgba(10, 12, 13, 0.94);
+  stroke: var(--vehicle-line);
+  stroke-width: 1;
+}
+
+.vehicle-journey__selected-status-label,
+.vehicle-journey__selected-status-value {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: 0.1em;
+}
+
+.vehicle-journey__selected-status-label {
+  fill: var(--vehicle-dim);
+  font-size: 10px;
+}
+
+.vehicle-journey__selected-status-value {
+  fill: var(--vehicle-signal);
+  font-size: 13px;
+  font-weight: 600;
+}
+
 .vehicle-journey__callout circle {
   fill: var(--vehicle-muted);
 }
