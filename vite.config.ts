@@ -1,27 +1,15 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
+const pagesBase = process.env.VITE_BASE_PATH ?? "/PMSM-Visualizations/";
+
 export default defineConfig({
   plugins: [react()],
-  base: "/PMSM-Visualizations/",
+  // The deployed repository can provide VITE_BASE_PATH without changing app code.
+  // The existing Pages route remains the default until the new repository is published.
+  base: pagesBase,
   build: {
     target: "es2022",
     cssCodeSplit: true,
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          if (
-            id.includes("/three/") ||
-            id.includes("@react-three") ||
-            id.includes("@pmndrs")
-          ) {
-            return "three";
-          }
-          if (id.includes("/gsap/")) return "scroll";
-          if (id.includes("/react/") || id.includes("/react-dom/")) return "react";
-          return undefined;
-        },
-      },
-    },
   },
 });

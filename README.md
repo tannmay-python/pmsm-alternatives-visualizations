@@ -1,15 +1,24 @@
-# PMSM Visualizations
+# PMSM alternatives visualizations
 
-A standalone 3D visual story about the electric traction motor inside a car:
+This is the canonical working copy for a visual explanation of permanent-magnet
+synchronous motors, magnet materials, and alternative traction-motor routes.
 
-- where one or more motors sit in an EV;
-- how the drive unit connects to the wheels;
-- how a permanent-magnet synchronous motor fits together;
-- how three timed currents create a rotating magnetic field;
-- where rare-earth materials enter the rotor;
-- how wound-field, induction, synchronous-reluctance, and switched-reluctance motors remove rare-earth magnets.
+## Phase 1 foundation
 
-This project is intentionally separate from the main `PMSM-alternatives` issue brief. It is built as a visual companion, not a replacement.
+- One Vite, React, and TypeScript runtime. The old generated component runtime,
+  CDN imports, and `support.js` entry are removed.
+- Eight short, click-led chapters are represented by a typed chapter registry.
+  The main path is intentionally one cause-and-effect visual at a time; deep
+  and evidence layers are structured as optional supporting material.
+- Every chapter step must include a concrete `visualState`: visual mode, primary
+  interaction, visible elements, and visual change. `validateVisualContract()`
+  rejects prose-only additions at runtime and in tests.
+- Back and Next controls, the chapter rail map, arrow-key navigation, hash routes,
+  reduced-motion behavior, skip link, and WebGL fallback all live in the app
+  shell.
+- The reusable procedural Three.js stage is lazy-loaded behind an accessible
+  visual-guide fallback. Future visual scenes can be added through the scene
+  registry without changing navigation or routing.
 
 ## Run locally
 
@@ -18,51 +27,41 @@ npm install
 npm run dev
 ```
 
-The local route is:
-
-```text
-http://127.0.0.1:5173/PMSM-Visualizations/
-```
-
-## Production build
+## Verify
 
 ```bash
+npm run lint
+npm run typecheck
+npm test
 npm run build
-npm run preview
 ```
 
-## Interaction model
+## GitHub Pages base path
 
-The experience uses one continuous, light-theme WebGL scene. Scroll progress
-transforms it through eight chapters:
+The existing route remains the development default:
 
-1. the rare-earth question;
-2. a transparent dual-motor vehicle;
-3. an extracted drive unit shown at real scale;
-4. an exploded PMSM teardown;
-5. the rotating stator field and following rotor;
-6. the sixteen individual NdFeB magnet blocks;
-7. six mechanically distinct rotor architectures;
-8. the rare-earth-free conclusion.
+```text
+/PMSM-Visualizations/
+```
 
-The field chapter includes a pause control and shaft-load input. The alternatives
-chapter switches between permanent-magnet, wound-field, induction, synchronous-
-reluctance, switched-reluctance, and ferrite-assisted rotors while preserving the
-same stator.
+For the final repository, set the desired path when building:
 
-## Sources
+```bash
+VITE_BASE_PATH=/pmsm-alternatives-visualizations/ npm run build
+```
 
-- [International Energy Agency, Rare Earth Elements](https://www.iea.org/reports/rare-earth-elements/executive-summary)
-- [US Department of Energy, Rare Earth Permanent Magnets Supply Chain Deep Dive](https://www.energy.gov/sites/default/files/2024-12/Neodymium%2520Magnets%2520Supply%2520Chain%2520Report%2520-%2520Final%5B1%5D.pdf)
-- [US Department of Energy, Electric Motors Research and Development](https://www.energy.gov/cmei/vehicles/electric-motors-research-and-development)
-- [Renault Group, electric motors without rare earths](https://www.renaultgroup.com/en/magazine/energy-and-motorization/all-about-electric-motors-with-no-rare-earths/)
-- [ABB, synchronous reluctance motors](https://www.abb.com/global/en/areas/motion/motors-generators/low-voltage-motors/iec-low-voltage-motors/synchronous-reluctance-motors)
+## Integration hooks
 
-The 1-2 kg figure refers to typical permanent-magnet material per EV motor in the cited DOE supply-chain assessment. Vehicle and motor designs vary.
-
-## Implementation
-
-The supplied redesign is implemented directly in `index.html`. `public/support.js`
-provides the small declarative component runtime used by that source file; the
-motor, vehicle, magnets, and alternative rotors are all generated as live Three.js
-geometry rather than pre-rendered images.
+- `src/content/chapters.ts`: approved chapter copy, scene registry, main-path
+  sequencing, optional deep/evidence layers, and visual contract.
+- `src/state/story-reducer.ts`: routes, Back and Next behavior, chapter jumps,
+  and reduced-motion state.
+- `src/components/SceneStage.tsx`: WebGL loading and fallback boundary plus the
+  scene blueprint interface.
+- `src/components/StoryCanvas.tsx`: reusable procedural car, motor, field,
+  magnet, and rotor geometry from the previous implementation.
+- Each `SceneDefinition` accepts an optional primary and reduced-motion asset;
+  add approved Claude Design output there and the persistent stage will use it
+  without shell changes.
+- `design/references/`: legacy visual references only. New Claude Design assets
+  should enter a dedicated `src/assets/scenes/` folder with an asset manifest.

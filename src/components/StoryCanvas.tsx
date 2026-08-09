@@ -183,7 +183,7 @@ function TransparentCar({ signal }: SceneProps) {
     if (!car.current) return;
     car.current.rotation.y = MathUtils.lerp(
       car.current.rotation.y,
-      -0.28 + (signal.current.reducedMotion ? 0 : Math.sin(performance.now() * 0.0002) * 0.025),
+      -0.28 + (signal.current.reducedMotion || signal.current.fieldPaused ? 0 : Math.sin(performance.now() * 0.0002) * 0.025),
       0.04,
     );
   });
@@ -191,8 +191,8 @@ function TransparentCar({ signal }: SceneProps) {
   return (
     <ScenePresence signal={signal} index={0} position={[1.35, -0.35, 0]}>
       <Float
-        speed={signal.current.reducedMotion ? 0 : 0.55}
-        floatIntensity={signal.current.reducedMotion ? 0 : 0.08}
+        speed={signal.current.reducedMotion || signal.current.fieldPaused ? 0 : 0.55}
+        floatIntensity={signal.current.reducedMotion || signal.current.fieldPaused ? 0 : 0.08}
         rotationIntensity={0}
       >
         <group ref={car}>
@@ -647,11 +647,11 @@ function MaterialScene({ signal }: SceneProps) {
   const rotor = useRef<Group>(null);
 
   useFrame((state) => {
-    if (magnets.current) {
+    if (magnets.current && !signal.current.fieldPaused) {
       const active = stagePresence(signal.current.progress, 4);
       magnets.current.rotation.y = active * Math.sin(state.clock.elapsedTime * 0.32) * 0.06;
     }
-    if (rotor.current && !signal.current.reducedMotion) {
+    if (rotor.current && !signal.current.reducedMotion && !signal.current.fieldPaused) {
       rotor.current.rotation.z += 0.0012;
     }
   });
@@ -868,7 +868,7 @@ function AlternativesScene({ signal }: SceneProps) {
       rotor.position.z = MathUtils.lerp(rotor.position.z, isSelected ? 0.8 : 0, 0.1);
       const scale = isSelected ? 1.24 : 0.84;
       rotor.scale.lerp(new Vector3(scale, scale, scale), 0.1);
-      if (!signal.current.reducedMotion) {
+      if (!signal.current.reducedMotion && !signal.current.fieldPaused) {
         rotor.rotation.z += delta * (isSelected ? 0.18 : 0.035);
       }
     });
