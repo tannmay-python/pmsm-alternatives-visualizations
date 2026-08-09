@@ -48,6 +48,29 @@ describe("PMSM curriculum content contracts", () => {
     expect(twoPullStep?.copy.glance).not.toContain("IPM-SynRM");
   });
 
+  it("keeps the Chapter 2 stator scene aligned with its isolate control", () => {
+    const statorStep = pmsmContent.chapters
+      .flatMap((chapter) => chapter.steps)
+      .find((step) => step.id === "pmsm-assemble-stator");
+
+    expect(statorStep?.visual.interaction).toBe(
+      "Choose Stator, Rotor or Both to isolate the part you want to inspect.",
+    );
+    expect(statorStep?.visual.visibleConsequence).toBe(
+      "One motor cross-section keeps the stationary stator ring, air gap and quiet rotor visible for comparison.",
+    );
+    expect(statorStep?.controls).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        id: "stator-isolate",
+        label: "Stator / Rotor / Both",
+        kind: "select",
+        consequence: "Fades the other parts so the selected stator, rotor or both are easier to compare.",
+      }),
+    ]));
+    expect(statorStep?.controls.map((control) => control.id)).not.toContain("stator-assemble");
+    expect(statorStep?.controls.map((control) => control.id)).not.toContain("stator-hotspots");
+  });
+
   it("requires provenance for performance and market claims", () => {
     const badQuantity = {
       ...pmsmContent,

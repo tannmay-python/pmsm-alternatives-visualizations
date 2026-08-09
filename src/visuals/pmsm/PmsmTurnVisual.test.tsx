@@ -3,11 +3,13 @@ import { describe, expect, it } from "vitest";
 import { PmsmTurnVisual } from "./PmsmTurnVisual";
 
 describe("PmsmTurnVisual", () => {
-  it("starts with the stator and rotor, without prematurely revealing buried magnets", () => {
+  it("starts stator-first, without prematurely revealing buried magnets", () => {
     const markup = renderToStaticMarkup(<PmsmTurnVisual step="assemble" />);
 
     expect(markup).toContain("Stator stays still");
-    expect(markup).toContain("Rotor turns");
+    expect(markup).toContain('<button type="button" aria-pressed="true" class="is-selected">Stator</button>');
+    expect(markup).toContain('<button type="button" aria-pressed="false">Rotor</button>');
+    expect(markup).toContain('<button type="button" aria-pressed="false">Both</button>');
     expect(markup).toContain("Isolate a motor part");
     expect(markup).not.toContain("pmsm-turn__magnet-pair");
     expect(markup).not.toContain("animateTransform");

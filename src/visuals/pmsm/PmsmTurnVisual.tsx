@@ -712,7 +712,7 @@ export function PmsmTurnVisual({
     }),
     [uniqueId],
   );
-  const [statorFocus, setStatorFocus] = useState<StatorFocus>("both");
+  const [statorFocus, setStatorFocus] = useState<StatorFocus>("stator");
   const [speed, setSpeed] = useState<FieldSpeed>("slow");
   const [load, setLoad] = useState<LoadLevel>("light");
   const [buriedFocus, setBuriedFocus] = useState<BuriedFocus>("retention");

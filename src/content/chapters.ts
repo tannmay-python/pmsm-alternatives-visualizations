@@ -244,13 +244,12 @@ const rawChapters = [
         learningGoal: "Identify the stator laminations, three copper winding groups, air gap and rotor space.",
         visual: visual(
           "exploded-model",
-          "Steel laminations, three winding groups and the cooling jacket assemble around a central air gap.",
-          "Advance one layer at a time or select a component hotspot.",
-          "A layered cross-section with numbered assembly order.",
+          "One motor cross-section keeps the stationary stator ring, air gap and quiet rotor visible for comparison.",
+          "Choose Stator, Rotor or Both to isolate the part you want to inspect.",
+          "A still motor cross-section with a three-way part-isolate control and simple leader labels.",
         ),
         controls: [
-          { id: "stator-assemble", label: "Assemble layers", kind: "next", consequence: "Adds one physical layer and leaves its name anchored to the part." },
-          { id: "stator-hotspots", label: "Inspect part", kind: "hotspot", consequence: "Highlights the selected layer without rotating the camera." },
+          { id: "stator-isolate", label: "Stator / Rotor / Both", kind: "select", consequence: "Fades the other parts so the selected stator, rotor or both are easier to compare." },
           next("Feeds timed current into the three coil groups."),
         ],
         claimIds: ["pmsm-stator-three-phase-field"],
@@ -259,7 +258,7 @@ const rawChapters = [
           why: "No rotor has moved yet. The first trick is to make the magnetic north pole appear to move around this ring.",
           evidence: "The winding layout is a simplified three-phase teaching cross-section, not a manufacturing drawing.",
         },
-        reducedMotionState: "Exploded stator layers arranged around a labelled air gap.",
+        reducedMotionState: "A still motor cross-section with the stator selected; choose Stator, Rotor or Both to compare the parts.",
       },
       {
         id: "pmsm-three-phase-field",
