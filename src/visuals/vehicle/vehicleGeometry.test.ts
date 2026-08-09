@@ -5,6 +5,7 @@ import {
   getNextEnergyIndex,
   isActiveEnergyLink,
   makeSvgId,
+  toggleExtraction,
 } from "./vehicleGeometry";
 
 describe("vehicle journey geometry", () => {
@@ -23,5 +24,12 @@ describe("vehicle journey geometry", () => {
 
   it("creates safe ids for multiple mounted SVG instances", () => {
     expect(makeSvgId("vehicle-title", ":r0:")).toBe("vehicle-title-r0");
+  });
+
+  it("keeps the drive-unit action as one clear open or close state", () => {
+    expect(toggleExtraction(0)).toBe(1);
+    expect(toggleExtraction(0.88)).toBe(1);
+    expect(toggleExtraction(0.89)).toBe(0);
+    expect(toggleExtraction(2)).toBe(0);
   });
 });

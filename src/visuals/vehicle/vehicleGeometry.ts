@@ -49,6 +49,11 @@ export function getExtractionTransform(progress: number): ExtractionTransform {
   };
 }
 
+/** One explicit control keeps the beginner flow clear: closed or opened. */
+export function toggleExtraction(progress: number): number {
+  return clampUnit(progress) > 0.88 ? 0 : 1;
+}
+
 export function isActiveEnergyLink(
   activeIndex: number,
   linkIndex: number,

@@ -196,12 +196,11 @@ const rawChapters = [
         visual: visual(
           "exploded-model",
           "The complete axle drive unit detaches from the car while the wheel connection remains ghosted behind it, then opens into inverter, motor and reduction gears.",
-          "Scrub the extraction/opening sequence; click inverter, motor or reducer to hold it in place.",
+          "Tap one clear control to open the drive unit beside its ghosted axle connection.",
           "A still extracted-and-opened drive unit beside the ghosted wheel connection, with three component leader lines.",
         ),
         controls: [
-          { id: "extract-scrub", label: "Extract and open", kind: "scrub", consequence: "Moves the same drive unit from its axle location into a readable, opened inspection position." },
-          { id: "drive-unit-hotspots", label: "Inspect module", kind: "hotspot", consequence: "Isolates inverter, motor or reducer while preserving its physical connection." },
+          { id: "open-drive-unit", label: "Open drive unit", kind: "toggle", consequence: "Moves the same drive unit from its axle location into a readable, opened inspection position." },
           next("Separates the drive unit into its working parts."),
         ],
         claimIds: [],

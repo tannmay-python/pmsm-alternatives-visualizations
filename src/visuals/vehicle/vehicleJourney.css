@@ -337,7 +337,7 @@
 }
 
 .vehicle-journey__layout-toggle button:focus-visible,
-.vehicle-journey__extract-control input:focus-visible {
+.vehicle-journey__extract-control:focus-visible {
   outline: 2px solid var(--vehicle-signal);
   outline-offset: 3px;
 }
@@ -366,23 +366,27 @@
 }
 
 .vehicle-journey__extract-control {
-  display: grid;
-  gap: 0.65rem;
-  width: 12rem;
+  width: 10.5rem;
+  min-height: 2.2rem;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid var(--vehicle-signal);
+  border-radius: 0;
+  background: rgba(10, 12, 13, 0.9);
   color: var(--vehicle-muted);
+  cursor: pointer;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 0.7rem;
   letter-spacing: 0.07em;
   text-transform: uppercase;
 }
 
-.vehicle-journey__extract-control input {
-  width: 100%;
-  accent-color: var(--vehicle-signal);
-  cursor: ew-resize;
+.vehicle-journey__extract-control:hover:not(:disabled),
+.vehicle-journey__extract-control[aria-pressed="true"] {
+  background: var(--vehicle-signal);
+  color: #19150a;
 }
 
-.vehicle-journey__extract-control input:disabled {
+.vehicle-journey__extract-control:disabled {
   cursor: default;
   opacity: 0.7;
 }

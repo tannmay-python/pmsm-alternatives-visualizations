@@ -12,6 +12,7 @@ import {
   isActiveEnergyLink,
   makeSvgId,
   PART_DETAILS,
+  toggleExtraction,
   type VehicleJourneyStep,
   type VehiclePart,
 } from "./vehicleGeometry";
@@ -559,20 +560,16 @@ function ExtractStage({
       ) : (
         <Callout label="DRIVE UNIT" target={[839 + transform.x, 430 + transform.y]} labelAt={[839, 587]} tone="signal" />
       )}
-      <foreignObject x="76" y="70" width="240" height="68">
-        <label className="vehicle-journey__extract-control">
-          <span>Open the drive unit</span>
-          <input
-            type="range"
-            min="0"
-            max="100"
-            step="1"
-            value={Math.round(progress * 100)}
-            onChange={(event) => setProgress(Number(event.target.value) / 100)}
-            aria-valuetext={isOpen ? "open" : "closed"}
-            disabled={reducedMotion}
-          />
-        </label>
+      <foreignObject x="76" y="70" width="220" height="44">
+        <button
+          type="button"
+          className="vehicle-journey__extract-control"
+          aria-pressed={isOpen}
+          onClick={() => setProgress(toggleExtraction(progress))}
+          disabled={reducedMotion}
+        >
+          {isOpen ? "Close drive unit" : "Open drive unit"}
+        </button>
       </foreignObject>
     </>
   );
