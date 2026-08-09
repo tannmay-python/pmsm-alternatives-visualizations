@@ -1,10 +1,10 @@
-import { CHAPTERS, getChapter } from "../content/chapters";
+import { CHAPTERS, getChapter } from "../story/storyRegistry";
 import type {
-  Chapter,
-  ChapterStep,
   StoryAction,
+  StoryChapter,
   StoryPosition,
   StoryState,
+  StoryStep,
 } from "../types";
 
 export const firstPosition = (): StoryPosition => ({
@@ -27,10 +27,10 @@ export const isValidPosition = (position: StoryPosition) => {
   return Boolean(chapter?.steps.some((step) => step.id === position.stepId));
 };
 
-export const getCurrentChapter = (state: StoryState): Chapter =>
+export const getCurrentChapter = (state: StoryState): StoryChapter =>
   getChapter(state.position.chapterId) ?? CHAPTERS[0];
 
-export const getCurrentStep = (state: StoryState): ChapterStep => {
+export const getCurrentStep = (state: StoryState): StoryStep => {
   const chapter = getCurrentChapter(state);
   return chapter.steps.find((step) => step.id === state.position.stepId) ?? chapter.steps[0];
 };

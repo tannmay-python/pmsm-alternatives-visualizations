@@ -1,74 +1,78 @@
+import { describe, expect, it } from "vitest";
 import { pmsmContent } from "./index.ts";
 import { validateContent } from "./validation.ts";
 
-const expect = (condition: unknown, message: string) => {
-  if (!condition) throw new Error(message);
-};
-
 const expectIssue = (code: string, content: typeof pmsmContent, message: string) => {
   const issues = validateContent(content);
-  expect(issues.some((issue) => issue.code === code), `${message}\nFound:\n${issues.map((issue) => `${issue.code}: ${issue.path}`).join("\n")}`);
+  expect(issues.some((issue) => issue.code === code), `${message}\nFound:\n${issues.map((issue) => `${issue.code}: ${issue.path}`).join("\n")}`).toBe(true);
 };
 
-const baselineIssues = validateContent(pmsmContent);
-expect(baselineIssues.length === 0, `Baseline content must validate:\n${baselineIssues.map((issue) => `${issue.code}: ${issue.path}`).join("\n")}`);
-expect(pmsmContent.chapters.length === 8, "The curriculum must have exactly eight chapters.");
-expect(pmsmContent.chapters.flatMap((chapter) => chapter.steps).length >= 26, "The curriculum must retain at least 26 granular visual steps.");
-expect(pmsmContent.coverage.length >= 30, "The coverage matrix must remain granular rather than collapsing due-diligence topics.");
-expect(new Set(pmsmContent.coverage.map((topic) => topic.dueDiligencePoint)).size === 16, "Every numbered due-diligence point must remain represented.");
-const mainSteps = pmsmContent.chapters.flatMap((chapter) => chapter.steps).filter((step) => step.placement === "main");
-expect(mainSteps.length >= 26, "The beginner route must remain substantial enough to teach every core mechanism.");
-expect(
-  JSON.stringify(pmsmContent.chapters[0].steps.filter((step) => step.placement === "main").map((step) => step.id)) ===
-    JSON.stringify(["car-transparent-cutaway", "power-path-flow", "drive-unit-extract", "motor-isolation"]),
-  "Chapter 1's default route must stay car → power path → opened drive unit → isolated motor.",
-);
+describe("PMSM curriculum content contracts", () => {
+  const mainSteps = pmsmContent.chapters.flatMap((chapter) => chapter.steps).filter((step) => step.placement === "main");
 
-const badAxis = {
-  ...pmsmContent,
-  configurations: [
-    { ...pmsmContent.configurations[0], torquePrinciple: "ferrite" },
-    ...pmsmContent.configurations.slice(1),
-  ] as unknown as typeof pmsmContent.configurations,
-};
-expectIssue("layer-conflation", badAxis, "Ferrite must never be accepted as a torque principle.");
+  it("keeps the granular, validated eight-chapter curriculum", () => {
+    const baselineIssues = validateContent(pmsmContent);
+    expect(baselineIssues).toHaveLength(0);
+    expect(pmsmContent.chapters).toHaveLength(8);
+    expect(pmsmContent.chapters.flatMap((chapter) => chapter.steps).length).toBeGreaterThanOrEqual(26);
+    expect(pmsmContent.coverage.length).toBeGreaterThanOrEqual(30);
+    expect(new Set(pmsmContent.coverage.map((topic) => topic.dueDiligencePoint)).size).toBe(16);
+    expect(mainSteps.length).toBeGreaterThanOrEqual(26);
+    expect(
+      pmsmContent.chapters[0].steps.filter((step) => step.placement === "main").map((step) => step.id),
+    ).toEqual(["car-transparent-cutaway", "power-path-flow", "drive-unit-extract", "motor-isolation"]);
+  });
 
-const badQuantity = {
-  ...pmsmContent,
-  claims: pmsmContent.claims.map((claim) =>
-    claim.id === "proterial-power-speed-pair" ? { ...claim, sourceIds: [] } : claim,
-  ),
-};
-expectIssue("missing-provenance", badQuantity, "A quantitative claim without a source must fail.");
+  it("does not conflate architecture, chemistry and geometry", () => {
+    const badAxis = {
+      ...pmsmContent,
+      configurations: [
+        { ...pmsmContent.configurations[0], torquePrinciple: "ferrite" },
+        ...pmsmContent.configurations.slice(1),
+      ] as unknown as typeof pmsmContent.configurations,
+    };
+    expectIssue("layer-conflation", badAxis, "Ferrite must never be accepted as a torque principle.");
+  });
 
-const peakOnly = {
-  ...pmsmContent,
-  performance: pmsmContent.performance.map((record) =>
-    record.id === "aem-ssrd-power" ? { ...record, continuous: undefined } : record,
-  ),
-};
-expectIssue("peak-without-continuous", peakOnly, "AEM peak output must not render without its continuous rating.");
+  it("requires provenance for performance and market claims", () => {
+    const badQuantity = {
+      ...pmsmContent,
+      claims: pmsmContent.claims.map((claim) =>
+        claim.id === "proterial-power-speed-pair" ? { ...claim, sourceIds: [] } : claim,
+      ),
+    };
+    expectIssue("missing-provenance", badQuantity, "A quantitative claim without a source must fail.");
 
-const proseOnly = {
-  ...pmsmContent,
-  coverage: pmsmContent.coverage.map((topic) =>
-    topic.id === "dd-02-car-to-stator" ? { ...topic, visual: { ...topic.visual, device: "text" } } : topic,
-  ) as unknown as typeof pmsmContent.coverage,
-};
-expectIssue("prose-only-coverage", proseOnly, "Prose-only due-diligence coverage must fail.");
+    const unsafeMarketNumber = {
+      ...pmsmContent,
+      claims: pmsmContent.claims.map((claim) =>
+        claim.id === "market-rare-earth-free-share-small" ? { ...claim, renderingPolicy: "show" as const } : claim,
+      ),
+    };
+    expectIssue("unsafe-rendering-policy", unsafeMarketNumber, "Unsupported market-share claims must remain hidden.");
+  });
 
-const missingTopic = {
-  ...pmsmContent,
-  coverage: pmsmContent.coverage.filter((topic) => topic.id !== "dd-10-iron-nitride-physics"),
-};
-expectIssue("missing-coverage", missingTopic, "Removing a required due-diligence topic must fail.");
+  it("requires a continuous pair and visual teaching evidence", () => {
+    const peakOnly = {
+      ...pmsmContent,
+      performance: pmsmContent.performance.map((record) =>
+        record.id === "aem-ssrd-power" ? { ...record, continuous: undefined } : record,
+      ),
+    };
+    expectIssue("peak-without-continuous", peakOnly, "AEM peak output must not render without its continuous rating.");
 
-const unsafeMarketNumber = {
-  ...pmsmContent,
-  claims: pmsmContent.claims.map((claim) =>
-    claim.id === "market-rare-earth-free-share-small" ? { ...claim, renderingPolicy: "show" as const } : claim,
-  ),
-};
-expectIssue("unsafe-rendering-policy", unsafeMarketNumber, "Unsupported market-share claims must remain hidden.");
+    const proseOnly = {
+      ...pmsmContent,
+      coverage: pmsmContent.coverage.map((topic) =>
+        topic.id === "dd-02-car-to-stator" ? { ...topic, visual: { ...topic.visual, device: "text" } } : topic,
+      ) as unknown as typeof pmsmContent.coverage,
+    };
+    expectIssue("prose-only-coverage", proseOnly, "Teaching coverage must not fall back to prose-only.");
 
-console.info(`Content validation passed: ${pmsmContent.chapters.length} chapters, ${mainSteps.length} main-path steps, ${pmsmContent.chapters.flatMap((chapter) => chapter.steps).length} visual steps, ${pmsmContent.coverage.length} coverage topics.`);
+    const missingTopic = {
+      ...pmsmContent,
+      coverage: pmsmContent.coverage.filter((topic) => topic.id !== "dd-10-iron-nitride-physics"),
+    };
+    expectIssue("missing-coverage", missingTopic, "Removing a required due-diligence topic must fail.");
+  });
+});

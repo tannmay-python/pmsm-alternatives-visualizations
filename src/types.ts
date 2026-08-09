@@ -9,15 +9,11 @@ export type StorySignal = {
   alternative: AlternativeKey;
 };
 
-export type ChapterId =
-  | "where-the-motor-lives"
-  | "how-a-pmsm-turns"
-  | "why-the-magnet-needs-nd-dy-and-tb"
-  | "reduce-exposure-or-replace-the-pmsm"
-  | "alternative-motor-laboratory"
-  | "change-the-magnet-geometry-or-both"
-  | "what-the-vehicle-must-change"
-  | "what-is-real-and-indias-opening";
+/**
+ * The content schema owns chapter identifiers. Keeping the route type derived
+ * from it prevents the visual shell drifting from the editorial curriculum.
+ */
+export type ChapterId = import("./content/schema").ChapterManifest["id"];
 
 export type SceneId =
   | "vehicle-overview"
@@ -83,23 +79,22 @@ export type SceneDefinition = {
   };
 };
 
-export type ChapterStep = {
+/**
+ * Runtime-only scene binding. Editorial copy and evidence remain in
+ * `src/content`; the renderer only adds the stable visual context it needs.
+ */
+export type StoryStep = {
   id: string;
-  title: string;
-  question: string;
-  learningGoal: string;
+  content: import("./content/schema").ChapterStep;
   sceneId: SceneId;
   visualState: VisualState;
-  supportingLayers?: readonly SupportingLayer[];
   legacyAlternative?: AlternativeKey;
 };
 
-export type Chapter = {
+export type StoryChapter = {
   id: ChapterId;
-  title: string;
-  shortTitle: string;
-  learningGoal: string;
-  steps: readonly ChapterStep[];
+  content: import("./content/schema").ChapterManifest;
+  steps: readonly StoryStep[];
 };
 
 export type StoryPosition = {

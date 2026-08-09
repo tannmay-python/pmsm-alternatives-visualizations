@@ -8,7 +8,6 @@ import {
   type WheelEvent,
 } from "react";
 import { SceneStage } from "./components/SceneStage";
-import { CHAPTERS, getScene } from "./content/chapters";
 import {
   createInitialStoryState,
   firstPosition,
@@ -20,6 +19,8 @@ import {
   positionToHash,
   storyReducer,
 } from "./state/story-reducer";
+import { CHAPTERS, getScene } from "./story/storyRegistry";
+import { evidenceCaveat, resolveEvidenceClaims } from "./story/evidence";
 import type { ChapterId, StoryPosition } from "./types";
 
 type PanelDrawer = "why" | "evidence" | null;
@@ -29,7 +30,78 @@ const isEditableTarget = (target: EventTarget | null) => {
   return Boolean(target.closest("input, textarea, select, [contenteditable='true']"));
 };
 
-const chapterLabel = (index: number) => `Chapter ${index + 1}: ${CHAPTERS[index].title}`;
+const chapterLabel = (index: number) => `Chapter ${index + 1}: ${CHAPTERS[index].content.title}`;
+
+function EvidenceLedger({ claimIds }: { claimIds: readonly string[] }) {
+  const claims = resolveEvidenceClaims(claimIds);
+
+  if (claims.length === 0) {
+    return (
+      <>
+        <h2>Teaching model</h2>
+        <p>
+          This scene explains a spatial or physical relationship. Its detailed source ledger is kept with the wider chapter record.
+        </p>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <h2>Evidence ledger</h2>
+      <p className="drawer-intro">Each statement carries its scope, status, caveat and source.</p>
+      <ol className="evidence-ledger">
+        {claims.map(({ claim, sources }) => (
+          <li key={claim.id} className="evidence-claim">
+            <p className="evidence-claim__statement">{claim.statement}</p>
+            <dl className="evidence-claim__meta">
+              <div>
+                <dt>Status</dt>
+                <dd>{claim.evidenceStatus.replaceAll("-", " ")}</dd>
+              </div>
+              <div>
+                <dt>Condition</dt>
+                <dd>{claim.qualifier ? `${claim.qualifier} · ` : ""}{claim.denominator}</dd>
+              </div>
+              <div>
+                <dt>Date</dt>
+                <dd>{claim.date}</dd>
+              </div>
+              <div>
+                <dt>Market</dt>
+                <dd>{claim.market.replaceAll("-", " ")}</dd>
+              </div>
+              {claim.maturity && (
+                <div>
+                  <dt>Maturity</dt>
+                  <dd>{claim.maturity.replaceAll("-", " ")}</dd>
+                </div>
+              )}
+            </dl>
+            <p className="evidence-claim__caveat">{evidenceCaveat(claim)}</p>
+            {claim.conflict && <p className="evidence-claim__caveat">Correction: {claim.conflict}</p>}
+            {claim.renderingPolicy === "show-with-condition" && (
+              <p className="evidence-claim__condition">Read with the condition shown above.</p>
+            )}
+            <ul className="evidence-claim__sources" aria-label={`Sources for ${claim.statement}`}>
+              {sources.map((source) => (
+                <li key={source.id}>
+                  {source.url ? (
+                    <a href={source.url} target="_blank" rel="noreferrer">
+                      {source.organisation}: {source.title}
+                    </a>
+                  ) : (
+                    <span>{source.organisation}: {source.title} (supplied notes)</span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ol>
+    </>
+  );
+}
 
 function App() {
   const [state, dispatch] = useReducer(
@@ -112,8 +184,8 @@ function App() {
         `${window.location.pathname}${window.location.search}${nextHash}`,
       );
     }
-    document.title = `${step.title} | PMSM Alternatives`;
-  }, [state.position, step.title]);
+    document.title = `${step.content.title} | PMSM Alternatives`;
+  }, [state.position, step.content.title]);
 
   useEffect(() => {
     const readLocation = () => {
@@ -213,13 +285,6 @@ function App() {
   };
 
   const drawerTitle = panelDrawer === "why" ? "Why this scene" : "Evidence";
-  const deepLayer = step.supportingLayers?.find((layer) => layer.kind === "deep");
-  const evidenceLayer = step.supportingLayers?.find((layer) => layer.kind === "evidence");
-  const drawerVisualState =
-    panelDrawer === "why"
-      ? deepLayer?.visualState ?? step.visualState
-      : evidenceLayer?.visualState ?? step.visualState;
-
   return (
     <div
       className="experience-shell"
@@ -289,10 +354,10 @@ function App() {
             </span>
           </p>
 
-          <p className="panel-chapter">{chapter.title}</p>
-          <h1 id="step-title">{step.title}</h1>
-          <p className="step-question">{step.question}</p>
-          <p className="step-goal">{step.learningGoal}</p>
+          <p className="panel-chapter">{chapter.content.title}</p>
+          <h1 id="step-title">{step.content.title}</h1>
+          <p className="step-question">{step.content.learnerQuestion}</p>
+          <p className="step-goal">{step.content.copy.glance}</p>
 
           <div className="panel-actions" aria-label="Current scene details">
             <button
@@ -330,7 +395,7 @@ function App() {
             <aside
               className="panel-drawer"
               role="dialog"
-              aria-label={`${drawerTitle} for ${step.title}`}
+              aria-label={`${drawerTitle} for ${step.content.title}`}
             >
               <div className="drawer-heading">
                 <p>{drawerTitle}</p>
@@ -346,34 +411,11 @@ function App() {
 
               {panelDrawer === "why" ? (
                 <>
-                  <h2>{deepLayer?.title ?? step.title}</h2>
-                  <p>{deepLayer?.content ?? step.learningGoal}</p>
-                  <ul aria-label="Visible parts in this scene">
-                    {drawerVisualState.visibleElements.map((element) => (
-                      <li key={element}>{element}</li>
-                    ))}
-                  </ul>
-                </>
-              ) : evidenceLayer ? (
-                <>
-                  <h2>{evidenceLayer.title}</h2>
-                  <p>{evidenceLayer.content}</p>
-                  <ul aria-label="Visible parts in this evidence view">
-                    {drawerVisualState.visibleElements.map((element) => (
-                      <li key={element}>{element}</li>
-                    ))}
-                  </ul>
+                  <h2>Why this scene</h2>
+                  <p>{step.content.copy.why}</p>
                 </>
               ) : (
-                <>
-                  <h2>Research ledger</h2>
-                  <p>
-                    Sources, dates, and qualifications for this scene are attached during evidence integration.
-                  </p>
-                  <p className="drawer-note">
-                    This foundation deliberately does not invent a citation or claim before the report material is bound to it.
-                  </p>
-                </>
+                <EvidenceLedger claimIds={step.content.claimIds} />
               )}
             </aside>
           )}

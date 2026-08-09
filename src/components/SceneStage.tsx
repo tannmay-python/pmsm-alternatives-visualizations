@@ -1,6 +1,12 @@
 import { Pause, Play } from "@phosphor-icons/react";
 import { Component, Suspense, lazy, useEffect, useRef, useState, type ReactNode } from "react";
-import type { Chapter, ChapterStep, SceneDefinition, StorySignal, VisualMode } from "../types";
+import type {
+  SceneDefinition,
+  StoryChapter,
+  StorySignal,
+  StoryStep,
+  VisualMode,
+} from "../types";
 
 const LazyStoryCanvas = lazy(async () => {
   const module = await import("./StoryCanvas");
@@ -10,8 +16,8 @@ const LazyStoryCanvas = lazy(async () => {
 type CanvasState = "checking" | "loading" | "ready" | "fallback";
 
 type SceneStageProps = {
-  chapter: Chapter;
-  step: ChapterStep;
+  chapter: StoryChapter;
+  step: StoryStep;
   scene: SceneDefinition;
   reducedMotion: boolean;
   paused: boolean;
@@ -257,7 +263,7 @@ export function SceneStage({
       className="visual-stage"
       data-canvas-state={canvasState}
       data-reduced-motion={reducedMotion || undefined}
-      aria-label={`${chapter.title}: ${step.title}`}
+      aria-label={`${chapter.content.title}: ${step.content.title}`}
     >
       <div className="visual-stage__canvas" aria-hidden="true">
         {(canvasState === "checking" || canvasState === "loading") && <StageSkeleton />}
@@ -286,7 +292,7 @@ export function SceneStage({
       </div>
 
       <div className="visual-stage__meta">
-        <span>Scene {String(chapterNumber).padStart(2, "0")}.{stepNumber} · {step.title}</span>
+        <span>Scene {String(chapterNumber).padStart(2, "0")}.{stepNumber} · {step.content.title}</span>
         <span>{stageLens[step.visualState.mode]}</span>
       </div>
 
