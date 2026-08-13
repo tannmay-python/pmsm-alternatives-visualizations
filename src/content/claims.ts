@@ -215,7 +215,7 @@ const rawClaims = [
   {
     id: "smco-temperature-position",
     statement:
-      "SmCo is positioned as a more expensive permanent-magnet option for applications requiring higher temperature tolerance than a dysprosium-doped NdFeB design can offer.",
+      "SmCo is a qualified, more expensive permanent-magnet route for some higher-temperature applications; it is not a universal comparison or product recommendation.",
     sourceIds: [dueDiligence],
     sourceType: "due-diligence",
     date: "2026-08-09",

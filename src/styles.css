@@ -209,6 +209,12 @@ a:focus-visible {
   mask-image: linear-gradient(to bottom, black 0%, rgba(0, 0, 0, 0.68) 72%, transparent 100%);
 }
 
+/* Chapter 3 is a native diagram, not a blueprint or a background treatment. */
+.visual-stage--chapter3::before {
+  background-image: none;
+  mask-image: none;
+}
+
 .visual-stage__canvas,
 .visual-stage__blueprint,
 .visual-stage__vehicle-journey,

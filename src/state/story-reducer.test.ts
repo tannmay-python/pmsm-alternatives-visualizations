@@ -57,6 +57,12 @@ describe("story reducer", () => {
       pmsmContent.claims.filter((claim) => claim.renderingPolicy === "hide").map((claim) => claim.id),
     );
     expect(resolved.some(({ claim }) => hiddenIds.has(claim.id))).toBe(false);
+
+    const heatStep = pmsmContent.chapters
+      .find((chapter) => chapter.id === "why-the-magnet-needs-nd-dy-tb")
+      ?.steps.find((step) => step.id === "heat-demagnetisation");
+    expect(resolveEvidenceClaims(heatStep?.claimIds ?? [])).toEqual([]);
+    expect(heatStep?.copy.evidence).toBe("Relative heat and reversal margin only; no universal threshold shown.");
   });
 
   it("covers every configured chapter step through next navigation", () => {

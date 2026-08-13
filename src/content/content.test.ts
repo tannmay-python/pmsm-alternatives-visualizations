@@ -71,6 +71,57 @@ describe("PMSM curriculum content contracts", () => {
     expect(statorStep?.controls.map((control) => control.id)).not.toContain("stator-hotspots");
   });
 
+  it("keeps Chapter 3 as four simple main scenes with evidence-safe optional labs", () => {
+    const chapter = pmsmContent.chapters.find((item) => item.id === "why-the-magnet-needs-nd-dy-tb");
+    const mainSteps = chapter?.steps.filter((step) => step.placement === "main") ?? [];
+    const optionalSteps = chapter?.steps.filter((step) => step.placement === "optional-deep-dive") ?? [];
+
+    expect(mainSteps.map((step) => step.id)).toEqual([
+      "remanence-strength",
+      "coercivity-lock",
+      "heat-demagnetisation",
+      "dy-tb-tradeoff",
+    ]);
+    expect(optionalSteps.map((step) => step.id)).toEqual([
+      "grain-boundary-diffusion",
+      "cooling-and-smco",
+    ]);
+
+    const [remanence, coercivity, heat, tradeoff] = mainSteps;
+    expect(remanence?.copy.glance).toBe("A magnet can hold some field after help is removed.");
+    expect(remanence?.copy.why).toBe("Iron supplies much of the strength. Rare-earth chemistry helps resist reversal.");
+    expect(coercivity?.copy.glance).toBe("An opposing field can try to turn a magnet backwards.");
+    expect(heat?.copy.glance).toBe("Heat plus an opposing field can leave a magnet weaker, even after it cools.");
+    expect(heat?.copy.evidence).toBe("Relative heat and reversal margin only; no universal threshold shown.");
+    expect(heat?.controls.map((control) => control.label)).toEqual([
+      "Relative heat",
+      "Opposing field",
+      "Fresh magnet",
+      "Next",
+    ]);
+    expect(tradeoff?.copy.glance).toBe("Dy and Tb help a hot magnet resist reversal. They do not cool it.");
+    expect(tradeoff?.copy.why).toContain("Fresh comparison sample");
+    expect(tradeoff?.controls.map((control) => control.label)).toEqual([
+      "Dy/Tb protection",
+      "Explore grain edge",
+      "Compare cooling",
+      "Next",
+    ]);
+
+    const visibleChapterCopy = JSON.stringify(chapter);
+    expect(visibleChapterCopy).not.toMatch(/150\s*[–-]\s*180|0\.5\s*%|Audi.*Dy|Dy.*Audi/i);
+    expect(visibleChapterCopy).not.toMatch(/\d+(?:\.\d+)?\s*%/);
+
+    const cooling = optionalSteps.find((step) => step.id === "cooling-and-smco");
+    expect(cooling?.controls.map((control) => control.label)).toEqual([
+      "Rotor oil cooling",
+      "Compare SmCo",
+      "Back",
+    ]);
+    expect(cooling?.copy.glance).toBe("Cooling is thermal management. It does not prove Dy/Tb removal.");
+    expect(cooling?.copy.why).toContain("qualified position");
+  });
+
   it("requires provenance for performance and market claims", () => {
     const badQuantity = {
       ...pmsmContent,

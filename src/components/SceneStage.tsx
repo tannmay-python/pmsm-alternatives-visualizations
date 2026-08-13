@@ -15,6 +15,10 @@ import {
   PmsmTurnVisual,
   type PmsmTurnStep,
 } from "../visuals/pmsm/PmsmTurnVisual";
+import {
+  Chapter3MagnetVisual,
+} from "../visuals/magnet/Chapter3MagnetVisual";
+import { chapter3MainRoute } from "../visuals/magnet/chapter3MagnetModel";
 
 const LazyStoryCanvas = lazy(async () => {
   const module = await import("./StoryCanvas");
@@ -35,6 +39,9 @@ const pmsmTurnStepByStoryId: Readonly<Record<string, PmsmTurnStep>> = {
   "ipm-rotor-cutaway": "buried",
   "ipm-reluctance-overlay": "torques",
 };
+
+const isChapter3MagnetStep = (stepId: string): stepId is (typeof chapter3MainRoute)[number] =>
+  chapter3MainRoute.includes(stepId as (typeof chapter3MainRoute)[number]);
 
 type CanvasState = "checking" | "loading" | "ready" | "fallback";
 
@@ -256,7 +263,8 @@ export function SceneStage({
   const [canvasState, setCanvasState] = useState<CanvasState>("checking");
   const vehicleJourneyStep = vehicleJourneyStepByStoryId[step.id];
   const pmsmTurnStep = pmsmTurnStepByStoryId[step.id];
-  const hasOwnedVisual = Boolean(vehicleJourneyStep || pmsmTurnStep);
+  const chapter3MagnetStep = isChapter3MagnetStep(step.id) ? step.id : null;
+  const hasOwnedVisual = Boolean(vehicleJourneyStep || pmsmTurnStep || chapter3MagnetStep);
   const signal = useRef<StorySignal>({
     progress: scene.legacyProgress,
     activeChapter: 0,
@@ -291,7 +299,7 @@ export function SceneStage({
 
   return (
     <section
-      className="visual-stage"
+      className={`visual-stage ${chapter3MagnetStep ? "visual-stage--chapter3" : ""}`}
       data-canvas-state={canvasState}
       data-reduced-motion={reducedMotion || undefined}
       aria-label={`${chapter.content.title}: ${step.content.title}`}
@@ -313,6 +321,12 @@ export function SceneStage({
             reducedMotion={reducedMotion}
           />
         </div>
+      ) : chapter3MagnetStep ? (
+        <Chapter3MagnetVisual
+          step={chapter3MagnetStep}
+          paused={paused}
+          reducedMotion={reducedMotion}
+        />
       ) : (
         <>
           <div className="visual-stage__canvas" aria-hidden="true">

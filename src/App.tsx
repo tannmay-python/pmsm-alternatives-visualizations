@@ -32,7 +32,13 @@ const isEditableTarget = (target: EventTarget | null) => {
 
 const chapterLabel = (index: number) => `Chapter ${index + 1}: ${CHAPTERS[index].content.title}`;
 
-function EvidenceLedger({ claimIds }: { claimIds: readonly string[] }) {
+function EvidenceLedger({
+  claimIds,
+  fallback,
+}: {
+  claimIds: readonly string[];
+  fallback: string;
+}) {
   const claims = resolveEvidenceClaims(claimIds);
 
   if (claims.length === 0) {
@@ -40,7 +46,7 @@ function EvidenceLedger({ claimIds }: { claimIds: readonly string[] }) {
       <>
         <h2>Teaching model</h2>
         <p>
-          This scene explains a spatial or physical relationship. Its detailed source ledger is kept with the wider chapter record.
+          {fallback}
         </p>
       </>
     );
@@ -208,6 +214,13 @@ function App() {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.altKey || event.ctrlKey || event.metaKey || isEditableTarget(event.target)) return;
 
+      if (event.key === "Escape") {
+        setPanelDrawer(null);
+        return;
+      }
+
+      if (document.querySelector("[data-route-lock='true']")) return;
+
       if (event.key === "ArrowRight" || event.key === "PageDown") {
         event.preventDefault();
         setPanelDrawer(null);
@@ -230,10 +243,6 @@ function App() {
         event.preventDefault();
         setPanelDrawer(null);
         dispatch({ type: "go-to", position: lastPosition });
-      }
-
-      if (event.key === "Escape") {
-        setPanelDrawer(null);
       }
     };
 
@@ -415,7 +424,10 @@ function App() {
                   <p>{step.content.copy.why}</p>
                 </>
               ) : (
-                <EvidenceLedger claimIds={step.content.claimIds} />
+                <EvidenceLedger
+                  claimIds={step.content.claimIds}
+                  fallback={step.content.copy.evidence}
+                />
               )}
             </aside>
           )}
