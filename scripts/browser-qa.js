@@ -1,7 +1,7 @@
 import puppeteer from "puppeteer-core";
 
 const CHROME_PATH = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
-const BASE_URL = "http://localhost:5173/PMSM-Visualizations/";
+const BASE_URL = "http://localhost:5173/pmsm-alternatives-visualizations/";
 
 async function runQA() {
   console.log("Launching Chrome for QA...");

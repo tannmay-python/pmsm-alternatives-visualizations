@@ -38,13 +38,13 @@ npm run build
 
 ## GitHub Pages base path
 
-The existing route remains the development default:
+The repository Pages route is the development and build default:
 
 ```text
-/PMSM-Visualizations/
+/pmsm-alternatives-visualizations/
 ```
 
-For the final repository, set the desired path when building:
+You can still override the path for a different deployment target:
 
 ```bash
 VITE_BASE_PATH=/pmsm-alternatives-visualizations/ npm run build
