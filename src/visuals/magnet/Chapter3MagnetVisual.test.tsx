@@ -54,14 +54,25 @@ describe("Chapter3MagnetVisual", () => {
     expect(markup).toContain("Holds");
   });
 
-  it("shows a named fresh-magnet reset and a complete latched-damage reduced-motion state", () => {
+  it("only names a reversed patch after damage has latched", () => {
     const normal = renderToStaticMarkup(<Chapter3MagnetVisual step="heat-demagnetisation" />);
     const reduced = renderToStaticMarkup(<Chapter3MagnetVisual step="heat-demagnetisation" reducedMotion />);
 
     expect(normal).toContain("Fresh magnet");
+    expect(normal).not.toContain("Patch remains");
+    expect(normal).not.toContain("chapter3-magnet-body__patch");
     expect(reduced).toContain("Patch remains");
     expect(reduced).toContain("chapter3-magnet-body__patch");
     expect(reduced).toContain("A cooled magnet keeps a reversed patch");
+  });
+
+  it("does not name the helper field after it has been removed for a reduced-motion endpoint", () => {
+    const markup = renderToStaticMarkup(
+      <Chapter3MagnetVisual step="remanence-strength" reducedMotion />,
+    );
+
+    expect(markup).toContain("Field remains");
+    expect(markup).not.toContain("Helper field");
   });
 
   it("makes the trade-off explicit before optional labs are launched", () => {

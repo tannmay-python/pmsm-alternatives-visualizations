@@ -304,7 +304,7 @@ function RemanenceScene({
         />
         <MagnetBody centerX={500} centerY={310} markerId={markerId} />
       </svg>
-      <SceneCallout text="Helper field" position="remanence-helper" tone="field" />
+      {helperOn ? <SceneCallout text="Helper field" position="remanence-helper" tone="field" /> : null}
       <SceneCallout text="Field remains" position="remanence-retained" tone="magnet" />
       <div className="chapter3-retained-comparison" aria-hidden="true">
         <div className="chapter3-retained-comparison__sample is-weaker">
@@ -449,11 +449,7 @@ function HeatScene({
         <MagnetBody centerX={500} centerY={310} markerId={markerId} patch={displayDamage} />
       </svg>
       <SceneCallout text="Heat" position="heat-top" tone="heat" />
-      <SceneCallout
-        text="Patch remains"
-        position="heat-patch"
-        tone={displayDamage ? "heat" : "steel"}
-      />
+      {displayDamage ? <SceneCallout text="Patch remains" position="heat-patch" tone="heat" /> : null}
     </>
   );
 }

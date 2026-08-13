@@ -336,6 +336,7 @@ describe("reduced motion", () => {
     expect(markup).toContain("is-helper-off");
     expect(markup).toContain("is-retained");
     expect(markup).toContain("is-reduced-motion");
+    expect(markup).not.toContain("Helper field");
   });
 
   it("coercivity reduced-motion shows lower reversed", () => {
@@ -354,6 +355,14 @@ describe("reduced motion", () => {
     );
     expect(markup).toContain("chapter3-magnet-body__patch");
     expect(markup).toContain("A cooled magnet keeps a reversed patch");
+  });
+
+  it("fresh heat state does not name a patch that is not visible", () => {
+    const markup = renderToStaticMarkup(
+      createElement(Chapter3MagnetVisual, { step: "heat-demagnetisation" }),
+    );
+    expect(markup).not.toContain("Patch remains");
+    expect(markup).not.toContain("chapter3-magnet-body__patch");
   });
 
   it("tradeoff reduced-motion shows highest protection", () => {
