@@ -140,27 +140,123 @@ const asChapterId = (id: string): ChapterId => {
   return id as ChapterId;
 };
 
-const bindStep = (chapterId: ChapterId, step: ChapterStep): StoryStep => ({
+const bindStep = (sourceChapterId: ChapterId, step: ChapterStep): StoryStep => ({
   id: step.id,
   content: step,
-  sceneId: sceneByChapter[chapterId],
+  // A beginner-facing group may gather steps from several source manifests.
+  // Keep the visual context owned by the source manifest, not by its new place
+  // in the condensed route.
+  sceneId: sceneByChapter[sourceChapterId],
   visualState: sceneState(step),
   legacyAlternative: alternativeByStep[step.id],
 });
 
-const bindChapter = (chapter: ChapterManifest): StoryChapter => {
-  const id = asChapterId(chapter.id);
+type BeginnerChapterSpec = {
+  id: ChapterId;
+  title: string;
+  stepIds: readonly string[];
+};
+
+const beginnerCurriculum: readonly BeginnerChapterSpec[] = [
+  {
+    id: "where-the-motor-lives",
+    title: "Find the motor",
+    stepIds: [
+      "car-transparent-cutaway",
+      "power-path-flow",
+      "drive-unit-extract",
+      "motor-isolation",
+    ],
+  },
+  {
+    id: "how-a-pmsm-turns",
+    title: "How it turns—and why rare earths matter",
+    stepIds: [
+      "pmsm-three-phase-field",
+      "pmsm-rotor-lock",
+      "remanence-strength",
+      "heat-demagnetisation",
+      "dy-tb-tradeoff",
+    ],
+  },
+  {
+    id: "reduce-exposure-or-replace-pmsm",
+    title: "Use less before replacing it",
+    stepIds: [
+      "light-and-heavy-ree-supply",
+      "mitigation-ladder",
+      "back-emf-speed-sweep",
+    ],
+  },
+  {
+    id: "alternative-motor-laboratory",
+    title: "Meet the alternatives",
+    stepIds: [
+      "induction-cage-lab",
+      "wound-field-lab",
+      "pure-synrm-lab",
+      "stackable-motor-builder",
+    ],
+  },
+  {
+    id: "what-is-real-and-indias-opening",
+    title: "Choose what is realistic",
+    stepIds: [
+      "vehicle-survivors-and-changes",
+      "india-capability-stack",
+      "final-decision-map",
+    ],
+  },
+];
+
+type SourcedStep = {
+  sourceChapter: ChapterManifest;
+  step: ChapterStep;
+};
+
+const sourceStepById = new Map<string, SourcedStep>(
+  pmsmContent.chapters.flatMap((sourceChapter) =>
+    sourceChapter.steps.map((step) => [step.id, { sourceChapter, step }] as const),
+  ),
+);
+
+const sourceStep = (stepId: string): SourcedStep => {
+  const result = sourceStepById.get(stepId);
+  if (!result) throw new Error(`No source content step exists for curriculum step: ${stepId}`);
+  return result;
+};
+
+const bindBeginnerChapter = (spec: BeginnerChapterSpec, index: number): StoryChapter => {
+  const anchor = pmsmContent.chapters.find((chapter) => chapter.id === spec.id);
+  if (!anchor) throw new Error(`No source chapter exists for curriculum group: ${spec.id}`);
+
+  const sourcedSteps = spec.stepIds.map(sourceStep);
+  const id = asChapterId(spec.id);
+
   return {
     id,
-    content: chapter,
-    steps: chapter.steps
-      .filter((step) => step.placement === "main")
-      .map((step) => bindStep(id, step)),
+    // The source manifest remains unchanged; this small composite record is
+    // only the title and ordered step list presented by the beginner route.
+    content: {
+      ...anchor,
+      number: index + 1,
+      title: spec.title,
+      steps: sourcedSteps.map(({ step }) => step),
+    },
+    steps: sourcedSteps.map(({ sourceChapter, step }) => bindStep(asChapterId(sourceChapter.id), step)),
   };
 };
 
-/** The short, click-first beginner route. Optional labs stay in pmsmContent. */
-export const CHAPTERS: readonly StoryChapter[] = pmsmContent.chapters.map(bindChapter);
+/** Five concise, click-first groups built from the complete source curriculum. */
+export const CHAPTERS: readonly StoryChapter[] = beginnerCurriculum.map(bindBeginnerChapter);
+
+const allBoundSteps: ReadonlyMap<string, StoryStep> = new Map(
+  pmsmContent.chapters.flatMap((ch) =>
+    ch.steps.map((step) => [step.id, bindStep(asChapterId(ch.id), step)])
+  )
+);
+
+export const getStepById = (stepId: string): StoryStep | undefined => allBoundSteps.get(stepId);
 
 export const getChapter = (chapterId: ChapterId) =>
   CHAPTERS.find((chapter) => chapter.id === chapterId);
@@ -172,7 +268,8 @@ export const validateStoryRegistry = () => {
   const mainSteps = CHAPTERS.flatMap((chapter) => chapter.steps);
   const allSteps = pmsmContent.chapters.flatMap((chapter) => chapter.steps);
 
-  if (CHAPTERS.length !== 8) errors.push("The default story must bind all eight chapters.");
+  if (CHAPTERS.length !== 5) errors.push("The default story must expose exactly five beginner chapters.");
+  if (mainSteps.length !== 19) errors.push("The default story must expose exactly nineteen main steps.");
   if (CHAPTERS.some((chapter) => chapter.steps.length === 0)) {
     errors.push("Every chapter needs at least one main-path step.");
   }
@@ -192,6 +289,27 @@ export const validateStoryRegistry = () => {
   ];
   if (JSON.stringify(chapterOne) !== JSON.stringify(expectedChapterOne)) {
     errors.push("Chapter 1 must stay car → power path → drive unit → isolated motor.");
+  }
+
+  for (const [index, spec] of beginnerCurriculum.entries()) {
+    const chapter = CHAPTERS[index];
+    if (!chapter || chapter.id !== spec.id || chapter.content.title !== spec.title) {
+      errors.push(`Curriculum chapter ${index + 1} must keep its specified id and title.`);
+      continue;
+    }
+    if (JSON.stringify(chapter.steps.map((step) => step.id)) !== JSON.stringify(spec.stepIds)) {
+      errors.push(`${spec.title}: steps must stay in the specified beginner order.`);
+    }
+  }
+
+  for (const step of mainSteps) {
+    const source = sourceStep(step.id);
+    if (step.content !== source.step) {
+      errors.push(`${step.id}: the route must retain its original source step object.`);
+    }
+    if (step.sceneId !== sceneByChapter[asChapterId(source.sourceChapter.id)]) {
+      errors.push(`${step.id}: the route must retain its source chapter scene id.`);
+    }
   }
 
   for (const step of mainSteps) {

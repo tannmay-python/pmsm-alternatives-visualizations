@@ -8,7 +8,7 @@ editorial contract instead.
 
 Import `pmsmContent` from `src/content/index.ts`. It contains:
 
-- eight ordered chapter manifests;
+- eight preserved source chapter manifests;
 - 46 granular, visually distinct teaching steps;
 - the 35-row due-diligence coverage matrix;
 - claim/source/audit records suitable for an evidence drawer;
@@ -29,6 +29,8 @@ step.controls;         // implementation-ready reader controls
 
 `step.placement` is either `main` or `optional-deep-dive`. The application
 must open on the main route and reveal optional labs only when the reader asks.
+The rendering adapter composes a five-group, nineteen-step beginner route from
+those source manifests without rewriting their steps or evidence records.
 Chapter 1's main route is fixed as: whole car → power path → extract and open
 drive unit → isolate motor. The earlier market context is optional; it must not
 block a beginner from reaching the machine.

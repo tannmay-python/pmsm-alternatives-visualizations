@@ -421,7 +421,7 @@ const coverageClassification: Record<
   "dd-05-back-emf": { placement: "main", reason: "Essential PMSM engineering limitation." },
   "dd-05-field-weakening": { placement: "main", reason: "Visible cause/effect explanation of the high-speed trade-off." },
   "dd-05-pmsm-fault": { placement: "optional-deep-dive", reason: "Safety nuance is useful after the core high-speed field-weakening explanation." },
-  "dd-06-motor-families": { placement: "main", reason: "Gives a simple mental map before alternative labs." },
+  "dd-06-motor-families": { placement: "optional-deep-dive", reason: "A useful hand-off to the alternative-motor labs after the condensed PMSM decision route." },
   "dd-07-induction-mechanism": { placement: "main", reason: "One of the core alternative torque mechanisms." },
   "dd-07-induction-ev-tradeoff": { placement: "optional-deep-dive", reason: "Mixed-axle deployment adds context after the induction mechanism is learned." },
   "dd-08-wound-field-principle": { placement: "main", reason: "One of the core alternative torque mechanisms." },

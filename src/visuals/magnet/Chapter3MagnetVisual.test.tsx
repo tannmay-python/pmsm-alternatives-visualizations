@@ -5,23 +5,29 @@ import { CHAPTERS, getScene } from "../../story/storyRegistry";
 import { Chapter3MagnetVisual } from "./Chapter3MagnetVisual";
 import { chapter3MainRoute } from "./chapter3MagnetModel";
 
-const chapterThree = CHAPTERS.find((chapter) => chapter.id === "why-the-magnet-needs-nd-dy-tb");
+const magnetSteps = CHAPTERS
+  .find((chapter) => chapter.id === "how-a-pmsm-turns")
+  ?.steps.filter((step) => chapter3MainRoute.includes(step.id as (typeof chapter3MainRoute)[number])) ?? [];
 
 describe("Chapter3MagnetVisual", () => {
-  it("binds each of the four main states to the dedicated native renderer", () => {
-    expect(chapterThree?.steps.map((step) => step.id)).toEqual(chapter3MainRoute);
+  it("binds each visible magnet state to the dedicated native renderer", () => {
+    expect(magnetSteps.map((step) => step.id)).toEqual([
+      "remanence-strength",
+      "heat-demagnetisation",
+      "dy-tb-tradeoff",
+    ]);
 
-    for (const step of chapterThree?.steps ?? []) {
+    for (const step of magnetSteps) {
       const markup = renderToStaticMarkup(
         <SceneStage
-          chapter={chapterThree!}
+          chapter={CHAPTERS[1]!}
           step={step}
           scene={getScene(step.sceneId)}
           reducedMotion={false}
           paused={false}
-          chapterNumber={3}
-          stepNumber={chapterThree!.steps.indexOf(step) + 1}
-          stepCount={chapterThree!.steps.length}
+          chapterNumber={2}
+          stepNumber={CHAPTERS[1]!.steps.indexOf(step) + 1}
+          stepCount={CHAPTERS[1]!.steps.length}
           onTogglePause={() => undefined}
         />,
       );

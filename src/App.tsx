@@ -347,6 +347,7 @@ function App() {
           stepNumber={stepIndex + 1}
           stepCount={chapter.steps.length}
           onTogglePause={() => dispatch({ type: "toggle-stage-paused" })}
+          onNext={goNext}
         />
 
         <section

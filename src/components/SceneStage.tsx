@@ -15,10 +15,14 @@ import {
   PmsmTurnVisual,
   type PmsmTurnStep,
 } from "../visuals/pmsm/PmsmTurnVisual";
-import {
-  Chapter3MagnetVisual,
-} from "../visuals/magnet/Chapter3MagnetVisual";
+import { Chapter3MagnetVisual } from "../visuals/magnet/Chapter3MagnetVisual";
 import { chapter3MainRoute } from "../visuals/magnet/chapter3MagnetModel";
+import {
+  ExposureOptionsVisual,
+  type ExposureStep,
+} from "../visuals/exposure/ExposureOptionsVisual";
+import { Chapter5LabVisual } from "../visuals/chapter5/Chapter5LabVisual";
+import { isCoreAlternativeStepId } from "../visuals/chapter5/chapter5Geometry";
 
 const LazyStoryCanvas = lazy(async () => {
   const module = await import("./StoryCanvas");
@@ -43,6 +47,15 @@ const pmsmTurnStepByStoryId: Readonly<Record<string, PmsmTurnStep>> = {
 const isChapter3MagnetStep = (stepId: string): stepId is (typeof chapter3MainRoute)[number] =>
   chapter3MainRoute.includes(stepId as (typeof chapter3MainRoute)[number]);
 
+const exposureStepByStoryId: Readonly<Record<string, ExposureStep>> = {
+  "light-and-heavy-ree-supply": "light-and-heavy-ree-supply",
+  "mitigation-ladder": "mitigation-ladder",
+  "back-emf-speed-sweep": "back-emf-speed-sweep",
+  "field-weakening-current": "field-weakening-current",
+  "sync-async-family-tree": "sync-async-family-tree",
+  "inverter-fault-at-speed": "inverter-fault-at-speed",
+};
+
 type CanvasState = "checking" | "loading" | "ready" | "fallback";
 
 type SceneStageProps = {
@@ -55,6 +68,7 @@ type SceneStageProps = {
   stepNumber: number;
   stepCount: number;
   onTogglePause: () => void;
+  onNext: () => void;
 };
 
 type CanvasErrorBoundaryProps = {
@@ -259,12 +273,16 @@ export function SceneStage({
   stepNumber,
   stepCount,
   onTogglePause,
+  onNext,
 }: SceneStageProps) {
   const [canvasState, setCanvasState] = useState<CanvasState>("checking");
   const vehicleJourneyStep = vehicleJourneyStepByStoryId[step.id];
   const pmsmTurnStep = pmsmTurnStepByStoryId[step.id];
   const chapter3MagnetStep = isChapter3MagnetStep(step.id) ? step.id : null;
-  const hasOwnedVisual = Boolean(vehicleJourneyStep || pmsmTurnStep || chapter3MagnetStep);
+  const exposureStep = exposureStepByStoryId[step.id];
+  const isCoreAlternative = chapter.id === "alternative-motor-laboratory" && isCoreAlternativeStepId(step.id);
+  const hasOwnedVisual = Boolean(vehicleJourneyStep || pmsmTurnStep || chapter3MagnetStep || exposureStep || isCoreAlternative);
+  const hidesStageChrome = Boolean(exposureStep || isCoreAlternative);
   const signal = useRef<StorySignal>({
     progress: scene.legacyProgress,
     activeChapter: 0,
@@ -304,7 +322,17 @@ export function SceneStage({
       data-reduced-motion={reducedMotion || undefined}
       aria-label={`${chapter.content.title}: ${step.content.title}`}
     >
-      {vehicleJourneyStep ? (
+      {isCoreAlternative ? (
+        <div className="visual-stage__chapter5-lab">
+          <Chapter5LabVisual
+            stepId={step.id}
+            paused={paused}
+            reducedMotion={reducedMotion}
+            onNext={onNext}
+            onTogglePause={onTogglePause}
+          />
+        </div>
+      ) : vehicleJourneyStep ? (
         <div className="visual-stage__vehicle-journey">
           <VehicleJourneyVisual
             step={vehicleJourneyStep}
@@ -327,6 +355,14 @@ export function SceneStage({
           paused={paused}
           reducedMotion={reducedMotion}
         />
+      ) : exposureStep ? (
+        <div className="visual-stage__exposure-options">
+          <ExposureOptionsVisual
+            stepId={exposureStep}
+            paused={paused}
+            reducedMotion={reducedMotion}
+          />
+        </div>
       ) : (
         <>
           <div className="visual-stage__canvas" aria-hidden="true">
@@ -357,30 +393,34 @@ export function SceneStage({
         </>
       )}
 
-      <div className="visual-stage__meta">
-        <span>Scene {String(chapterNumber).padStart(2, "0")}.{stepNumber} · {step.content.title}</span>
-        <span>{stageLens[step.visualState.mode]}</span>
-      </div>
+      {!hidesStageChrome && (
+        <div className="visual-stage__meta">
+          <span>Scene {String(chapterNumber).padStart(2, "0")}.{stepNumber} · {step.content.title}</span>
+          <span>{stageLens[step.visualState.mode]}</span>
+        </div>
+      )}
 
       {!hasOwnedVisual && <GeometryLabels elements={step.visualState.visibleElements} />}
 
-      <div className="visual-stage__transport">
-        <button
-          type="button"
-          className="transport-toggle"
-          aria-label={paused ? "Play physical scene" : "Pause physical scene"}
-          aria-pressed={paused}
-          disabled={reducedMotion}
-          onClick={onTogglePause}
-        >
-          {paused ? <Play size={14} weight="fill" aria-hidden="true" /> : <Pause size={14} weight="fill" aria-hidden="true" />}
-        </button>
-        <div className="transport-readout">
-          <span>{reducedMotion ? "motion frozen" : paused ? "paused" : "playing"}</span>
-          <i aria-hidden="true"><b style={{ width: `${(stepNumber / stepCount) * 100}%` }} /></i>
+      {!hidesStageChrome && (
+        <div className="visual-stage__transport">
+          <button
+            type="button"
+            className="transport-toggle"
+            aria-label={paused ? "Play physical scene" : "Pause physical scene"}
+            aria-pressed={paused}
+            disabled={reducedMotion}
+            onClick={onTogglePause}
+          >
+            {paused ? <Play size={14} weight="fill" aria-hidden="true" /> : <Pause size={14} weight="fill" aria-hidden="true" />}
+          </button>
+          <div className="transport-readout">
+            <span>{reducedMotion ? "motion frozen" : paused ? "paused" : "playing"}</span>
+            <i aria-hidden="true"><b style={{ width: `${(stepNumber / stepCount) * 100}%` }} /></i>
+          </div>
+          <span className="transport-step">{stepNumber} / {stepCount}</span>
         </div>
-        <span className="transport-step">{stepNumber} / {stepCount}</span>
-      </div>
+      )}
 
       <p className="sr-only">
         Current visual mode: {modeLabel[step.visualState.mode]}. {step.visualState.visualChange}

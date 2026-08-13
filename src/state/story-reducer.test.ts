@@ -13,11 +13,57 @@ import {
 } from "./story-reducer";
 
 describe("story reducer", () => {
-  it("binds only main-path content into the default route", () => {
+  it("binds the five-group, nineteen-step beginner route from main-path content", () => {
     expect(() => validateStoryRegistry()).not.toThrow();
-    expect(CHAPTERS).toHaveLength(8);
-    expect(CHAPTERS.flatMap((chapter) => chapter.steps)).toHaveLength(31);
+    expect(CHAPTERS).toHaveLength(5);
+    expect(CHAPTERS.flatMap((chapter) => chapter.steps)).toHaveLength(19);
     expect(CHAPTERS.flatMap((chapter) => chapter.steps).every((step) => step.content.placement === "main")).toBe(true);
+  });
+
+  it("keeps the specified visible groups, titles, step order, and source scenes", () => {
+    expect(CHAPTERS.map((chapter) => ({
+      id: chapter.id,
+      title: chapter.content.title,
+      steps: chapter.steps.map((step) => step.id),
+    }))).toEqual([
+      {
+        id: "where-the-motor-lives",
+        title: "Find the motor",
+        steps: ["car-transparent-cutaway", "power-path-flow", "drive-unit-extract", "motor-isolation"],
+      },
+      {
+        id: "how-a-pmsm-turns",
+        title: "How it turns—and why rare earths matter",
+        steps: ["pmsm-three-phase-field", "pmsm-rotor-lock", "remanence-strength", "heat-demagnetisation", "dy-tb-tradeoff"],
+      },
+      {
+        id: "reduce-exposure-or-replace-pmsm",
+        title: "Use less before replacing it",
+        steps: ["light-and-heavy-ree-supply", "mitigation-ladder", "back-emf-speed-sweep"],
+      },
+      {
+        id: "alternative-motor-laboratory",
+        title: "Meet the alternatives",
+        steps: ["induction-cage-lab", "wound-field-lab", "pure-synrm-lab", "stackable-motor-builder"],
+      },
+      {
+        id: "what-is-real-and-indias-opening",
+        title: "Choose what is realistic",
+        steps: ["vehicle-survivors-and-changes", "india-capability-stack", "final-decision-map"],
+      },
+    ]);
+
+    expect(CHAPTERS.flatMap((chapter) => chapter.steps).filter((step) => [
+      "remanence-strength",
+      "stackable-motor-builder",
+      "vehicle-survivors-and-changes",
+      "india-capability-stack",
+    ].includes(step.id)).map((step) => [step.id, step.sceneId])).toEqual([
+      ["remanence-strength", "magnet-material"],
+      ["stackable-motor-builder", "magnet-geometry"],
+      ["vehicle-survivors-and-changes", "vehicle-change"],
+      ["india-capability-stack", "market-evidence"],
+    ]);
   });
 
   it("keeps the opening chapter to four simple visual states", () => {
