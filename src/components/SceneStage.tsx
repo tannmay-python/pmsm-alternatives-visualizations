@@ -83,7 +83,7 @@ type SceneStageProps = {
   stepNumber: number;
   stepCount: number;
   onTogglePause: () => void;
-  onNext: () => void;
+  onNext?: () => void;
 };
 
 type CanvasErrorBoundaryProps = {

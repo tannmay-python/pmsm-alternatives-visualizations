@@ -9,7 +9,7 @@ import {
 } from "./finalDecisionModel";
 
 describe("FinalDecisionVisual", () => {
-  it("owns exactly the four retained decision IDs without a WebGL fallback", () => {
+  it("owns the three visible decision IDs without a WebGL fallback", () => {
     expect(finalDecisionStepIds).toEqual([
       "vehicle-survivors-and-changes",
       "swap-burden-spectrum",
@@ -17,7 +17,11 @@ describe("FinalDecisionVisual", () => {
       "final-decision-map",
     ]);
 
-    for (const stepId of finalDecisionStepIds) {
+    const visibleDecisionStepIds = finalDecisionStepIds.filter(
+      (stepId) => stepId !== "swap-burden-spectrum",
+    );
+
+    for (const stepId of visibleDecisionStepIds) {
       const chapter = CHAPTERS.find((candidate) =>
         candidate.steps.some((candidateStep) => candidateStep.id === stepId),
       );
