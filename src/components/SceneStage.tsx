@@ -27,6 +27,8 @@ import {
   Chapter6GeometryVisual,
 } from "../visuals/geometry/Chapter6GeometryVisual";
 import type { Chapter6Step } from "../visuals/geometry/chapter6Geometry";
+import { FinalDecisionVisual } from "../visuals/final-decision/FinalDecisionVisual";
+import { isFinalDecisionStep } from "../visuals/final-decision/finalDecisionModel";
 
 const LazyStoryCanvas = lazy(async () => {
   const module = await import("./StoryCanvas");
@@ -295,8 +297,9 @@ export function SceneStage({
   const exposureStep = exposureStepByStoryId[step.id];
   const isCoreAlternative = chapter.id === "alternative-motor-laboratory" && isCoreAlternativeStepId(step.id);
   const chapter6Step = chapter6StepByStoryId[step.id];
-  const hasOwnedVisual = Boolean(vehicleJourneyStep || pmsmTurnStep || chapter3MagnetStep || exposureStep || isCoreAlternative || chapter6Step);
-  const hidesStageChrome = Boolean(exposureStep || isCoreAlternative || chapter6Step);
+  const finalDecisionStep = isFinalDecisionStep(step.id) ? step.id : null;
+  const hasOwnedVisual = Boolean(vehicleJourneyStep || pmsmTurnStep || chapter3MagnetStep || exposureStep || isCoreAlternative || chapter6Step || finalDecisionStep);
+  const hidesStageChrome = Boolean(exposureStep || isCoreAlternative || chapter6Step || finalDecisionStep);
   const signal = useRef<StorySignal>({
     progress: scene.legacyProgress,
     activeChapter: 0,
@@ -331,7 +334,9 @@ export function SceneStage({
 
   return (
     <section
-      className={`visual-stage ${chapter3MagnetStep ? "visual-stage--chapter3" : ""}`}
+      className={`visual-stage ${chapter3MagnetStep ? "visual-stage--chapter3" : ""} ${
+        finalDecisionStep ? "visual-stage--final-decision" : ""
+      }`}
       data-canvas-state={canvasState}
       data-reduced-motion={reducedMotion || undefined}
       aria-label={`${chapter.content.title}: ${step.content.title}`}
@@ -381,6 +386,14 @@ export function SceneStage({
         <div className="visual-stage__chapter6-geometry">
           <Chapter6GeometryVisual
             step={chapter6Step}
+            paused={paused}
+            reducedMotion={reducedMotion}
+          />
+        </div>
+      ) : finalDecisionStep ? (
+        <div className="visual-stage__final-decision">
+          <FinalDecisionVisual
+            step={finalDecisionStep}
             paused={paused}
             reducedMotion={reducedMotion}
           />

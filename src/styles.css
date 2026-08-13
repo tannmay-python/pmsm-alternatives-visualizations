@@ -215,13 +215,19 @@ a:focus-visible {
   mask-image: none;
 }
 
+.visual-stage--final-decision::before {
+  background-image: none;
+  mask-image: none;
+}
+
 .visual-stage__canvas,
 .visual-stage__blueprint,
 .visual-stage__vehicle-journey,
 .visual-stage__pmsm-turn,
 .visual-stage__exposure-options,
 .visual-stage__chapter5-lab,
-.visual-stage__chapter6-geometry {
+.visual-stage__chapter6-geometry,
+.visual-stage__final-decision {
   position: absolute;
   inset: 0;
 }
@@ -234,7 +240,8 @@ a:focus-visible {
 .visual-stage__pmsm-turn,
 .visual-stage__exposure-options,
 .visual-stage__chapter5-lab,
-.visual-stage__chapter6-geometry {
+.visual-stage__chapter6-geometry,
+.visual-stage__final-decision {
   z-index: 3;
 }
 
