@@ -23,6 +23,10 @@ import {
 } from "../visuals/exposure/ExposureOptionsVisual";
 import { Chapter5LabVisual } from "../visuals/chapter5/Chapter5LabVisual";
 import { isCoreAlternativeStepId } from "../visuals/chapter5/chapter5Geometry";
+import {
+  Chapter6GeometryVisual,
+} from "../visuals/geometry/Chapter6GeometryVisual";
+import type { Chapter6Step } from "../visuals/geometry/chapter6Geometry";
 
 const LazyStoryCanvas = lazy(async () => {
   const module = await import("./StoryCanvas");
@@ -54,6 +58,15 @@ const exposureStepByStoryId: Readonly<Record<string, ExposureStep>> = {
   "field-weakening-current": "field-weakening-current",
   "sync-async-family-tree": "sync-async-family-tree",
   "inverter-fault-at-speed": "inverter-fault-at-speed",
+};
+
+const chapter6StepByStoryId: Readonly<Record<string, Chapter6Step>> = {
+  "ferrite-material-not-architecture": "ferrite-material-not-architecture",
+  "axial-flux-geometry": "axial-flux-geometry",
+  "proterial-power-speed": "proterial-power-speed",
+  "iron-nitride-property-board": "iron-nitride-property-board",
+  "matter-variable-flux": "matter-variable-flux",
+  "stackable-motor-builder": "stackable-motor-builder",
 };
 
 type CanvasState = "checking" | "loading" | "ready" | "fallback";
@@ -281,8 +294,9 @@ export function SceneStage({
   const chapter3MagnetStep = isChapter3MagnetStep(step.id) ? step.id : null;
   const exposureStep = exposureStepByStoryId[step.id];
   const isCoreAlternative = chapter.id === "alternative-motor-laboratory" && isCoreAlternativeStepId(step.id);
-  const hasOwnedVisual = Boolean(vehicleJourneyStep || pmsmTurnStep || chapter3MagnetStep || exposureStep || isCoreAlternative);
-  const hidesStageChrome = Boolean(exposureStep || isCoreAlternative);
+  const chapter6Step = chapter6StepByStoryId[step.id];
+  const hasOwnedVisual = Boolean(vehicleJourneyStep || pmsmTurnStep || chapter3MagnetStep || exposureStep || isCoreAlternative || chapter6Step);
+  const hidesStageChrome = Boolean(exposureStep || isCoreAlternative || chapter6Step);
   const signal = useRef<StorySignal>({
     progress: scene.legacyProgress,
     activeChapter: 0,
@@ -359,6 +373,14 @@ export function SceneStage({
         <div className="visual-stage__exposure-options">
           <ExposureOptionsVisual
             stepId={exposureStep}
+            paused={paused}
+            reducedMotion={reducedMotion}
+          />
+        </div>
+      ) : chapter6Step ? (
+        <div className="visual-stage__chapter6-geometry">
+          <Chapter6GeometryVisual
+            step={chapter6Step}
             paused={paused}
             reducedMotion={reducedMotion}
           />
