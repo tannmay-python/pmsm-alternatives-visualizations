@@ -33,20 +33,80 @@ function StageLabel({ children, position, tone = "neutral" }: { children: string
   return <Html position={position} center distanceFactor={7} style={{ pointerEvents: "none" }}><span className={`stage-label stage-label--${tone}`}>{children}</span></Html>;
 }
 
-function Wheel({ position }: { position: [number, number, number] }) {
-  return <mesh position={position} rotation={[0, 0, Math.PI / 2]} castShadow receiveShadow><cylinderGeometry args={[0.52, 0.52, 0.22, 32]} /><meshStandardMaterial color="#26353a" roughness={0.55} metalness={0.45} /></mesh>;
+function VehicleWheel({ position }: { position: [number, number, number] }) {
+  return <group position={position}>
+    <mesh castShadow receiveShadow><torusGeometry args={[0.47, 0.135, 12, 36]} /><meshStandardMaterial color="#1e2b30" roughness={0.58} metalness={0.22} /></mesh>
+    <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0, 0.035]}><cylinderGeometry args={[0.29, 0.29, 0.13, 24]} /><meshStandardMaterial color="#a9b9ba" roughness={0.25} metalness={0.9} /></mesh>
+    <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0, 0.11]}><cylinderGeometry args={[0.09, 0.09, 0.15, 20]} /><meshStandardMaterial color="#4e666b" roughness={0.3} metalness={0.82} /></mesh>
+  </group>;
+}
+
+function VehicleShell() {
+  const bodyGeometry = useMemo(() => {
+    const shape = new THREE.Shape();
+    shape.moveTo(-3.18, 0.58);
+    shape.lineTo(-3.08, 1.1);
+    shape.lineTo(-2.6, 1.3);
+    shape.lineTo(-1.55, 1.45);
+    shape.lineTo(-0.92, 2.05);
+    shape.lineTo(1.12, 2.08);
+    shape.lineTo(1.9, 1.47);
+    shape.lineTo(2.68, 1.34);
+    shape.lineTo(3.12, 1.06);
+    shape.lineTo(3.18, 0.62);
+    shape.lineTo(2.82, 0.42);
+    shape.lineTo(-2.88, 0.42);
+    shape.closePath();
+
+    const frontArch = new THREE.Path();
+    frontArch.absellipse(-2.02, 0.55, 0.59, 0.59, 0, Math.PI * 2, true);
+    const rearArch = new THREE.Path();
+    rearArch.absellipse(2.04, 0.55, 0.59, 0.59, 0, Math.PI * 2, true);
+    shape.holes.push(frontArch, rearArch);
+    return new THREE.ExtrudeGeometry(shape, { depth: 1.34, bevelEnabled: true, bevelSegments: 2, bevelSize: 0.025, bevelThickness: 0.025, curveSegments: 36 });
+  }, []);
+  return <mesh geometry={bodyGeometry} position={[0, 0, -0.67]} castShadow><meshPhysicalMaterial color="#c4d5d4" transparent opacity={0.32} roughness={0.23} metalness={0.28} clearcoat={0.55} clearcoatRoughness={0.24} side={THREE.DoubleSide} depthWrite={false} /><Edges color="#6d8c90" threshold={18} /></mesh>;
+}
+
+function BatteryPack() {
+  return <group position={[-0.38, 0.68, 0]}>
+    <RoundedBox args={[3.52, 0.27, 1.02]} radius={0.07} smoothness={2}><meshStandardMaterial color="#147f91" emissive="#4eb7c2" emissiveIntensity={0.26} metalness={0.42} roughness={0.32} /><Edges color="#b7eceb" threshold={20} /></RoundedBox>
+    {Array.from({ length: 7 }, (_, index) => <RoundedBox key={index} args={[0.35, 0.11, 0.8]} radius={0.025} smoothness={2} position={[-1.35 + index * 0.45, 0.12, 0]}><meshStandardMaterial color="#77c6cd" emissive="#78d6d9" emissiveIntensity={0.14} roughness={0.38} /></RoundedBox>)}
+  </group>;
+}
+
+function EAxleModel() {
+  return <group position={[1.95, 0.72, 0]}>
+    <mesh rotation={[Math.PI / 2, 0, 0]} position={[-0.15, 0, 0]}><cylinderGeometry args={[0.42, 0.42, 0.72, 32]} /><meshStandardMaterial color="#c96c31" emissive="#9a461d" emissiveIntensity={0.23} metalness={0.72} roughness={0.27} /><Edges color="#f0c49c" threshold={18} /></mesh>
+    <RoundedBox args={[0.54, 0.36, 0.84]} radius={0.07} smoothness={2} position={[-0.64, 0.14, 0]}><meshStandardMaterial color="#8aa5a7" metalness={0.62} roughness={0.28} /><Edges color="#d4e0df" threshold={20} /></RoundedBox>
+    <mesh rotation={[Math.PI / 2, 0, 0]} position={[0.34, 0, 0]}><cylinderGeometry args={[0.3, 0.3, 0.84, 28]} /><meshStandardMaterial color="#b5c5c4" metalness={0.83} roughness={0.23} /></mesh>
+    <mesh rotation={[Math.PI / 2, 0, 0]} position={[0.1, -0.15, 0]}><cylinderGeometry args={[0.06, 0.06, 1.8, 16]} /><meshStandardMaterial color="#d9e5e2" metalness={0.86} roughness={0.2} /></mesh>
+  </group>;
+}
+
+function EnergyPath() {
+  const cableCurve = useMemo(() => new THREE.CatmullRomCurve3([
+    new THREE.Vector3(0.45, 0.85, 0.62),
+    new THREE.Vector3(0.95, 0.93, 0.62),
+    new THREE.Vector3(1.45, 0.84, 0.62),
+    new THREE.Vector3(1.78, 0.82, 0.62),
+  ]), []);
+  return <group>
+    <mesh><tubeGeometry args={[cableCurve, 28, 0.035, 8, false]} /><meshStandardMaterial color="#19a3b0" emissive="#64d2d8" emissiveIntensity={0.75} roughness={0.25} /></mesh>
+    <mesh position={[1.66, 0.82, 0.62]} rotation={[0, 0, -Math.PI / 2]}><coneGeometry args={[0.08, 0.16, 3]} /><meshBasicMaterial color="#19a3b0" /></mesh>
+  </group>;
 }
 
 function CarModel() {
-  const bodyMaterial = useMemo(() => new THREE.MeshPhysicalMaterial({ color: "#c5d3d2", transparent: true, opacity: 0.42, roughness: 0.24, metalness: 0.22 }), []);
-  return <group scale={1.08} position={[0, 0.12, 0]}>
-    <RoundedBox args={[5.8, 0.8, 2.2]} radius={0.22} smoothness={3} position={[0, 1.05, 0]} castShadow><primitive object={bodyMaterial} attach="material" /><Edges color="#789397" threshold={18} /></RoundedBox>
-    <RoundedBox args={[3.4, 0.54, 1.76]} radius={0.18} smoothness={3} position={[0.25, 1.7, 0]}><meshStandardMaterial color="#80a5a7" transparent opacity={0.35} roughness={0.25} metalness={0.2} /></RoundedBox>
-    <mesh position={[0, 0.66, 0]}><boxGeometry args={[2.9, 0.38, 1.25]} /><meshStandardMaterial color="#4a9eae" emissive="#b7e4e8" emissiveIntensity={0.38} roughness={0.5} /></mesh>
-    <Wheel position={[-1.9, 0.38, 1.18]} /><Wheel position={[1.9, 0.38, 1.18]} /><Wheel position={[-1.9, 0.38, -1.18]} /><Wheel position={[1.9, 0.38, -1.18]} />
-    <RoundedBox args={[1.34, 0.34, 0.92]} radius={0.08} smoothness={2} position={[0, 0.94, 0]}><meshStandardMaterial color="#238b9b" emissive="#9ee1e2" emissiveIntensity={0.55} transparent opacity={0.95} /></RoundedBox>
-    <mesh position={[1.1, 0.92, 0]}><cylinderGeometry args={[0.42, 0.42, 0.62, 32]} /><meshStandardMaterial color="#d77b3a" emissive="#99461e" emissiveIntensity={0.25} roughness={0.35} metalness={0.72} /></mesh>
-    <StageLabel position={[0, 0.05, 1.4]} tone="cyan">battery</StageLabel><StageLabel position={[1.1, 1.7, 0]} tone="copper">drive unit</StageLabel>
+  return <group scale={1.22} position={[0, -0.05, 0]} rotation={[0, 0.54, 0]}>
+    <VehicleShell />
+    <RoundedBox args={[2.12, 0.55, 0.05]} radius={0.06} smoothness={2} position={[-0.04, 1.72, 0.7]}><meshStandardMaterial color="#52757a" transparent opacity={0.4} roughness={0.16} metalness={0.42} /></RoundedBox>
+    <mesh position={[0.12, 1.72, 0.74]}><boxGeometry args={[0.05, 0.62, 0.045]} /><meshStandardMaterial color="#6f8a8d" metalness={0.52} roughness={0.33} /></mesh>
+    <BatteryPack />
+    <EAxleModel />
+    <EnergyPath />
+    <VehicleWheel position={[-2.02, 0.55, 0.76]} /><VehicleWheel position={[2.04, 0.55, 0.76]} />
+    <StageLabel position={[-0.5, 0.02, 1.22]} tone="cyan">battery pack</StageLabel><StageLabel position={[2.12, 1.42, 0.74]} tone="copper">rear e-axle</StageLabel>
   </group>;
 }
 
