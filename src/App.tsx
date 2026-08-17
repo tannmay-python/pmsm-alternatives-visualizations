@@ -1,441 +1,164 @@
-import { ArrowLeft, ArrowRight, X } from "@phosphor-icons/react";
-import {
-  useEffect,
-  useMemo,
-  useReducer,
-  useRef,
-  useState,
-  type WheelEvent,
-} from "react";
-import { SceneStage } from "./components/SceneStage";
-import {
-  createInitialStoryState,
-  firstPosition,
-  getCurrentChapter,
-  getCurrentStep,
-  getFlatPositions,
-  getReducedMotion,
-  hashToPosition,
-  positionToHash,
-  storyReducer,
-} from "./state/story-reducer";
-import { CHAPTERS, getScene } from "./story/storyRegistry";
-import { evidenceCaveat, resolveEvidenceClaims } from "./story/evidence";
-import type { ChapterId, StoryPosition } from "./types";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { Edges, Html, OrbitControls, RoundedBox } from "@react-three/drei";
+import { ArrowLeft, ArrowRight, Pause, Play } from "@phosphor-icons/react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import * as THREE from "three";
 
-type PanelDrawer = "why" | "evidence" | null;
+type LessonStep = "location" | "unit" | "motor" | "field" | "heat";
 
-const isEditableTarget = (target: EventTarget | null) => {
-  if (!(target instanceof HTMLElement)) return false;
-  return Boolean(target.closest("input, textarea, select, [contenteditable='true']"));
+type StepInfo = {
+  id: LessonStep;
+  kicker: string;
+  title: string;
+  question: string;
+  answer: string;
+  detail: string;
 };
 
-const chapterLabel = (index: number) => `Chapter ${index + 1}: ${CHAPTERS[index].content.title}`;
+const STEPS: readonly StepInfo[] = [
+  { id: "location", kicker: "01 · the whole car", title: "Where the motor lives", question: "What actually turns the wheels?", answer: "A compact drive unit sits between the battery and the wheels.", detail: "The battery sends electrical energy forward. The drive unit turns that energy into rotation at the axle." },
+  { id: "unit", kicker: "02 · inside the unit", title: "Open the drive unit", question: "What is packed inside?", answer: "Power electronics feed a motor; gears pass its rotation to the axle.", detail: "The body of the car can stay the same. This small assembly is where the electrical and mechanical work meet." },
+  { id: "motor", kicker: "03 · the motor", title: "Stator and rotor", question: "What moves, and what stays still?", answer: "Copper coils stay still in the stator. Magnets ride inside on the spinning rotor.", detail: "The air gap keeps the two parts close enough to pull on each other without touching." },
+  { id: "field", kicker: "04 · the pull", title: "Make a moving field", question: "How does a still coil make motion?", answer: "Three coil groups take turns being strong. Their combined magnetic push travels around the ring.", detail: "The rotor follows that moving push. That is the useful torque that reaches the wheels." },
+  { id: "heat", kicker: "05 · the hard part", title: "Why heat matters", question: "Why add dysprosium or terbium?", answer: "Heat makes a magnet easier to reverse. Dy/Tb adds a little more resistance to that reversal.", detail: "It is a trade-off: more protection can mean a little less magnetic strength. The control shows the idea, not a universal recipe." },
+];
 
-function EvidenceLedger({
-  claimIds,
-  fallback,
-}: {
-  claimIds: readonly string[];
-  fallback: string;
-}) {
-  const claims = resolveEvidenceClaims(claimIds);
+const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
-  if (claims.length === 0) {
-    return (
-      <>
-        <h2>Teaching model</h2>
-        <p>
-          {fallback}
-        </p>
-      </>
-    );
-  }
-
-  return (
-    <>
-      <h2>Evidence ledger</h2>
-      <p className="drawer-intro">Each statement carries its scope, status, caveat and source.</p>
-      <ol className="evidence-ledger">
-        {claims.map(({ claim, sources }) => (
-          <li key={claim.id} className="evidence-claim">
-            <p className="evidence-claim__statement">{claim.statement}</p>
-            <dl className="evidence-claim__meta">
-              <div>
-                <dt>Status</dt>
-                <dd>{claim.evidenceStatus.replaceAll("-", " ")}</dd>
-              </div>
-              <div>
-                <dt>Condition</dt>
-                <dd>{claim.qualifier ? `${claim.qualifier} · ` : ""}{claim.denominator}</dd>
-              </div>
-              <div>
-                <dt>Date</dt>
-                <dd>{claim.date}</dd>
-              </div>
-              <div>
-                <dt>Market</dt>
-                <dd>{claim.market.replaceAll("-", " ")}</dd>
-              </div>
-              {claim.maturity && (
-                <div>
-                  <dt>Maturity</dt>
-                  <dd>{claim.maturity.replaceAll("-", " ")}</dd>
-                </div>
-              )}
-            </dl>
-            <p className="evidence-claim__caveat">{evidenceCaveat(claim)}</p>
-            {claim.conflict && <p className="evidence-claim__caveat">Correction: {claim.conflict}</p>}
-            {claim.renderingPolicy === "show-with-condition" && (
-              <p className="evidence-claim__condition">Read with the condition shown above.</p>
-            )}
-            <ul className="evidence-claim__sources" aria-label={`Sources for ${claim.statement}`}>
-              {sources.map((source) => (
-                <li key={source.id}>
-                  {source.url ? (
-                    <a href={source.url} target="_blank" rel="noreferrer">
-                      {source.organisation}: {source.title}
-                    </a>
-                  ) : (
-                    <span>{source.organisation}: {source.title} (supplied notes)</span>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </li>
-        ))}
-      </ol>
-    </>
-  );
+function StageLabel({ children, position, tone = "neutral" }: { children: string; position: [number, number, number]; tone?: "neutral" | "cyan" | "violet" | "amber" | "copper" }) {
+  return <Html position={position} center distanceFactor={7} style={{ pointerEvents: "none" }}><span className={`stage-label stage-label--${tone}`}>{children}</span></Html>;
 }
 
-function App() {
-  const [state, dispatch] = useReducer(
-    storyReducer,
-    undefined,
-    () =>
-      createInitialStoryState(
-        typeof window === "undefined"
-          ? firstPosition()
-          : hashToPosition(window.location.hash) ?? firstPosition(),
-        typeof window !== "undefined" &&
-          window.matchMedia("(prefers-reduced-motion: reduce)").matches,
-      ),
-  );
-  const [panelDrawer, setPanelDrawer] = useState<PanelDrawer>(null);
-  const drawerCloseRef = useRef<HTMLButtonElement>(null);
-  const wheelAccumulator = useRef(0);
-  const wheelResetTimer = useRef<number | null>(null);
-  const positions = useMemo(() => getFlatPositions(), []);
-
-  const chapter = getCurrentChapter(state);
-  const step = getCurrentStep(state);
-  const scene = getScene(step.sceneId);
-  const reducedMotion = getReducedMotion(state);
-  const positionIndex = positions.findIndex(
-    (position) =>
-      position.chapterId === state.position.chapterId &&
-      position.stepId === state.position.stepId,
-  );
-  const chapterIndex = CHAPTERS.findIndex((item) => item.id === chapter.id);
-  const stepIndex = chapter.steps.findIndex((item) => item.id === step.id);
-  const lastPosition = positions.at(-1);
-  const hasPrevious = positionIndex > 0;
-  const hasNext = positionIndex < positions.length - 1;
-
-  const goTo = (position: StoryPosition) => {
-    setPanelDrawer(null);
-    dispatch({ type: "go-to", position });
-  };
-
-  const goToChapter = (chapterId: ChapterId) => {
-    setPanelDrawer(null);
-    dispatch({ type: "go-to-chapter", chapterId });
-  };
-
-  const goPrevious = () => {
-    setPanelDrawer(null);
-    dispatch({ type: "previous" });
-  };
-
-  const goNext = () => {
-    setPanelDrawer(null);
-    dispatch({ type: "next" });
-  };
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const syncPreference = () => {
-      dispatch({ type: "set-system-reduced-motion", reduced: mediaQuery.matches });
-    };
-
-    syncPreference();
-    mediaQuery.addEventListener("change", syncPreference);
-    return () => mediaQuery.removeEventListener("change", syncPreference);
-  }, []);
-
-  useEffect(() => {
-    document.documentElement.dataset.reducedMotion = String(reducedMotion);
-    return () => {
-      delete document.documentElement.dataset.reducedMotion;
-    };
-  }, [reducedMotion]);
-
-  useEffect(() => {
-    const nextHash = positionToHash(state.position);
-    if (window.location.hash !== nextHash) {
-      window.history.replaceState(
-        null,
-        "",
-        `${window.location.pathname}${window.location.search}${nextHash}`,
-      );
-    }
-    document.title = `${step.content.title} | PMSM Alternatives`;
-  }, [state.position, step.content.title]);
-
-  useEffect(() => {
-    const readLocation = () => {
-      const position = hashToPosition(window.location.hash);
-      if (position) {
-        setPanelDrawer(null);
-        dispatch({ type: "go-to", position });
-      }
-    };
-
-    window.addEventListener("hashchange", readLocation);
-    window.addEventListener("popstate", readLocation);
-    return () => {
-      window.removeEventListener("hashchange", readLocation);
-      window.removeEventListener("popstate", readLocation);
-    };
-  }, []);
-
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.altKey || event.ctrlKey || event.metaKey || isEditableTarget(event.target)) return;
-
-      if (event.key === "Escape") {
-        setPanelDrawer(null);
-        return;
-      }
-
-      if (document.querySelector("[data-route-lock='true']")) return;
-
-      if (event.key === "ArrowRight" || event.key === "PageDown") {
-        event.preventDefault();
-        setPanelDrawer(null);
-        dispatch({ type: "next" });
-      }
-
-      if (event.key === "ArrowLeft" || event.key === "PageUp") {
-        event.preventDefault();
-        setPanelDrawer(null);
-        dispatch({ type: "previous" });
-      }
-
-      if (event.key === "Home") {
-        event.preventDefault();
-        setPanelDrawer(null);
-        dispatch({ type: "go-to", position: firstPosition() });
-      }
-
-      if (event.key === "End" && lastPosition) {
-        event.preventDefault();
-        setPanelDrawer(null);
-        dispatch({ type: "go-to", position: lastPosition });
-      }
-    };
-
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [lastPosition]);
-
-  useEffect(
-    () => () => {
-      if (wheelResetTimer.current !== null) {
-        window.clearTimeout(wheelResetTimer.current);
-      }
-    },
-    [],
-  );
-
-  useEffect(() => {
-    if (panelDrawer) drawerCloseRef.current?.focus();
-  }, [panelDrawer]);
-
-  const handleWheel = (event: WheelEvent<HTMLDivElement>) => {
-    if (
-      panelDrawer ||
-      event.ctrlKey ||
-      event.altKey ||
-      event.metaKey ||
-      window.matchMedia("(max-width: 960px)").matches
-    ) {
-      return;
-    }
-
-    event.preventDefault();
-    wheelAccumulator.current += event.deltaY;
-
-    if (wheelResetTimer.current !== null) {
-      window.clearTimeout(wheelResetTimer.current);
-    }
-    wheelResetTimer.current = window.setTimeout(() => {
-      wheelAccumulator.current = 0;
-    }, 180);
-
-    if (Math.abs(wheelAccumulator.current) < 72) return;
-
-    const direction = wheelAccumulator.current > 0 ? 1 : -1;
-    const nextChapter = CHAPTERS[chapterIndex + direction];
-    wheelAccumulator.current = 0;
-
-    if (nextChapter) goToChapter(nextChapter.id);
-  };
-
-  const drawerTitle = panelDrawer === "why" ? "Why this scene" : "Evidence";
-  return (
-    <div
-      className="experience-shell"
-      data-reduced-motion={reducedMotion || undefined}
-      onWheel={handleWheel}
-    >
-      <a className="skip-link" href="#explanation-panel">
-        Skip to the explanation
-      </a>
-
-      <main className="experience" aria-label="PMSM alternatives visual learning experience">
-        <nav className="chapter-rail" aria-label="Chapters">
-          <button
-            className="rail-mark"
-            type="button"
-            aria-label="PMSM alternatives, return to the first scene"
-            onClick={() => goTo(firstPosition())}
-          >
-            PM
-          </button>
-
-          <ol>
-            {CHAPTERS.map((item, index) => (
-              <li key={item.id}>
-                <button
-                  type="button"
-                  title={chapterLabel(index)}
-                  aria-label={chapterLabel(index)}
-                  aria-current={item.id === chapter.id ? "page" : undefined}
-                  onClick={() => goToChapter(item.id)}
-                >
-                  <i aria-hidden="true" />
-                  <span className="sr-only">{chapterLabel(index)}</span>
-                </button>
-              </li>
-            ))}
-          </ol>
-
-          <p className="rail-status" aria-live="polite">
-            {String(chapterIndex + 1).padStart(2, "0")} / {String(CHAPTERS.length).padStart(2, "0")}
-          </p>
-        </nav>
-
-        <SceneStage
-          chapter={chapter}
-          step={step}
-          scene={scene}
-          reducedMotion={reducedMotion}
-          paused={state.stagePaused || reducedMotion}
-          chapterNumber={chapterIndex + 1}
-          stepNumber={stepIndex + 1}
-          stepCount={chapter.steps.length}
-          onTogglePause={() => dispatch({ type: "toggle-stage-paused" })}
-          onNext={goNext}
-        />
-
-        <section
-          id="explanation-panel"
-          className="explanation-panel"
-          aria-labelledby="step-title"
-          tabIndex={-1}
-        >
-          <p className="panel-index" aria-live="polite">
-            <span>CH {String(chapterIndex + 1).padStart(2, "0")}</span>
-            <i aria-hidden="true" />
-            <span>
-              {String(stepIndex + 1).padStart(2, "0")} / {String(chapter.steps.length).padStart(2, "0")}
-            </span>
-          </p>
-
-          <p className="panel-chapter">{chapter.content.title}</p>
-          <h1 id="step-title">{step.content.title}</h1>
-          <p className="step-question">{step.content.learnerQuestion}</p>
-          <p className="step-goal">{step.content.copy.glance}</p>
-
-          <div className="panel-actions" aria-label="Current scene details">
-            <button
-              type="button"
-              aria-expanded={panelDrawer === "why"}
-              onClick={() => setPanelDrawer("why")}
-            >
-              Why?
-            </button>
-            <button
-              type="button"
-              aria-expanded={panelDrawer === "evidence"}
-              onClick={() => setPanelDrawer("evidence")}
-            >
-              Evidence
-            </button>
-          </div>
-
-          <p className="panel-credit">
-            Research and visualization by Tannmay Kumarr Baid and Shobhankita Reddy.
-          </p>
-
-          <div className="step-navigation" aria-label="Step navigation">
-            <button type="button" disabled={!hasPrevious} onClick={goPrevious}>
-              <ArrowLeft size={16} weight="bold" aria-hidden="true" />
-              Back
-            </button>
-            <button type="button" disabled={!hasNext} onClick={goNext}>
-              Next
-              <ArrowRight size={16} weight="bold" aria-hidden="true" />
-            </button>
-          </div>
-
-          {panelDrawer && (
-            <aside
-              className="panel-drawer"
-              role="dialog"
-              aria-label={`${drawerTitle} for ${step.content.title}`}
-            >
-              <div className="drawer-heading">
-                <p>{drawerTitle}</p>
-                <button
-                  ref={drawerCloseRef}
-                  type="button"
-                  aria-label={`Close ${drawerTitle}`}
-                  onClick={() => setPanelDrawer(null)}
-                >
-                  <X size={17} weight="bold" aria-hidden="true" />
-                </button>
-              </div>
-
-              {panelDrawer === "why" ? (
-                <>
-                  <h2>Why this scene</h2>
-                  <p>{step.content.copy.why}</p>
-                </>
-              ) : (
-                <EvidenceLedger
-                  claimIds={step.content.claimIds}
-                  fallback={step.content.copy.evidence}
-                />
-              )}
-            </aside>
-          )}
-        </section>
-      </main>
-    </div>
-  );
+function Wheel({ position }: { position: [number, number, number] }) {
+  return <mesh position={position} rotation={[0, 0, Math.PI / 2]} castShadow receiveShadow><cylinderGeometry args={[0.52, 0.52, 0.22, 32]} /><meshStandardMaterial color="#10161a" roughness={0.55} metalness={0.45} /></mesh>;
 }
 
-export default App;
+function CarModel({ visible }: { visible: boolean }) {
+  const material = useMemo(() => new THREE.MeshPhysicalMaterial({ color: "#8b9ba3", transparent: true, opacity: visible ? 0.2 : 0, roughness: 0.24, metalness: 0.22, transmission: 0.08 }), [visible]);
+  return <group visible={visible} scale={1.08} position={[0, 0.12, 0]}>
+    <RoundedBox args={[5.8, 0.8, 2.2]} radius={0.22} smoothness={3} position={[0, 1.05, 0]} castShadow><primitive object={material} attach="material" /></RoundedBox>
+    <RoundedBox args={[3.4, 0.54, 1.76]} radius={0.18} smoothness={3} position={[0.25, 1.7, 0]}><meshStandardMaterial color="#516069" transparent opacity={0.15} roughness={0.25} metalness={0.2} /></RoundedBox>
+    <mesh position={[0, 0.66, 0]}><boxGeometry args={[2.9, 0.38, 1.25]} /><meshStandardMaterial color="#203038" emissive="#0d252d" emissiveIntensity={0.5} roughness={0.5} /></mesh>
+    <Wheel position={[-1.9, 0.38, 1.18]} /><Wheel position={[1.9, 0.38, 1.18]} /><Wheel position={[-1.9, 0.38, -1.18]} /><Wheel position={[1.9, 0.38, -1.18]} />
+    <RoundedBox args={[1.34, 0.34, 0.92]} radius={0.08} smoothness={2} position={[0, 0.94, 0]}><meshStandardMaterial color="#25353b" emissive="#143a43" emissiveIntensity={0.7} transparent opacity={0.95} /></RoundedBox>
+    <mesh position={[1.1, 0.92, 0]}><cylinderGeometry args={[0.42, 0.42, 0.62, 32]} /><meshStandardMaterial color="#bb6a3d" emissive="#5d2a1a" emissiveIntensity={0.35} roughness={0.35} metalness={0.72} /></mesh>
+    {visible && <StageLabel position={[1.1, 1.7, 0]} tone="cyan">drive unit</StageLabel>}
+  </group>;
+}
+
+function GearWheel({ radius, teeth }: { radius: number; teeth: number }) {
+  return <group>
+    <mesh rotation={[Math.PI / 2, 0, 0]}><cylinderGeometry args={[radius * 0.7, radius * 0.7, 0.24, 32]} /><meshStandardMaterial color="#56676d" metalness={0.88} roughness={0.22} /></mesh>
+    <mesh rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[radius * 0.72, 0.065, 10, 32]} /><meshStandardMaterial color="#aab6b4" metalness={0.85} roughness={0.2} /></mesh>
+    {Array.from({ length: teeth }, (_, index) => { const angle = (Math.PI * 2 * index) / teeth; return <mesh key={index} position={[Math.cos(angle) * radius * 0.92, Math.sin(angle) * radius * 0.92, 0]} rotation={[0, 0, angle]}><boxGeometry args={[0.14, 0.25, 0.25]} /><meshStandardMaterial color="#718187" metalness={0.87} roughness={0.22} /></mesh>; })}
+  </group>;
+}
+
+function DriveUnit({ visible }: { visible: boolean }) {
+  return <group visible={visible} position={[0, 0.1, 0]} scale={1.1}>
+    <group position={[-1.5, 0.62, 0]}><RoundedBox args={[1.2, 0.46, 1.1]} radius={0.12} smoothness={3}><meshStandardMaterial color="#71848a" metalness={0.75} roughness={0.25} /></RoundedBox><mesh position={[0, 0.28, 0]}><boxGeometry args={[0.82, 0.08, 0.76]} /><meshStandardMaterial color="#b66b40" emissive="#582918" emissiveIntensity={0.45} metalness={0.55} roughness={0.35} /></mesh>{visible && <StageLabel position={[0, 0.73, 0]} tone="amber">inverter</StageLabel>}</group>
+    <group position={[0, 0.3, 0]}><RoundedBox args={[1.5, 0.72, 1.34]} radius={0.18} smoothness={3}><meshStandardMaterial color="#9aa7ab" metalness={0.65} roughness={0.27} /></RoundedBox><mesh position={[0, 0, 0.72]} rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[0.48, 0.12, 12, 32]} /><meshStandardMaterial color="#bb6a3d" emissive="#592b1a" emissiveIntensity={0.34} metalness={0.7} roughness={0.3} /></mesh>{visible && <StageLabel position={[0, 0.82, 0]} tone="violet">motor</StageLabel>}</group>
+    <group position={[1.5, 0.3, 0]}><GearWheel radius={0.52} teeth={12} />{visible && <StageLabel position={[0, 0.72, 0]} tone="neutral">gearset</StageLabel>}</group>
+    <mesh position={[0, -0.35, 0]} rotation={[0, 0, Math.PI / 2]}><cylinderGeometry args={[0.06, 0.06, 4.1, 16]} /><meshStandardMaterial color="#c7d0d1" metalness={0.85} roughness={0.18} /></mesh>
+  </group>;
+}
+
+function StatorTooth({ angle, active }: { angle: number; active: boolean }) {
+  const x = Math.cos(angle) * 1.27;
+  const y = Math.sin(angle) * 1.27;
+  return <group position={[x, y, 0]} rotation={[0, 0, angle]}>
+    <RoundedBox args={[0.31, 0.76, 0.42]} radius={0.06} smoothness={2} castShadow>
+      <meshStandardMaterial color="#718083" emissive="#24383b" emissiveIntensity={0.22} metalness={0.8} roughness={0.3} />
+      <Edges color="#b7c5c3" threshold={24} />
+    </RoundedBox>
+    <group position={[0, 0, 0.23]}>
+      <RoundedBox args={[0.42, 0.13, 0.15]} radius={0.04} smoothness={2}><meshStandardMaterial color="#d3844a" emissive="#71351e" emissiveIntensity={active ? 0.85 : 0.28} metalness={0.62} roughness={0.3} /></RoundedBox>
+      <RoundedBox args={[0.13, 0.63, 0.15]} radius={0.04} smoothness={2} position={[-0.14, -0.22, 0]}><meshStandardMaterial color="#c97641" emissive="#5f2b19" emissiveIntensity={active ? 0.8 : 0.24} metalness={0.62} roughness={0.3} /></RoundedBox>
+      <RoundedBox args={[0.13, 0.63, 0.15]} radius={0.04} smoothness={2} position={[0.14, -0.22, 0]}><meshStandardMaterial color="#c97641" emissive="#5f2b19" emissiveIntensity={active ? 0.8 : 0.24} metalness={0.62} roughness={0.3} /></RoundedBox>
+    </group>
+  </group>;
+}
+
+function Rotor({ heat, protection }: { heat: boolean; protection: number }) {
+  const margin = 0.16 + protection * 0.23;
+  const magnetPairs = [[0, 0.57, 0], [0, -0.57, Math.PI], [0.57, 0, Math.PI / 2], [-0.57, 0, -Math.PI / 2]] as const;
+  return <group>
+    <mesh rotation={[Math.PI / 2, 0, 0]} castShadow>
+      <cylinderGeometry args={[0.94, 0.94, 0.48, 40]} />
+      <meshStandardMaterial color="#66737e" metalness={0.8} roughness={0.3} />
+      <Edges color="#c6d1d0" threshold={20} />
+    </mesh>
+    <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0, 0.25]}>
+      <cylinderGeometry args={[0.34, 0.34, 0.66, 32]} />
+      <meshStandardMaterial color="#aeb9b8" metalness={0.86} roughness={0.22} />
+    </mesh>
+    <mesh rotation={[Math.PI / 2, 0, 0]}>
+      <cylinderGeometry args={[0.12, 0.12, 3.6, 20]} />
+      <meshStandardMaterial color="#c9d2d0" metalness={0.92} roughness={0.16} />
+    </mesh>
+    {magnetPairs.map(([x, y, rotation], index) => <group key={index} position={[x, y, 0.34]} rotation={[0, 0, rotation]}>
+      <RoundedBox args={[0.46, 0.18, 0.12]} radius={0.04} smoothness={2}>
+        <meshStandardMaterial color="#252b3b" metalness={0.75} roughness={0.34} />
+      </RoundedBox>
+      <RoundedBox args={[0.34, 0.1, 0.13]} radius={0.03} smoothness={2} position={[0, 0, 0.05]}>
+        <meshStandardMaterial color="#8982c9" emissive="#3e386b" emissiveIntensity={0.52} roughness={0.28} metalness={0.5} />
+      </RoundedBox>
+    </group>)}
+    {[0, Math.PI / 2, Math.PI, (Math.PI * 3) / 2].map((angle) => <mesh key={angle} position={[Math.cos(angle) * 0.79, Math.sin(angle) * 0.79, 0.32]} rotation={[0, 0, angle]}>
+      <boxGeometry args={[0.12, 0.34, 0.16]} />
+      <meshStandardMaterial color="#a9b2b1" metalness={0.84} roughness={0.23} />
+    </mesh>)}
+    <mesh rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[0.94 + margin, 0.025, 8, 48]} /><meshStandardMaterial color="#d6a550" transparent opacity={0.35 + protection * 0.28} emissive="#7c571f" emissiveIntensity={0.28} /></mesh>
+    {heat && <mesh rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[1.18, 0.16, 12, 48]} /><meshBasicMaterial color="#d66d41" transparent opacity={0.16 + (1 - protection) * 0.12} /></mesh>}
+  </group>;
+}
+
+function FieldArrows({ angle, visible }: { angle: number; visible: boolean }) {
+  return <group visible={visible} rotation={[0, 0, angle]}>
+    {[0, (Math.PI * 2) / 3, (Math.PI * 4) / 3].map((phase) => <group key={phase} position={[Math.cos(phase) * 1.78, Math.sin(phase) * 1.78, 0.12]} rotation={[0, 0, phase + Math.PI / 2]}><mesh position={[0, 0.34, 0]}><boxGeometry args={[0.035, 0.58, 0.035]} /><meshBasicMaterial color="#67c3d3" transparent opacity={0.8} /></mesh><mesh position={[0, 0.68, 0]} rotation={[0, 0, Math.PI]}><coneGeometry args={[0.11, 0.22, 3]} /><meshBasicMaterial color="#67c3d3" transparent opacity={0.9} /></mesh></group>)}
+    <mesh rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[1.75, 0.025, 8, 64]} /><meshBasicMaterial color="#67c3d3" transparent opacity={0.26} /></mesh>
+  </group>;
+}
+
+function MotorModel({ step, paused, reducedMotion, protection }: { step: LessonStep; paused: boolean; reducedMotion: boolean; protection: number }) {
+  const fieldAngle = useRef(0);
+  const rotorAngle = useRef(0);
+  const groupRef = useRef<THREE.Group>(null);
+  useFrame((_, delta) => {
+    if (step === "field" && !paused && !reducedMotion) { fieldAngle.current += delta * 0.75; rotorAngle.current += delta * 0.7; }
+    if (groupRef.current) groupRef.current.rotation.z = step === "field" ? rotorAngle.current : 0;
+  });
+  const showMotor = step === "motor" || step === "field" || step === "heat";
+  return <group visible={showMotor} scale={1.18} position={[0, -0.12, 0]}><group ref={groupRef}><mesh rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[1.42, 0.2, 16, 64]} /><meshStandardMaterial color="#77878a" metalness={0.82} roughness={0.28} /><Edges color="#c6d1d0" threshold={24} /></mesh>{Array.from({ length: 12 }, (_, index) => <StatorTooth key={index} angle={(Math.PI * 2 * index) / 12} active={step === "field"} />)}<Rotor heat={step === "heat"} protection={protection} /><FieldArrows angle={step === "field" ? fieldAngle.current : 0} visible={step === "field"} /></group>{step === "motor" && <><StageLabel position={[-1.75, 1.36, 0]} tone="copper">stator stays still</StageLabel><StageLabel position={[1.35, -1.42, 0]} tone="violet">rotor turns</StageLabel></>}{step === "field" && <><StageLabel position={[-1.5, 1.62, 0]} tone="cyan">field moves</StageLabel><StageLabel position={[1.6, -1.36, 0]} tone="violet">rotor follows</StageLabel></>}{step === "heat" && <StageLabel position={[0, 1.82, 0]} tone="amber">safety margin</StageLabel>}</group>;
+}
+
+function Scene({ step, paused, reducedMotion, protection }: { step: LessonStep; paused: boolean; reducedMotion: boolean; protection: number }) {
+  return <><ambientLight intensity={1.7} color="#d4e0e4" /><directionalLight position={[4, 5, 6]} intensity={3.2} color="#eef4f2" castShadow /><pointLight position={[-4, 1, 3]} intensity={1.8} color="#3e8d98" /><CarModel visible={step === "location"} /><DriveUnit visible={step === "unit"} /><MotorModel step={step} paused={paused} reducedMotion={reducedMotion} protection={protection} /></>;
+}
+
+function StaticFallback({ step }: { step: LessonStep }) {
+  return <div className="static-fallback" role="img" aria-label={`${STEPS.find((item) => item.id === step)?.title ?? "Motor lesson"} visual fallback`}><div className={`fallback-object fallback-object--${step}`}><span className="fallback-core" /><span className="fallback-ring" /><span className="fallback-accent" /></div><p>Interactive 3D is unavailable here. The lesson controls still work.</p></div>;
+}
+
+export default function App() {
+  const [stepIndex, setStepIndex] = useState(0);
+  const [fieldPlaying, setFieldPlaying] = useState(true);
+  const [protection, setProtection] = useState(0.55);
+  const [reducedMotion, setReducedMotion] = useState(false);
+  const step = STEPS[stepIndex];
+
+  useEffect(() => { document.title = "How an EV motor works"; const media = window.matchMedia("(prefers-reduced-motion: reduce)"); const update = () => setReducedMotion(media.matches); update(); media.addEventListener("change", update); return () => media.removeEventListener("change", update); }, []);
+  useEffect(() => { if (step.id !== "field") setFieldPlaying(true); }, [step.id]);
+  useEffect(() => { const onKeyDown = (event: KeyboardEvent) => { if (event.target instanceof HTMLInputElement) return; if (event.key === "ArrowRight" || event.key === "PageDown") { event.preventDefault(); setStepIndex((current) => clamp(current + 1, 0, STEPS.length - 1)); } else if (event.key === "ArrowLeft" || event.key === "PageUp") { event.preventDefault(); setStepIndex((current) => clamp(current - 1, 0, STEPS.length - 1)); } else if (event.key === " " && step.id === "field") { event.preventDefault(); setFieldPlaying((playing) => !playing); } }; window.addEventListener("keydown", onKeyDown); return () => window.removeEventListener("keydown", onKeyDown); }, [step.id]);
+
+  const status = step.id === "field" ? fieldPlaying ? "The moving field is playing." : "The field is paused." : step.id === "heat" ? protection > 0.66 ? "More protection: the reversal margin is wider." : "Less protection: the reversal margin is narrower." : step.answer;
+
+  return <div className="core-app">
+    <a className="skip-link" href="#lesson-stage">Skip to lesson</a>
+    <header className="topbar"><div className="brand-lockup"><span className="brand-mark" aria-hidden="true"><span /></span><div><p className="eyebrow">A visual primer</p><p className="brand-name">How an EV motor works</p></div></div><p className="topbar-note">One idea at a time</p></header>
+    <main className="lesson-layout">
+      <section id="lesson-stage" className="lesson-stage" aria-labelledby="stage-heading"><div className="stage-heading-row"><div><p className="stage-kicker">{step.kicker}</p><h1 id="stage-heading">{step.title}</h1></div><span className="step-count">{String(stepIndex + 1).padStart(2, "0")} / {String(STEPS.length).padStart(2, "0")}</span></div><div className="canvas-wrap"><Canvas shadows dpr={[1, 1.5]} camera={{ position: [4.4, 2.8, 7.4], fov: 38 }} fallback={<StaticFallback step={step.id} />}><Suspense fallback={null}><Scene step={step.id} paused={!fieldPlaying} reducedMotion={reducedMotion} protection={protection} /><OrbitControls enablePan={false} enableZoom={false} minPolarAngle={Math.PI / 2.75} maxPolarAngle={Math.PI / 2.15} rotateSpeed={0.35} enabled={step.id !== "location"} /></Suspense></Canvas><div className="canvas-hint">{step.id === "location" ? "Blue is the battery. Copper is the drive unit." : "Drag gently to inspect"}</div></div><div className="stage-status" aria-live="polite"><span className="status-dot" aria-hidden="true" />{status}</div></section>
+      <aside className="lesson-panel" aria-label="Lesson explanation"><nav className="step-nav" aria-label="Lesson steps">{STEPS.map((item, index) => <button key={item.id} type="button" className={`step-button ${index === stepIndex ? "is-active" : ""}`} onClick={() => setStepIndex(index)} aria-current={index === stepIndex ? "step" : undefined}><span className="step-number">{String(index + 1).padStart(2, "0")}</span><span>{item.title}</span></button>)}</nav><div className="lesson-copy"><p className="copy-question">{step.question}</p><p className="copy-answer">{step.answer}</p><p className="copy-detail">{step.detail}</p></div>{step.id === "field" && <div className="lesson-control"><button type="button" className="control-button" aria-pressed={fieldPlaying} onClick={() => setFieldPlaying((playing) => !playing)}>{fieldPlaying ? <Pause size={16} weight="bold" aria-hidden="true" /> : <Play size={16} weight="bold" aria-hidden="true" />}{fieldPlaying ? "Pause the field" : "Play the field"}</button><p className="control-hint">Space also pauses it.</p></div>}{step.id === "heat" && <div className="lesson-control"><label htmlFor="protection-range">Dy/Tb protection</label><input id="protection-range" type="range" min="0" max="1" step="0.01" value={protection} onChange={(event) => setProtection(Number(event.target.value))} aria-valuetext={protection > 0.66 ? "more protection" : protection < 0.34 ? "less protection" : "some protection"} /><div className="range-ends"><span>less protection</span><span>more protection</span></div><p className="control-hint">More protection widens the margin, but can soften the magnet.</p></div>}<div className="panel-footer"><button type="button" className="nav-button nav-button--back" onClick={() => setStepIndex((current) => clamp(current - 1, 0, STEPS.length - 1))} disabled={stepIndex === 0}><ArrowLeft size={17} aria-hidden="true" />Back</button><button type="button" className="nav-button nav-button--next" onClick={() => setStepIndex((current) => clamp(current + 1, 0, STEPS.length - 1))} disabled={stepIndex === STEPS.length - 1}>Next<ArrowRight size={17} aria-hidden="true" /></button></div><p className="panel-footnote">Built from the supplied due-diligence explanation. Alternatives come next; this first pass teaches the machine itself.</p></aside>
+    </main>
+  </div>;
+}
