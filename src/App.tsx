@@ -34,32 +34,32 @@ function Wheel({ position }: { position: [number, number, number] }) {
 }
 
 function CarModel({ visible }: { visible: boolean }) {
-  const material = useMemo(() => new THREE.MeshPhysicalMaterial({ color: "#8b9ba3", transparent: true, opacity: visible ? 0.2 : 0, roughness: 0.24, metalness: 0.22, transmission: 0.08 }), [visible]);
+  const material = useMemo(() => new THREE.MeshPhysicalMaterial({ color: "#9fb3b7", transparent: true, opacity: visible ? 0.46 : 0, roughness: 0.24, metalness: 0.22, transmission: 0.04 }), [visible]);
   return <group visible={visible} scale={1.08} position={[0, 0.12, 0]}>
-    <RoundedBox args={[5.8, 0.8, 2.2]} radius={0.22} smoothness={3} position={[0, 1.05, 0]} castShadow><primitive object={material} attach="material" /></RoundedBox>
-    <RoundedBox args={[3.4, 0.54, 1.76]} radius={0.18} smoothness={3} position={[0.25, 1.7, 0]}><meshStandardMaterial color="#516069" transparent opacity={0.15} roughness={0.25} metalness={0.2} /></RoundedBox>
-    <mesh position={[0, 0.66, 0]}><boxGeometry args={[2.9, 0.38, 1.25]} /><meshStandardMaterial color="#203038" emissive="#0d252d" emissiveIntensity={0.5} roughness={0.5} /></mesh>
+    <RoundedBox args={[5.8, 0.8, 2.2]} radius={0.22} smoothness={3} position={[0, 1.05, 0]} castShadow><primitive object={material} attach="material" /><Edges color="#718d92" threshold={18} /></RoundedBox>
+    <RoundedBox args={[3.4, 0.54, 1.76]} radius={0.18} smoothness={3} position={[0.25, 1.7, 0]}><meshStandardMaterial color="#6b858b" transparent opacity={0.34} roughness={0.25} metalness={0.2} /></RoundedBox>
+    <mesh position={[0, 0.66, 0]}><boxGeometry args={[2.9, 0.38, 1.25]} /><meshStandardMaterial color="#2e7d92" emissive="#b7e4e8" emissiveIntensity={0.42} roughness={0.5} /></mesh>
     <Wheel position={[-1.9, 0.38, 1.18]} /><Wheel position={[1.9, 0.38, 1.18]} /><Wheel position={[-1.9, 0.38, -1.18]} /><Wheel position={[1.9, 0.38, -1.18]} />
-    <RoundedBox args={[1.34, 0.34, 0.92]} radius={0.08} smoothness={2} position={[0, 0.94, 0]}><meshStandardMaterial color="#25353b" emissive="#143a43" emissiveIntensity={0.7} transparent opacity={0.95} /></RoundedBox>
-    <mesh position={[1.1, 0.92, 0]}><cylinderGeometry args={[0.42, 0.42, 0.62, 32]} /><meshStandardMaterial color="#bb6a3d" emissive="#5d2a1a" emissiveIntensity={0.35} roughness={0.35} metalness={0.72} /></mesh>
+    <RoundedBox args={[1.34, 0.34, 0.92]} radius={0.08} smoothness={2} position={[0, 0.94, 0]}><meshStandardMaterial color="#377f98" emissive="#b7e4e8" emissiveIntensity={0.65} transparent opacity={0.95} /></RoundedBox>
+    <mesh position={[1.1, 0.92, 0]}><cylinderGeometry args={[0.42, 0.42, 0.62, 32]} /><meshStandardMaterial color="#d97835" emissive="#99461e" emissiveIntensity={0.25} roughness={0.35} metalness={0.72} /></mesh>
     {visible && <StageLabel position={[1.1, 1.7, 0]} tone="cyan">drive unit</StageLabel>}
   </group>;
 }
 
 function GearWheel({ radius, teeth }: { radius: number; teeth: number }) {
   return <group>
-    <mesh rotation={[Math.PI / 2, 0, 0]}><cylinderGeometry args={[radius * 0.7, radius * 0.7, 0.24, 32]} /><meshStandardMaterial color="#56676d" metalness={0.88} roughness={0.22} /></mesh>
-    <mesh rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[radius * 0.72, 0.065, 10, 32]} /><meshStandardMaterial color="#aab6b4" metalness={0.85} roughness={0.2} /></mesh>
-    {Array.from({ length: teeth }, (_, index) => { const angle = (Math.PI * 2 * index) / teeth; return <mesh key={index} position={[Math.cos(angle) * radius * 0.92, Math.sin(angle) * radius * 0.92, 0]} rotation={[0, 0, angle]}><boxGeometry args={[0.14, 0.25, 0.25]} /><meshStandardMaterial color="#718187" metalness={0.87} roughness={0.22} /></mesh>; })}
+    <mesh rotation={[Math.PI / 2, 0, 0]}><cylinderGeometry args={[radius * 0.7, radius * 0.7, 0.24, 32]} /><meshStandardMaterial color="#7f9398" metalness={0.88} roughness={0.22} /></mesh>
+    <mesh rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[radius * 0.72, 0.065, 10, 32]} /><meshStandardMaterial color="#c1ccca" metalness={0.85} roughness={0.2} /></mesh>
+    {Array.from({ length: teeth }, (_, index) => { const angle = (Math.PI * 2 * index) / teeth; return <mesh key={index} position={[Math.cos(angle) * radius * 0.92, Math.sin(angle) * radius * 0.92, 0]} rotation={[0, 0, angle]}><boxGeometry args={[0.14, 0.25, 0.25]} /><meshStandardMaterial color="#82949b" metalness={0.87} roughness={0.22} /></mesh>; })}
   </group>;
 }
 
 function DriveUnit({ visible }: { visible: boolean }) {
   return <group visible={visible} position={[0, 0.1, 0]} scale={1.1}>
-    <group position={[-1.5, 0.62, 0]}><RoundedBox args={[1.2, 0.46, 1.1]} radius={0.12} smoothness={3}><meshStandardMaterial color="#71848a" metalness={0.75} roughness={0.25} /></RoundedBox><mesh position={[0, 0.28, 0]}><boxGeometry args={[0.82, 0.08, 0.76]} /><meshStandardMaterial color="#b66b40" emissive="#582918" emissiveIntensity={0.45} metalness={0.55} roughness={0.35} /></mesh>{visible && <StageLabel position={[0, 0.73, 0]} tone="amber">inverter</StageLabel>}</group>
-    <group position={[0, 0.3, 0]}><RoundedBox args={[1.5, 0.72, 1.34]} radius={0.18} smoothness={3}><meshStandardMaterial color="#9aa7ab" metalness={0.65} roughness={0.27} /></RoundedBox><mesh position={[0, 0, 0.72]} rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[0.48, 0.12, 12, 32]} /><meshStandardMaterial color="#bb6a3d" emissive="#592b1a" emissiveIntensity={0.34} metalness={0.7} roughness={0.3} /></mesh>{visible && <StageLabel position={[0, 0.82, 0]} tone="violet">motor</StageLabel>}</group>
+    <group position={[-1.5, 0.62, 0]}><RoundedBox args={[1.2, 0.46, 1.1]} radius={0.12} smoothness={3}><meshStandardMaterial color="#8fa2a5" metalness={0.75} roughness={0.25} /></RoundedBox><mesh position={[0, 0.28, 0]}><boxGeometry args={[0.82, 0.08, 0.76]} /><meshStandardMaterial color="#d07939" emissive="#9a461d" emissiveIntensity={0.38} metalness={0.55} roughness={0.35} /></mesh>{visible && <StageLabel position={[0, 0.73, 0]} tone="amber">inverter</StageLabel>}</group>
+    <group position={[0, 0.3, 0]}><RoundedBox args={[1.5, 0.72, 1.34]} radius={0.18} smoothness={3}><meshStandardMaterial color="#bbc8ca" metalness={0.65} roughness={0.27} /></RoundedBox><mesh position={[0, 0, 0.72]} rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[0.48, 0.12, 12, 32]} /><meshStandardMaterial color="#d97835" emissive="#98451d" emissiveIntensity={0.28} metalness={0.7} roughness={0.3} /></mesh>{visible && <StageLabel position={[0, 0.82, 0]} tone="violet">motor</StageLabel>}</group>
     <group position={[1.5, 0.3, 0]}><GearWheel radius={0.52} teeth={12} />{visible && <StageLabel position={[0, 0.72, 0]} tone="neutral">gearset</StageLabel>}</group>
-    <mesh position={[0, -0.35, 0]} rotation={[0, 0, Math.PI / 2]}><cylinderGeometry args={[0.06, 0.06, 4.1, 16]} /><meshStandardMaterial color="#c7d0d1" metalness={0.85} roughness={0.18} /></mesh>
+    <mesh position={[0, -0.35, 0]} rotation={[0, 0, Math.PI / 2]}><cylinderGeometry args={[0.06, 0.06, 4.1, 16]} /><meshStandardMaterial color="#e0e7e5" metalness={0.85} roughness={0.18} /></mesh>
   </group>;
 }
 
@@ -68,13 +68,13 @@ function StatorTooth({ angle, active }: { angle: number; active: boolean }) {
   const y = Math.sin(angle) * 1.27;
   return <group position={[x, y, 0]} rotation={[0, 0, angle]}>
     <RoundedBox args={[0.31, 0.76, 0.42]} radius={0.06} smoothness={2} castShadow>
-      <meshStandardMaterial color="#718083" emissive="#24383b" emissiveIntensity={0.22} metalness={0.8} roughness={0.3} />
-      <Edges color="#b7c5c3" threshold={24} />
+      <meshStandardMaterial color="#8a9ca0" emissive="#93a5aa" emissiveIntensity={0.18} metalness={0.8} roughness={0.3} />
+      <Edges color="#d5dedd" threshold={24} />
     </RoundedBox>
     <group position={[0, 0, 0.23]}>
-      <RoundedBox args={[0.42, 0.13, 0.15]} radius={0.04} smoothness={2}><meshStandardMaterial color="#d3844a" emissive="#71351e" emissiveIntensity={active ? 0.85 : 0.28} metalness={0.62} roughness={0.3} /></RoundedBox>
-      <RoundedBox args={[0.13, 0.63, 0.15]} radius={0.04} smoothness={2} position={[-0.14, -0.22, 0]}><meshStandardMaterial color="#c97641" emissive="#5f2b19" emissiveIntensity={active ? 0.8 : 0.24} metalness={0.62} roughness={0.3} /></RoundedBox>
-      <RoundedBox args={[0.13, 0.63, 0.15]} radius={0.04} smoothness={2} position={[0.14, -0.22, 0]}><meshStandardMaterial color="#c97641" emissive="#5f2b19" emissiveIntensity={active ? 0.8 : 0.24} metalness={0.62} roughness={0.3} /></RoundedBox>
+      <RoundedBox args={[0.42, 0.13, 0.15]} radius={0.04} smoothness={2}><meshStandardMaterial color="#d87a36" emissive="#a34c1e" emissiveIntensity={active ? 0.68 : 0.18} metalness={0.62} roughness={0.3} /></RoundedBox>
+      <RoundedBox args={[0.13, 0.63, 0.15]} radius={0.04} smoothness={2} position={[-0.14, -0.22, 0]}><meshStandardMaterial color="#d87a36" emissive="#9f4b20" emissiveIntensity={active ? 0.62 : 0.18} metalness={0.62} roughness={0.3} /></RoundedBox>
+      <RoundedBox args={[0.13, 0.63, 0.15]} radius={0.04} smoothness={2} position={[0.14, -0.22, 0]}><meshStandardMaterial color="#d87a36" emissive="#9f4b20" emissiveIntensity={active ? 0.62 : 0.18} metalness={0.62} roughness={0.3} /></RoundedBox>
     </group>
   </group>;
 }
@@ -85,38 +85,38 @@ function Rotor({ heat, protection }: { heat: boolean; protection: number }) {
   return <group>
     <mesh rotation={[Math.PI / 2, 0, 0]} castShadow>
       <cylinderGeometry args={[0.94, 0.94, 0.48, 40]} />
-      <meshStandardMaterial color="#66737e" metalness={0.8} roughness={0.3} />
-      <Edges color="#c6d1d0" threshold={20} />
+      <meshStandardMaterial color="#7a8c96" metalness={0.8} roughness={0.3} />
+      <Edges color="#dce5e3" threshold={20} />
     </mesh>
     <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0, 0.25]}>
       <cylinderGeometry args={[0.34, 0.34, 0.66, 32]} />
-      <meshStandardMaterial color="#aeb9b8" metalness={0.86} roughness={0.22} />
+      <meshStandardMaterial color="#c4cecd" metalness={0.86} roughness={0.22} />
     </mesh>
     <mesh rotation={[Math.PI / 2, 0, 0]}>
       <cylinderGeometry args={[0.12, 0.12, 3.6, 20]} />
-      <meshStandardMaterial color="#c9d2d0" metalness={0.92} roughness={0.16} />
+      <meshStandardMaterial color="#e4eae8" metalness={0.92} roughness={0.16} />
     </mesh>
     {magnetPairs.map(([x, y, rotation], index) => <group key={index} position={[x, y, 0.34]} rotation={[0, 0, rotation]}>
       <RoundedBox args={[0.46, 0.18, 0.12]} radius={0.04} smoothness={2}>
-        <meshStandardMaterial color="#252b3b" metalness={0.75} roughness={0.34} />
+        <meshStandardMaterial color="#687586" metalness={0.75} roughness={0.34} />
       </RoundedBox>
       <RoundedBox args={[0.34, 0.1, 0.13]} radius={0.03} smoothness={2} position={[0, 0, 0.05]}>
-        <meshStandardMaterial color="#8982c9" emissive="#3e386b" emissiveIntensity={0.52} roughness={0.28} metalness={0.5} />
+        <meshStandardMaterial color="#6a61ba" emissive="#4b438b" emissiveIntensity={0.36} roughness={0.28} metalness={0.5} />
       </RoundedBox>
     </group>)}
     {[0, Math.PI / 2, Math.PI, (Math.PI * 3) / 2].map((angle) => <mesh key={angle} position={[Math.cos(angle) * 0.79, Math.sin(angle) * 0.79, 0.32]} rotation={[0, 0, angle]}>
       <boxGeometry args={[0.12, 0.34, 0.16]} />
-      <meshStandardMaterial color="#a9b2b1" metalness={0.84} roughness={0.23} />
+      <meshStandardMaterial color="#bfcac8" metalness={0.84} roughness={0.23} />
     </mesh>)}
-    <mesh rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[0.94 + margin, 0.025, 8, 48]} /><meshStandardMaterial color="#d6a550" transparent opacity={0.35 + protection * 0.28} emissive="#7c571f" emissiveIntensity={0.28} /></mesh>
-    {heat && <mesh rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[1.18, 0.16, 12, 48]} /><meshBasicMaterial color="#d66d41" transparent opacity={0.16 + (1 - protection) * 0.12} /></mesh>}
+    <mesh rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[0.94 + margin, 0.025, 8, 48]} /><meshStandardMaterial color="#d09a24" transparent opacity={0.38 + protection * 0.28} emissive="#a87314" emissiveIntensity={0.2} /></mesh>
+    {heat && <mesh rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[1.18, 0.16, 12, 48]} /><meshBasicMaterial color="#e97842" transparent opacity={0.18 + (1 - protection) * 0.14} /></mesh>}
   </group>;
 }
 
 function FieldArrows({ angle, visible }: { angle: number; visible: boolean }) {
   return <group visible={visible} rotation={[0, 0, angle]}>
-    {[0, (Math.PI * 2) / 3, (Math.PI * 4) / 3].map((phase) => <group key={phase} position={[Math.cos(phase) * 1.78, Math.sin(phase) * 1.78, 0.12]} rotation={[0, 0, phase + Math.PI / 2]}><mesh position={[0, 0.34, 0]}><boxGeometry args={[0.035, 0.58, 0.035]} /><meshBasicMaterial color="#67c3d3" transparent opacity={0.8} /></mesh><mesh position={[0, 0.68, 0]} rotation={[0, 0, Math.PI]}><coneGeometry args={[0.11, 0.22, 3]} /><meshBasicMaterial color="#67c3d3" transparent opacity={0.9} /></mesh></group>)}
-    <mesh rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[1.75, 0.025, 8, 64]} /><meshBasicMaterial color="#67c3d3" transparent opacity={0.26} /></mesh>
+    {[0, (Math.PI * 2) / 3, (Math.PI * 4) / 3].map((phase) => <group key={phase} position={[Math.cos(phase) * 1.78, Math.sin(phase) * 1.78, 0.12]} rotation={[0, 0, phase + Math.PI / 2]}><mesh position={[0, 0.34, 0]}><boxGeometry args={[0.035, 0.58, 0.035]} /><meshBasicMaterial color="#1f9eac" transparent opacity={0.9} /></mesh><mesh position={[0, 0.68, 0]} rotation={[0, 0, Math.PI]}><coneGeometry args={[0.11, 0.22, 3]} /><meshBasicMaterial color="#1f9eac" transparent opacity={0.96} /></mesh></group>)}
+    <mesh rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[1.75, 0.025, 8, 64]} /><meshBasicMaterial color="#1f9eac" transparent opacity={0.32} /></mesh>
   </group>;
 }
 
@@ -129,11 +129,11 @@ function MotorModel({ step, paused, reducedMotion, protection }: { step: LessonS
     if (groupRef.current) groupRef.current.rotation.z = step === "field" ? rotorAngle.current : 0;
   });
   const showMotor = step === "motor" || step === "field" || step === "heat";
-  return <group visible={showMotor} scale={1.18} position={[0, -0.12, 0]}><group ref={groupRef}><mesh rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[1.42, 0.2, 16, 64]} /><meshStandardMaterial color="#77878a" metalness={0.82} roughness={0.28} /><Edges color="#c6d1d0" threshold={24} /></mesh>{Array.from({ length: 12 }, (_, index) => <StatorTooth key={index} angle={(Math.PI * 2 * index) / 12} active={step === "field"} />)}<Rotor heat={step === "heat"} protection={protection} /><FieldArrows angle={step === "field" ? fieldAngle.current : 0} visible={step === "field"} /></group>{step === "motor" && <><StageLabel position={[-1.75, 1.36, 0]} tone="copper">stator stays still</StageLabel><StageLabel position={[1.35, -1.42, 0]} tone="violet">rotor turns</StageLabel></>}{step === "field" && <><StageLabel position={[-1.5, 1.62, 0]} tone="cyan">field moves</StageLabel><StageLabel position={[1.6, -1.36, 0]} tone="violet">rotor follows</StageLabel></>}{step === "heat" && <StageLabel position={[0, 1.82, 0]} tone="amber">safety margin</StageLabel>}</group>;
+  return <group visible={showMotor} scale={1.18} position={[0, -0.12, 0]}><group ref={groupRef}><mesh rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[1.42, 0.2, 16, 64]} /><meshStandardMaterial color="#93a4a7" metalness={0.82} roughness={0.28} /><Edges color="#dce5e3" threshold={24} /></mesh>{Array.from({ length: 12 }, (_, index) => <StatorTooth key={index} angle={(Math.PI * 2 * index) / 12} active={step === "field"} />)}<Rotor heat={step === "heat"} protection={protection} /><FieldArrows angle={step === "field" ? fieldAngle.current : 0} visible={step === "field"} /></group>{step === "motor" && <><StageLabel position={[-1.75, 1.36, 0]} tone="copper">stator stays still</StageLabel><StageLabel position={[1.35, -1.42, 0]} tone="violet">rotor turns</StageLabel></>}{step === "field" && <><StageLabel position={[-1.5, 1.62, 0]} tone="cyan">field moves</StageLabel><StageLabel position={[1.6, -1.36, 0]} tone="violet">rotor follows</StageLabel></>}{step === "heat" && <StageLabel position={[0, 1.82, 0]} tone="amber">safety margin</StageLabel>}</group>;
 }
 
 function Scene({ step, paused, reducedMotion, protection }: { step: LessonStep; paused: boolean; reducedMotion: boolean; protection: number }) {
-  return <><ambientLight intensity={1.7} color="#d4e0e4" /><directionalLight position={[4, 5, 6]} intensity={3.2} color="#eef4f2" castShadow /><pointLight position={[-4, 1, 3]} intensity={1.8} color="#3e8d98" /><CarModel visible={step === "location"} /><DriveUnit visible={step === "unit"} /><MotorModel step={step} paused={paused} reducedMotion={reducedMotion} protection={protection} /></>;
+  return <><ambientLight intensity={2.1} color="#f8fbfa" /><directionalLight position={[4, 5, 6]} intensity={3.2} color="#ffffff" castShadow /><pointLight position={[-4, 1, 3]} intensity={1.4} color="#4fa8b1" /><CarModel visible={step === "location"} /><DriveUnit visible={step === "unit"} /><MotorModel step={step} paused={paused} reducedMotion={reducedMotion} protection={protection} /></>;
 }
 
 function StaticFallback({ step }: { step: LessonStep }) {
