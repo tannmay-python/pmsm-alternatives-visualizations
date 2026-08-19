@@ -1,0 +1,126 @@
+/**
+ * One design language for every stop: 3D stage, SVG diagram and shell alike.
+ * Derived from design/references/*.png — dark studio ground, machined greys,
+ * a single accent, thin leader lines, small type.
+ */
+
+:root {
+  /* Ground — a light studio, paper rather than screen. */
+  --paper-000: #ffffff;
+  --paper-050: #f7f8f6;
+  --paper-100: #f1f3ef;
+  --paper-200: #e8ebe6;
+  --paper-300: #dde1da;
+  --paper-400: #cdd2ca;
+
+  /* Machined steel, as it reads under studio light on a pale ground. */
+  --steel-100: #b9c0bd;
+  --steel-200: #98a09d;
+  --steel-300: #78817e;
+  --steel-400: #59615f;
+  --steel-500: #3a4240;
+
+  /* Type */
+  --text: #141a18;
+  --text-muted: #55605c;
+  --text-faint: #8a938f;
+
+  /*
+   * One accent, in two weights. The bright value belongs on the lit 3D model,
+   * where it sits against machined grey; the deep value is the only one that
+   * carries enough contrast for type and hairlines on a pale ground.
+   */
+  --accent: #4c7a06;
+  --accent-strong: #3c6104;
+  --accent-bright: #a8d82b;
+  --accent-wash: rgba(76, 122, 6, 0.09);
+  --accent-line: rgba(76, 122, 6, 0.38);
+
+  /* One warn hue, reserved for thermal load and failure states. */
+  --warn: #b23c07;
+  --warn-wash: rgba(178, 60, 7, 0.1);
+
+  /* Structure */
+  --line: rgba(20, 26, 24, 0.11);
+  --line-strong: rgba(20, 26, 24, 0.22);
+  --leader: rgba(20, 26, 24, 0.42);
+
+  /* Type scale — grotesque only, no serif */
+  --font: "Inter", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+
+  --t-display: clamp(1.9rem, 3.4vw, 3rem);
+  --t-title: 1.0625rem;
+  --t-body: 0.8125rem;
+  --t-small: 0.75rem;
+  --t-micro: 0.6875rem;
+
+  --track-label: 0.14em;
+
+  /* Rhythm */
+  --gap-1: 4px;
+  --gap-2: 8px;
+  --gap-3: 12px;
+  --gap-4: 20px;
+  --gap-5: 32px;
+  --gap-6: 52px;
+
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --dur: 260ms;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root {
+  margin: 0;
+  min-height: 100%;
+  background: var(--paper-050);
+}
+
+body {
+  color: var(--text);
+  font-family: var(--font);
+  font-size: var(--t-body);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+button, input, select { font: inherit; color: inherit; }
+button { background: none; border: 0; }
+button:not(:disabled) { cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: 0.3; }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* Shared primitives ------------------------------------------------------ */
+
+.eyebrow {
+  margin: 0;
+  color: var(--text-faint);
+  font-size: var(--t-micro);
+  font-weight: 500;
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* A value that must never be shown without its condition. */
+.figure { display: inline-flex; align-items: baseline; gap: 0.3em; }
+.figure__value { color: var(--text); font-size: 1.05em; font-variant-numeric: tabular-nums; }
+.figure__condition { color: var(--text-faint); font-size: 0.85em; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

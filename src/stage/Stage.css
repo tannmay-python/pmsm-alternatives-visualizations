@@ -1,0 +1,79 @@
+.stage {
+  position: relative;
+  height: 100%;
+  min-height: 0;
+  background:
+    radial-gradient(ellipse 76% 60% at 50% 38%, #ffffff, transparent 72%),
+    var(--paper-100);
+  overflow: hidden;
+}
+
+.stage canvas { display: block; width: 100% !important; height: 100% !important; }
+
+/*
+ * SVG stops sit on top of the stage rather than replacing it. The canvas keeps
+ * its WebGL context for the whole tour, which is both cheaper and the only way
+ * the context count stays bounded across twelve stops.
+ */
+.stage[data-hidden] { visibility: hidden; }
+
+/* A faint studio floor line, as in the reference renders. */
+.stage::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 34%;
+  background: linear-gradient(to bottom, transparent, rgba(20, 26, 24, 0.05));
+  pointer-events: none;
+}
+
+.callout {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  white-space: nowrap;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  color: var(--text-muted);
+  transform: translateY(-50%);
+}
+
+.callout--left { flex-direction: row-reverse; transform: translate(-100%, -50%); }
+
+.callout__dot {
+  width: 4px;
+  height: 4px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--leader);
+}
+
+.callout__line {
+  width: 26px;
+  height: 1px;
+  flex: 0 0 auto;
+  background: var(--leader);
+}
+
+.callout__text {
+  padding: 1px 6px;
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.callout.is-accent .callout__dot,
+.callout.is-accent .callout__line { background: var(--accent); }
+.callout.is-accent .callout__text { color: var(--accent); }
+
+/* Non-WebGL and reduced-motion fallback ---------------------------------- */
+
+.stage-fallback {
+  display: grid;
+  place-content: center;
+  gap: var(--gap-3);
+  height: 100%;
+  padding: var(--gap-5);
+  text-align: center;
+}
+
+.stage-fallback p { max-width: 34ch; margin: 0; color: var(--text-muted); }
+.stage-fallback strong { display: block; color: var(--text); font-weight: 500; }

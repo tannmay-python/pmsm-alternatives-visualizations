@@ -1,0 +1,77 @@
+.diagram {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  padding: var(--gap-5) var(--gap-5);
+  background:
+    radial-gradient(ellipse 76% 60% at 50% 38%, #ffffff, transparent 72%),
+    var(--paper-100);
+  overflow: auto;
+}
+
+.diagram svg { width: 100%; max-width: 880px; height: auto; overflow: hidden; }
+
+/* Ink ------------------------------------------------------------------- */
+.d-axis { stroke: var(--line-strong); stroke-width: 1; fill: none; }
+.d-grid { stroke: var(--line); stroke-width: 1; fill: none; }
+.d-rule { stroke: var(--leader); stroke-width: 1; fill: none; }
+.d-rule--dash { stroke-dasharray: 3 4; }
+.d-curve { fill: none; stroke: var(--steel-400); stroke-width: 1.75; stroke-linecap: round; }
+.d-curve--accent { stroke: var(--accent); }
+.d-curve--warn { stroke: var(--warn); }
+.d-curve--ghost { stroke: var(--steel-100); stroke-width: 1.25; stroke-dasharray: 4 4; }
+
+.d-fill { fill: var(--steel-100); }
+.d-fill--accent { fill: var(--accent); }
+.d-fill--accent-soft { fill: var(--accent-wash); }
+.d-fill--warn { fill: var(--warn); }
+.d-fill--warn-soft { fill: var(--warn-wash); }
+.d-fill--mute { fill: var(--paper-300); }
+
+/* Type ------------------------------------------------------------------ */
+.d-label { fill: var(--text-muted); font-size: 11px; letter-spacing: 0.01em; }
+.d-label--strong { fill: var(--text); }
+.d-label--accent { fill: var(--accent); }
+.d-label--warn { fill: var(--warn); }
+.d-label--faint { fill: var(--text-faint); }
+.d-axis-label {
+  fill: var(--text-faint);
+  font-size: 9.5px;
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+}
+.d-value {
+  fill: var(--text);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.d-value--big { font-size: 22px; letter-spacing: -0.02em; }
+
+/* Interactive ----------------------------------------------------------- */
+.d-hit { cursor: pointer; }
+.d-hit:hover .d-node { stroke: var(--accent); }
+.d-node {
+  fill: var(--paper-000);
+  stroke: var(--line-strong);
+  stroke-width: 1;
+  transition: stroke var(--dur) var(--ease), fill var(--dur) var(--ease);
+}
+.d-node.is-on { fill: var(--accent-wash); stroke: var(--accent); }
+.d-node.is-off { opacity: 0.4; }
+
+.d-bar { transition: width var(--dur) var(--ease), height var(--dur) var(--ease), y var(--dur) var(--ease); }
+
+.diagram-note {
+  max-width: 62ch;
+  margin: var(--gap-4) auto 0;
+  color: var(--text-faint);
+  font-size: var(--t-micro);
+  line-height: 1.6;
+  text-align: center;
+}
+
+@media (max-width: 1080px) {
+  /* On a stacked layout the diagram should sit at the top of its panel rather
+     than floating in the middle of a tall, mostly empty box. */
+  .diagram { place-items: start center; padding: var(--gap-4); }
+}
