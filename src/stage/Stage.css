@@ -77,3 +77,11 @@
 
 .stage-fallback p { max-width: 34ch; margin: 0; color: var(--text-muted); }
 .stage-fallback strong { display: block; color: var(--text); font-weight: 500; }
+
+/* Shown only while the renderer chunk is still arriving. */
+.stage--loading {
+  display: grid;
+  place-content: center;
+  color: var(--text-faint);
+  font-size: var(--t-small);
+}

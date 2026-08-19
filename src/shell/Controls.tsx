@@ -90,7 +90,9 @@ export function RotorRack({
     <div className="control">
       <p className="control__label">
         <span>Fitted rotor</span>
-        <span className="control__value">same housing, same stator</span>
+        <span className="control__value">
+          {spec.needsOwnStator ? "same housing, new stator" : "same housing, same stator"}
+        </span>
       </p>
       <div className="rack" role="group" aria-label="Fitted rotor">
         {rotorList.map((item) => (
@@ -101,13 +103,22 @@ export function RotorRack({
             aria-pressed={item.id === rotor}
             onClick={() => onChange(item.id)}
           >
-            <span className="rack__name">{item.label}</span>
+            <span className="rack__name">
+              {item.label}
+              {item.needsOwnStator && <span className="rack__note"> · own stator</span>}
+            </span>
             <span className="rack__tag">
               {item.usesRareEarthMagnets ? "rare earth" : "none"}
             </span>
           </button>
         ))}
       </div>
+      {ROTORS[rotor].needsOwnStator && (
+        <p className="control-note">
+          This one is not a drop-in. Switched reluctance needs concentrated coils on salient
+          poles, so the stator changes with the rotor.
+        </p>
+      )}
       <dl className="rotor-facts">
         <div className="rotor-fact">
           <dt>Field</dt>
@@ -225,7 +236,19 @@ export function Controls({
         />
       )}
 
-      {(stop.id === "strength-and-stubbornness" || stop.id === "heat-and-the-patch") && (
+      {stop.id === "strength-and-stubbornness" &&
+        (state.id === "coercivity" || state.id === "anisotropy") && (
+          <Slider
+            label="Reverse field"
+            value={controls.load}
+            onChange={(load) => set({ load })}
+            low="none"
+            high="enough to flip it"
+            readout={controls.load > 0.78 ? "reversed" : "holding"}
+          />
+        )}
+
+      {stop.id === "heat-and-the-patch" && (
         <>
           <Slider
             label="Rotor temperature"
@@ -266,6 +289,18 @@ export function Controls({
           readout={`${Math.round(controls.load * 100)}%`}
         />
       )}
+
+      {stop.id === "change-the-magnet" &&
+        (state.id === "ferrite-fix" || state.id === "axial-is-geometry") && (
+          <Slider
+            label="Separate the discs"
+            value={controls.explode}
+            onChange={(explode) => set({ explode })}
+            low="assembled"
+            high="apart"
+            readout={pct(controls.explode)}
+          />
+        )}
 
       {stop.id === "swap-the-rotor" && (
         <>

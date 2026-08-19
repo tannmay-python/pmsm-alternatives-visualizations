@@ -11,8 +11,10 @@ import type { RotorId } from "../stage/rotors/registry";
  */
 
 export type StageKind =
-  | { kind: "three"; scene: "car"; }
-  | { kind: "three"; scene: "motor"; rotor: RotorId }
+  | { kind: "three"; scene: "car" }
+  | { kind: "three"; scene: "motor"; rotor: RotorId; excitation?: "brushed" | "contactless" }
+  /** Axial flux is a topology, not a rotor, so it gets its own scene. */
+  | { kind: "three"; scene: "axial"; chemistry: "ferrite" | "ndfeb" }
   | { kind: "svg"; diagram: DiagramId };
 
 export const diagramIds = [
@@ -92,7 +94,8 @@ export const STOPS: readonly Stop[] = [
         id: "the-magnet-inside",
         label: "One to two kilograms of magnet",
         line: "Roughly 70% of EV traction motors put permanent magnets on the spinning rotor, and those magnets are neodymium-iron-boron.",
-        action: "Zoom into the rotor.",
+        action: "Look at the rotor the drive unit turns on.",
+        stage: { kind: "three", scene: "motor", rotor: "ipm-ndfeb" },
       },
       {
         id: "who-makes-it",
@@ -572,14 +575,14 @@ export const STOPS: readonly Stop[] = [
         label: "The supposed blocker already ships",
         line: "Getting current onto a spinning rotor is usually called the blocker, but BMW's fifth-generation eDrive has used brushes since 2020 across the i4, iX, i7 and i5, the Nissan Ariya does the same, and Renault has shipped this since the 2012 Zoe.",
         action: "Separate production evidence from development.",
-        stage: { kind: "three", scene: "motor", rotor: "wound" },
+        stage: { kind: "three", scene: "motor", rotor: "wound", excitation: "brushed" },
       },
       {
         id: "contactless",
         label: "Contactless excitation is the new part",
         line: "ZF's I2SM, Mahle's MCT and Valeo's iBEE pass the field power through a rotating transformer instead of brushes. None is in a production car yet, and the 'virtual magnet' machines are this same architecture.",
         action: "Swap brushes for the rotating transformer.",
-        stage: { kind: "three", scene: "motor", rotor: "wound" },
+        stage: { kind: "three", scene: "motor", rotor: "wound", excitation: "contactless" },
       },
       {
         id: "synrm",
@@ -604,10 +607,17 @@ export const STOPS: readonly Stop[] = [
       },
       {
         id: "srm",
-        label: "Or delete the copper too",
-        line: "Advanced Electric Machines runs switched reluctance with compressed aluminium windings at 30,000 rpm, with no rare earths and no copper, so the motor goes through the standard steel recycling route.",
+        label: "Or change the stator too",
+        line: "Switched reluctance needs its own stator: a few chunky poles with concentrated coils, energised in sequence, rather than the distributed winding every other rotor here shares.",
+        action: "Fit the salient-pole machine.",
+        stage: { kind: "three", scene: "motor", rotor: "srm" },
+      },
+      {
+        id: "srm-aluminium",
+        label: "Advanced Electric Machines deletes the copper too",
+        line: "Their drive winds compressed aluminium instead of copper and spins to 30,000 rpm to make up for having no magnets, so the whole motor goes through the standard steel recycling route.",
         action: "Read peak beside continuous.",
-        stage: { kind: "three", scene: "motor", rotor: "synrm" },
+        stage: { kind: "three", scene: "motor", rotor: "srm" },
       },
     ],
   },
@@ -651,13 +661,22 @@ export const STOPS: readonly Stop[] = [
         id: "ferrite",
         label: "Ferrite is cheap and weak",
         line: "Iron oxide with strontium or barium: abundant, uncontrolled, and roughly a third of neodymium's remanence — which squares to about a ninth of the useful energy product.",
-        action: "Swap NdFeB for ferrite at the same size.",
+        action: "Fit the ferrite rotor and compare the pockets.",
+        stage: { kind: "three", scene: "motor", rotor: "ferrite-ipm" },
       },
       {
         id: "ferrite-fix",
-        label: "So the motor has to change shape",
-        line: "The design compensates by growing in diameter or length, spinning faster, or moving to axial flux, where the field runs along the axis and torque density rises over a shorter package.",
-        action: "Choose a compensation route.",
+        label: "So the motor changes shape",
+        line: "The design compensates by growing, spinning faster, or going axial: the field runs along the shaft instead of across a radial gap, so torque comes from a large mean radius rather than a long stack.",
+        action: "Pull the axial machine apart.",
+        stage: { kind: "three", scene: "axial", chemistry: "ferrite" },
+      },
+      {
+        id: "axial-is-geometry",
+        label: "Which is a second, separate choice",
+        line: "Axial flux is a geometry and ferrite is a chemistry. Conifer uses both at once, so treating them as competing options misrepresents what that motor is.",
+        action: "Switch the axial machine's magnets to neodymium.",
+        stage: { kind: "three", scene: "axial", chemistry: "ndfeb" },
       },
       {
         id: "ferrite-cold",

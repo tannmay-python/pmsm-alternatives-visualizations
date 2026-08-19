@@ -11,5 +11,19 @@ export default defineConfig({
   build: {
     target: "es2022",
     cssCodeSplit: true,
+    rollupOptions: {
+      output: {
+        /*
+         * three.js and its helpers are roughly three quarters of the payload and
+         * never change between deploys. Splitting them out lets the shell paint
+         * on the app chunk alone, and lets a returning reader reuse the large
+         * chunk from cache across releases.
+         */
+        manualChunks: {
+          three: ["three"],
+          r3f: ["@react-three/fiber", "@react-three/drei"],
+        },
+      },
+    },
   },
 });

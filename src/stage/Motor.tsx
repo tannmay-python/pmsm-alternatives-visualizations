@@ -11,8 +11,9 @@ import {
 } from "./geometry";
 import { makeMaterials } from "./materials";
 import { Stator } from "./Stator";
+import { SalientStator } from "./SalientStator";
 import { Rotor } from "./rotors/Rotors";
-import type { RotorId } from "./rotors/registry";
+import { ROTORS, type RotorId } from "./rotors/registry";
 
 export type MotorProps = {
   rotor: RotorId;
@@ -40,6 +41,8 @@ export type MotorProps = {
    * screen because the whole point of the rotor rack is that it does not change.
    */
   dimStator?: boolean;
+  /** How field power reaches a wound rotor: brushes, or a rotating transformer. */
+  excitation?: "brushed" | "contactless";
 };
 
 function Housing({ z }: { z: number }) {
@@ -130,6 +133,7 @@ export function Motor({
   showWindings = true,
   cutaway = false,
   dimStator = false,
+  excitation = "brushed",
 }: MotorProps) {
   const materials = useMemo(makeMaterials, []);
   const rotorRef = useRef<THREE.Group>(null);
@@ -162,13 +166,22 @@ export function Motor({
       {!statorHidden && (
         <>
           <group position={[0, 0, explodeZ("statorCore", explode)]}>
-            <Stator
-              materials={materials}
-              activePhase={activePhase}
-              phaseStrengths={phaseStrengths}
-              showWindings={showWindings}
-              dimmed={dimStator}
-            />
+            {ROTORS[rotor].needsOwnStator ? (
+              <SalientStator
+                materials={materials}
+                activePair={activePhase}
+                winding={ROTORS[rotor].windingMaterial ?? "copper"}
+                dimmed={dimStator}
+              />
+            ) : (
+              <Stator
+                materials={materials}
+                activePhase={activePhase}
+                phaseStrengths={phaseStrengths}
+                showWindings={showWindings}
+                dimmed={dimStator}
+              />
+            )}
           </group>
         </>
       )}
@@ -187,6 +200,7 @@ export function Motor({
             materials={materials}
             intensity={intensity}
             fieldLive={fieldLive}
+            excitation={excitation}
           />
         </group>
       )}

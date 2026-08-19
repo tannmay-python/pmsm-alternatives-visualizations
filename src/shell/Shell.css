@@ -44,6 +44,14 @@
 
 .stage-column { position: relative; min-width: 0; min-height: 0; overflow: hidden; }
 
+.stage--loading {
+  display: grid;
+  place-content: center;
+  height: 100%;
+  color: var(--text-faint);
+  font-size: var(--t-small);
+}
+
 /* SVG stops sit above the persistent canvas. */
 .stage-diagram { position: absolute; inset: 0; }
 
@@ -159,7 +167,17 @@
 .rack button.is-on { border-color: var(--accent); background: var(--accent-wash); }
 .rack__name { color: var(--text); font-size: var(--t-small); }
 .rack button.is-on .rack__name { color: var(--accent); }
+.rack__note { color: var(--text-faint); font-size: var(--t-micro); }
 .rack__tag { color: var(--text-faint); font-size: var(--t-micro); letter-spacing: var(--track-label); text-transform: uppercase; }
+
+.control-note {
+  margin: var(--gap-3) 0 0;
+  padding-left: 9px;
+  border-left: 2px solid var(--accent-line);
+  color: var(--text-faint);
+  font-size: var(--t-micro);
+  line-height: 1.55;
+}
 
 .rotor-facts { margin-top: var(--gap-3); display: grid; gap: var(--gap-2); }
 .rotor-fact { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: var(--gap-2); }

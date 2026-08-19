@@ -8,13 +8,14 @@ import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import * as THREE from "three";
 import { Car } from "./Car";
 import { Motor } from "./Motor";
+import { AxialFlux } from "./AxialFlux";
 import { Callout } from "./Callout";
-import { MOTOR, explodeZ } from "./geometry";
+import { AXIAL, MOTOR, explodeZ } from "./geometry";
 import { getBalancedPhaseStrengths } from "../models/pmsmTurn";
-import type { RotorId } from "./rotors/registry";
+import { ROTORS, type RotorId } from "./rotors/registry";
 import type { Stop, StopState } from "../route/route";
 import { type StageControls } from "./controls";
-import { cameraFor, carBounds, motorBounds, type ShotName } from "./framing";
+import { axialBounds, cameraFor, carBounds, motorBounds, type ShotName } from "./framing";
 import { stageForState } from "../route/route";
 import "./Stage.css";
 
@@ -142,12 +143,15 @@ const CUTAWAY_STATES = new Set([
   "power-factor",
   "pm-assisted",
   "srm",
+  "srm-aluminium",
+  "ferrite",
 ]);
 
 /** Which camera shot a given stop and state wants. */
 function shotFor(stop: Stop, state: StopState, explode: number): ShotName {
   const stage = stageForState(stop, state);
   if (stage.kind !== "three") return "motor";
+  if (stage.scene === "axial") return "axial";
   if (stage.scene === "car") {
     return state.id === "the-magnet-inside" || state.id === "drive-unit"
       ? "car-close"
@@ -184,6 +188,20 @@ function SceneContents({
 
   if (stage.kind !== "three") return null;
 
+  if (stage.scene === "axial") {
+    return (
+      <group>
+        <AxialFlux spinning={!paused} exploded={controls.explode} chemistry={stage.chemistry} />
+        <Callout position={[0, AXIAL.outerRadius + 0.16, 0]} accent>
+          stator coils · field runs along the shaft
+        </Callout>
+        <Callout position={[0, -AXIAL.outerRadius - 0.16, 0.5]} side="left">
+          rotor disc · magnets face the coils
+        </Callout>
+      </group>
+    );
+  }
+
   if (stage.scene === "car") {
     const focus =
       state.id === "the-motor-in-the-car" || state.id === "drive-unit"
@@ -217,8 +235,13 @@ function SceneContents({
   return (
     <group>
       <Motor
+        excitation={stage.excitation ?? "brushed"}
         cutaway={cutaway}
-        dimStator={stop.id === "swap-the-rotor" && state.id !== "family-tree"}
+        dimStator={
+          stop.id === "swap-the-rotor" &&
+          state.id !== "family-tree" &&
+          !ROTORS[rotor].needsOwnStator
+        }
         rotor={rotor}
         explode={controls.explode}
         spinning={!paused}
@@ -301,7 +324,9 @@ export function Stage({
     const bounds =
       shot === "car" || shot === "car-close"
         ? carBounds(controls.extract)
-        : motorBounds(controls.explode);
+        : shot === "axial"
+          ? axialBounds(controls.explode)
+          : motorBounds(controls.explode);
     return cameraFor(shot, bounds, aspect, FOV);
   }, [shot, controls.extract, controls.explode, aspect]);
 

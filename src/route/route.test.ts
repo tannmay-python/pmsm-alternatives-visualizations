@@ -101,6 +101,39 @@ describe("stage wiring", () => {
     }
   });
 
+  it("marks switched reluctance as the only rotor needing its own stator", () => {
+    // Every other machine here shares one distributed three-phase stator, which
+    // is what makes the rotor rack an honest comparison. SRM does not.
+    const ownStator = rotorIds.filter((id) => ROTORS[id].needsOwnStator);
+    expect(ownStator).toEqual(["srm"]);
+  });
+
+  it("winds the switched-reluctance stator in aluminium, as AEM does", () => {
+    expect(ROTORS.srm.windingMaterial).toBe("aluminium");
+  });
+
+  it("shows axial flux as its own topology rather than a rotor", () => {
+    const axial = STOPS.flatMap((stop) =>
+      stop.states.map((state) => stageForState(stop, state)),
+    ).filter((stage) => stage.kind === "three" && stage.scene === "axial");
+    expect(axial.length).toBeGreaterThan(0);
+    // Both chemistries must appear, or the stop cannot make its own point that
+    // geometry and chemistry are separate choices.
+    const chemistries = new Set(
+      axial.map((stage) => (stage.kind === "three" && stage.scene === "axial" ? stage.chemistry : "")),
+    );
+    expect(chemistries).toEqual(new Set(["ferrite", "ndfeb"]));
+  });
+
+  it("shows both wound-field excitation methods as different hardware", () => {
+    const excitations = new Set(
+      STOPS.flatMap((stop) => stop.states.map((state) => stageForState(stop, state)))
+        .filter((stage) => stage.kind === "three" && stage.scene === "motor" && stage.excitation)
+        .map((stage) => (stage.kind === "three" && stage.scene === "motor" ? stage.excitation : "")),
+    );
+    expect(excitations).toEqual(new Set(["brushed", "contactless"]));
+  });
+
   it("marks only the induction rotor asynchronous", () => {
     const asynchronous = rotorIds.filter((id) => ROTORS[id].branch === "asynchronous");
     expect(asynchronous).toEqual(["squirrel-cage"]);

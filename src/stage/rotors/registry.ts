@@ -16,6 +16,7 @@ export const rotorIds = [
   "synrm",
   "pm-assisted-synrm",
   "ferrite-ipm",
+  "srm",
 ] as const;
 
 export type RotorId = (typeof rotorIds)[number];
@@ -36,6 +37,14 @@ export type RotorSpec = {
   rotorCarriesCurrent: boolean;
   /** Rare-earth magnet content. */
   usesRareEarthMagnets: boolean;
+  /**
+   * True when this rotor also requires a different stator. Only switched
+   * reluctance does: it needs concentrated coils on salient poles rather than
+   * the distributed three-phase winding the others share.
+   */
+  needsOwnStator?: boolean;
+  /** Stator winding material, where it is part of the claim. */
+  windingMaterial?: "copper" | "aluminium";
 };
 
 export const ROTORS: Record<RotorId, RotorSpec> = {
@@ -93,6 +102,19 @@ export const ROTORS: Record<RotorId, RotorSpec> = {
     cost: "Repairs the power factor and speed range by putting some magnet content back.",
     rotorCarriesCurrent: false,
     usesRareEarthMagnets: true,
+  },
+  srm: {
+    id: "srm",
+    label: "Switched reluctance",
+    configurationId: "aem-aluminium-srm",
+    branch: "synchronous",
+    howFieldIsMade: "Not made at all. Stator poles are energised in sequence and the rotor lumps chase them.",
+    onPowerCut: "Nothing to switch off.",
+    cost: "A different stator with concentrated coils, high speed to make up for having no magnets, and torque ripple to control.",
+    rotorCarriesCurrent: false,
+    usesRareEarthMagnets: false,
+    needsOwnStator: true,
+    windingMaterial: "aluminium",
   },
   "ferrite-ipm": {
     id: "ferrite-ipm",

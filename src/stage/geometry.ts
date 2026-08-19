@@ -252,6 +252,116 @@ export function cageBarPositions(bars = 34) {
 }
 
 /**
+ * A salient-pole stator, for switched reluctance.
+ *
+ * This is the one place the stator genuinely differs. An SRM does not use the
+ * 48-slot distributed winding every other machine here shares: it has a small
+ * number of chunky inward poles, each carrying its own concentrated coil, and
+ * the machine works by energising opposite pairs in sequence. Drawing it with
+ * the distributed stator would show the wrong machine.
+ */
+export function salientStatorShape(poles = 12): THREE.Shape {
+  const { statorOuter } = MOTOR;
+  const shape = new THREE.Shape();
+  shape.absarc(0, 0, statorOuter, 0, TAU, false);
+
+  const bore = new THREE.Path();
+  const pitch = TAU / poles;
+  const poleHalf = pitch * 0.28;
+  const backIron = statorOuter - 0.16;
+  const poleTip = SRM.statorPoleTip;
+
+  const [sx, sy] = polar(poleTip, -poleHalf);
+  bore.moveTo(sx, sy);
+
+  for (let pole = 0; pole < poles; pole += 1) {
+    const centre = pole * pitch;
+    // Pole face, riding the bore.
+    arcTo(bore, poleTip, centre - poleHalf, centre + poleHalf, 5);
+    // Out along the pole flank, across the slot, and back down the next flank.
+    bore.lineTo(...polar(backIron, centre + poleHalf));
+    arcTo(bore, backIron, centre + poleHalf, centre + pitch - poleHalf, 5);
+    bore.lineTo(...polar(poleTip, centre + pitch - poleHalf));
+  }
+
+  bore.closePath();
+  shape.holes.push(bore);
+  return shape;
+}
+
+/** A salient-pole rotor: plain steel lumps, no magnets, no windings, no cage. */
+export function salientRotorShape(poles = 8): THREE.Shape {
+  const { shaftRadius } = MOTOR;
+  const shape = new THREE.Shape();
+
+  const pitch = TAU / poles;
+  const poleHalf = pitch * 0.3;
+  const root = SRM.rotorRoot;
+  const tip = SRM.rotorTip;
+
+  const [sx, sy] = polar(tip, -poleHalf);
+  shape.moveTo(sx, sy);
+
+  for (let pole = 0; pole < poles; pole += 1) {
+    const centre = pole * pitch;
+    arcTo(shape, tip, centre - poleHalf, centre + poleHalf, 5);
+    shape.lineTo(...polar(root, centre + poleHalf));
+    arcTo(shape, root, centre + poleHalf, centre + pitch - poleHalf, 5);
+    shape.lineTo(...polar(tip, centre + pitch - poleHalf));
+  }
+  shape.closePath();
+
+  const bore = new THREE.Path();
+  bore.absarc(0, 0, shaftRadius, 0, TAU, true);
+  shape.holes.push(bore);
+  return shape;
+}
+
+/** Switched-reluctance proportions, kept together so the pair stays consistent. */
+export const SRM = {
+  statorPoles: 12,
+  rotorPoles: 8,
+  statorPoleTip: 0.66,
+  rotorTip: 0.648,
+  rotorRoot: 0.44,
+} as const;
+
+/**
+ * Axial flux is a topology, not a rotor swap.
+ *
+ * The field runs along the shaft rather than across a radial air gap, so the
+ * machine is a stack of discs rather than a barrel. None of the radial parts
+ * apply, which is exactly the point worth showing: a ferrite axial motor is
+ * both a different chemistry and a different geometry at once.
+ */
+export const AXIAL = {
+  outerRadius: 1.16,
+  innerRadius: 0.42,
+  discThickness: 0.11,
+  coilCount: 12,
+  magnetCount: 16,
+  gap: 0.075,
+} as const;
+
+/** Magnet positions on one axial rotor disc face. */
+export function axialMagnetPositions(count = AXIAL.magnetCount) {
+  const radius = (AXIAL.outerRadius + AXIAL.innerRadius) / 2;
+  return Array.from({ length: count }, (_, i) => {
+    const angle = (i / count) * TAU;
+    return { angle, position: polar(radius, angle), polarity: i % 2 === 0 ? 1 : -1 };
+  });
+}
+
+/** Coil positions on the axial stator ring, sitting between the two rotors. */
+export function axialCoilPositions(count = AXIAL.coilCount) {
+  const radius = (AXIAL.outerRadius + AXIAL.innerRadius) / 2;
+  return Array.from({ length: count }, (_, i) => {
+    const angle = (i / count) * TAU;
+    return { angle, position: polar(radius, angle), phase: i % MOTOR.phases };
+  });
+}
+
+/**
  * The housing profile: a cast shell with cooling ribs and mounting bosses
  * around it. Extruding this rather than stacking boxes is what stops the
  * outside of the motor reading as a cylinder with decoration.

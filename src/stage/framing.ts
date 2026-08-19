@@ -1,4 +1,4 @@
-import { EXPLODE_OFFSETS, MOTOR } from "./geometry";
+import { AXIAL, EXPLODE_OFFSETS, MOTOR } from "./geometry";
 
 /**
  * Camera framing, solved analytically rather than by measuring the scene graph.
@@ -34,6 +34,8 @@ export const SHOTS = {
   /** Down the bore, for anything about the rotating field. */
   "motor-face": { dir: [0.1, 0.2, 1], margin: 1.15 },
   rotor: { dir: [-0.82, 0.32, 0.56], margin: 0.92 },
+  /** Axial machines are wide and shallow, so they are read from the front. */
+  axial: { dir: [0.86, 0.34, 0.5], margin: 1.06 },
 } as const satisfies Record<string, Shot>;
 
 export type ShotName = keyof typeof SHOTS;
@@ -63,6 +65,15 @@ export function motorBounds(explode: number): Bounds {
   return {
     half: [radius, radius, (backZ - frontZ) / 2],
     centre: [0, 0, (backZ + frontZ) / 2],
+  };
+}
+
+/** The axial stack: wide and shallow, and it grows along the axis when opened. */
+export function axialBounds(exploded: number): Bounds {
+  const halfDepth = AXIAL.discThickness * 1.5 + AXIAL.gap + exploded * 0.55 + 0.06;
+  return {
+    half: [AXIAL.outerRadius, AXIAL.outerRadius, Math.max(0.85, halfDepth)],
+    centre: [0, 0, 0],
   };
 }
 

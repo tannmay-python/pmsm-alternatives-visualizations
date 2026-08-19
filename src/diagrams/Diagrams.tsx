@@ -56,55 +56,112 @@ function SupplyConcentration({ state }: { state: string }) {
 
 /* ── Act II: the two magnet properties ──────────────────────────────────── */
 
+/**
+ * The second-quadrant demagnetisation curve, which is where both magnet
+ * properties live at once: where the curve meets the vertical axis is what the
+ * magnet holds unaided, and where it turns down is what it takes to undo it.
+ *
+ * The alloys are drawn from the same curve function so the comparison is
+ * structural rather than three unrelated drawings: iron has the strength and
+ * nearly no resistance, neodymium metal has neither at temperature, and NdFeB
+ * has both because each element supplies one of them.
+ */
+const ALLOYS = {
+  ndfeb: { label: "NdFeB", br: 1, hc: 1 },
+  iron: { label: "Iron alone", br: 0.94, hc: 0.04 },
+  neodymium: { label: "Neodymium alone", br: 0.22, hc: 0.3 },
+} as const;
+
+type AlloyKey = keyof typeof ALLOYS;
+
 function DemagCurve({ controls, state }: { controls: StageControls; state: string }) {
   const x0 = 60;
   const y0 = 30;
-  const w = 620;
-  const h = 300;
+  const w = 600;
+  const h = 290;
 
-  // Second-quadrant demagnetisation curve. Heat pushes the knee inward, which
-  // is the whole mechanism this stop exists to show.
+  // Heat only enters the picture once the lesson is about heat.
   const heat = state === "heat-cuts-coercivity" || state === "two-stresses" ? controls.heat : 0;
-  const remanence = 1 - heat * 0.18;
-  const coercivity = 1 - heat * 0.55;
+  const reverse = state === "two-stresses" || state === "coercivity" ? controls.load : 0;
 
-  const curve = (br: number, hc: number) => {
+  const path = (br: number, hc: number) => {
     const top = y0 + h - br * h;
     const knee = x0 + hc * w * 0.78;
     return `M ${x0} ${top} L ${knee} ${top - 4} Q ${x0 + hc * w} ${top} ${x0 + hc * w} ${y0 + h}`;
   };
 
-  const reverse = state === "two-stresses" ? controls.load : 0;
+  const compare = state === "division-of-labour";
+  const shown: AlloyKey[] = compare ? ["ndfeb", "iron", "neodymium"] : ["ndfeb"];
+
+  const br = 1 - heat * 0.18;
+  const hc = 1 - heat * 0.55;
   const reverseX = x0 + reverse * w;
-  const past = reverse > coercivity * 0.78;
+  const past = reverse > hc * 0.78;
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Demagnetisation curve showing remanence and coercivity">
       <Axes x={x0} y={y0} w={w} h={h} xLabel="reverse field applied →" yLabel="magnetisation held" />
-      <path className="d-curve d-curve--ghost" d={curve(1, 1)} />
-      <path className={`d-curve ${past ? "d-curve--warn" : "d-curve--accent"}`} d={curve(remanence, coercivity)} />
 
-      <Leader from={[x0, y0 + h - remanence * h]} to={[x0 + w + 20, y0 + 22]} accent>
-        remanence — what is left with no help
-      </Leader>
-      <Leader from={[x0 + coercivity * w * 0.9, y0 + h]} to={[x0 + w + 20, y0 + h - 18]} accent>
-        coercivity — what it takes to undo it
-      </Leader>
+      {/* The unheated reference, so any shift from heat is visible as a shift. */}
+      {heat > 0.02 && <path className="d-curve d-curve--ghost" d={path(1, 1)} />}
 
-      {state === "two-stresses" && (
+      {shown.map((key) => {
+        const alloy = ALLOYS[key];
+        const main = key === "ndfeb";
+        return (
+          <g key={key}>
+            <path
+              className={`d-curve ${main ? (past ? "d-curve--warn" : "d-curve--accent") : ""}`}
+              d={path(main ? br * alloy.br : alloy.br, main ? hc * alloy.hc : alloy.hc)}
+              opacity={main ? 1 : 0.55}
+            />
+            {compare && (
+              <text
+                className={`d-label ${main ? "d-label--accent" : "d-label--faint"}`}
+                x={x0 + 8}
+                y={y0 + h - alloy.br * h - 6}
+              >
+                {alloy.label}
+              </text>
+            )}
+          </g>
+        );
+      })}
+
+      {/* Each state points at the part of the curve it is actually about. */}
+      {(state === "remanence" || state === "division-of-labour") && (
+        <Leader from={[x0, y0 + h - br * h]} to={[x0 + w + 16, y0 + 20]} accent>
+          remanence — what is left with no help
+        </Leader>
+      )}
+      {(state === "coercivity" || state === "anisotropy" || state === "division-of-labour") && (
+        <Leader from={[x0 + hc * w * 0.9, y0 + h]} to={[x0 + w + 16, y0 + h - 16]} accent>
+          coercivity — what it takes to undo it
+        </Leader>
+      )}
+
+      {reverse > 0.01 && (
         <g>
           <path className="d-rule d-rule--dash" d={`M ${reverseX} ${y0} L ${reverseX} ${y0 + h}`} />
           <text className={`d-label ${past ? "d-label--warn" : ""}`} x={reverseX + 6} y={y0 + 14}>
-            {past ? "past the knee — this loss stays after cooling" : "stator pushing back"}
+            {past
+              ? "past the knee — this loss stays after cooling"
+              : state === "coercivity"
+                ? "pushing back against the magnet"
+                : "stator pushing back"}
           </text>
         </g>
       )}
 
-      {heat > 0.02 && (
-        <text className="d-label d-label--faint" x={x0} y={y0 + h + 48}>
-          Rotor at {Math.round(20 + heat * 160)} °C. Coercivity falls roughly 0.5% per degree; a traction rotor runs 150–180 °C.
-        </text>
-      )}
+      <text className="d-label d-label--faint" x={x0} y={y0 + h + 46}>
+        {state === "anisotropy"
+          ? "Neodymium's crystal strongly prefers one magnetisation axis, and that preference is the whole of the resistance."
+          : state === "division-of-labour"
+            ? "Iron supplies the height of the curve. Neodymium supplies its reach to the right. Neither element does both."
+            : heat > 0.02
+              ? `Rotor at ${Math.round(20 + heat * 160)} °C. Coercivity falls roughly 0.5% per degree; a traction rotor runs 150–180 °C.`
+              : "A usable permanent magnet needs both: height on this axis, and reach along that one."}
+      </text>
     </svg>
   );
 }
@@ -359,7 +416,7 @@ function FamilyTree({ onPick, rotor }: { onPick?: (id: string) => void; rotor?: 
 }
 
 const MATERIALS = [
-  { id: "ferrite", label: "Ferrite", saturation: 0.19, remanence: 0.33, coercivity: 0.25, hardness: 1.2, thermal: 0.7 },
+  { id: "ferrite", label: "Ferrite", saturation: 0.19, remanence: 0.33, coercivity: 0.25, hardness: 1.4, thermal: 0.7 },
   { id: "iron-nitride", label: "Iron nitride (Fe16N2)", saturation: 1.0, remanence: 0.72, coercivity: 0.36, hardness: 0.6, thermal: 0.42 },
   { id: "ndfeb", label: "NdFeB", saturation: 0.64, remanence: 1.0, coercivity: 1.0, hardness: 1.54, thermal: 1.0 },
 ] as const;

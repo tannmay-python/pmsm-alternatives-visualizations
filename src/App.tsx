@@ -1,10 +1,17 @@
 import { ArrowLeft, ArrowRight, Pause, Play } from "@phosphor-icons/react";
-import { useCallback, useEffect, useMemo, useReducer, useState } from "react";
+import { Suspense, lazy, useCallback, useEffect, useMemo, useReducer, useState } from "react";
 import { Diagram } from "./diagrams/Diagrams";
 import { Controls } from "./shell/Controls";
 import { Evidence } from "./shell/Evidence";
 import { ACTS, STOPS, stageForState, type Stop, type StopState } from "./route/route";
-import { Stage } from "./stage/Stage";
+/*
+ * three.js and its helpers are three quarters of the payload. Loading them
+ * behind a boundary lets the shell, the copy and the rail paint immediately,
+ * and means the SVG stops never block on a renderer they do not use. The
+ * component stays mounted once loaded, so the WebGL context is still created
+ * exactly once for the session.
+ */
+const Stage = lazy(() => import("./stage/Stage").then((m) => ({ default: m.Stage })));
 import { DEFAULT_CONTROLS, type StageControls } from "./stage/controls";
 import type { RotorId } from "./stage/rotors/registry";
 import type { ArchitectureId } from "./models/swapBurden";
@@ -71,7 +78,14 @@ export default function App() {
     window.history.replaceState(null, "", hashFor(stop, state));
     patchControls((current) => ({
       ...current,
-      explode: stop.id === "open-the-machine" ? (state.id === "explode" ? 0.55 : 0) : 0,
+      explode:
+        stop.id === "open-the-machine"
+          ? state.id === "explode"
+            ? 0.55
+            : 0
+          : state.id === "ferrite-fix" || state.id === "axial-is-geometry"
+            ? 0.6
+            : 0,
       isolate:
         state.id === "stator" ? "stator" : state.id === "rotor" ? "rotor" : "none",
       activePhase: state.id === "one-phase" ? 0 : null,
@@ -81,6 +95,7 @@ export default function App() {
         state.id === "load-angle" || state.id === "slip" ? 0.6
         : state.id === "two-stresses" ? 0.3
         : state.id === "ceiling" || state.id === "field-weakening" ? 0.85
+        : state.id === "coercivity" || state.id === "anisotropy" ? 0.5
         : DEFAULT_CONTROLS.load,
       heat: state.id === "heat-cuts-coercivity" || state.id === "two-stresses" ? 0.5 : 0.15,
     }));
@@ -144,15 +159,23 @@ export default function App() {
             top of it rather than replacing it, so the WebGL context is created
             once instead of once per stop.
           */}
-          <Stage
-            stop={stop}
-            state={state}
-            controls={controls}
-            rotor={rotor}
-            paused={paused}
-            reducedMotion={reducedMotion}
-            hidden={stage.kind !== "three"}
-          />
+          <Suspense
+            fallback={
+              <div className="stage stage--loading">
+                <p>{state.label}</p>
+              </div>
+            }
+          >
+            <Stage
+              stop={stop}
+              state={state}
+              controls={controls}
+              rotor={rotor}
+              paused={paused}
+              reducedMotion={reducedMotion}
+              hidden={stage.kind !== "three"}
+            />
+          </Suspense>
 
           {stage.kind === "three" ? (
             <p className="stage-hint">Drag to orbit · scroll to zoom</p>

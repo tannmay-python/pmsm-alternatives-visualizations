@@ -2,17 +2,21 @@ import { useMemo } from "react";
 import * as THREE from "three";
 import {
   MOTOR,
+  SRM,
   cageBarPositions,
   cageLaminationShape,
   laminationGeometry,
   reluctanceLaminationShape,
   rotorLaminationShape,
+  salientRotorShape,
 } from "../geometry";
 import { PALETTE, type MotorMaterials } from "../materials";
 import type { RotorId } from "./registry";
 
 export type RotorProps = {
   materials: MotorMaterials;
+  /** How the field power reaches a wound rotor. Ignored by every other rotor. */
+  excitation?: "brushed" | "contactless";
   /** 0–1. Drives magnet stress colour, cage current, or excitation glow. */
   intensity?: number;
   /** Rotor field currently live. False shows a de-excited or coasting rotor. */
@@ -121,8 +125,77 @@ function CageRotor({ materials, intensity = 0, fieldLive = true }: RotorProps) {
   );
 }
 
+/**
+ * Slip rings and brushes: the traditional way of getting current onto a
+ * spinning rotor. Sliding contacts, so they wear — the objection usually raised
+ * against wound-field machines, and the one BMW, Nissan and Renault ship anyway.
+ */
+function SlipRings({ live }: { live: boolean }) {
+  return (
+    <group position={[0, 0, MOTOR.stackLength / 2 + 0.22]}>
+      {[0, 0.1].map((offset) => (
+        <mesh key={offset} position={[0, 0, offset]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[MOTOR.shaftRadius + 0.05, MOTOR.shaftRadius + 0.05, 0.06, 28]} />
+          <meshStandardMaterial
+            color={PALETTE.copper}
+            roughness={0.3}
+            metalness={0.85}
+            emissive={live ? PALETTE.accent : "#000000"}
+            emissiveIntensity={live ? 0.3 : 0}
+          />
+        </mesh>
+      ))}
+      {/* The brushes themselves do not rotate; they are held against the rings. */}
+      {[0, 0.1].map((offset) =>
+        [-1, 1].map((side) => (
+          <mesh
+            key={`${offset}-${side}`}
+            position={[side * (MOTOR.shaftRadius + 0.12), 0, offset]}
+          >
+            <boxGeometry args={[0.1, 0.055, 0.05]} />
+            <meshStandardMaterial color="#3f4644" roughness={0.9} metalness={0.1} />
+          </mesh>
+        )),
+      )}
+    </group>
+  );
+}
+
+/**
+ * A rotating transformer: the contactless alternative. Field power crosses an
+ * air gap inductively, so there is nothing to wear — this is what ZF's I2SM,
+ * Mahle's MCT and Valeo's iBEE are, and what the "virtual magnet" machines are.
+ */
+function RotatingTransformer({ live }: { live: boolean }) {
+  return (
+    <group position={[0, 0, MOTOR.stackLength / 2 + 0.24]}>
+      {/* Rotating half, keyed to the shaft. */}
+      <mesh rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[MOTOR.shaftRadius + 0.09, 0.045, 10, 40]} />
+        <meshStandardMaterial
+          color={PALETTE.copper}
+          roughness={0.34}
+          metalness={0.82}
+          emissive={live ? PALETTE.accent : "#000000"}
+          emissiveIntensity={live ? 0.45 : 0}
+        />
+      </mesh>
+      {/* Stationary half, separated by the air gap that replaces the brushes. */}
+      <mesh position={[0, 0, 0.11]} rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[MOTOR.shaftRadius + 0.09, 0.05, 10, 40]} />
+        <meshStandardMaterial color={PALETTE.steelMid} roughness={0.45} metalness={0.7} />
+      </mesh>
+    </group>
+  );
+}
+
 /** Copper on the rotor, fed deliberately. A magnet you can switch off. */
-function WoundRotor({ materials, intensity = 0.7, fieldLive = true }: RotorProps) {
+function WoundRotor({
+  materials,
+  intensity = 0.7,
+  fieldLive = true,
+  excitation = "brushed",
+}: RotorProps) {
   const poles = 4;
   const core = useMemo(
     () => laminationGeometry(reluctanceLaminationShape(poles, 1), MOTOR.stackLength, 0),
@@ -147,6 +220,11 @@ function WoundRotor({ materials, intensity = 0.7, fieldLive = true }: RotorProps
   return (
     <group>
       <mesh geometry={core} material={materials.rotorLaminate} castShadow receiveShadow />
+      {excitation === "brushed" ? (
+        <SlipRings live={fieldLive} />
+      ) : (
+        <RotatingTransformer live={fieldLive} />
+      )}
       {coils.map(({ angle, position }) => (
         <group key={angle} position={position} rotation={[0, 0, angle]}>
           {/* A bundle of turns, not a single torus. */}
@@ -233,6 +311,19 @@ function ReluctanceRotor({
   );
 }
 
+/**
+ * Switched reluctance: salient steel lumps and nothing else. It pairs with a
+ * salient stator, so unlike every other rotor here it cannot simply drop into
+ * the distributed-wound machine.
+ */
+function SrmRotor({ materials }: RotorProps) {
+  const core = useMemo(
+    () => laminationGeometry(salientRotorShape(SRM.rotorPoles), MOTOR.stackLength, 0),
+    [],
+  );
+  return <mesh geometry={core} material={materials.rotorLaminate} castShadow receiveShadow />;
+}
+
 export function Rotor({ id, ...props }: RotorProps & { id: RotorId }) {
   switch (id) {
     case "squirrel-cage":
@@ -243,6 +334,8 @@ export function Rotor({ id, ...props }: RotorProps & { id: RotorId }) {
       return <ReluctanceRotor {...props} />;
     case "pm-assisted-synrm":
       return <ReluctanceRotor {...props} withMagnets />;
+    case "srm":
+      return <SrmRotor {...props} />;
     case "ferrite-ipm":
       return <IpmRotor {...props} ferrite />;
     case "ipm-ndfeb":
