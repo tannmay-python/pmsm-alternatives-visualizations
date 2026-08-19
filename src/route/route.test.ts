@@ -10,14 +10,31 @@ const allClaimIds = new Set(claims.map((claim) => claim.id));
 const allStepIds = new Set(chapters.flatMap((chapter) => chapter.steps.map((step) => step.id)));
 
 describe("route structure", () => {
-  it("opens on the problem, not on the machine", () => {
+  it("opens on the stakes, before any hardware", () => {
     expect(STOPS[0].act).toBe(0);
     expect(STOPS[0].id).toBe("the-problem");
-    // The reader meets the supply-chain problem before any mechanism.
-    const opening = STOPS[0].states.map((state) => state.id);
-    expect(opening).toContain("who-makes-it");
-    expect(opening).toContain("the-control");
-    expect(opening.at(-1)).toBe("the-real-question");
+
+    const opening = STOPS[0].states;
+    const ids = opening.map((state) => state.id);
+    expect(ids[0]).toBe("the-halt");
+    expect(ids.at(-1)).toBe("the-real-question");
+
+    // Nothing physical may appear until the reason to care has been given.
+    const firstThreeD = opening.findIndex(
+      (state) => (state.stage ?? STOPS[0].stage).kind === "three",
+    );
+    expect(firstThreeD).toBeGreaterThan(1);
+
+    // And the first thing the reader sees is a diagram, not a car.
+    expect(STOPS[0].stage.kind).toBe("svg");
+  });
+
+  it("puts the car after the supply-chain case, not before it", () => {
+    const ids = STOPS[0].states.map((state) => state.id);
+    const car = STOPS[0].states.findIndex(
+      (state) => (state.stage ?? STOPS[0].stage).kind === "three",
+    );
+    expect(ids.slice(0, car)).toEqual(["the-halt", "the-chain", "the-chokepoint"]);
   });
 
   it("runs the acts in order and numbers the stops consecutively", () => {

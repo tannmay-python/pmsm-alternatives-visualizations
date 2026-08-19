@@ -881,6 +881,37 @@ const rawClaims = [
     needsVerification: true,
   },
   {
+    id: "supply-concentration-reported",
+    statement:
+      "The rare-earth magnet chain is reported as heavily concentrated in China: roughly 60% of mining, over 90% of refining, and about 94% of the high-performance NdFeB magnets traction motors use.",
+    sourceIds: ["original-pmsm-report"],
+    sourceType: "secondary",
+    evidenceStatus: "qualified",
+    renderingPolicy: "show-with-condition",
+    date: "2026-08-09",
+    market: "ev-traction",
+    qualifier: "reported",
+    denominator: "share of global output at each stage of the NdFeB chain, as reported in the source report",
+    caveat:
+      "Show these as reported shares with their stage attached, never as a single audited figure. The stages differ, and the magnet share is the one that binds a motor programme.",
+    needsVerification: true,
+  },
+  {
+    id: "pmsm-share-of-traction",
+    statement:
+      "Permanent-magnet synchronous machines are reported to account for roughly 70-80% of the electric-vehicle traction-motor market.",
+    sourceIds: ["original-pmsm-report"],
+    sourceType: "secondary",
+    evidenceStatus: "qualified",
+    renderingPolicy: "show-with-condition",
+    date: "2026-08-09",
+    market: "ev-traction",
+    qualifier: "reported",
+    denominator: "share of the EV traction-motor market by the source report's own framing",
+    caveat: "A reported market share, not an audited one. Show it as a range and as reported.",
+    needsVerification: true,
+  },
+  {
     id: "india-opportunity-capabilities",
     statement:
       "India's policy path can develop rare-earth-free motor technologies and components while separately building domestic rare-earth permanent-magnet capacity.",

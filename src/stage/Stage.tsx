@@ -145,6 +145,7 @@ const CUTAWAY_STATES = new Set([
   "srm",
   "srm-aluminium",
   "ferrite",
+  "one-kilogram",
 ]);
 
 /** Which camera shot a given stop and state wants. */
@@ -153,9 +154,7 @@ function shotFor(stop: Stop, state: StopState, explode: number): ShotName {
   if (stage.kind !== "three") return "motor";
   if (stage.scene === "axial") return "axial";
   if (stage.scene === "car") {
-    return state.id === "the-magnet-inside" || state.id === "drive-unit"
-      ? "car-close"
-      : "car";
+    return state.id === "one-part" || state.id === "drive-unit" ? "car-close" : "car";
   }
   if (explode > 0.15) return "motor-exploded";
   // Anything about the rotating field is read down the bore, not side-on.
@@ -204,13 +203,11 @@ function SceneContents({
 
   if (stage.scene === "car") {
     const focus =
-      state.id === "the-motor-in-the-car" || state.id === "drive-unit"
+      state.id === "one-part" || state.id === "drive-unit"
         ? "drive-unit"
-        : state.id === "the-magnet-inside"
-          ? "magnet"
-          : state.id === "power-path"
-            ? "battery"
-            : "none";
+        : state.id === "power-path"
+          ? "battery"
+          : "none";
     return (
       <group>
         <Car focus={focus} flowing={!paused && state.id === "power-path"} extract={controls.extract} spinning={!paused} />

@@ -8,6 +8,117 @@ import "./Diagrams.css";
 const W = 820;
 const H = 440;
 
+/* ── Act 0: why any of this matters ─────────────────────────────────────── */
+
+/**
+ * The cold open.
+ *
+ * The piece used to begin with a car, which asks the reader to care about a
+ * mechanism before they have been given a reason to. This starts at the other
+ * end: a chain with one narrow point in it, a date on which that point was
+ * closed part-way, and the consequence downstream. Only after that is there a
+ * reason to look at the motor at all.
+ */
+function WhyItMatters({ state }: { state: string }) {
+  const stages = [
+    { id: "mine", label: "Mine", detail: "ore out of the ground" },
+    { id: "refine", label: "Separate", detail: "elements pulled apart" },
+    { id: "magnet", label: "Sinter", detail: "NdFeB magnet blocks" },
+    { id: "motor", label: "Motor", detail: "1–2 kg per traction motor" },
+    { id: "car", label: "Car", detail: "the only part that turns" },
+  ];
+
+  const gated = state === "the-halt";
+  const laneY = 208;
+  const laneH = 58;
+  const step = (W - 40) / stages.length;
+
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="The rare-earth magnet chain and where it narrows">
+      <text className="d-axis-label" x={0} y={16}>
+        From ore to the only part of the car that turns
+      </text>
+
+      {/* The chain itself. It narrows after the gate, which is the whole point. */}
+      {stages.map((stage, i) => {
+        const x = 8 + i * step;
+        const past = i >= 2;
+        const h = gated && past ? laneH * 0.42 : laneH;
+        return (
+          <g key={stage.id}>
+            <rect
+              className={gated && past ? "d-fill--warn-soft" : "d-fill--mute"}
+              x={x}
+              y={laneY + (laneH - h) / 2}
+              width={step - 26}
+              height={h}
+            />
+            <text className="d-label d-label--strong" x={x + 12} y={laneY + laneH + 26}>
+              {stage.label}
+            </text>
+            <text className="d-label d-label--faint" x={x + 12} y={laneY + laneH + 44}>
+              {stage.detail}
+            </text>
+            {i < stages.length - 1 && (
+              <path
+                className="d-rule"
+                d={`M ${x + step - 24} ${laneY + laneH / 2} L ${x + step - 6} ${laneY + laneH / 2}`}
+              />
+            )}
+          </g>
+        );
+      })}
+
+      {/* The gate sits between separation and sintering, where the licence bites. */}
+      <g transform={`translate(${8 + 2 * step - 15}, 0)`}>
+        <path
+          className={gated ? "d-curve--warn d-curve" : "d-rule d-rule--dash"}
+          d={`M 0 ${laneY - 22} L 0 ${laneY + laneH + 8}`}
+        />
+        <text
+          className={`d-label ${gated ? "d-label--warn" : "d-label--faint"}`}
+          x={6}
+          y={laneY - 30}
+        >
+          {gated ? "export licence required" : "one narrow point"}
+        </text>
+      </g>
+
+      {state === "the-halt" ? (
+        <g>
+          <text className="d-value d-value--big d-label--warn" x={0} y={72}>
+            4 April 2025
+          </text>
+          <text className="d-label d-label--strong" x={0} y={100}>
+            China placed the listed medium and heavy rare earths under export licence.
+          </text>
+          <text className="d-label" x={0} y={122}>
+            Carmakers holding no second source paused assembly while the paperwork caught up.
+          </text>
+          <text className="d-label d-label--faint" x={0} y={340}>
+            A licence gate, not a ban — but a motor programme cannot wait on paperwork it does not control.
+          </text>
+        </g>
+      ) : (
+        <g>
+          <text className="d-value d-value--big" x={0} y={72}>
+            Every electric car sits at the end of this chain
+          </text>
+          <text className="d-label" x={0} y={100}>
+            Around 70–80% of EV traction motors are permanent-magnet machines, as reported,
+          </text>
+          <text className="d-label" x={0} y={122}>
+            and each one carries a magnet made from these elements.
+          </text>
+          <text className="d-label d-label--faint" x={0} y={340}>
+            Which is why a change at one point in the chain reaches all the way to the wheels.
+          </text>
+        </g>
+      )}
+    </svg>
+  );
+}
+
 /* ── Act 0: where the magnet comes from ─────────────────────────────────── */
 
 function SupplyConcentration({ state }: { state: string }) {
@@ -623,6 +734,7 @@ export function Diagram({
 }) {
   return (
     <div className="diagram">
+      {id === "why-it-matters" && <WhyItMatters state={stateId} />}
       {id === "supply-concentration" && <SupplyConcentration state={stateId} />}
       {id === "demag-curve" && <DemagCurve controls={controls} state={stateId} />}
       {id === "magnet-composition" && <MagnetComposition state={stateId} />}

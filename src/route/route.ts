@@ -18,6 +18,7 @@ export type StageKind =
   | { kind: "svg"; diagram: DiagramId };
 
 export const diagramIds = [
+  "why-it-matters",
   "supply-concentration",
   "demag-curve",
   "magnet-composition",
@@ -76,46 +77,62 @@ export const STOPS: readonly Stop[] = [
     number: 1,
     title: "One kilogram decides the car",
     question: "Why is a small mass of magnet a supply-chain problem?",
-    stage: { kind: "three", scene: "car" },
+    /*
+     * Sequencing matters more here than anywhere else in the piece. The reader
+     * meets the stakes before the machine: what happened, why it could happen,
+     * and only then where in a car the affected part actually sits. Opening on
+     * a car asks someone to care about a mechanism before they have been given
+     * a reason to.
+     */
+    stage: { kind: "svg", diagram: "why-it-matters" },
     claimIds: [
-      "illustrative-magnet-composition",
       "hree-controls-distinct-from-ndpr",
+      "supply-concentration-reported",
+      "pmsm-share-of-traction",
+      "illustrative-magnet-composition",
       "market-rare-earth-free-share-small",
     ],
     coversStepIds: ["car-transparent-cutaway", "market-early-share"],
     states: [
       {
-        id: "the-motor-in-the-car",
-        label: "The part that moves the car",
-        line: "One drive unit near an axle turns the wheels. Everything else in the car exists to feed it or carry it.",
-        action: "Rotate the car. Tap the drive unit.",
+        id: "the-halt",
+        label: "In April 2025, the supply was gated",
+        line: "China placed the listed medium and heavy rare earths under export licence, and carmakers holding no second source paused assembly while the paperwork caught up.",
+        action: "Follow the chain to the point that closed.",
       },
       {
-        id: "the-magnet-inside",
-        label: "One to two kilograms of magnet",
-        line: "Roughly 70% of EV traction motors put permanent magnets on the spinning rotor, and those magnets are neodymium-iron-boron.",
-        action: "Look at the rotor the drive unit turns on.",
+        id: "the-chain",
+        label: "Every electric car sits at the end of that chain",
+        line: "Around 70–80% of EV traction motors are permanent-magnet machines, as reported, and each one carries a magnet made from those elements.",
+        action: "Read the chain end to end.",
+      },
+      {
+        id: "the-chokepoint",
+        label: "And the chain has one owner",
+        line: "China is reported to hold roughly 60% of mining, over 90% of refining, and about 94% of the high-performance magnets traction motors need.",
+        action: "Compare the three stages.",
+        stage: { kind: "svg", diagram: "supply-concentration" },
+      },
+      {
+        id: "one-part",
+        label: "All of it lands on one part of the car",
+        line: "Battery, body, suspension and interior are unaffected. The exposure sits entirely in the drive unit near the axle.",
+        action: "Find the drive unit.",
+        stage: { kind: "three", scene: "car" },
+      },
+      {
+        id: "one-kilogram",
+        label: "One to two kilograms of it",
+        line: "Inside that unit, on the spinning rotor, sits the magnet the whole dependency is about. It weighs about as much as a laptop.",
+        action: "Look at the rotor.",
         stage: { kind: "three", scene: "motor", rotor: "ipm-ndfeb" },
-      },
-      {
-        id: "who-makes-it",
-        label: "Where that magnet comes from",
-        line: "China refines over 90% of rare earths and makes about 94% of the high-performance NdFeB magnets traction motors need.",
-        action: "Follow the supply bar.",
-        stage: { kind: "svg", diagram: "supply-concentration" },
-      },
-      {
-        id: "the-control",
-        label: "April 2025",
-        line: "China's Announcement No. 18 placed medium and heavy rare earths under export licence, and assembly lines that had no second source stopped.",
-        action: "Read the notice scope.",
-        stage: { kind: "svg", diagram: "supply-concentration" },
       },
       {
         id: "the-real-question",
         label: "So what can actually be changed?",
         line: "Answering that needs three things: what the motor does, what the magnet does inside it, and which rare earth the notice actually named.",
         action: "Open the machine.",
+        stage: { kind: "three", scene: "motor", rotor: "ipm-ndfeb" },
       },
     ],
   },

@@ -89,7 +89,7 @@ export default function App() {
       isolate:
         state.id === "stator" ? "stator" : state.id === "rotor" ? "rotor" : "none",
       activePhase: state.id === "one-phase" ? 0 : null,
-      extract: state.id === "drive-unit" ? 0.6 : 0,
+      extract: state.id === "drive-unit" ? 0.6 : state.id === "one-part" ? 0.25 : 0,
       fieldLive: true,
       load:
         state.id === "load-angle" || state.id === "slip" ? 0.6
