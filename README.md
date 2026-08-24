@@ -3,11 +3,10 @@
 A guided, interactive explanation of why EV traction motors depend on rare-earth
 magnets, what those magnets actually do, and what the alternatives cost.
 
-The tour opens on the problem — motors use NdFeB magnets, that supply is
-concentrated, and China's April 2025 Announcement No. 18 put the heavy rare
-earths under export licence — and only then opens the machine, because none of
-the proposed alternatives can be judged without knowing what the magnet is doing
-in there.
+The tour opens with a distinct editorial brief on the constraint — refining,
+dashboard Group 2 exposure and China's April 2025 Announcement No. 18 — then
+moves into the guided machine tour. None of the proposed alternatives can be
+judged without knowing what the magnet is doing in there.
 
 ## Structure
 
@@ -25,7 +24,7 @@ Twelve stops in four acts, each holding several touchable states:
 
 The editorial layer and the presentation layer are deliberately separate.
 
-- `src/content/` — the evidence layer. 57 atomic claims with sources, scope,
+- `src/content/` — the evidence layer. 58 atomic claims with sources, scope,
   denominators and caveats (`claims.ts`), per-claim display rules
   (`evidenceAudit.ts`), composable motor configurations on five independent axes
   (`schema.ts`, `motors.ts`), and a validator (`validation.ts`). Nothing reaches
@@ -34,6 +33,8 @@ The editorial layer and the presentation layer are deliberately separate.
 - `src/route/` — the twelve stops, their states, and the copy lint. `copyLint.ts`
   rejects hedges, empty instructions and figures without their condition; it runs
   in the test suite, so slop fails the build rather than a review.
+- `src/route/guide.ts` — one look-for, takeaway and forward handoff per stop
+  state. A route test fails if a new scene is added without tour guidance.
 - `src/stage/` — one persistent WebGL canvas for the whole tour. The motor is a
   parametric assembly built from extruded profiles (`geometry.ts`), not
   primitives: a 48-slot lamination stack with swept hairpin windings, a cast
@@ -43,7 +44,21 @@ The editorial layer and the presentation layer are deliberately separate.
   own constants, so it is deterministic and unit-tested rather than measured off
   the live scene.
 - `src/diagrams/` — the SVG kit for the abstract stops, in the same tokens.
+- `src/models/alternativeLab.ts` — the five-route architecture comparison,
+  including physical cost drivers, company evidence lanes and India/abroad
+  presence drawn from the supplied ledger.
+- `src/models/materialLab.ts` — the NdFeB/ferrite/iron-nitride comparison,
+  material gates, supply-cost questions and named R&D records.
 - `src/models/` — pure state and physics helpers, testable without a renderer.
+
+### Narrative density
+
+The route favours fewer, denser scenes over fragmented slides. Stop 7 combines
+thermal stress, nucleation, the dysprosium trade-off and grain-boundary
+diffusion into four states. Stop 10 compares five rotor routes in eight states;
+stop 11 compares material chemistries in eight. Each state carries a tested
+"look for / takeaway / next" guide so interaction explains mechanism rather than
+pacing the reader through fragments.
 
 ### Where the "just swap the rotor" model stops being true
 

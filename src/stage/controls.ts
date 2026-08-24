@@ -11,6 +11,14 @@ export type StageControls = {
   load: number;
   /** Rotor temperature, 0 = 20 °C, 1 = 180 °C. */
   heat: number;
+  /** Dysprosium lesson, normalised for the teaching curve. */
+  dysprosium: number;
+  /** Depth of the grain-boundary diffusion shell. */
+  diffusion: number;
+  /** Progress of surface-nucleated demagnetisation through a grain. */
+  nucleation: number;
+  /** Counter-current spent to weaken a permanent-magnet field. */
+  weakening: number;
   isolate: "none" | "stator" | "rotor";
   activePhase: number | null;
   /** False models the inverter gated off at speed. */
@@ -24,6 +32,10 @@ export const DEFAULT_CONTROLS: StageControls = {
   angle: 0,
   load: 0.35,
   heat: 0.2,
+  dysprosium: 0,
+  diffusion: 0,
+  nucleation: 0,
+  weakening: 0,
   isolate: "none",
   activePhase: null,
   fieldLive: true,

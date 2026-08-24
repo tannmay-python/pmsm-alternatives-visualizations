@@ -61,6 +61,279 @@
 
 .d-bar { transition: width var(--dur) var(--ease), height var(--dur) var(--ease), y var(--dur) var(--ease); }
 
+/* Alternatives laboratory ------------------------------------------------ */
+
+.alt-lab {
+  display: grid;
+  gap: var(--gap-3);
+  align-self: start;
+  width: min(920px, 100%);
+  padding: var(--gap-4);
+  overflow: auto;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.alt-lab__tabs {
+  display: flex;
+  gap: 4px;
+}
+
+.lab-tab {
+  flex: 1;
+  min-height: 34px;
+  padding: 7px 8px;
+  border: 1px solid var(--line-strong);
+  color: var(--text-muted);
+  font-size: var(--t-micro);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  transition: all var(--dur) var(--ease);
+}
+
+.lab-tab:hover { border-color: var(--steel-300); color: var(--text); }
+.lab-tab.is-on { border-color: var(--accent); background: var(--accent-wash); color: var(--accent-strong); }
+
+.alt-compare {
+  display: grid;
+  gap: 3px;
+  padding-bottom: var(--gap-3);
+  border-bottom: 1px solid var(--line);
+}
+
+.alt-compare__row {
+  display: grid;
+  grid-template-columns: 180px repeat(5, minmax(0, 1fr));
+  gap: 4px;
+  align-items: center;
+}
+
+.alt-compare__row > span {
+  color: var(--text-muted);
+  font-size: 10px;
+  line-height: 1.2;
+}
+
+.alt-compare__row--head > span {
+  color: var(--text-faint);
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.alt-compare__row--head .is-active,
+.alt-compare__cell.is-active { color: var(--accent-strong); }
+
+.alt-compare__cell {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.alt-compare__cell i {
+  width: 10px;
+  height: 4px;
+  background: var(--paper-300);
+}
+
+.alt-compare__cell i.is-on { background: var(--accent-dim, #6f9414); }
+.alt-compare__cell.is-active i.is-on { background: var(--accent); }
+.alt-compare__cell small {
+  margin-left: 3px;
+  color: var(--text-faint);
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
+}
+
+.alt-compare > p {
+  margin: 3px 0 0;
+  color: var(--text-faint);
+  font-size: 10px;
+}
+
+.alt-lab__head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: var(--gap-4);
+  padding-bottom: var(--gap-3);
+  border-bottom: 1px solid var(--line);
+}
+
+.alt-lab__head h3 {
+  margin: 5px 0 6px;
+  font-size: 1.25rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.alt-lab__head p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--t-small);
+  line-height: 1.5;
+}
+
+.alt-lab__metric {
+  display: grid;
+  align-content: center;
+  gap: 4px;
+  padding: var(--gap-3);
+  border-left: 2px solid var(--accent);
+  background: var(--paper-000);
+}
+
+.alt-lab__metric span { color: var(--text-faint); font-size: var(--t-micro); text-transform: uppercase; letter-spacing: 0.08em; }
+.alt-lab__metric strong { color: var(--accent-strong); font-size: 1rem; line-height: 1.15; }
+.alt-lab__metric small { color: var(--text-muted); line-height: 1.45; }
+
+.alt-lab__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--gap-3);
+}
+
+.alt-lab__panel {
+  padding: var(--gap-3);
+  border: 1px solid var(--line);
+  background: var(--paper-000);
+}
+
+.alt-lab__panel h4 {
+  margin: 0 0 var(--gap-2);
+  color: var(--text-faint);
+  font-size: var(--t-micro);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.alt-lab__panel ul { margin: 0; padding-left: 16px; display: grid; gap: 5px; color: var(--text-muted); font-size: var(--t-small); }
+.alt-lab__panel dl { margin: 0; display: grid; gap: var(--gap-2); }
+.alt-lab__panel dl div { display: grid; gap: 2px; }
+.alt-lab__panel dt { color: var(--text-faint); font-size: 10px; letter-spacing: 0.07em; text-transform: uppercase; }
+.alt-lab__panel dd { margin: 0; color: var(--text-muted); font-size: var(--t-small); line-height: 1.5; }
+
+.company-list { display: grid !important; padding-left: 0 !important; list-style: none !important; }
+.company-list li {
+  display: grid;
+  gap: 1px;
+  padding-bottom: 7px;
+  margin-bottom: 7px;
+  border-bottom: 1px solid var(--line);
+}
+.company-list li:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: 0; }
+.company-list strong { color: var(--text); font-size: var(--t-small); font-weight: 600; }
+.company-list span { color: var(--text-muted); font-size: var(--t-micro); line-height: 1.35; }
+.company-list em { color: var(--accent-strong); font-style: normal; font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; }
+
+.alt-lab__note {
+  margin: 0;
+  padding-left: 9px;
+  border-left: 2px solid var(--warn);
+  color: var(--warn);
+  font-size: var(--t-micro);
+  line-height: 1.45;
+}
+
+/* Material and R&D laboratory -------------------------------------------- */
+
+.lab-tab-row {
+  display: flex;
+  gap: 4px;
+}
+
+.material-compare__row {
+  display: grid;
+  grid-template-columns: 180px repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  align-items: center;
+}
+
+.material-compare__row > span {
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+.material-compare__row--head > span {
+  color: var(--text-faint);
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.material-compare__cell {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.material-compare__cell i {
+  width: 12px;
+  height: 4px;
+  background: var(--paper-300);
+}
+
+.material-compare__cell i.is-on { background: #6f9414; }
+.material-compare__cell.is-active i.is-on { background: var(--accent); }
+.material-compare__cell small {
+  margin-left: 3px;
+  color: var(--text-faint);
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
+}
+
+.property-list dd {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  align-items: center;
+  gap: var(--gap-2);
+}
+
+.property-list .meter {
+  height: 5px;
+  background: var(--paper-300);
+}
+
+.property-list .meter i {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+
+.conductor-reference {
+  padding-top: var(--gap-3);
+  border-top: 1px solid var(--line);
+}
+
+.conductor-reference h4 {
+  margin: 0 0 var(--gap-2);
+  color: var(--text-faint);
+  font-size: var(--t-micro);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.conductor-reference__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--gap-3);
+}
+
+.conductor-reference__grid div {
+  display: grid;
+  gap: 3px;
+}
+
+.conductor-reference strong { color: var(--text); font-size: var(--t-small); }
+.conductor-reference span { color: var(--text-muted); font-size: var(--t-micro); line-height: 1.45; }
+.conductor-reference p {
+  margin: var(--gap-2) 0 0;
+  color: var(--text-faint);
+  font-size: var(--t-micro);
+  line-height: 1.45;
+}
+
 .diagram-note {
   max-width: 62ch;
   margin: var(--gap-4) auto 0;
@@ -74,4 +347,12 @@
   /* On a stacked layout the diagram should sit at the top of its panel rather
      than floating in the middle of a tall, mostly empty box. */
   .diagram { place-items: start center; padding: var(--gap-4); }
+  .alt-lab__head,
+  .alt-lab__grid { grid-template-columns: minmax(0, 1fr); }
+  .conductor-reference__grid { grid-template-columns: minmax(0, 1fr); }
+  .alt-compare { overflow-x: auto; }
+  .alt-compare__row { min-width: 520px; }
+.material-compare,
+.material-lab { overflow-x: auto; }
+  .material-compare__row { min-width: 420px; }
 }

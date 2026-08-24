@@ -788,6 +788,21 @@ const rawClaims = [
     needsVerification: false,
   },
   {
+    id: "india-reluctance-development-lane",
+    statement:
+      "The supplied due-diligence ledger places Chara Technologies, Viridian Ingni Propulsion and Matel Motion and Energy Solutions in Indian reluctance or hybrid-ferrite development and pilot lanes.",
+    sourceIds: [dueDiligence],
+    sourceType: "teaching-model",
+    evidenceStatus: "qualified",
+    renderingPolicy: "show-with-condition",
+    date: "2026-08-09",
+    market: "light-mobility",
+    qualifier: "reported",
+    denominator: "company records in the supplied due-diligence ledger",
+    caveat: "These are not production passenger-car traction claims; product scope and maturity stay attached to each name.",
+    needsVerification: true,
+  },
+  {
     id: "named-company-corrections",
     statement:
       "Public company material places Naxatra in radial/axial-flux motor work, Gati in appliance/HVAC use, EKMO in industrial ferrite drives, Conifer in 0.5–7.5 kW ferrite axial applications, and MAHLE SCT as permanently excited rather than magnet-free.",

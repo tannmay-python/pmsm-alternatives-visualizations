@@ -9,7 +9,7 @@ import {
   housingShape,
   laminationGeometry,
 } from "./geometry";
-import { makeMaterials } from "./materials";
+import { PALETTE, makeMaterials } from "./materials";
 import { Stator } from "./Stator";
 import { SalientStator } from "./SalientStator";
 import { Rotor } from "./rotors/Rotors";
@@ -31,6 +31,12 @@ export type MotorProps = {
   intensity?: number;
   fieldLive?: boolean;
   showWindings?: boolean;
+  /** Shaft load, 0–1. Opens the angle by which the rotor trails the field. */
+  load?: number;
+  /** False freezes a single stationary phase pole while its coil stays energised. */
+  fieldSpinning?: boolean;
+  /** Teaching overlay drawn in the front-plane air gap. */
+  fieldLesson?: "none" | "fixed" | "sweep" | "lock";
   /**
    * Drops the housing, end caps and bearings. Anything taught about the field
    * or the torque happens across the air gap, and the casing is in the way.
@@ -119,6 +125,65 @@ function Bearing({ z }: { z: number }) {
   );
 }
 
+function FieldPointer({
+  color,
+  length,
+}: {
+  color: string;
+  length: number;
+}) {
+  return (
+    <group>
+      <mesh
+        position={[length * 0.5, 0, MOTOR.stackLength / 2 + 0.025]}
+        rotation={[0, 0, -Math.PI / 2]}
+      >
+        <cylinderGeometry args={[0.012, 0.012, length, 10]} />
+        <meshBasicMaterial color={color} />
+      </mesh>
+      <mesh
+        position={[length + 0.035, 0, MOTOR.stackLength / 2 + 0.025]}
+        rotation={[0, 0, -Math.PI / 2]}
+      >
+        <coneGeometry args={[0.038, 0.09, 14]} />
+        <meshBasicMaterial color={color} />
+      </mesh>
+
+      <mesh position={[0, 0, MOTOR.stackLength / 2 + 0.025]}>
+        <circleGeometry args={[0.055, 16]} />
+        <meshBasicMaterial color={color} />
+      </mesh>
+    </group>
+  );
+}
+
+/**
+ * The green pointer is the resultant stator-field axis. The orange pointer is
+ * the rotor-magnet axis. Keeping both in one rotating group makes their fixed
+ * angular separation visible without asking the reader to infer it.
+ */
+function FieldLesson({ mode, trail = 0 }: { mode: "fixed" | "sweep" | "lock"; trail?: number }) {
+  const showTrail = mode === "lock" && trail > 0.04;
+
+  return (
+    <group>
+      <FieldPointer color={PALETTE.accent} length={MOTOR.rotorOuter * 0.78} />
+
+      {showTrail && (
+        <group rotation={[0, 0, -trail]}>
+          <mesh position={[0, 0, MOTOR.stackLength / 2 + 0.024]}>
+            <torusGeometry args={[MOTOR.rotorOuter * 0.52, 0.008, 8, 32, trail]} />
+            <meshBasicMaterial color={PALETTE.warn} />
+          </mesh>
+          <group>
+            <FieldPointer color={PALETTE.warn} length={MOTOR.rotorOuter * 0.58} />
+          </group>
+        </group>
+      )}
+    </group>
+  );
+}
+
 export function Motor({
   rotor,
   explode,
@@ -131,6 +196,9 @@ export function Motor({
   intensity = 0,
   fieldLive = true,
   showWindings = true,
+  load = 0.35,
+  fieldSpinning = true,
+  fieldLesson = "none",
   cutaway = false,
   dimStator = false,
   excitation = "brushed",
@@ -139,19 +207,24 @@ export function Motor({
   const rotorRef = useRef<THREE.Group>(null);
   const fieldRef = useRef<THREE.Group>(null);
   const spun = useRef(0);
+  const fieldSpun = useRef(0);
+  const isCage = rotor === "squirrel-cage";
+  const loadAngle = slip * (isCage ? 1 : 0.25) + load * (isCage ? 0.34 : 0.26);
 
   useFrame((_, delta) => {
     if (spinning) spun.current += delta * 1.1;
-    const fieldAngle = angle + spun.current;
-    if (fieldRef.current) fieldRef.current.rotation.z = fieldAngle;
+    if (fieldSpinning) fieldSpun.current += delta * 1.1;
+    const effectiveFieldAngle = angle + (fieldSpinning ? fieldSpun.current : 0);
+    if (fieldRef.current) fieldRef.current.rotation.z = effectiveFieldAngle;
     // The cage always trails the field; a synchronous rotor sits at a fixed
     // load angle behind it but turns at exactly field speed.
-    if (rotorRef.current) rotorRef.current.rotation.z = fieldAngle * (1 - slip);
+    if (rotorRef.current) rotorRef.current.rotation.z = effectiveFieldAngle - loadAngle;
   });
 
   const statorHidden = isolate === "rotor";
   const rotorHidden = isolate === "stator";
   const showCasing = !cutaway && !statorHidden;
+  const showShaft = isolate !== "stator";
 
   return (
     <group>
@@ -205,18 +278,24 @@ export function Motor({
         </group>
       )}
 
-      <mesh
-        material={materials.shaft}
-        position={[0, 0, explodeZ("shaft", explode)]}
-        rotation={[Math.PI / 2, 0, 0]}
-        castShadow
-      >
-        <cylinderGeometry
-          args={[MOTOR.shaftRadius, MOTOR.shaftRadius, MOTOR.housingLength * 1.85, 28]}
-        />
-      </mesh>
+      {showShaft && (
+        <mesh
+          material={materials.shaft}
+          position={[0, 0, explodeZ("shaft", explode)]}
+          rotation={[Math.PI / 2, 0, 0]}
+          castShadow
+        >
+          <cylinderGeometry
+            args={[MOTOR.shaftRadius, MOTOR.shaftRadius, MOTOR.housingLength * 1.85, 28]}
+          />
+        </mesh>
+      )}
 
-      <group ref={fieldRef} />
+      <group ref={fieldRef}>
+        {fieldLesson !== "none" && (
+          <FieldLesson mode={fieldLesson === "lock" ? "lock" : fieldLesson} trail={loadAngle} />
+        )}
+      </group>
     </group>
   );
 }

@@ -197,6 +197,13 @@ export function Controls({
               { id: "rotor", label: "Rotor only" },
             ]}
           />
+          {controls.isolate !== "none" && (
+            <p className="control-note">
+              {controls.isolate === "stator"
+                ? "Only the stationary steel ring and copper groups remain. The rotor is hidden so the winding layout is unobstructed."
+                : "Only the spinning assembly remains. Its magnets are buried in steel laminations and keyed to the shaft."}
+            </p>
+          )}
         </>
       )}
 
@@ -236,20 +243,31 @@ export function Controls({
         />
       )}
 
-      {stop.id === "strength-and-stubbornness" &&
-        (state.id === "coercivity" || state.id === "anisotropy") && (
+      {stop.id === "strength-and-stubbornness" && state.id === "coercivity" && (
           <Slider
             label="Reverse field"
             value={controls.load}
             onChange={(load) => set({ load })}
             low="none"
             high="enough to flip it"
-            readout={controls.load > 0.78 ? "reversed" : "holding"}
+            readout={`${Math.round(controls.load * 100)}% of flip threshold`}
           />
-        )}
+      )}
 
-      {stop.id === "heat-and-the-patch" && (
-        <>
+      {stop.id === "strength-and-stubbornness" && state.id === "anisotropy" && (
+        <Slider
+          label="Crystal easy axis"
+          value={controls.angle / Math.PI}
+          onChange={(value) => set({ angle: value * (Math.PI / 2) })}
+          low="aligned"
+          high="hard axis"
+          readout={`${Math.round((controls.angle * 180) / (Math.PI / 2))}°`}
+        />
+      )}
+
+      {stop.id === "heat-and-the-patch" &&
+        state.id === "hot-margin" && (
+          <>
           <Slider
             label="Rotor temperature"
             value={controls.heat}
@@ -268,6 +286,48 @@ export function Controls({
         </>
       )}
 
+      {stop.id === "heat-and-the-patch" &&
+        state.id === "reversal-start" && (
+          <Slider
+            label="Reversal progression"
+            value={controls.nucleation}
+            onChange={(nucleation) => set({ nucleation })}
+            low="healthy grain"
+            high="cooled loss"
+            readout={
+              controls.nucleation < 0.25
+                ? "surface stress"
+                : controls.nucleation < 0.72
+                  ? "sweeping inward"
+                  : "permanent loss"
+            }
+          />
+        )}
+
+      {stop.id === "heat-and-the-patch" &&
+        state.id === "dysprosium-tradeoff" && (
+          <Slider
+            label="Dysprosium added"
+            value={controls.dysprosium}
+            onChange={(dysprosium) => set({ dysprosium })}
+            low="none"
+            high="high"
+            readout={`${Math.round(controls.dysprosium * 100)}% of lesson range`}
+          />
+        )}
+
+      {stop.id === "heat-and-the-patch" &&
+        state.id === "diffusion-evolution" && (
+          <Slider
+            label="Diffusion depth"
+            value={controls.diffusion}
+            onChange={(diffusion) => set({ diffusion })}
+            low="thin shell"
+            high="deep shell"
+            readout={`${Math.round(controls.diffusion * 100)}%`}
+          />
+        )}
+
       {stop.id === "which-rare-earth" && (
         <Slider
           label="Mitigation rung"
@@ -275,23 +335,37 @@ export function Controls({
           onChange={(load) => set({ load })}
           low="cool the rotor"
           high="new architecture"
-          readout={`${Math.min(5, Math.round(controls.load * 4) + 1)} of 5`}
+          readout={["cooling", "GBD", "HREE-free", "new magnet", "new architecture"][
+            Math.round(controls.load * 4)
+          ]}
         />
       )}
 
       {stop.id === "the-weakness" && (
-        <Slider
-          label="Rotor speed"
-          value={controls.load}
-          onChange={(load) => set({ load })}
-          low="standstill"
-          high="motorway"
-          readout={`${Math.round(controls.load * 100)}%`}
-        />
+        <>
+          <Slider
+            label="Rotor speed"
+            value={controls.load}
+            onChange={(load) => set({ load })}
+            low="standstill"
+            high="motorway"
+            readout={`${Math.round(controls.load * 100)}%`}
+          />
+          {(state.id === "field-weakening" || state.id === "fault") && (
+            <Slider
+              label="Counter-current"
+              value={controls.weakening}
+              onChange={(weakening) => set({ weakening })}
+              low="none"
+              high="maximum"
+              readout={`${Math.round(controls.weakening * 100)}%`}
+            />
+          )}
+        </>
       )}
 
       {stop.id === "change-the-magnet" &&
-        (state.id === "ferrite-fix" || state.id === "axial-is-geometry") && (
+        (state.id === "compensate-geometry" || state.id === "independent-geometry") && (
           <Slider
             label="Separate the discs"
             value={controls.explode}

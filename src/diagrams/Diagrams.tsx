@@ -1,4 +1,12 @@
-import { MITIGATION_RUNGS, MOTOR_FAMILIES, calculateBackEmfHeight } from "../models/exposure";
+import { useEffect, useState } from "react";
+import {
+  MITIGATION_RUNGS,
+  calculateBackEmfHeight,
+  calculateFieldWeakeningVectors,
+  getMitigationFootprintInfo,
+} from "../models/exposure";
+import { architectureLabs, rotorToAlternativeFamily } from "../models/alternativeLab";
+import { materialIdForState, materialLabs } from "../models/materialLab";
 import { burdenRoutes, architectureOptions, architectureStates, type ArchitectureId } from "../models/swapBurden";
 import type { DiagramId } from "../route/route";
 import type { StageControls } from "../stage/controls";
@@ -192,22 +200,36 @@ function DemagCurve({ controls, state }: { controls: StageControls; state: strin
   const h = 290;
 
   // Heat only enters the picture once the lesson is about heat.
-  const heat = state === "heat-cuts-coercivity" || state === "two-stresses" ? controls.heat : 0;
-  const reverse = state === "two-stresses" || state === "coercivity" ? controls.load : 0;
+  const heat =
+    state === "hot-margin" || state === "dysprosium-tradeoff"
+      ? controls.heat
+      : 0;
+  const reverse = state === "hot-margin" || state === "coercivity" ? controls.load : 0;
+  const dysprosium = state === "dysprosium-tradeoff" ? controls.dysprosium : 0;
 
-  const path = (br: number, hc: number) => {
+  const path = (br: number, hcInput: number) => {
     const top = y0 + h - br * h;
-    const knee = x0 + hc * w * 0.78;
-    return `M ${x0} ${top} L ${knee} ${top - 4} Q ${x0 + hc * w} ${top} ${x0 + hc * w} ${y0 + h}`;
+    const hc = Math.min(1.08, hcInput);
+    const knee = x0 + Math.min(w, hc * w * 0.78);
+    return `M ${x0} ${top} L ${knee} ${top - 4} Q ${x0 + hc * w} ${top} ${x0 + Math.min(w, hc * w)} ${y0 + h}`;
   };
 
   const compare = state === "division-of-labour";
   const shown: AlloyKey[] = compare ? ["ndfeb", "iron", "neodymium"] : ["ndfeb"];
 
-  const br = 1 - heat * 0.18;
-  const hc = 1 - heat * 0.55;
+  const br = Math.max(0.2, 1 - heat * 0.18 - dysprosium * 0.22);
+  const hc = Math.min(1.08, (1 - heat * 0.55) * (1 + dysprosium * 0.45));
   const reverseX = x0 + reverse * w;
-  const past = reverse > hc * 0.78;
+  const flipThreshold = hc * 0.78;
+  const past = state !== "anisotropy" && reverse >= flipThreshold;
+  const margin = Math.max(0, flipThreshold - reverse);
+
+  const axisTurn = (controls.angle % (Math.PI / 2)) / (Math.PI / 2);
+  const hardAxisEnergy = Math.sin(Math.min(Math.PI, Math.abs(controls.angle))) ** 2;
+  const axisX = x0 + w - 92;
+  const axisY = y0 + 74;
+  const axisRadius = 34;
+  const axisEnd = [axisX - Math.cos(axisTurn * Math.PI) * axisRadius, axisY - Math.sin(axisTurn * Math.PI) * axisRadius];
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Demagnetisation curve showing remanence and coercivity">
@@ -239,13 +261,36 @@ function DemagCurve({ controls, state }: { controls: StageControls; state: strin
         );
       })}
 
+      {/* The anisotropy lesson needs an orientation dial, not another curve. */}
+      {state === "anisotropy" && (
+        <g>
+          <circle className="d-fill--mute" cx={axisX} cy={axisY} r={axisRadius} />
+          <path className="d-curve d-curve--warn" d={`M ${axisX - 44} ${axisY} L ${axisX + 44} ${axisY}`} />
+          <text className="d-label d-label--faint" x={axisX + 50} y={axisY + 4}>reverse field</text>
+          <path
+            className="d-rule"
+            style={{ stroke: "var(--accent)" }}
+            d={`M ${axisX} ${axisY} L ${axisEnd[0]} ${axisEnd[1]}`}
+          />
+          <circle className="d-fill--accent" cx={axisEnd[0]} cy={axisEnd[1]} r={3} />
+          <text className="d-label" x={axisX - axisRadius - 8} y={axisY + axisRadius + 24}>
+            easy axis · {Math.round(axisTurn * 180)}° from field
+          </text>
+          <rect className="d-fill--mute" x={axisX - axisRadius} y={axisY + axisRadius + 32} width={axisRadius * 2} height={7} />
+          <rect className={`d-bar ${hardAxisEnergy > 0.72 ? "d-fill--warn" : "d-fill--accent"}`} x={axisX - axisRadius} y={axisY + axisRadius + 32} width={axisRadius * 2 * hardAxisEnergy} height={7} />
+          <text className="d-label d-label--faint" x={axisX - axisRadius} y={axisY + axisRadius + 58}>
+            energy cost of turning the easy axis away from the field
+          </text>
+        </g>
+      )}
+
       {/* Each state points at the part of the curve it is actually about. */}
       {(state === "remanence" || state === "division-of-labour") && (
         <Leader from={[x0, y0 + h - br * h]} to={[x0 + w + 16, y0 + 20]} accent>
           remanence — what is left with no help
         </Leader>
       )}
-      {(state === "coercivity" || state === "anisotropy" || state === "division-of-labour") && (
+      {(state === "coercivity" || state === "division-of-labour") && (
         <Leader from={[x0 + hc * w * 0.9, y0 + h]} to={[x0 + w + 16, y0 + h - 16]} accent>
           coercivity — what it takes to undo it
         </Leader>
@@ -264,9 +309,21 @@ function DemagCurve({ controls, state }: { controls: StageControls; state: strin
         </g>
       )}
 
+      {(state === "hot-margin" || state === "dysprosium-tradeoff") && !past && (
+        <g>
+          <path
+            className="d-rule d-rule--dash"
+            d={`M ${Math.min(x0 + w, x0 + flipThreshold * w)} ${y0 + h - 12} L ${Math.min(x0 + w, x0 + reverse * w)} ${y0 + h - 12}`}
+          />
+          <text className="d-label d-label--accent" x={x0 + 8} y={y0 + h - 20}>
+            remaining margin before reversal: {Math.round((margin / flipThreshold) * 100)}%
+          </text>
+        </g>
+      )}
+
       <text className="d-label d-label--faint" x={x0} y={y0 + h + 46}>
         {state === "anisotropy"
-          ? "Neodymium's crystal strongly prefers one magnetisation axis, and that preference is the whole of the resistance."
+          ? "The green needle is the crystal's preferred magnetisation direction. Moving it away from the reverse field raises the energy needed to reverse the magnet."
           : state === "division-of-labour"
             ? "Iron supplies the height of the curve. Neodymium supplies its reach to the right. Neither element does both."
             : heat > 0.02
@@ -277,10 +334,85 @@ function DemagCurve({ controls, state }: { controls: StageControls; state: strin
   );
 }
 
-function MagnetComposition({ state }: { state: string }) {
-  const gbd = state === "gbd" || state === "composition";
+function MagnetComposition({ controls, state }: { controls: StageControls; state: string }) {
+  const gbd = state === "diffusion-evolution";
+
+  if (state === "reversal-start") {
+    const progress = Math.max(0, Math.min(1, controls.nucleation));
+    const inward = progress ** 0.85;
+    const reversalRadius = 12 + inward * 112;
+    const centreX = 410 + 170 * (1 - inward);
+    const phase =
+      progress < 0.06
+        ? "healthy grain under stress"
+        : progress < 0.72
+          ? "reversed region sweeping inward"
+          : "cooled magnet with permanent loss";
+
+    return (
+      <svg viewBox="0 0 820 520" role="img" aria-label="Surface-nucleated demagnetisation progressing through one NdFeB grain">
+        <text className="d-axis-label" x={0} y={16}>One grain under combined thermal and reverse-field stress</text>
+        <text className="d-value d-value--big" x={0} y={58}>{phase}</text>
+
+        <g>
+          <circle className="d-fill--warn-soft" cx={410} cy={270} r={170} />
+          <circle className="d-fill--mute" cx={410} cy={270} r={170} opacity={0.55} />
+          {Array.from({ length: 64 }, (_, i) => {
+            const a = (i / 64) * Math.PI * 2;
+            const ring = i % 4;
+            const radius = 24 + ring * 42;
+            return (
+              <circle
+                key={i}
+                className="d-fill--warn"
+                cx={410 + Math.cos(a) * radius}
+                cy={270 + Math.sin(a) * radius}
+                r={3.2}
+              />
+            );
+          })}
+
+          {progress > 0.04 && (
+            <>
+              <circle
+                className="d-fill--warn"
+                cx={centreX}
+                cy={270}
+                r={reversalRadius}
+                opacity={progress > 0.72 ? 0.72 : 0.88}
+              />
+              <path
+                className="d-rule"
+                d={`M ${centreX} ${270 - reversalRadius} L ${centreX} 112`}
+              />
+              <text
+                className={`d-label ${progress > 0.72 ? "d-label--warn" : ""}`}
+                x={centreX + 8}
+                y={106}
+              >
+                {progress > 0.72 ? "loss remains after cooling" : "reversed region"}
+              </text>
+            </>
+          )}
+          <circle className="d-fill--accent" cx={580} cy={270} r={4} />
+          <path className="d-rule d-rule--dash" d="M 580 270 L 668 352 L 724 352" />
+          <text className="d-label d-label--strong" x={730} y={356}>surface</text>
+        </g>
+
+        <g transform="translate(0, 480)">
+          <rect className="d-fill--warn-soft" width={820} height={30} />
+          <rect className="d-fill--warn" width={3} height={30} />
+          <text className="d-label d-label--warn" x={18} y={20}>
+            Reversal begins where the crystal boundary meets the highest local field. It does not require the whole grain to flip at once.
+          </text>
+        </g>
+      </svg>
+    );
+  }
+
+  const shellDepth = 18 + controls.diffusion * 38;
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="NdFeB magnet composition by mass and where dysprosium sits in the grain">
+    <svg viewBox="0 0 820 520" role="img" aria-label="NdFeB magnet composition by mass and where dysprosium sits in the grain">
       <text className="d-axis-label" x={0} y={16}>By mass, an illustrative traction-grade NdFeB magnet</text>
       <SegmentBar
         x={0}
@@ -317,7 +449,7 @@ function MagnetComposition({ state }: { state: string }) {
         </text>
         <circle className="d-fill--mute" cx={110} cy={110} r={104} />
         <circle className="d-fill--warn-soft" cx={110} cy={110} r={104} />
-        <circle className="d-fill--mute" cx={110} cy={110} r={86} />
+        <circle className="d-fill--mute" cx={110} cy={110} r={104 - shellDepth} />
         {Array.from({ length: 22 }, (_, i) => {
           const a = (i / 22) * Math.PI * 2;
           return <circle key={i} className="d-fill--warn" cx={110 + Math.cos(a) * 95} cy={110 + Math.sin(a) * 95} r={3.4} />;
@@ -328,6 +460,13 @@ function MagnetComposition({ state }: { state: string }) {
         </text>
         <text className="d-label d-label--faint" x={0} y={260}>
           Same protection, far less of it.
+        </text>
+      </g>
+
+      <g transform="translate(0, 470)">
+        <rect className="d-fill--mute" width={340} height={36} />
+        <text className="d-label d-label--strong" x={12} y={23}>
+          Shell depth: {Math.round(controls.diffusion * 100)}% · Dy inventory lower than uniform doping
         </text>
       </g>
     </svg>
@@ -389,41 +528,48 @@ function LightHeavySplit() {
 
 function MitigationLadder({ controls }: { controls: StageControls }) {
   const rung = Math.min(4, Math.round(controls.load * 4));
+  const active = getMitigationFootprintInfo(rung as 0 | 1 | 2 | 3 | 4);
+  const detail = [
+    "Direct rotor-oil cooling lowers magnet temperature. It does not remove dysprosium by itself.",
+    "Dysprosium migrates to grain boundaries, where reversal begins. The core remains NdFeB.",
+    "The magnet keeps the NdFeB architecture while deleting the controlled heavy rare earths.",
+    "A weaker or cheaper magnet may require more mass, higher speed or a different geometry.",
+    "The rotor mechanism changes, and so do excitation, inverter control, cooling and validation.",
+  ][rung];
+
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Mitigation ladder from rotor cooling to a new motor architecture">
+    <svg viewBox="0 0 820 560" role="img" aria-label="Mitigation ladder from rotor cooling to a new motor architecture">
       <text className="d-axis-label" x={0} y={16}>Smallest credible change first</text>
       {MITIGATION_RUNGS.map((item, i) => {
-        const y = 44 + i * 68;
-        const reached = i <= rung;
+        const y = 40 + i * 58;
+        const isActive = i === rung;
         return (
           <g key={item.id}>
-            <rect
-              className={`d-node ${reached ? "is-on" : "is-off"}`}
-              x={0}
-              y={y}
-              width={W - 200}
-              height={50}
-            />
-            <text className={`d-label ${reached ? "d-label--accent" : ""}`} x={16} y={y + 22}>
+            <rect className={`d-node ${isActive ? "is-on" : "is-off"}`} x={0} y={y} width={610} height={46} />
+            <text className={`d-label ${isActive ? "d-label--accent" : ""}`} x={16} y={y + 21}>
               {i + 1}. {item.label}
             </text>
-            <text className="d-label d-label--faint" x={16} y={y + 40}>
-              {
-                [
-                  "Take the heat away, and less dysprosium is needed for the same margin. Audi Q6 e-tron, direct rotor oil.",
-                  "Concentrate dysprosium in the grain shell only. Mature process, in production.",
-                  "Remove heavy rare earths from the magnet. Proterial, July 2025, during the controls.",
-                  "Ferrite or iron nitride. Same architecture, bigger or faster motor.",
-                  "Wound field, induction or reluctance. New inverter, new cooling, new calibration.",
-                ][i]
-              }
-            </text>
-            <text className={`d-label ${reached ? "d-label--strong" : "d-label--faint"}`} x={W - 176} y={y + 30}>
-              {["nothing", "nothing", "nothing", "the motor", "the platform"][i]} changes in the car
+            <text className={`d-label ${isActive ? "d-label--strong" : "d-label--faint"}`} x={630} y={y + 28}>
+              {["cooling", "material", "material", "motor", "platform"][i]}
             </text>
           </g>
         );
       })}
+
+      <g transform="translate(0, 345)">
+        <rect className="d-fill--warn-soft" width={820} height={195} />
+        <rect className="d-fill--warn" width={3} height={195} />
+        <text className="d-label d-label--warn" x={18} y={26}>{rung + 1}. {active.label}</text>
+        <text className="d-label d-label--strong" x={18} y={56}>What it changes</text>
+        {active.affectedModules.map((module, index) => (
+          <text key={module} className="d-label d-label--warn" x={18} y={82 + index * 22}>· {module}</text>
+        ))}
+        <text className="d-label d-label--strong" x={430} y={56}>What carries over</text>
+        {active.retainedModules.map((module, index) => (
+          <text key={module} className="d-label" x={430} y={82 + index * 22}>· {module}</text>
+        ))}
+        <text className="d-label d-label--faint" x={18} y={180}>{detail}</text>
+      </g>
     </svg>
   );
 }
@@ -438,6 +584,11 @@ function BackEmfCeiling({ controls, state }: { controls: StageControls; state: s
   const speed = controls.load * 100;
   const { normalized, nearingCeiling } = calculateBackEmfHeight(speed);
   const weakening = state === "field-weakening" || state === "fault";
+  const rawCurrent = calculateFieldWeakeningVectors(controls.weakening * 100);
+  const current =
+    state === "fault"
+      ? { ...rawCurrent, counterFlux: 0, netFlux: rawCurrent.magnetFlux }
+      : rawCurrent;
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Induced voltage rising toward the DC bus ceiling with speed">
@@ -468,12 +619,22 @@ function BackEmfCeiling({ controls, state }: { controls: StageControls; state: s
       {weakening && (
         <g transform={`translate(${x0}, ${y0 + h + 40})`}>
           <text className="d-axis-label" x={0} y={0}>Stator current, at this speed</text>
-          <rect className="d-fill--accent" x={0} y={12} width={220} height={20} />
-          <rect className="d-fill--warn" x={222} y={12} width={200} height={20} />
+          <rect className="d-fill--accent" x={0} y={12} width={Math.max(1, current.magnetFlux)} height={20} />
+          <rect className="d-fill--warn" x={Math.max(1, current.magnetFlux) + 8} y={12} width={Math.max(1, current.counterFlux)} height={20} />
+          <path className="d-rule" d={`M ${current.netFlux} 6 L ${current.netFlux} 38`} />
+          <text className="d-label d-label--faint" x={current.netFlux + 5} y={4}>net flux</text>
           <text className="d-label d-label--accent" x={0} y={50}>makes torque</text>
           <text className="d-label d-label--warn" x={222} y={50}>
             cancels the magnet's own flux — makes no torque, and is spent only because the magnets are there
           </text>
+          {state === "fault" && (
+            <>
+              <rect className="d-fill--warn-soft" x={0} y={62} width={520} height={34} />
+              <text className="d-label d-label--warn" x={12} y={84}>
+                Inverter gated off: counter-current stops, but the magnet's induced voltage remains.
+              </text>
+            </>
+          )}
         </g>
       )}
     </svg>
@@ -481,129 +642,268 @@ function BackEmfCeiling({ controls, state }: { controls: StageControls; state: s
 }
 
 function FamilyTree({ onPick, rotor }: { onPick?: (id: string) => void; rotor?: string }) {
-  const sync = MOTOR_FAMILIES.filter((f) => f.branch === "synchronous");
-  const async_ = MOTOR_FAMILIES.filter((f) => f.branch === "asynchronous");
-
-  const Node = ({ x, y, item, on }: { x: number; y: number; item: (typeof MOTOR_FAMILIES)[number]; on: boolean }) => (
-    <g className="d-hit" transform={`translate(${x}, ${y})`} onClick={() => onPick?.(item.id)}>
-      <rect className={`d-node ${on ? "is-on" : ""}`} x={0} y={0} width={136} height={62} />
-      <text className={`d-label d-label--strong ${on ? "d-label--accent" : ""}`} x={12} y={24}>{item.label}</text>
-      <text className="d-label d-label--faint" x={12} y={44}>{item.rotorType}</text>
-    </g>
-  );
+  const familyId = rotorToAlternativeFamily[(rotor ?? "ipm-ndfeb") as keyof typeof rotorToAlternativeFamily];
+  const active = architectureLabs.find((item) => item.id === familyId) ?? architectureLabs[0];
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Traction motor family tree split by whether the rotor keeps pace with the field">
-      <text className="d-label d-label--strong" x={W / 2} y={22} textAnchor="middle">
-        Does the rotor keep pace with the stator field?
-      </text>
-      <path className="d-rule" d={`M ${W / 2} 32 L ${W / 2} 58 M 210 58 L 660 58 M 210 58 L 210 84 M 660 58 L 660 84`} />
+    <div className="alt-lab" aria-label="Interactive comparison of traction-motor alternatives">
+      <div className="alt-lab__tabs" role="group" aria-label="Choose a motor family">
+        {architectureLabs.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            className={`lab-tab ${item.id === active.id ? "is-on" : ""}`}
+            aria-pressed={item.id === active.id}
+            onClick={() => onPick?.(item.id)}
+          >
+            {item.shortLabel}
+          </button>
+        ))}
+      </div>
 
-      <text className="d-label--accent d-label" x={210} y={102} textAnchor="middle">Yes — synchronous</text>
-      <text className="d-label" x={660} y={102} textAnchor="middle">No — asynchronous</text>
+      <div className="alt-compare" aria-label="Relative teaching-scale comparison across motor families">
+        <div className="alt-compare__row alt-compare__row--head">
+          <span>Metric</span>
+          {architectureLabs.map((item) => (
+            <span key={item.id} className={item.id === active.id ? "is-active" : ""}>{item.shortLabel}</span>
+          ))}
+        </div>
 
-      {sync.map((item, i) => (
-        <Node key={item.id} x={20 + i * 152} y={130 + (i % 2) * 84} item={item} on={rotor === item.id} />
-      ))}
-      {async_.map((item) => (
-        <Node key={item.id} x={592} y={130} item={item} on={rotor === item.id} />
-      ))}
+        {architectureLabs[0].comparison.map((metric, metricIndex) => (
+          <div key={metric.label} className="alt-compare__row">
+            <span>{metric.label}</span>
+            {architectureLabs.map((item) => {
+              const cell = item.comparison[metricIndex];
+              return (
+                <div
+                  key={`${item.id}-${metric.label}`}
+                  className={`alt-compare__cell ${item.id === active.id ? "is-active" : ""}`}
+                  title={cell.note}
+                >
+                  {Array.from({ length: 4 }, (_, dot) => (
+                    <i key={dot} className={dot < cell.value ? "is-on" : ""} />
+                  ))}
+                  <small>{cell.value}</small>
+                </div>
+              );
+            })}
+          </div>
+        ))}
+        <p>0–4 is a teaching scale for comparing mechanisms. It is not a measured score.</p>
+      </div>
 
-      <text className="d-label" x={592} y={230}>Runs 1–3% behind the field</text>
-      <text className="d-label d-label--faint" x={592} y={250}>under load. The gap is called slip,</text>
-      <text className="d-label d-label--faint" x={592} y={268}>and without it there is no torque.</text>
+      <div className="alt-lab__head">
+        <div>
+          <p className="eyebrow">Defining parameter</p>
+          <h3>{active.label}</h3>
+          <p>{active.principle}</p>
+        </div>
+        <div className="alt-lab__metric">
+          <span>{active.definingMetric.label}</span>
+          <strong>{active.definingMetric.value}</strong>
+          <small>{active.definingMetric.meaning}</small>
+        </div>
+      </div>
 
-      <text className="d-label d-label--faint" x={20} y={340}>
-        About 94% of deployed EV motor power is synchronous of one kind or another.
-      </text>
-      <text className="d-label d-label--faint" x={20} y={360}>
-        In the wider industrial motor market the split is the other way round: induction is the incumbent there,
-      </text>
-      <text className="d-label d-label--faint" x={20} y={378}>
-        it never contained neodymium, and the reason to replace it is efficiency regulation rather than supply.
-      </text>
-    </svg>
+      <div className="alt-lab__grid">
+        <section className="alt-lab__panel">
+          <h4>What changes</h4>
+          <dl>
+            <div>
+              <dt>Rotor field</dt>
+              <dd>{active.rotorField}</dd>
+            </div>
+            <div>
+              <dt>Rare earths</dt>
+              <dd>{active.rareEarth}</dd>
+            </div>
+            <div>
+              <dt>Cost drivers</dt>
+              <dd>{active.costDrivers.join(" · ")}</dd>
+            </div>
+          </dl>
+        </section>
+
+        <section className="alt-lab__panel">
+          <h4>Track these</h4>
+          <ul>
+            {active.trackThese.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </section>
+
+        {active.regions.map((region) => (
+          <section key={region.region} className="alt-lab__panel">
+            <h4>{region.region}</h4>
+            <ul className="company-list">
+              {region.records.map((record) => (
+                <li key={`${region.region}-${record.name}`}>
+                  <strong>{record.name}</strong>
+                  <span>{record.scope}</span>
+                  <em>{record.maturity}</em>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </div>
+
+      <section className="conductor-reference" aria-label="Conductor reference for winding cost and resistance">
+        <h4>Conductor reference</h4>
+        <div className="conductor-reference__grid">
+          <div>
+            <strong>Copper</strong>
+            <span>Relative resistance 1.0× · compact windings · higher raw-material exposure</span>
+          </div>
+          <div>
+            <strong>Aluminium</strong>
+            <span>≈1.6× resistance · lower raw-material cost and density · larger conductor for the same resistance</span>
+          </div>
+        </div>
+        <p>
+          Resistance is a physical design constraint. Cost is a market and system question: aluminium can lower
+          conductor spend while adding loss, volume or inverter duty.
+        </p>
+      </section>
+
+      <p className="alt-lab__note">{active.caveat}</p>
+    </div>
   );
 }
 
-const MATERIALS = [
-  { id: "ferrite", label: "Ferrite", saturation: 0.19, remanence: 0.33, coercivity: 0.25, hardness: 1.4, thermal: 0.7 },
-  { id: "iron-nitride", label: "Iron nitride (Fe16N2)", saturation: 1.0, remanence: 0.72, coercivity: 0.36, hardness: 0.6, thermal: 0.42 },
-  { id: "ndfeb", label: "NdFeB", saturation: 0.64, remanence: 1.0, coercivity: 1.0, hardness: 1.54, thermal: 1.0 },
-] as const;
+function MaterialLab({ state }: { state: string }) {
+  const [selected, setSelected] = useState(materialIdForState(state));
 
-function PropertyBoard({ state }: { state: string }) {
-  const rows = [
-    { key: "saturation", label: "Saturation (Ms)", note: "theoretical limit only" },
-    { key: "remanence", label: "Remanence (Br)", note: "what is left with no help" },
-    { key: "coercivity", label: "Coercivity (Hcj)", note: "resistance to reversal" },
-  ] as const;
+  useEffect(() => {
+    setSelected(materialIdForState(state));
+  }, [state]);
 
-  const showHardness = state === "hardness" || state === "niron-actual" || state === "thermal";
+  const active = materialLabs.find((item) => item.id === selected) ?? materialLabs[0];
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Magnet properties compared across ferrite, iron nitride and neodymium">
-      {MATERIALS.map((m, i) => (
-        <text key={m.id} className={`d-label ${m.id === "iron-nitride" ? "d-label--accent" : "d-label--strong"}`} x={300 + i * 176} y={20}>
-          {m.label}
-        </text>
-      ))}
+    <div className="material-lab" aria-label="Interactive comparison of permanent-magnet materials">
+      <div className="lab-tab-row" role="group" aria-label="Choose a magnet chemistry">
+        {materialLabs.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            className={`lab-tab ${item.id === active.id ? "is-on" : ""}`}
+            aria-pressed={item.id === active.id}
+            onClick={() => setSelected(item.id)}
+          >
+            {item.shortLabel}
+          </button>
+        ))}
+      </div>
 
-      {rows.map((row, r) => {
-        const y = 46 + r * 66;
-        return (
-          <g key={row.key}>
-            <text className="d-label d-label--strong" x={0} y={y + 18}>{row.label}</text>
-            <text className="d-label d-label--faint" x={0} y={y + 36}>{row.note}</text>
-            {MATERIALS.map((m, i) => {
-              const v = m[row.key];
+      <div className="alt-compare" aria-label="Relative teaching-scale comparison across magnet chemistries">
+        <div className="material-compare__row material-compare__row--head">
+          <span>Metric</span>
+          {materialLabs.map((item) => (
+            <span key={item.id} className={item.id === active.id ? "is-active" : ""}>{item.shortLabel}</span>
+          ))}
+        </div>
+
+        {materialLabs[0].comparison.map((metric, metricIndex) => (
+          <div key={metric.label} className="material-compare__row">
+            <span>{metric.label}</span>
+            {materialLabs.map((item) => {
+              const cell = item.comparison[metricIndex];
               return (
-                <g key={m.id}>
-                  <rect className="d-fill--mute" x={296 + i * 176} y={y} width={150} height={16} />
-                  <rect
-                    className={`d-bar ${m.id === "iron-nitride" && row.key === "coercivity" ? "d-fill--warn" : "d-fill--accent"}`}
-                    x={296 + i * 176}
-                    y={y}
-                    width={150 * v}
-                    height={16}
-                  />
-                </g>
+                <div
+                  key={`${item.id}-${metric.label}`}
+                  className={`material-compare__cell ${item.id === active.id ? "is-active" : ""}`}
+                  title={cell.note}
+                >
+                  {Array.from({ length: 4 }, (_, dot) => (
+                    <i key={dot} className={dot < cell.value ? "is-on" : ""} />
+                  ))}
+                  <small>{cell.value}</small>
+                </div>
               );
             })}
-          </g>
-        );
-      })}
+          </div>
+        ))}
+        <p>0–4 compares teaching mechanisms. It is not a measured universal score.</p>
+      </div>
 
-      {showHardness && (
-        <g transform="translate(0, 254)">
-          <text className="d-label d-label--strong" x={0} y={18}>Magnetic hardness</text>
-          <text className="d-label d-label--faint" x={0} y={36}>must exceed 1 to be a viable permanent magnet</text>
-          <path className="d-rule d-rule--dash" d="M 296 0 L 296 56" />
-          {MATERIALS.map((m, i) => (
-            <g key={m.id}>
-              <text
-                className={`d-value ${m.hardness < 1 ? "d-label--warn" : "d-label--accent"}`}
-                x={296 + i * 176}
-                y={22}
-              >
-                {m.hardness.toFixed(2)}
-              </text>
-              <text className={`d-label ${m.hardness < 1 ? "d-label--warn" : "d-label--faint"}`} x={296 + i * 176} y={40}>
-                {m.hardness < 1 ? "below the threshold" : "viable"}
-              </text>
-            </g>
-          ))}
-        </g>
-      )}
+      <div className="alt-lab__head">
+        <div>
+          <p className="eyebrow">Defining gate</p>
+          <h3>{active.label}</h3>
+          <p>{active.role}</p>
+        </div>
+        <div className="alt-lab__metric">
+          <span>{active.definingMetric.label}</span>
+          <strong>{active.definingMetric.value}</strong>
+          <small>{active.definingMetric.meaning}</small>
+        </div>
+      </div>
 
-      <text className="d-label d-label--faint" x={0} y={410}>
-        {state === "proterial-numbers"
-          ? "Proterial's ferrite prototype: 102 kW at 15,000 rpm, against a 110 kW at 10,000 rpm neodymium baseline."
-          : state === "thermal"
-            ? "Iron nitride decomposes around 216–250 °C. Traction duty is 150–180 °C with transients above that."
-            : "Saturation is the remanence side of the ledger only. A magnet needs strength and stubbornness both."}
-      </text>
-    </svg>
+      <div className="alt-lab__grid">
+        <section className="alt-lab__panel">
+          <h4>Magnet properties</h4>
+          <dl className="property-list">
+            {active.properties.map((property) => (
+              <div key={property.id}>
+                <dt>{property.label}</dt>
+                <dd>
+                  <span className="meter" aria-hidden="true">
+                    <i style={{ width: `${Math.max(2, Math.min(100, property.value * 100))}%` }} />
+                  </span>
+                  {property.reading}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+
+        <section className="alt-lab__panel">
+          <h4>Supply and cost</h4>
+          <dl>
+            <div>
+              <dt>Rare earths</dt>
+              <dd>{active.rareEarth}</dd>
+            </div>
+            <div>
+              <dt>Cost baseline</dt>
+              <dd>{active.costStatus}</dd>
+            </div>
+            <div>
+              <dt>Cost drivers</dt>
+              <dd>{active.costDrivers.join(" · ")}</dd>
+            </div>
+          </dl>
+        </section>
+
+        <section className="alt-lab__panel">
+          <h4>Track these</h4>
+          <ul>
+            {active.trackThese.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </section>
+
+        {active.regions.map((region) => (
+          <section key={region.region} className="alt-lab__panel">
+            <h4>{region.region}</h4>
+            <ul className="company-list">
+              {region.records.map((record) => (
+                <li key={`${region.region}-${record.name}`}>
+                  <strong>{record.name}</strong>
+                  <span>{record.scope}</span>
+                  <em>{record.maturity}</em>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </div>
+
+      <p className="alt-lab__note">{active.caveat}</p>
+    </div>
   );
 }
 
@@ -737,12 +1037,12 @@ export function Diagram({
       {id === "why-it-matters" && <WhyItMatters state={stateId} />}
       {id === "supply-concentration" && <SupplyConcentration state={stateId} />}
       {id === "demag-curve" && <DemagCurve controls={controls} state={stateId} />}
-      {id === "magnet-composition" && <MagnetComposition state={stateId} />}
+      {id === "magnet-composition" && <MagnetComposition controls={controls} state={stateId} />}
       {id === "light-heavy-split" && <LightHeavySplit />}
       {id === "mitigation-ladder" && <MitigationLadder controls={controls} />}
       {id === "back-emf-ceiling" && <BackEmfCeiling controls={controls} state={stateId} />}
       {id === "family-tree" && <FamilyTree rotor={rotor} onPick={onPickFamily} />}
-      {id === "property-board" && <PropertyBoard state={stateId} />}
+      {id === "property-board" && <MaterialLab state={stateId} />}
       {id === "swap-burden" && <SwapBurden architecture={architecture} onPick={onPickArchitecture} />}
     </div>
   );

@@ -3,7 +3,9 @@ import { Suspense, lazy, useCallback, useEffect, useMemo, useReducer, useState }
 import { Diagram } from "./diagrams/Diagrams";
 import { Controls } from "./shell/Controls";
 import { Evidence } from "./shell/Evidence";
+import { Opening } from "./shell/Opening";
 import { ACTS, STOPS, stageForState, type Stop, type StopState } from "./route/route";
+import { guideFor } from "./route/guide";
 /*
  * three.js and its helpers are three quarters of the payload. Loading them
  * behind a boundary lets the shell, the copy and the rail paint immediately,
@@ -55,6 +57,8 @@ export default function App() {
   const [architecture, setArchitecture] = useState<ArchitectureId>("reduced-hree");
   const [paused, setPaused] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
+  // The root URL gets the editorial opening; a deep link goes straight to its stop.
+  const [enteredTour, setEnteredTour] = useState(() => Boolean(window.location.hash));
 
   const { stop, state } = POSITIONS[cursor];
 
@@ -83,21 +87,29 @@ export default function App() {
           ? state.id === "explode"
             ? 0.55
             : 0
-          : state.id === "ferrite-fix" || state.id === "axial-is-geometry"
+          : state.id === "compensate-geometry" || state.id === "independent-geometry"
             ? 0.6
             : 0,
       isolate:
         state.id === "stator" ? "stator" : state.id === "rotor" ? "rotor" : "none",
       activePhase: state.id === "one-phase" ? 0 : null,
       extract: state.id === "drive-unit" ? 0.6 : state.id === "one-part" ? 0.25 : 0,
+      dysprosium: state.id === "dysprosium-tradeoff" ? 0.35 : 0,
+      diffusion: state.id === "diffusion-evolution" ? 0.55 : 0,
+      nucleation: state.id === "reversal-start" ? 0.25 : 0,
+      weakening: state.id === "field-weakening" ? 0.45 : state.id === "fault" ? 0.75 : 0,
       fieldLive: true,
+      angle: state.id === "anisotropy" ? (Math.PI / 2) * 0.35 : 0,
       load:
-        state.id === "load-angle" || state.id === "slip" ? 0.6
-        : state.id === "two-stresses" ? 0.3
+        state.id === "load-angle" || state.id === "induction-principle" || state.id === "induction-duty" ? 0.6
+        : state.id === "hot-margin" ? 0.3
         : state.id === "ceiling" || state.id === "field-weakening" ? 0.85
         : state.id === "coercivity" || state.id === "anisotropy" ? 0.5
         : DEFAULT_CONTROLS.load,
-      heat: state.id === "heat-cuts-coercivity" || state.id === "two-stresses" ? 0.5 : 0.15,
+      heat:
+        state.id === "hot-margin" ? 0.5
+        : state.id === "reversal-start" || state.id === "dysprosium-tradeoff" ? 0.5
+        : 0.15,
     }));
   }, [stop, state]);
 
@@ -118,10 +130,22 @@ export default function App() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  // In-app controls use replaceState; browser back/forward raises hashchange.
+  useEffect(() => {
+    const syncFromHash = () => {
+      const index = positionFromHash(window.location.hash);
+      setEnteredTour(index !== null);
+      move({ type: "go", index: index ?? 0 });
+    };
+    window.addEventListener("hashchange", syncFromHash);
+    return () => window.removeEventListener("hashchange", syncFromHash);
+  }, []);
+
   const stage = stageForState(stop, state);
   const actIndex = useMemo(() => ACTS.findIndex((a) => a.act === stop.act), [stop.act]);
 
   return (
+    enteredTour ? (
     <div className="app">
       <a className="skip-link" href="#stage">Skip to the stage</a>
 
@@ -153,6 +177,21 @@ export default function App() {
             <p className="stage-overlay__label">{state.label}</p>
             <p className="stage-overlay__action">{state.action}</p>
           </div>
+
+          {stage.kind === "three" &&
+            ["one-phase", "three-phases", "no-part-moves", "rotor-locks"].includes(state.id) && (
+              <aside className="physics-note" aria-label="How to read the magnetic-field overlay">
+                <strong>Right-hand rule</strong>
+                <p>Curl your right-hand fingers with the coil current; your thumb points to that group's north pole.</p>
+                {state.id === "rotor-locks" && (
+                  <p>
+                    <i className="swatch swatch--field" /> stator field ·{" "}
+                    <i className="swatch swatch--rotor" /> rotor magnet axis. The orange axis trails, but turns at the
+                    same rate.
+                  </p>
+                )}
+              </aside>
+            )}
 
           {/*
             The 3D stage stays mounted for the whole tour. SVG stops render on
@@ -194,7 +233,7 @@ export default function App() {
                     induction: "squirrel-cage",
                     wound: "wound",
                     synrm: "synrm",
-                    srm: "synrm",
+                    srm: "srm",
                   };
                   if (map[id]) setRotor(map[id]);
                 }}
@@ -213,6 +252,26 @@ export default function App() {
           </div>
 
           <p className="panel__line">{state.line}</p>
+
+          {(() => {
+            const guide = guideFor(stop.id, state.id);
+            return (
+              <div className="state-guide">
+                <div>
+                  <span>Look for</span>
+                  <p>{guide.lookFor}</p>
+                </div>
+                <div>
+                  <span>Takeaway</span>
+                  <p>{guide.takeaway}</p>
+                </div>
+                <div>
+                  <span>Next</span>
+                  <p>{guide.next}</p>
+                </div>
+              </div>
+            );
+          })()}
 
           <Controls
             stop={stop}
@@ -293,5 +352,13 @@ export default function App() {
         </div>
       </footer>
     </div>
+    ) : (
+      <Opening
+        onEnter={() => {
+          move({ type: "go", index: indexOf("where-the-motor-lives", "power-path") });
+          setEnteredTour(true);
+        }}
+      />
+    )
   );
 }

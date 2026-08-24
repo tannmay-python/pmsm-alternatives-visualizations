@@ -82,6 +82,44 @@
   pointer-events: none;
 }
 
+.physics-note {
+  position: absolute;
+  z-index: 2;
+  left: var(--gap-4);
+  bottom: var(--gap-4);
+  max-width: 310px;
+  padding-left: var(--gap-3);
+  border-left: 2px solid var(--accent-line);
+  pointer-events: none;
+}
+
+.physics-note strong {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--accent-strong);
+  font-size: var(--t-micro);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+}
+
+.physics-note p {
+  margin: 0 0 5px;
+  color: var(--text-muted);
+  font-size: var(--t-micro);
+  line-height: 1.5;
+}
+
+.swatch {
+  display: inline-block;
+  width: 9px;
+  height: 3px;
+  margin-right: 3px;
+  vertical-align: middle;
+}
+
+.swatch--field { background: #a8d82b; }
+.swatch--rotor { background: #d9531c; }
+
 /* Panel ------------------------------------------------------------------ */
 
 .panel {
@@ -112,6 +150,35 @@
   color: var(--text-muted);
   font-size: var(--t-body);
   line-height: 1.65;
+}
+
+.state-guide {
+  display: grid;
+  gap: var(--gap-3);
+  padding: var(--gap-3) var(--gap-4);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  background: var(--paper-050);
+}
+
+.state-guide > div {
+  display: grid;
+  gap: 3px;
+}
+
+.state-guide span {
+  color: var(--accent-strong);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.state-guide p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--t-small);
+  line-height: 1.55;
 }
 
 /* Controls --------------------------------------------------------------- */

@@ -29,6 +29,38 @@ describe("route structure", () => {
     expect(STOPS[0].stage.kind).toBe("svg");
   });
 
+  it("consolidates dense chapters into mechanism-first scenes", () => {
+    const idsFor = (stopId: string) =>
+      STOPS.find((stop) => stop.id === stopId)?.states.map((state) => state.id) ?? [];
+
+    expect(idsFor("heat-and-the-patch")).toEqual([
+      "hot-margin",
+      "reversal-start",
+      "dysprosium-tradeoff",
+      "diffusion-evolution",
+    ]);
+    expect(idsFor("swap-the-rotor")).toEqual([
+      "family-tree",
+      "induction-principle",
+      "induction-duty",
+      "wound-control",
+      "wound-hardware",
+      "contactless-frontier",
+      "reluctance-spectrum",
+      "srm-aluminium",
+    ]);
+    expect(idsFor("change-the-magnet")).toEqual([
+      "a-different-layer",
+      "ferrite-limit",
+      "compensate-geometry",
+      "independent-geometry",
+      "proterial-numbers",
+      "iron-nitride-gates",
+      "variable-flux-fit",
+      "stackable-layers",
+    ]);
+  });
+
   it("puts the car after the supply-chain case, not before it", () => {
     const ids = STOPS[0].states.map((state) => state.id);
     const car = STOPS[0].states.findIndex(

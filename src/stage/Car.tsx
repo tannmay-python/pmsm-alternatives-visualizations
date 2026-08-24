@@ -1,6 +1,7 @@
 import { useFrame } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
+import { Callout } from "./Callout";
 import { PALETTE } from "./materials";
 
 /**
@@ -11,7 +12,7 @@ import { PALETTE } from "./materials";
 
 export type CarProps = {
   /** Which object takes the accent. */
-  focus?: "none" | "drive-unit" | "battery" | "magnet";
+  focus?: "none" | "drive-unit" | "battery" | "magnet" | "power-path";
   /** Energy pulses running battery → inverter → motor → wheel. */
   flowing?: boolean;
   /** 0–1, pulls the rear drive unit out of the car. */
@@ -230,6 +231,38 @@ export function Car({ focus = "none", flowing = false, extract = 0, spinning = f
       <Pulse curve={curve} offset={0} flowing={flowing} />
       <Pulse curve={curve} offset={0.4} flowing={flowing} />
       <Pulse curve={curve} offset={0.75} flowing={flowing} />
+
+      {focus === "battery" && (
+        <Callout position={[-1.7, 0.98, 0]} accent>
+          battery pack · stores DC energy
+        </Callout>
+      )}
+
+      {focus === "drive-unit" && (
+        <>
+          <Callout position={[2.05 - 0.42, 0.94, extract * 2.4]} accent>
+            inverter · DC becomes three AC phases
+          </Callout>
+          <Callout position={[2.05, 1.12, extract * 2.4]} accent>
+            motor · magnetic torque turns the shaft
+          </Callout>
+          <Callout position={[2.51, 0.82, extract * 2.4]}>
+            reduction gear · speed becomes wheel torque
+          </Callout>
+          <Callout position={[2.06, 0.16, 0.78]}>
+            wheel · the only part that touches the road
+          </Callout>
+        </>
+      )}
+
+      {focus === "power-path" && (
+        <>
+          <Callout position={[-1.7, 0.95, 0]}>battery · DC</Callout>
+          <Callout position={[0.55, 1.02, 0]}>inverter</Callout>
+          <Callout position={[2.05, 1.08, 0]}>motor</Callout>
+          <Callout position={[2.06, 0.16, 0.78]}>wheel</Callout>
+        </>
+      )}
     </group>
   );
 }

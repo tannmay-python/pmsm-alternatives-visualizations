@@ -130,21 +130,14 @@ const CUTAWAY_STATES = new Set([
   "reluctance",
   "load-angle",
   "already-both",
-  "cage",
-  "slip",
-  "cage-tradeoff",
-  "mixed-axle",
-  "wound",
-  "wound-wins",
-  "wound-costs",
-  "brushes-ship",
-  "contactless",
-  "synrm",
-  "power-factor",
-  "pm-assisted",
-  "srm",
+  "induction-principle",
+  "induction-duty",
+  "wound-control",
+  "wound-hardware",
+  "contactless-frontier",
+  "reluctance-spectrum",
   "srm-aluminium",
-  "ferrite",
+  "ferrite-limit",
   "one-kilogram",
 ]);
 
@@ -158,7 +151,17 @@ function shotFor(stop: Stop, state: StopState, explode: number): ShotName {
   }
   if (explode > 0.15) return "motor-exploded";
   // Anything about the rotating field is read down the bore, not side-on.
-  if (["one-phase", "three-phases", "no-part-moves", "rotor-locks", "lopsided", "reluctance"].includes(state.id)) {
+  if ([
+    "one-phase",
+    "three-phases",
+    "no-part-moves",
+    "rotor-locks",
+    "lopsided",
+    "reluctance",
+    "reluctance-spectrum",
+    "rotor",
+    "one-kilogram",
+  ].includes(state.id)) {
     return "motor-face";
   }
   if (CUTAWAY_STATES.has(state.id)) return "rotor";
@@ -210,7 +213,7 @@ function SceneContents({
           : "none";
     return (
       <group>
-        <Car focus={focus} flowing={!paused && state.id === "power-path"} extract={controls.extract} spinning={!paused} />
+        <Car focus={focus} flowing={!paused && state.id === "power-path"} extract={controls.extract} spinning={!paused && state.id !== "one-phase"} />
         {focus === "drive-unit" && (
           <Callout position={[1.6, 0.5, 0.9]} accent>
             drive unit
@@ -228,6 +231,20 @@ function SceneContents({
   const slip = rotor === "squirrel-cage" ? 0.02 + controls.load * 0.02 : 0;
   // The casing is only in the way once the lesson moves to the air gap.
   const cutaway = CUTAWAY_STATES.has(state.id);
+  const fieldLesson =
+    stop.id === "three-coils-one-field"
+      ? state.id === "one-phase"
+        ? "fixed"
+        : state.id === "rotor-locks"
+          ? "lock"
+          : "sweep"
+      : stop.id === "two-pulls-one-shaft"
+        ? state.id === "load-angle" || state.id === "already-both"
+          ? "lock"
+          : "sweep"
+        : stop.id === "swap-the-rotor" && state.id !== "family-tree"
+          ? "sweep"
+          : "none";
 
   return (
     <group>
@@ -241,7 +258,7 @@ function SceneContents({
         }
         rotor={rotor}
         explode={controls.explode}
-        spinning={!paused}
+        spinning={!paused && state.id !== "one-phase"}
         angle={controls.angle}
         slip={slip}
         activePhase={controls.activePhase}
@@ -249,8 +266,11 @@ function SceneContents({
         isolate={controls.isolate}
         intensity={controls.heat}
         fieldLive={controls.fieldLive}
+        load={controls.load}
+        fieldSpinning={state.id !== "one-phase"}
+        fieldLesson={fieldLesson}
       />
-      {controls.explode > 0.3 && (
+      {controls.explode > 0.3 && controls.isolate === "none" && (
         <>
           <Callout position={[0, MOTOR.housingOuter + 0.3, explodeZ("housing", controls.explode)]}>
             housing
@@ -274,6 +294,55 @@ function SceneContents({
             position={[0, -MOTOR.shaftRadius - 0.5, MOTOR.housingLength / 2 + explodeZ("rearBearing", controls.explode)]}
           >
             bearing
+          </Callout>
+        </>
+      )}
+
+      {(state.id === "one-phase" || state.id === "three-phases") && (
+        <>
+          {[
+            { label: "group A", angle: 0 },
+            { label: "group B", angle: (Math.PI * 2) / 3 },
+            { label: "group C", angle: (Math.PI * 4) / 3 },
+          ].map((phase) => (
+            <Callout
+              key={phase.label}
+              position={[
+                Math.cos(phase.angle) * (MOTOR.statorOuter + 0.08),
+                Math.sin(phase.angle) * (MOTOR.statorOuter + 0.08),
+                MOTOR.stackLength / 2,
+              ]}
+            >
+              {phase.label}
+            </Callout>
+          ))}
+        </>
+      )}
+
+      {controls.isolate === "stator" && (
+        <>
+          <Callout position={[0, MOTOR.statorOuter + 0.22, 0]} accent>
+            stator core · stationary laminated ring
+          </Callout>
+          <Callout position={[-MOTOR.statorOuter - 0.12, 0.1, 0.2]} side="left">
+            copper windings · three phase groups
+          </Callout>
+          <Callout position={[0, -MOTOR.statorBore - 0.08, -MOTOR.stackLength / 2]}>
+            bore · the air gap is just inside
+          </Callout>
+        </>
+      )}
+
+      {controls.isolate === "rotor" && (
+        <>
+          <Callout position={[0, MOTOR.rotorOuter + 0.18, 0]} accent>
+            rotor laminations · spinning steel core
+          </Callout>
+          <Callout position={[MOTOR.rotorOuter * 0.68, MOTOR.rotorOuter * 0.55, 0]}>
+            magnets buried in V-shaped pockets
+          </Callout>
+          <Callout position={[0, -MOTOR.shaftRadius - 0.14, MOTOR.stackLength * 0.35]}>
+            shaft · carries torque to the gear
           </Callout>
         </>
       )}
