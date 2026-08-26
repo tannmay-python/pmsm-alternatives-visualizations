@@ -10,7 +10,7 @@ import { materialIdForState, materialLabs } from "../models/materialLab";
 import { burdenRoutes, architectureOptions, architectureStates, type ArchitectureId } from "../models/swapBurden";
 import type { DiagramId } from "../route/route";
 import type { StageControls } from "../stage/controls";
-import { Axes, Leader, SegmentBar } from "./parts";
+import { Axes, Leader, Note, SegmentBar } from "./parts";
 import "./Diagrams.css";
 
 const W = 820;
@@ -193,7 +193,15 @@ const ALLOYS = {
 
 type AlloyKey = keyof typeof ALLOYS;
 
-function DemagCurve({ controls, state }: { controls: StageControls; state: string }) {
+function DemagCurve({
+  controls,
+  state,
+  emphasis,
+}: {
+  controls: StageControls;
+  state: string;
+  emphasis?: string;
+}) {
   const x0 = 60;
   const y0 = 30;
   const w = 600;
@@ -284,13 +292,29 @@ function DemagCurve({ controls, state }: { controls: StageControls; state: strin
         </g>
       )}
 
+      {emphasis === "energy-product" && (
+        <Note
+          at={[x0 + w * 0.34, y0 + h * 0.46]}
+          to={[x0 + w * 0.1, y0 + h * 0.14]}
+          eyebrow="What the area is"
+          width={210}
+        >
+          The area under the curve is the work the magnet can do. Turning the easy axis away from
+          the field shrinks it.
+        </Note>
+      )}
+
       {/* Each state points at the part of the curve it is actually about. */}
-      {(state === "remanence" || state === "division-of-labour") && (
+      {(state === "remanence" ||
+        state === "division-of-labour" ||
+        emphasis === "remanence-and-coercivity") && (
         <Leader from={[x0, y0 + h - br * h]} to={[x0 + w + 16, y0 + 20]} accent>
           remanence — what is left with no help
         </Leader>
       )}
-      {(state === "coercivity" || state === "division-of-labour") && (
+      {(state === "coercivity" ||
+        state === "division-of-labour" ||
+        emphasis === "remanence-and-coercivity") && (
         <Leader from={[x0 + hc * w * 0.9, y0 + h]} to={[x0 + w + 16, y0 + h - 16]} accent>
           coercivity — what it takes to undo it
         </Leader>
@@ -679,11 +703,14 @@ function FamilyTree({ onPick, rotor }: { onPick?: (id: string) => void; rotor?: 
                   key={`${item.id}-${metric.label}`}
                   className={`alt-compare__cell ${item.id === active.id ? "is-active" : ""}`}
                   title={cell.note}
+                  aria-label={`${item.shortLabel}, ${metric.label}: ${cell.value} of 4`}
                 >
                   {Array.from({ length: 4 }, (_, dot) => (
                     <i key={dot} className={dot < cell.value ? "is-on" : ""} />
                   ))}
-                  <small>{cell.value}</small>
+                  {/* A zero is otherwise indistinguishable from a row that
+                      failed to render, since both are four empty pips. */}
+                  <small className={cell.value === 0 ? "is-zero" : ""}>{cell.value}</small>
                 </div>
               );
             })}
@@ -691,6 +718,28 @@ function FamilyTree({ onPick, rotor }: { onPick?: (id: string) => void; rotor?: 
         ))}
         <p>0–4 is a teaching scale for comparing mechanisms. It is not a measured score.</p>
       </div>
+
+      {/*
+        The reasoning behind each score used to live in a `title` tooltip,
+        which is invisible on touch and to a keyboard. It is the substance of
+        the comparison, so it belongs under the figure: "explain to me what
+        Motor A versus Motor B is, right below the image."
+      */}
+      <dl className="alt-compare__notes">
+        <div className="alt-compare__notes-head">
+          <dt>Reading the column</dt>
+          <dd>{active.shortLabel}</dd>
+        </div>
+        {active.comparison.map((cell, i) => (
+          <div key={cell.note}>
+            <dt>
+              {architectureLabs[0].comparison[i].label}
+              <span className="num"> · {cell.value}/4</span>
+            </dt>
+            <dd>{cell.note}</dd>
+          </div>
+        ))}
+      </dl>
 
       <div className="alt-lab__head">
         <div>
@@ -797,7 +846,13 @@ function MaterialLab({ state }: { state: string }) {
         ))}
       </div>
 
-      <div className="alt-compare" aria-label="Relative teaching-scale comparison across magnet chemistries">
+      {/* Rows below use `material-compare__*`, so the container has to carry
+          that class too — the responsive overflow guard targets it, and with
+          only `alt-compare` here it was never attaching. */}
+      <div
+        className="alt-compare material-compare"
+        aria-label="Relative teaching-scale comparison across magnet chemistries"
+      >
         <div className="material-compare__row material-compare__row--head">
           <span>Metric</span>
           {materialLabs.map((item) => (
@@ -1018,6 +1073,7 @@ function SwapBurden({
 export function Diagram({
   id,
   stateId,
+  emphasis,
   controls,
   architecture,
   onPickArchitecture,
@@ -1026,6 +1082,12 @@ export function Diagram({
 }: {
   id: DiagramId;
   stateId: string;
+  /**
+   * Which feature of the figure to point at. This is what lets beats share a
+   * drawing without repeating themselves — the annotation moves even when the
+   * plot does not. Set per beat in route/pages.ts.
+   */
+  emphasis?: string;
   controls: StageControls;
   architecture: ArchitectureId;
   onPickArchitecture?: (id: ArchitectureId) => void;
@@ -1036,7 +1098,7 @@ export function Diagram({
     <div className="diagram">
       {id === "why-it-matters" && <WhyItMatters state={stateId} />}
       {id === "supply-concentration" && <SupplyConcentration state={stateId} />}
-      {id === "demag-curve" && <DemagCurve controls={controls} state={stateId} />}
+      {id === "demag-curve" && <DemagCurve controls={controls} state={stateId} emphasis={emphasis} />}
       {id === "magnet-composition" && <MagnetComposition controls={controls} state={stateId} />}
       {id === "light-heavy-split" && <LightHeavySplit />}
       {id === "mitigation-ladder" && <MitigationLadder controls={controls} />}

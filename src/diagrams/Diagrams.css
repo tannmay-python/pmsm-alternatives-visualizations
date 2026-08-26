@@ -1,11 +1,16 @@
 .diagram {
   display: grid;
-  place-items: center;
+  align-content: center;
+  justify-items: stretch;
+  width: 100%;
   height: 100%;
-  padding: var(--gap-5) var(--gap-5);
-  background:
-    radial-gradient(ellipse 76% 60% at 50% 38%, #ffffff, transparent 72%),
-    var(--paper-100);
+  padding: var(--gap-4) 0;
+  /*
+   * No panel of its own. The figure used to paint a white card because it sat
+   * in a column beside a rail; on a full-bleed ground that reads as a box
+   * floating in the middle of the page.
+   */
+  background: transparent;
   overflow: auto;
 }
 
@@ -136,7 +141,7 @@
   background: var(--paper-300);
 }
 
-.alt-compare__cell i.is-on { background: var(--accent-dim, #6f9414); }
+.alt-compare__cell i.is-on { background: var(--accent-dim); }
 .alt-compare__cell.is-active i.is-on { background: var(--accent); }
 .alt-compare__cell small {
   margin-left: 3px;
@@ -274,7 +279,7 @@
   background: var(--paper-300);
 }
 
-.material-compare__cell i.is-on { background: #6f9414; }
+.material-compare__cell i.is-on { background: var(--accent-dim); }
 .material-compare__cell.is-active i.is-on { background: var(--accent); }
 .material-compare__cell small {
   margin-left: 3px;
@@ -352,7 +357,84 @@
   .conductor-reference__grid { grid-template-columns: minmax(0, 1fr); }
   .alt-compare { overflow-x: auto; }
   .alt-compare__row { min-width: 520px; }
-.material-compare,
-.material-lab { overflow-x: auto; }
+  .material-compare,
+  .material-lab { overflow-x: auto; }
   .material-compare__row { min-width: 420px; }
+}
+
+/* Annotation ------------------------------------------------------------- */
+
+.d-note__leader { fill: none; stroke: var(--wine); stroke-width: 1; }
+.d-note__head { fill: var(--wine); stroke: none; }
+.d-note__dot { fill: none; stroke: var(--wine); stroke-width: 1.5; }
+.d-note--mute .d-note__leader,
+.d-note--mute .d-note__dot { stroke: var(--ink-50); }
+.d-note--mute .d-note__head { fill: var(--ink-50); }
+
+.d-note__box {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 7px 10px 8px;
+  background: rgba(255, 255, 255, 0.94);
+  border: var(--rule);
+  /* Zero radius, no shadow — structure is drawn with rules. */
+}
+.d-note__box.is-flipped { align-items: flex-end; text-align: right; }
+
+.d-note__eyebrow {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--wine);
+}
+
+.d-note__text {
+  font-family: var(--sans);
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--ink-70);
+}
+
+/* Why each column scores what it does. Definition table: mono uppercase label
+   on the left, plain Inter value on the right, no borders. */
+.alt-compare__notes {
+  margin: var(--gap-4) 0 0;
+  display: grid;
+  gap: var(--gap-3);
+  width: min(920px, 100%);
+}
+.alt-compare__notes > div {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: var(--gap-4);
+  align-items: baseline;
+}
+.alt-compare__notes-head {
+  padding-bottom: var(--gap-3);
+  border-bottom: var(--rule);
+}
+.alt-compare__notes dt {
+  font-family: var(--mono);
+  font-size: var(--t-meta);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-50);
+}
+.alt-compare__notes-head dt { color: var(--wine); }
+.alt-compare__notes dd {
+  margin: 0;
+  font-size: var(--t-dense);
+  line-height: 1.5;
+  color: var(--ink-70);
+}
+.alt-compare__notes-head dd { color: var(--ink); }
+
+/* A scored zero reads as a value, not as an unrendered row. */
+.alt-compare__cell small.is-zero,
+.material-compare__cell small.is-zero { color: var(--ink-50); }
+
+@media (max-width: 720px) {
+  .alt-compare__notes > div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
 }

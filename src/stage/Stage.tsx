@@ -15,8 +15,9 @@ import { getBalancedPhaseStrengths } from "../models/pmsmTurn";
 import { ROTORS, type RotorId } from "./rotors/registry";
 import type { Stop, StopState } from "../route/route";
 import { type StageControls } from "./controls";
-import { axialBounds, cameraFor, carBounds, motorBounds, type ShotName } from "./framing";
+import { axialBounds, cameraFor, carBounds, motorBounds } from "./framing";
 import { stageForState } from "../route/route";
+import { CUTAWAY_STATES, fieldLessonFor, shotFor } from "./shots";
 import "./Stage.css";
 
 /**
@@ -116,71 +117,21 @@ function Lighting() {
   );
 }
 
-/**
- * States whose subject is the air gap: what the stator field does, and how the
- * rotor answers it. The housing and end caps hide exactly that, so they come off.
- */
-const CUTAWAY_STATES = new Set([
-  "one-phase",
-  "three-phases",
-  "no-part-moves",
-  "rotor-locks",
-  "why-buried",
-  "lopsided",
-  "reluctance",
-  "load-angle",
-  "already-both",
-  "induction-principle",
-  "induction-duty",
-  "wound-control",
-  "wound-hardware",
-  "contactless-frontier",
-  "reluctance-spectrum",
-  "srm-aluminium",
-  "ferrite-limit",
-  "one-kilogram",
-]);
-
-/** Which camera shot a given stop and state wants. */
-function shotFor(stop: Stop, state: StopState, explode: number): ShotName {
-  const stage = stageForState(stop, state);
-  if (stage.kind !== "three") return "motor";
-  if (stage.scene === "axial") return "axial";
-  if (stage.scene === "car") {
-    return state.id === "one-part" || state.id === "drive-unit" ? "car-close" : "car";
-  }
-  if (explode > 0.15) return "motor-exploded";
-  // Anything about the rotating field is read down the bore, not side-on.
-  if ([
-    "one-phase",
-    "three-phases",
-    "no-part-moves",
-    "rotor-locks",
-    "lopsided",
-    "reluctance",
-    "reluctance-spectrum",
-    "rotor",
-    "one-kilogram",
-  ].includes(state.id)) {
-    return "motor-face";
-  }
-  if (CUTAWAY_STATES.has(state.id)) return "rotor";
-  if (stop.id === "swap-the-rotor") return "rotor";
-  return "motor";
-}
-
 function SceneContents({
   stop,
   state,
   controls,
   rotor,
   paused,
+  cardSide,
 }: {
   stop: Stop;
   state: StopState;
   controls: StageControls;
   rotor: RotorId;
   paused: boolean;
+  /** Passed to every callout so none of them extends under the reading card. */
+  cardSide: "left" | "right";
 }) {
   const stage = stageForState(stop, state);
   const phaseStrengths = useMemo(
@@ -194,10 +145,10 @@ function SceneContents({
     return (
       <group>
         <AxialFlux spinning={!paused} exploded={controls.explode} chemistry={stage.chemistry} />
-        <Callout position={[0, AXIAL.outerRadius + 0.16, 0]} accent>
+        <Callout cardSide={cardSide} position={[0, AXIAL.outerRadius + 0.16, 0]} accent>
           stator coils · field runs along the shaft
         </Callout>
-        <Callout position={[0, -AXIAL.outerRadius - 0.16, 0.5]} side="left">
+        <Callout cardSide={cardSide} position={[0, -AXIAL.outerRadius - 0.16, 0.5]} side="left">
           rotor disc · magnets face the coils
         </Callout>
       </group>
@@ -213,17 +164,14 @@ function SceneContents({
           : "none";
     return (
       <group>
-        <Car focus={focus} flowing={!paused && state.id === "power-path"} extract={controls.extract} spinning={!paused && state.id !== "one-phase"} />
-        {focus === "drive-unit" && (
-          <Callout position={[1.6, 0.5, 0.9]} accent>
-            drive unit
-          </Callout>
-        )}
-        {focus === "battery" && (
-          <Callout position={[-1.6, -0.5, 0.9]} accent>
-            battery pack
-          </Callout>
-        )}
+        {/*
+          Car.tsx already labels the battery, the inverter, the motor, the gear
+          and the wheel from their own geometry. Repeating "battery pack" and
+          "drive unit" here put two callouts on the same part, a few pixels
+          apart — the collision was self-inflicted rather than a placement
+          problem.
+        */}
+        <Car cardSide={cardSide} focus={focus} flowing={!paused && state.id === "power-path"} extract={controls.extract} spinning={!paused && state.id !== "one-phase"} />
       </group>
     );
   }
@@ -231,20 +179,7 @@ function SceneContents({
   const slip = rotor === "squirrel-cage" ? 0.02 + controls.load * 0.02 : 0;
   // The casing is only in the way once the lesson moves to the air gap.
   const cutaway = CUTAWAY_STATES.has(state.id);
-  const fieldLesson =
-    stop.id === "three-coils-one-field"
-      ? state.id === "one-phase"
-        ? "fixed"
-        : state.id === "rotor-locks"
-          ? "lock"
-          : "sweep"
-      : stop.id === "two-pulls-one-shaft"
-        ? state.id === "load-angle" || state.id === "already-both"
-          ? "lock"
-          : "sweep"
-        : stop.id === "swap-the-rotor" && state.id !== "family-tree"
-          ? "sweep"
-          : "none";
+  const fieldLesson = fieldLessonFor(stop, state);
 
   return (
     <group>
@@ -272,25 +207,25 @@ function SceneContents({
       />
       {controls.explode > 0.3 && controls.isolate === "none" && (
         <>
-          <Callout position={[0, MOTOR.housingOuter + 0.3, explodeZ("housing", controls.explode)]}>
+          <Callout cardSide={cardSide} position={[0, MOTOR.housingOuter + 0.3, explodeZ("housing", controls.explode)]}>
             housing
           </Callout>
-          <Callout position={[0, MOTOR.statorOuter + 0.42, explodeZ("statorCore", controls.explode)]} accent>
+          <Callout cardSide={cardSide} position={[0, MOTOR.statorOuter + 0.42, explodeZ("statorCore", controls.explode)]} accent>
             stator · copper in 48 slots
           </Callout>
-          <Callout position={[0, MOTOR.rotorOuter + 0.3, explodeZ("rotor", controls.explode)]} accent>
+          <Callout cardSide={cardSide} position={[0, MOTOR.rotorOuter + 0.3, explodeZ("rotor", controls.explode)]} accent>
             rotor · magnets buried inside
           </Callout>
-          <Callout position={[0, MOTOR.shaftRadius + 0.34, explodeZ("shaft", controls.explode)]}>
+          <Callout cardSide={cardSide} position={[0, MOTOR.shaftRadius + 0.34, explodeZ("shaft", controls.explode)]}>
             shaft
           </Callout>
-          <Callout
+          <Callout cardSide={cardSide}
             position={[0, -MOTOR.housingOuter - 0.24, -MOTOR.housingLength / 2 + explodeZ("frontCap", controls.explode)]}
             side="left"
           >
             end cap
           </Callout>
-          <Callout
+          <Callout cardSide={cardSide}
             position={[0, -MOTOR.shaftRadius - 0.5, MOTOR.housingLength / 2 + explodeZ("rearBearing", controls.explode)]}
           >
             bearing
@@ -305,7 +240,7 @@ function SceneContents({
             { label: "group B", angle: (Math.PI * 2) / 3 },
             { label: "group C", angle: (Math.PI * 4) / 3 },
           ].map((phase) => (
-            <Callout
+            <Callout cardSide={cardSide}
               key={phase.label}
               position={[
                 Math.cos(phase.angle) * (MOTOR.statorOuter + 0.08),
@@ -321,13 +256,13 @@ function SceneContents({
 
       {controls.isolate === "stator" && (
         <>
-          <Callout position={[0, MOTOR.statorOuter + 0.22, 0]} accent>
+          <Callout cardSide={cardSide} position={[0, MOTOR.statorOuter + 0.22, 0]} accent>
             stator core · stationary laminated ring
           </Callout>
-          <Callout position={[-MOTOR.statorOuter - 0.12, 0.1, 0.2]} side="left">
+          <Callout cardSide={cardSide} position={[-MOTOR.statorOuter - 0.12, 0.1, 0.2]} side="left">
             copper windings · three phase groups
           </Callout>
-          <Callout position={[0, -MOTOR.statorBore - 0.08, -MOTOR.stackLength / 2]}>
+          <Callout cardSide={cardSide} position={[0, -MOTOR.statorBore - 0.08, -MOTOR.stackLength / 2]}>
             bore · the air gap is just inside
           </Callout>
         </>
@@ -335,13 +270,13 @@ function SceneContents({
 
       {controls.isolate === "rotor" && (
         <>
-          <Callout position={[0, MOTOR.rotorOuter + 0.18, 0]} accent>
+          <Callout cardSide={cardSide} position={[0, MOTOR.rotorOuter + 0.18, 0]} accent>
             rotor laminations · spinning steel core
           </Callout>
-          <Callout position={[MOTOR.rotorOuter * 0.68, MOTOR.rotorOuter * 0.55, 0]}>
+          <Callout cardSide={cardSide} position={[MOTOR.rotorOuter * 0.68, MOTOR.rotorOuter * 0.55, 0]}>
             magnets buried in V-shaped pockets
           </Callout>
-          <Callout position={[0, -MOTOR.shaftRadius - 0.14, MOTOR.stackLength * 0.35]}>
+          <Callout cardSide={cardSide} position={[0, -MOTOR.shaftRadius - 0.14, MOTOR.stackLength * 0.35]}>
             shaft · carries torque to the gear
           </Callout>
         </>
@@ -357,6 +292,8 @@ export function Stage({
   rotor,
   paused,
   reducedMotion,
+  explore = false,
+  side = "left",
   hidden = false,
 }: {
   stop: Stop;
@@ -365,12 +302,25 @@ export function Stage({
   rotor: RotorId;
   paused: boolean;
   reducedMotion: boolean;
-  /** True while an SVG stop is on screen: the canvas stays mounted but idle. */
+  /**
+   * Free orbit, off by default.
+   *
+   * Every label in this scene is placed against a known camera angle. Leaving
+   * the camera free is what made them "go awry" the moment the motor exploded,
+   * and fixing that by hand meant checking "every single arrow from a lot of
+   * different angles". The camera rides scripted stations instead, and this is
+   * the deliberate way out of them.
+   */
+  explore?: boolean;
+  /** Which side the reading card is on; the scene shifts the other way. */
+  side?: "left" | "right";
+  /** True while an SVG beat is on screen: the canvas stays mounted but idle. */
   hidden?: boolean;
 }) {
   const [failed, setFailed] = useState(false);
   const controlsRef = useRef<OrbitControlsImpl>(null);
-  const [aspect, setAspect] = useState(1.5);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [size, setSize] = useState({ width: 1440, height: 900 });
   const shell = useRef<HTMLDivElement>(null);
 
   // Framing depends on the viewport shape, so a resize has to re-solve it.
@@ -379,11 +329,46 @@ export function Stage({
     if (!node) return undefined;
     const observer = new ResizeObserver(([entry]) => {
       const { width, height } = entry.contentRect;
-      if (width > 0 && height > 0) setAspect(width / height);
+      if (width > 0 && height > 0) setSize({ width, height });
     });
     observer.observe(node);
     return () => observer.disconnect();
   }, []);
+
+  /*
+   * The machine is framed into the half of the page the reading card is not
+   * using, and then translated into it. Both numbers come from the same
+   * measurement — solving the shot against the full viewport and *then*
+   * shifting is what pushed the shaft of the exploded motor off the edge.
+   */
+  const frame = useMemo(() => {
+    const { width, height } = size;
+    const padX = width <= 560 ? 18 : width <= 960 ? 24 : 40;
+    const chromeY = 116; // masthead plus progress strip
+
+    // Below this the card is a bottom sheet, so the scene gives up height
+    // rather than width and stays centred horizontally.
+    if (width <= 1080 || explore) {
+      const usableHeight = explore ? height : Math.max(1, height - chromeY - height * 0.52);
+      return {
+        fit: [1, usableHeight / height] as const,
+        shiftX: 0,
+        shiftY: explore ? 0 : (chromeY + usableHeight / 2 - height / 2) / height,
+      };
+    }
+
+    const cardWidth = Math.min(410, width * 0.34);
+    const usableWidth = Math.max(1, width - cardWidth - padX * 2);
+    const usableHeight = Math.max(1, height - chromeY);
+    const usableCentreX =
+      side === "left" ? padX + cardWidth + usableWidth / 2 : padX + usableWidth / 2;
+
+    return {
+      fit: [usableWidth / width, usableHeight / height] as const,
+      shiftX: (usableCentreX - width / 2) / width,
+      shiftY: (chromeY + usableHeight / 2 - height / 2) / height,
+    };
+  }, [size, side, explore]);
 
   const shot = shotFor(stop, state, controls.explode);
   const view = useMemo(() => {
@@ -393,8 +378,29 @@ export function Stage({
         : shot === "axial"
           ? axialBounds(controls.explode)
           : motorBounds(controls.explode);
-    return cameraFor(shot, bounds, aspect, FOV);
-  }, [shot, controls.extract, controls.explode, aspect]);
+    return cameraFor(shot, bounds, size.width / Math.max(1, size.height), FOV, frame.fit);
+  }, [shot, controls.extract, controls.explode, size, frame.fit]);
+
+  /*
+   * A lost WebGL context is usually temporary — a GPU reset, a backgrounded
+   * tab, or too many live contexts — and the browser hands it back. Without
+   * this the fallback was permanent for the rest of the session.
+   */
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return undefined;
+    const onLost = (event: Event) => {
+      event.preventDefault();
+      setFailed(true);
+    };
+    const onRestored = () => setFailed(false);
+    canvas.addEventListener("webglcontextlost", onLost);
+    canvas.addEventListener("webglcontextrestored", onRestored);
+    return () => {
+      canvas.removeEventListener("webglcontextlost", onLost);
+      canvas.removeEventListener("webglcontextrestored", onRestored);
+    };
+  }, [failed]);
 
   if (failed) {
     return (
@@ -407,18 +413,37 @@ export function Stage({
     );
   }
 
+
   return (
-    <div className="stage" ref={shell} aria-hidden={hidden} data-hidden={hidden || undefined}>
+    <div
+      className="stage"
+      ref={shell}
+      aria-hidden={hidden}
+      data-hidden={hidden || undefined}
+      data-explore={explore || undefined}
+      /*
+       * Off-centre framing without moving the camera: the canvas element is
+       * translated into the space the card is not using. Far cheaper than
+       * re-solving the shot, and it leaves every label offset intact.
+       */
+      style={
+        {
+          "--scene-shift-x": `${(frame.shiftX * 100).toFixed(3)}%`,
+          "--scene-shift-y": `${(frame.shiftY * 100).toFixed(3)}%`,
+        } as React.CSSProperties
+      }
+    >
       <Canvas
         shadows
         dpr={[1, 1.8]}
         camera={{ position: view.position as [number, number, number], fov: FOV }}
         frameloop="always"
         gl={{ antialias: true }}
-        onCreated={({ gl, size }) => {
+        onCreated={({ gl, size: canvasSize }) => {
+          canvasRef.current = gl.domElement;
           gl.toneMapping = THREE.ACESFilmicToneMapping;
           gl.toneMappingExposure = 1.0;
-          setAspect(size.width / Math.max(1, size.height));
+          setSize({ width: canvasSize.width, height: Math.max(1, canvasSize.height) });
         }}
         resize={{ scroll: false }}
         fallback={
@@ -437,17 +462,34 @@ export function Stage({
             animate={!reducedMotion}
           />
           <Lighting />
+          {/*
+            No pointer parallax. The old build swayed the camera a few
+            hundredths of a unit to keep a rail-mounted camera from feeling
+            like a slideshow, and porting that here moved the camera using its
+            own position as the base for the next move — so each frame re-added
+            the previous offset and the camera accelerated out of the shot.
+            Rewriting it to offset the scene instead stopped the drift but
+            produced no measurable movement, so it earns nothing and is gone.
+            The scripted stations are what the labels actually depend on.
+          */}
           <SceneContents
             stop={stop}
             state={state}
             controls={controls}
             rotor={rotor}
             paused={paused || reducedMotion}
+            cardSide={side}
           />
           <ContactShadows position={[0, -1.4, 0]} opacity={0.32} scale={12} blur={2.8} far={4} color="#2a3230" />
+          {/*
+            OrbitControls stays mounted because ApplyCamera drives the camera
+            through it, but it accepts input only in explore mode. A camera
+            that cannot be spun is what lets a label keep a placed offset.
+          */}
           <OrbitControls
             ref={controlsRef}
             makeDefault
+            enabled={explore}
             enablePan={false}
             minDistance={1.5}
             maxDistance={60}

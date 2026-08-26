@@ -157,15 +157,6 @@ export function Controls({
 
   return (
     <div className="controls">
-      {stop.id === "the-problem" && state.id === "the-motor-in-the-car" && (
-        <Slider
-          label="Pull the drive unit out"
-          value={controls.extract}
-          onChange={(extract) => set({ extract })}
-          low="in the car"
-          high="on the bench"
-        />
-      )}
 
       {stop.id === "where-the-motor-lives" && state.id === "drive-unit" && (
         <Slider

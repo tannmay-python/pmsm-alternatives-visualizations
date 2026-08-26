@@ -1,221 +1,223 @@
+/*
+ * The tour shell.
+ *
+ * The scene is full-bleed and fixed; the masthead, the progress bar and the
+ * reading card float over it. The old shell put the stage in a 1fr column
+ * beside a 372px rail, which is what made the machine read as "this chunky
+ * square" with dead space around it.
+ */
+
 .app {
-  display: grid;
-  grid-template-rows: 56px minmax(0, 1fr) 68px;
-  width: 100%;
-  height: 100dvh;
-  overflow: hidden;
+  position: relative;
+  min-height: 100dvh;
+  background: var(--deep);
 }
 
-/* Top bar ---------------------------------------------------------------- */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  z-index: 20;
+  padding: 10px 16px;
+  background: var(--wine);
+  color: #fff;
+  font-family: var(--mono);
+  font-size: var(--t-button);
+  text-transform: uppercase;
+  letter-spacing: var(--track-button);
+}
+.skip-link:focus { left: var(--pad-x); top: 10px; }
+
+/* Masthead ---------------------------------------------------------------- */
 
 .topbar {
+  position: relative;
+  z-index: 5;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
-  padding: 0 var(--gap-4);
-  border-bottom: 1px solid var(--line);
+  gap: var(--gap-5);
+  padding: 14px var(--pad-x) 12px;
+  background: rgba(247, 245, 242, 0.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: var(--rule);
 }
 
-.topbar__title { display: flex; align-items: baseline; gap: var(--gap-3); }
-.topbar__name { margin: 0; font-size: var(--t-title); font-weight: 500; letter-spacing: -0.01em; }
-.topbar__acts { display: flex; gap: 2px; }
+.topbar__publisher { margin-bottom: 3px; }
 
-.act-tab {
-  padding: 6px 11px;
-  border-radius: 2px;
-  color: var(--text-faint);
-  font-size: var(--t-micro);
-  letter-spacing: var(--track-label);
-  text-transform: uppercase;
-  transition: color var(--dur) var(--ease), background var(--dur) var(--ease);
+.topbar__title {
+  padding: 0;
+  color: var(--ink);
+  font-size: var(--t-dense);
+  text-align: left;
 }
-.act-tab:hover { color: var(--text-muted); }
-.act-tab.is-current { color: var(--paper-000); background: var(--accent); }
+.topbar__title:hover { color: var(--wine); }
 
-/* Body ------------------------------------------------------------------- */
+/* Page names are destinations, so Inter and Title Case — never mono. */
+.topbar__pages { display: flex; flex-wrap: wrap; gap: 2px; }
 
-.body {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 372px;
-  min-width: 0;
-  min-height: 0;
-  overflow: hidden;
+.page-tab {
+  padding: 6px 12px;
+  color: var(--ink-50);
+  transition: background var(--dur-hover) ease, color var(--dur-hover) ease;
 }
+.page-tab:hover { background: var(--paper); color: var(--ink); }
+.page-tab.is-current { color: var(--wine); border-bottom: 1px solid var(--wine); }
 
-.stage-column { position: relative; min-width: 0; min-height: 0; overflow: hidden; }
+/* Progress ---------------------------------------------------------------- */
 
-.stage--loading {
-  display: grid;
-  place-content: center;
-  height: 100%;
-  color: var(--text-faint);
-  font-size: var(--t-small);
-}
-
-/* SVG stops sit above the persistent canvas. */
-.stage-diagram { position: absolute; inset: 0; }
-
-.stage-overlay {
-  position: absolute;
-  z-index: 2;
-  top: var(--gap-4);
-  left: var(--gap-4);
-  max-width: 40ch;
-  pointer-events: none;
-}
-
-.stage-overlay__label { margin: 0; color: var(--text); font-size: var(--t-title); font-weight: 500; }
-.stage-overlay__action {
-  margin: var(--gap-2) 0 0;
-  color: var(--accent);
-  font-size: var(--t-micro);
-  letter-spacing: 0.02em;
-}
-
-.stage-hint {
-  position: absolute;
-  z-index: 2;
-  right: var(--gap-4);
-  bottom: var(--gap-3);
-  color: var(--text-faint);
-  font-size: var(--t-micro);
-  pointer-events: none;
-}
-
-.physics-note {
-  position: absolute;
-  z-index: 2;
-  left: var(--gap-4);
-  bottom: var(--gap-4);
-  max-width: 310px;
-  padding-left: var(--gap-3);
-  border-left: 2px solid var(--accent-line);
-  pointer-events: none;
-}
-
-.physics-note strong {
-  display: block;
-  margin-bottom: 3px;
-  color: var(--accent-strong);
-  font-size: var(--t-micro);
-  letter-spacing: var(--track-label);
-  text-transform: uppercase;
-}
-
-.physics-note p {
-  margin: 0 0 5px;
-  color: var(--text-muted);
-  font-size: var(--t-micro);
-  line-height: 1.5;
-}
-
-.swatch {
-  display: inline-block;
-  width: 9px;
-  height: 3px;
-  margin-right: 3px;
-  vertical-align: middle;
-}
-
-.swatch--field { background: #a8d82b; }
-.swatch--rotor { background: #d9531c; }
-
-/* Panel ------------------------------------------------------------------ */
-
-.panel {
+.progress-strip {
+  position: relative;
+  z-index: 5;
   display: flex;
-  min-width: 0;
-  min-height: 0;
-  flex-direction: column;
-  border-left: 1px solid var(--line);
-  background: var(--paper-000);
-  overflow-y: auto;
+  align-items: end;
+  gap: var(--gap-5);
+  padding: 14px var(--pad-x) 14px;
+  background: rgba(247, 245, 242, 0.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: var(--rule);
 }
+.progress-strip > :first-child { flex: 1; min-width: 0; }
 
-.panel__head { padding: var(--gap-4) var(--gap-4) var(--gap-3); border-bottom: 1px solid var(--line); }
-.panel__number { color: var(--text-faint); font-size: var(--t-micro); letter-spacing: var(--track-label); }
-.panel__title {
-  margin: var(--gap-2) 0 0;
-  font-size: 1.4rem;
-  font-weight: 400;
-  letter-spacing: -0.025em;
-  line-height: 1.14;
-  text-wrap: balance;
-}
-.panel__question { margin: var(--gap-3) 0 0; color: var(--accent); font-size: var(--t-small); line-height: 1.5; }
-
-.panel__line {
-  margin: 0;
-  padding: var(--gap-4);
-  color: var(--text-muted);
-  font-size: var(--t-body);
-  line-height: 1.65;
-}
-
-.state-guide {
-  display: grid;
-  gap: var(--gap-3);
-  padding: var(--gap-3) var(--gap-4);
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
-  background: var(--paper-050);
-}
-
-.state-guide > div {
-  display: grid;
-  gap: 3px;
-}
-
-.state-guide span {
-  color: var(--accent-strong);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.11em;
+.progress-strip__skip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  padding: 7px 12px;
+  border: var(--rule);
+  color: var(--ink-70);
+  font-family: var(--mono);
+  font-size: var(--t-meta);
+  letter-spacing: 0.1em;
   text-transform: uppercase;
+  transition: background var(--dur-hover) ease;
+}
+.progress-strip__skip:hover { background: var(--paper); color: var(--ink); }
+
+/* Stage ------------------------------------------------------------------- */
+
+.stage-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background: var(--deep);
 }
 
-.state-guide p {
-  margin: 0;
-  color: var(--text-muted);
-  font-size: var(--t-small);
-  line-height: 1.55;
+.stage-diagram {
+  position: absolute;
+  inset: 116px 0 0;
+  display: grid;
+  align-content: center;
+  /* Not place-items: center — that shrink-wraps the figure, and an SVG sized
+     at width:100% then has nothing to resolve against and falls back to its
+     default 300px. */
+  justify-items: stretch;
+  padding: var(--gap-5) var(--pad-x);
+  overflow: auto;
+}
+/*
+ * The figure moves away from the reading card, the same way the 3D scene
+ * shifts. Without this the card lands on top of the plot.
+ */
+.stage-diagram--left { padding-left: calc(min(410px, 34vw) + var(--pad-x) * 2); }
+.stage-diagram--right { padding-right: calc(min(410px, 34vw) + var(--pad-x) * 2); }
+
+/* Placed on whichever side the reading card is not using, so the two never
+   overlap. --side is set from the page. */
+.stage-tools {
+  position: fixed;
+  z-index: 6;
+  bottom: var(--pad-x);
+  display: flex;
+  gap: var(--gap-2);
+}
+.app[data-side="right"] .stage-tools { left: var(--pad-x); }
+.app[data-side="left"] .stage-tools { right: var(--pad-x); }
+
+.stage-tool {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: var(--rule);
+  color: var(--ink-70);
+  font-family: var(--mono);
+  font-size: var(--t-meta);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: background var(--dur-hover) ease, color var(--dur-hover) ease;
+}
+.stage-tool:hover:not(:disabled) { background: var(--deep); color: var(--ink); }
+.stage-tool.is-on { background: var(--wine); border-color: var(--wine); color: #fff; }
+
+@media (max-width: 1080px) {
+  .stage-diagram { inset: 116px 0 52dvh; padding: var(--gap-4) var(--pad-x); }
+  .stage-diagram--left,
+  .stage-diagram--right { padding-left: var(--pad-x); padding-right: var(--pad-x); }
+  .stage-tools { bottom: auto; top: 128px; }
 }
 
-/* Controls --------------------------------------------------------------- */
+@media (max-width: 720px) {
+  .topbar { flex-direction: column; align-items: flex-start; gap: var(--gap-3); }
+  .topbar__pages { gap: 0; overflow-x: auto; width: 100%; }
+  .page-tab { white-space: nowrap; padding: 6px 10px; }
+}
 
-.controls { padding: 0 var(--gap-4) var(--gap-4); }
-.control { padding: var(--gap-3) 0; border-top: 1px solid var(--line); }
+/* Controls ---------------------------------------------------------------
+ * Sliders and pickers now live inside the reading card rather than a side
+ * rail, so they lose the rail's padding and take its hairline instead. Radii
+ * are gone: this design language draws structure with rules.
+ */
+
+.controls { padding: 0; }
+
+.control { padding: var(--gap-3) 0; }
+.control + .control { border-top: var(--hairline); }
+
 .control__label {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
+  gap: var(--gap-3);
   margin: 0 0 var(--gap-2);
-  color: var(--text);
-  font-size: var(--t-small);
+  color: var(--ink);
+  font-size: var(--t-dense);
 }
-.control__value { color: var(--accent); font-size: var(--t-micro); font-variant-numeric: tabular-nums; }
+.control__value {
+  color: var(--wine);
+  font-family: var(--mono);
+  font-size: var(--t-meta);
+  font-variant-numeric: tabular-nums;
+}
 
-.control input[type="range"] { width: 100%; accent-color: var(--accent); }
+.control input[type="range"] { width: 100%; accent-color: var(--wine); }
 
 .control__ends {
   display: flex;
   justify-content: space-between;
-  margin-top: var(--gap-1);
-  color: var(--text-faint);
-  font-size: var(--t-micro);
+  gap: var(--gap-3);
+  margin-top: 5px;
+  color: var(--ink-50);
+  font-family: var(--mono);
+  font-size: var(--t-meta);
 }
 
 .seg { display: grid; grid-auto-flow: column; gap: 3px; }
 .seg button {
   min-height: 32px;
-  border: 1px solid var(--line-strong);
-  border-radius: 2px;
-  color: var(--text-muted);
-  font-size: var(--t-micro);
-  transition: all var(--dur) var(--ease);
+  padding: 0 8px;
+  border: var(--rule);
+  color: var(--ink-70);
+  font-size: var(--t-meta);
+  transition: background var(--dur-hover) ease, color var(--dur-hover) ease;
 }
-.seg button:hover { border-color: var(--steel-200); color: var(--text); }
-.seg button.is-on { border-color: var(--accent); background: var(--accent-wash); color: var(--accent); }
+.seg button:hover { background: var(--deep); color: var(--ink); }
+.seg button.is-on { border-color: var(--wine); background: var(--wine-soft); color: var(--wine); }
 
 /* The rotor rack — the tour's central control. */
 .rack { display: grid; gap: 3px; }
@@ -225,39 +227,51 @@
   align-items: center;
   gap: var(--gap-2);
   padding: 9px 11px;
-  border: 1px solid var(--line-strong);
-  border-radius: 2px;
+  border: var(--rule);
   text-align: left;
-  transition: all var(--dur) var(--ease);
+  transition: background var(--dur-hover) ease;
 }
-.rack button:hover { border-color: var(--steel-200); }
-.rack button.is-on { border-color: var(--accent); background: var(--accent-wash); }
-.rack__name { color: var(--text); font-size: var(--t-small); }
-.rack button.is-on .rack__name { color: var(--accent); }
-.rack__note { color: var(--text-faint); font-size: var(--t-micro); }
-.rack__tag { color: var(--text-faint); font-size: var(--t-micro); letter-spacing: var(--track-label); text-transform: uppercase; }
+.rack button:hover { background: var(--deep); }
+.rack button.is-on { border-color: var(--wine); background: var(--wine-soft); }
+.rack__name { color: var(--ink); font-size: var(--t-dense); }
+.rack button.is-on .rack__name { color: var(--wine); }
+.rack__note { color: var(--ink-50); font-size: var(--t-meta); }
+.rack__tag {
+  color: var(--ink-50);
+  font-family: var(--mono);
+  font-size: var(--t-meta);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
 
+/* Aside — a wine rule and padding, no fill. */
 .control-note {
   margin: var(--gap-3) 0 0;
-  padding-left: 9px;
-  border-left: 2px solid var(--accent-line);
-  color: var(--text-faint);
-  font-size: var(--t-micro);
+  padding-left: 12px;
+  border-left: 2px solid var(--wine);
+  color: var(--ink-50);
+  font-size: var(--t-meta);
   line-height: 1.55;
 }
 
 .rotor-facts { margin-top: var(--gap-3); display: grid; gap: var(--gap-2); }
 .rotor-fact { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: var(--gap-2); }
-.rotor-fact dt { color: var(--text-faint); font-size: var(--t-micro); letter-spacing: 0.04em; }
-.rotor-fact dd { margin: 0; color: var(--text-muted); font-size: var(--t-micro); line-height: 1.55; }
+.rotor-fact dt {
+  color: var(--ink-50);
+  font-family: var(--mono);
+  font-size: var(--t-meta);
+  letter-spacing: 0.04em;
+}
+.rotor-fact dd { margin: 0; color: var(--ink-70); font-size: var(--t-meta); line-height: 1.55; }
 
-/* Evidence --------------------------------------------------------------- */
+/* Evidence ---------------------------------------------------------------- */
 
-.evidence { margin-top: auto; padding: var(--gap-3) var(--gap-4) var(--gap-4); border-top: 1px solid var(--line); }
+.evidence { padding: 0; }
 .evidence summary {
-  color: var(--text-faint);
-  font-size: var(--t-micro);
-  letter-spacing: var(--track-label);
+  color: var(--ink-50);
+  font-family: var(--mono);
+  font-size: var(--t-meta);
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   cursor: pointer;
   list-style: none;
@@ -266,96 +280,17 @@
 .evidence summary::before { content: "› "; }
 .evidence[open] summary::before { content: "⌄ "; }
 .evidence ul { margin: var(--gap-3) 0 0; padding: 0; list-style: none; display: grid; gap: var(--gap-3); }
-.evidence li { color: var(--text-faint); font-size: var(--t-micro); line-height: 1.55; }
+.evidence li { color: var(--ink-50); font-size: var(--t-meta); line-height: 1.55; }
 .evidence .tag {
   display: inline-block;
   margin-right: 6px;
   padding: 1px 5px;
-  border: 1px solid var(--line-strong);
-  border-radius: 2px;
+  border: var(--rule);
+  font-family: var(--mono);
   font-size: 9.5px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
-.evidence .tag--verified { border-color: var(--accent-line); color: var(--accent); }
-.evidence .tag--qualified { color: var(--text-muted); }
-.evidence .tag--unverified { border-color: rgba(255, 122, 61, 0.5); color: var(--warn); }
-
-/* Footer rail ------------------------------------------------------------ */
-
-.rail {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: var(--gap-4);
-  min-width: 0;
-  padding: 0 var(--gap-4);
-  border-top: 1px solid var(--line);
-  overflow: hidden;
-}
-
-.rail__stops {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(0, 1fr);
-  gap: 3px;
-  min-width: 0;
-}
-
-/* One segment per stop. The current stop's segment carries its state ticks,
-   so the reader can see both where they are in the tour and inside the stop. */
-.seg-stop {
-  display: grid;
-  align-content: end;
-  gap: 5px;
-  min-width: 0;
-  padding: 0 0 9px;
-  text-align: left;
-}
-
-.seg-stop__bar { height: 2px; background: var(--steel-100); transition: background var(--dur) var(--ease); }
-.seg-stop:hover .seg-stop__bar { background: var(--steel-300); }
-.seg-stop.is-done .seg-stop__bar { background: var(--steel-200); }
-.seg-stop.is-current .seg-stop__bar { background: var(--accent); }
-
-.seg-stop__label {
-  overflow: hidden;
-  color: var(--text-faint);
-  font-size: 10px;
-  letter-spacing: 0.01em;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  transition: color var(--dur) var(--ease);
-}
-.seg-stop.is-current .seg-stop__label { color: var(--text); }
-.seg-stop:hover .seg-stop__label { color: var(--text-muted); }
-
-.seg-stop__ticks { display: flex; gap: 3px; height: 3px; }
-.seg-stop__tick { flex: 1; background: var(--paper-300); border-radius: 1px; }
-.seg-stop__tick.is-on { background: var(--accent); }
-.seg-stop__tick.is-past { background: var(--accent-dim); opacity: 0.55; }
-
-.rail__count { color: var(--text-faint); font-size: var(--t-micro); font-variant-numeric: tabular-nums; }
-
-.skip-link {
-  position: fixed;
-  z-index: 30;
-  top: 8px;
-  left: 8px;
-  padding: 9px 12px;
-  background: var(--accent);
-  color: var(--paper-000);
-  text-decoration: none;
-  transform: translateY(-200%);
-}
-.skip-link:focus { transform: none; }
-
-@media (max-width: 1080px) {
-  .app { grid-template-rows: 52px minmax(0, 1fr) auto; height: auto; min-height: 100dvh; }
-  .body { grid-template-columns: minmax(0, 1fr); }
-  .stage-column { height: 56vh; min-height: 340px; }
-  .panel { border-left: 0; border-top: 1px solid var(--line); }
-  .topbar__acts { display: none; }
-  .rail { grid-template-columns: minmax(0, 1fr); gap: var(--gap-3); padding: var(--gap-3) var(--gap-4); }
-  .seg-stop__label { display: none; }
-}
+.evidence .tag--verified { border-color: var(--accent-line); color: var(--wine); }
+.evidence .tag--qualified { color: var(--ink-70); }
+.evidence .tag--unverified { border-color: rgba(163, 40, 45, 0.5); color: var(--negative); }

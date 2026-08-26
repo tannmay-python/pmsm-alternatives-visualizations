@@ -1,17 +1,22 @@
-import { ArrowLeft, ArrowRight, Pause, Play } from "@phosphor-icons/react";
+import { ArrowRight, Cube, Pause, Play } from "@phosphor-icons/react";
 import { Suspense, lazy, useCallback, useEffect, useMemo, useReducer, useState } from "react";
 import { Diagram } from "./diagrams/Diagrams";
 import { Controls } from "./shell/Controls";
 import { Evidence } from "./shell/Evidence";
-import { Opening } from "./shell/Opening";
-import { ACTS, STOPS, stageForState, type Stop, type StopState } from "./route/route";
-import { guideFor } from "./route/guide";
+import { BeatCard } from "./shell/BeatCard";
+import { ProgressBar } from "./shell/ProgressBar";
+import { Landing } from "./pages/Landing";
+import { RightHandRule } from "./stage/RightHandRule";
+import { Close } from "./pages/Close";
+import { PUBLISHER } from "./meta";
+import { STOPS, type Stop, type StopState } from "./route/route";
+import { BEATS, PAGE_LIST } from "./route/structure";
+import { presetFor } from "./route/presets";
 /*
  * three.js and its helpers are three quarters of the payload. Loading them
- * behind a boundary lets the shell, the copy and the rail paint immediately,
- * and means the SVG stops never block on a renderer they do not use. The
- * component stays mounted once loaded, so the WebGL context is still created
- * exactly once for the session.
+ * behind a boundary lets the shell and the card paint immediately, and means
+ * the SVG beats never block on a renderer they do not use. The component stays
+ * mounted once loaded, so the WebGL context is created exactly once.
  */
 const Stage = lazy(() => import("./stage/Stage").then((m) => ({ default: m.Stage })));
 import { DEFAULT_CONTROLS, type StageControls } from "./stage/controls";
@@ -20,23 +25,27 @@ import type { ArchitectureId } from "./models/swapBurden";
 import "./design/tokens.css";
 import "./shell/Shell.css";
 
-/** Flat list of every (stop, state) pair, which is what Back and Next walk. */
-const POSITIONS = STOPS.flatMap((stop, stopIndex) =>
-  stop.states.map((state, stateIndex) => ({ stop, state, stopIndex, stateIndex })),
-);
+/**
+ * The tour is three screens: an editorial landing, six tour pages, and an
+ * editorial close. Only the middle one carries tour chrome.
+ */
+type Screen = "landing" | "tour" | "close";
 
-const indexOf = (stopId: string, stateId: string) =>
-  Math.max(
-    0,
-    POSITIONS.findIndex((p) => p.stop.id === stopId && p.state.id === stateId),
-  );
-
-const hashFor = (stop: Stop, state: StopState) => `#${stop.id}/${state.id}`;
+const hashFor = (index: number) => {
+  const { page, stop, beat } = BEATS[index];
+  return `#${page.id}/${stop.id}/${beat.id}`;
+};
 
 const positionFromHash = (hash: string) => {
-  const [stopId, stateId] = hash.replace(/^#/, "").split("/");
-  const found = POSITIONS.findIndex(
-    (p) => p.stop.id === stopId && (!stateId || p.state.id === stateId),
+  const raw = hash.replace(/^#/, "");
+  if (!raw) return null;
+  if (raw === "close") return "close" as const;
+  const [pageId, stopId, beatId] = raw.split("/");
+  const found = BEATS.findIndex(
+    (p) =>
+      p.page.id === pageId &&
+      (!stopId || p.stop.id === stopId) &&
+      (!beatId || p.beat.id === beatId),
   );
   return found >= 0 ? found : null;
 };
@@ -45,22 +54,47 @@ type Move = { type: "go"; index: number } | { type: "step"; by: -1 | 1 };
 
 const cursorReducer = (index: number, move: Move) => {
   const next = move.type === "go" ? move.index : index + move.by;
-  return Math.max(0, Math.min(POSITIONS.length - 1, next));
+  return Math.max(0, Math.min(BEATS.length - 1, next));
+};
+
+/**
+ * The route.ts stop and state whose frame a beat shows, which the stage and
+ * the per-beat controls are still written against. Usually the beat's first
+ * source state; a deliberate merge may name a different one.
+ */
+const sourceOf = (index: number) => {
+  const { stop, beat } = BEATS[index];
+  const sourceStop = STOPS.find((s) => s.id === stop.sourceStopId) as Stop;
+  const sourceState = sourceStop.states.find((s) => s.id === beat.frameStateId) as StopState;
+  return { sourceStop, sourceState };
 };
 
 export default function App() {
-  const [cursor, move] = useReducer(cursorReducer, 0, () =>
-    positionFromHash(window.location.hash) ?? 0,
+  const initialHash = typeof window === "undefined" ? "" : window.location.hash;
+  const initial = positionFromHash(initialHash);
+
+  const [screen, setScreen] = useState<Screen>(
+    initial === null ? "landing" : initial === "close" ? "close" : "tour",
+  );
+  const [cursor, move] = useReducer(
+    cursorReducer,
+    typeof initial === "number" ? initial : 0,
   );
   const [controls, patchControls] = useState<StageControls>(DEFAULT_CONTROLS);
   const [rotor, setRotor] = useState<RotorId>("ipm-ndfeb");
   const [architecture, setArchitecture] = useState<ArchitectureId>("reduced-hree");
   const [paused, setPaused] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
-  // The root URL gets the editorial opening; a deep link goes straight to its stop.
-  const [enteredTour, setEnteredTour] = useState(() => Boolean(window.location.hash));
+  /*
+   * The camera rides scripted stations so that hand-placed labels stay valid.
+   * Explore is the deliberate escape hatch: "you can obviously pause the tour
+   * at any time and play around with it if you want to."
+   */
+  const [explore, setExplore] = useState(false);
 
-  const { stop, state } = POSITIONS[cursor];
+  const position = BEATS[cursor];
+  const { page, stop, beat, stopIndex, beatIndex, pageIndex } = position;
+  const { sourceStop, sourceState } = useMemo(() => sourceOf(cursor), [cursor]);
 
   const setControls = useCallback(
     (patch: Partial<StageControls>) => patchControls((current) => ({ ...current, ...patch })),
@@ -76,289 +110,292 @@ export default function App() {
     return () => media.removeEventListener("change", sync);
   }, []);
 
-  // Each state gets the control values it was written for, so nothing is ever
-  // left mid-drag from a previous stop.
+  // Each beat gets the control values it was written for, so nothing is ever
+  // left mid-drag from the beat before it.
   useEffect(() => {
-    window.history.replaceState(null, "", hashFor(stop, state));
-    patchControls((current) => ({
-      ...current,
-      explode:
-        stop.id === "open-the-machine"
-          ? state.id === "explode"
-            ? 0.55
-            : 0
-          : state.id === "compensate-geometry" || state.id === "independent-geometry"
-            ? 0.6
-            : 0,
-      isolate:
-        state.id === "stator" ? "stator" : state.id === "rotor" ? "rotor" : "none",
-      activePhase: state.id === "one-phase" ? 0 : null,
-      extract: state.id === "drive-unit" ? 0.6 : state.id === "one-part" ? 0.25 : 0,
-      dysprosium: state.id === "dysprosium-tradeoff" ? 0.35 : 0,
-      diffusion: state.id === "diffusion-evolution" ? 0.55 : 0,
-      nucleation: state.id === "reversal-start" ? 0.25 : 0,
-      weakening: state.id === "field-weakening" ? 0.45 : state.id === "fault" ? 0.75 : 0,
-      fieldLive: true,
-      angle: state.id === "anisotropy" ? (Math.PI / 2) * 0.35 : 0,
-      load:
-        state.id === "load-angle" || state.id === "induction-principle" || state.id === "induction-duty" ? 0.6
-        : state.id === "hot-margin" ? 0.3
-        : state.id === "ceiling" || state.id === "field-weakening" ? 0.85
-        : state.id === "coercivity" || state.id === "anisotropy" ? 0.5
-        : DEFAULT_CONTROLS.load,
-      heat:
-        state.id === "hot-margin" ? 0.5
-        : state.id === "reversal-start" || state.id === "dysprosium-tradeoff" ? 0.5
-        : 0.15,
-    }));
-  }, [stop, state]);
+    if (screen !== "tour") return;
+    window.history.replaceState(null, "", hashFor(cursor));
+    // The preset lives in route/presets.ts because the structure module needs
+    // it too: it is part of what decides whether two beats drew the same frame.
+    patchControls(presetFor(sourceStop.id, sourceState.id));
 
-  // The rotor rack drives the machine, but a few states name their own rotor.
+    // Leaving a beat drops the reader back onto its scripted angle.
+    setExplore(false);
+  }, [cursor, screen, sourceStop, sourceState]);
+
+  // The rotor rack drives the machine, but a few beats name their own rotor.
   useEffect(() => {
-    const stage = stageForState(stop, state);
-    if (stage.kind === "three" && stage.scene === "motor") setRotor(stage.rotor);
-  }, [stop, state]);
+    if (beat.stage.kind === "three" && beat.stage.scene === "motor") setRotor(beat.stage.rotor);
+  }, [beat]);
+
+  const goNext = useCallback(() => {
+    if (cursor === BEATS.length - 1) {
+      setScreen("close");
+      window.history.replaceState(null, "", "#close");
+      return;
+    }
+    move({ type: "step", by: 1 });
+  }, [cursor]);
+
+  const goBack = useCallback(() => {
+    if (cursor === 0) {
+      setScreen("landing");
+      window.history.replaceState(null, "", " ");
+      return;
+    }
+    move({ type: "step", by: -1 });
+  }, [cursor]);
+
+  /** Skip the rest of this page. "There should be an option to skip that
+   *  complete page and go to the next page if the person wants." */
+  const skipPage = useCallback(() => {
+    const next = BEATS.findIndex((p) => p.pageIndex === pageIndex + 1);
+    if (next === -1) {
+      setScreen("close");
+      window.history.replaceState(null, "", "#close");
+      return;
+    }
+    move({ type: "go", index: next });
+  }, [pageIndex]);
+
+  const jumpWithinPage = useCallback(
+    (targetStop: number, targetBeat: number) => {
+      const index = BEATS.findIndex(
+        (p) =>
+          p.pageIndex === pageIndex && p.stopIndex === targetStop && p.beatIndex === targetBeat,
+      );
+      if (index >= 0) move({ type: "go", index });
+    },
+    [pageIndex],
+  );
+
+  const goToPage = useCallback((targetPage: number) => {
+    const index = BEATS.findIndex((p) => p.pageIndex === targetPage);
+    if (index >= 0) {
+      move({ type: "go", index });
+      setScreen("tour");
+    }
+  }, []);
 
   useEffect(() => {
+    if (screen !== "tour") return undefined;
     const onKey = (event: KeyboardEvent) => {
       if (event.target instanceof HTMLInputElement) return;
-      if (event.key === "ArrowRight") { event.preventDefault(); move({ type: "step", by: 1 }); }
-      if (event.key === "ArrowLeft") { event.preventDefault(); move({ type: "step", by: -1 }); }
+      if (event.key === "ArrowRight") { event.preventDefault(); goNext(); }
+      if (event.key === "ArrowLeft") { event.preventDefault(); goBack(); }
       if (event.key === " ") { event.preventDefault(); setPaused((p) => !p); }
+      if (event.key === "Escape") setExplore(false);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  }, [screen, goNext, goBack]);
 
-  // In-app controls use replaceState; browser back/forward raises hashchange.
+  // In-app moves use replaceState; browser back/forward raises hashchange.
   useEffect(() => {
     const syncFromHash = () => {
-      const index = positionFromHash(window.location.hash);
-      setEnteredTour(index !== null);
-      move({ type: "go", index: index ?? 0 });
+      const next = positionFromHash(window.location.hash);
+      if (next === null) { setScreen("landing"); return; }
+      if (next === "close") { setScreen("close"); return; }
+      setScreen("tour");
+      move({ type: "go", index: next });
     };
     window.addEventListener("hashchange", syncFromHash);
     return () => window.removeEventListener("hashchange", syncFromHash);
   }, []);
 
-  const stage = stageForState(stop, state);
-  const actIndex = useMemo(() => ACTS.findIndex((a) => a.act === stop.act), [stop.act]);
+  if (screen === "landing") {
+    return (
+      <Landing
+        onEnter={() => {
+          move({ type: "go", index: 0 });
+          setScreen("tour");
+        }}
+      />
+    );
+  }
+
+  if (screen === "close") {
+    return (
+      <Close
+        onBack={() => {
+          move({ type: "go", index: BEATS.length - 1 });
+          setScreen("tour");
+        }}
+        onRestart={() => {
+          setScreen("landing");
+          window.history.replaceState(null, "", " ");
+        }}
+      />
+    );
+  }
+
+  // A local const so the union narrows inside the branch below.
+  const stage = beat.stage;
+  const isThree = stage.kind === "three";
 
   return (
-    enteredTour ? (
-    <div className="app">
+    <div className="app" data-side={page.side}>
       <a className="skip-link" href="#stage">Skip to the stage</a>
 
       <header className="topbar">
-        <div className="topbar__title">
-          <h1 className="topbar__name">The rare-earth question, inside one motor</h1>
+        <div className="topbar__brand">
+          <p className="topbar__publisher eyebrow">{PUBLISHER}</p>
+          <button
+            type="button"
+            className="topbar__title nav-link"
+            onClick={() => { setScreen("landing"); window.history.replaceState(null, "", " "); }}
+          >
+            The rare-earth question, inside one motor
+          </button>
         </div>
-        <nav className="topbar__acts" aria-label="Acts">
-          {ACTS.map((act, i) => {
-            const first = STOPS.find((s) => s.act === act.act);
-            return (
-              <button
-                key={act.act}
-                type="button"
-                className={`act-tab ${i === actIndex ? "is-current" : ""}`}
-                aria-current={i === actIndex ? "step" : undefined}
-                onClick={() => first && move({ type: "go", index: indexOf(first.id, first.states[0].id) })}
-              >
-                {act.label}
-              </button>
-            );
-          })}
+
+        {/* Destinations, so Inter and Title Case — never mono, never uppercase. */}
+        <nav className="topbar__pages" aria-label="Pages">
+          {PAGE_LIST.map((item, i) => (
+            <button
+              key={item.id}
+              type="button"
+              className={`page-tab nav-link ${i === pageIndex ? "is-current" : ""}`}
+              aria-current={i === pageIndex ? "page" : undefined}
+              onClick={() => goToPage(i)}
+            >
+              {item.title}
+            </button>
+          ))}
         </nav>
       </header>
 
-      <div className="body">
-        <section className="stage-column" id="stage" aria-label={stop.title}>
-          <div className="stage-overlay">
-            <p className="stage-overlay__label">{state.label}</p>
-            <p className="stage-overlay__action">{state.action}</p>
-          </div>
+      <div className="progress-strip">
+        <ProgressBar
+          page={page}
+          stopIndex={stopIndex}
+          beatIndex={beatIndex}
+          onJump={jumpWithinPage}
+        />
+        <button type="button" className="progress-strip__skip" onClick={skipPage}>
+          Skip page <ArrowRight size={12} weight="bold" />
+        </button>
+      </div>
 
-          {stage.kind === "three" &&
-            ["one-phase", "three-phases", "no-part-moves", "rotor-locks"].includes(state.id) && (
-              <aside className="physics-note" aria-label="How to read the magnetic-field overlay">
-                <strong>Right-hand rule</strong>
-                <p>Curl your right-hand fingers with the coil current; your thumb points to that group's north pole.</p>
-                {state.id === "rotor-locks" && (
-                  <p>
-                    <i className="swatch swatch--field" /> stator field ·{" "}
-                    <i className="swatch swatch--rotor" /> rotor magnet axis. The orange axis trails, but turns at the
-                    same rate.
-                  </p>
-                )}
-              </aside>
-            )}
-
-          {/*
-            The 3D stage stays mounted for the whole tour. SVG stops render on
-            top of it rather than replacing it, so the WebGL context is created
-            once instead of once per stop.
-          */}
+      {/*
+        The scene is full-bleed and everything else floats over it. The card
+        sits on one side and the canvas shifts the other way, which is how the
+        machine keeps the page without the card ever covering it.
+      */}
+      <section className="stage-layer" id="stage" aria-label={stop.title}>
+        {stage.kind === "three" ? (
           <Suspense
             fallback={
               <div className="stage stage--loading">
-                <p>{state.label}</p>
+                <p>{beat.label}</p>
               </div>
             }
           >
             <Stage
-              stop={stop}
-              state={state}
+              stop={sourceStop}
+              state={sourceState}
               controls={controls}
               rotor={rotor}
-              paused={paused}
+              paused={paused || explore}
               reducedMotion={reducedMotion}
-              hidden={stage.kind !== "three"}
+              explore={explore}
+              side={page.side}
             />
           </Suspense>
-
-          {stage.kind === "three" ? (
-            <p className="stage-hint">Drag to orbit · scroll to zoom</p>
-          ) : (
-            <div className="stage-diagram">
-              <Diagram
-                id={stage.diagram}
-                stateId={state.id}
-                controls={controls}
-                architecture={architecture}
-                onPickArchitecture={setArchitecture}
-                rotor={rotor}
-                onPickFamily={(id) => {
-                  const map: Record<string, RotorId> = {
-                    pmsm: "ipm-ndfeb",
-                    induction: "squirrel-cage",
-                    wound: "wound",
-                    synrm: "synrm",
-                    srm: "srm",
-                  };
-                  if (map[id]) setRotor(map[id]);
-                }}
-              />
-            </div>
-          )}
-        </section>
-
-        <aside className="panel" aria-label="Explanation and controls">
-          <div className="panel__head">
-            <p className="panel__number num">
-              {String(stop.number).padStart(2, "0")} / {String(STOPS.length).padStart(2, "0")} · {stop.actLabel}
-            </p>
-            <h2 className="panel__title">{stop.title}</h2>
-            <p className="panel__question">{stop.question}</p>
+        ) : (
+          <div className={`stage-diagram stage-diagram--${page.side}`}>
+            <Diagram
+              id={stage.diagram}
+              stateId={sourceState.id}
+              emphasis={beat.emphasis}
+              controls={controls}
+              architecture={architecture}
+              onPickArchitecture={setArchitecture}
+              rotor={rotor}
+              onPickFamily={(id) => {
+                const map: Record<string, RotorId> = {
+                  pmsm: "ipm-ndfeb",
+                  induction: "squirrel-cage",
+                  wound: "wound",
+                  synrm: "synrm",
+                  srm: "srm",
+                };
+                if (map[id]) setRotor(map[id]);
+              }}
+            />
           </div>
+        )}
+        {/*
+          The rule is explained where the field first appears, on the
+          visualisation, and it is gone the moment you press Next.
+        */}
+        {sourceState.id === "one-phase" && (
+          <RightHandRule side={page.side} paused={paused || reducedMotion} />
+        )}
+      </section>
 
-          <p className="panel__line">{state.line}</p>
-
-          {(() => {
-            const guide = guideFor(stop.id, state.id);
-            return (
-              <div className="state-guide">
-                <div>
-                  <span>Look for</span>
-                  <p>{guide.lookFor}</p>
-                </div>
-                <div>
-                  <span>Takeaway</span>
-                  <p>{guide.takeaway}</p>
-                </div>
-                <div>
-                  <span>Next</span>
-                  <p>{guide.next}</p>
-                </div>
-              </div>
-            );
-          })()}
-
+      <BeatCard
+        page={page}
+        stop={stop}
+        beat={beat}
+        beatNumber={beatIndex + 1}
+        beatTotal={stop.beats.length}
+        onBack={goBack}
+        onNext={goNext}
+        canGoBack
+        canGoNext
+        controls={
           <Controls
-            stop={stop}
-            state={state}
+            stop={sourceStop}
+            state={sourceState}
             controls={controls}
             setControls={setControls}
             rotor={rotor}
             setRotor={setRotor}
           />
-
-          <Evidence stop={stop} />
-        </aside>
-      </div>
-
-      <footer className="rail">
-        <div className="rail__stops" role="group" aria-label="Tour progress">
-          {STOPS.map((item) => {
-            const current = item.id === stop.id;
-            const done = item.number < stop.number;
-            return (
-              <button
-                key={item.id}
-                type="button"
-                className={`seg-stop ${current ? "is-current" : ""} ${done ? "is-done" : ""}`}
-                aria-current={current ? "step" : undefined}
-                title={`${item.number}. ${item.title}`}
-                onClick={() => move({ type: "go", index: indexOf(item.id, item.states[0].id) })}
-              >
-                <span className="seg-stop__label">
-                  {item.number}. {item.title}
-                </span>
-                <span className="seg-stop__bar" />
-                <span className="seg-stop__ticks">
-                  {item.states.map((itemState, i) => (
-                    <span
-                      key={itemState.id}
-                      className={`seg-stop__tick ${
-                        current && itemState.id === state.id
-                          ? "is-on"
-                          : current && i < POSITIONS[cursor].stateIndex
-                            ? "is-past"
-                            : done
-                              ? "is-past"
-                              : ""
-                      }`}
-                    />
-                  ))}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-
-        <div className="nav">
-          <button
-            type="button"
-            onClick={() => setPaused((p) => !p)}
-            disabled={reducedMotion}
-            aria-pressed={paused}
-          >
-            {paused ? <Play size={14} weight="fill" /> : <Pause size={14} weight="fill" />}
-            {paused ? "Play" : "Pause"}
-          </button>
-          <span className="rail__count num">
-            {POSITIONS[cursor].stateIndex + 1} / {stop.states.length}
-          </span>
-          <button type="button" onClick={() => move({ type: "step", by: -1 })} disabled={cursor === 0}>
-            <ArrowLeft size={14} /> Back
-          </button>
-          <button
-            type="button"
-            className="is-primary"
-            onClick={() => move({ type: "step", by: 1 })}
-            disabled={cursor === POSITIONS.length - 1}
-          >
-            Next <ArrowRight size={14} />
-          </button>
-        </div>
-      </footer>
-    </div>
-    ) : (
-      <Opening
-        onEnter={() => {
-          move({ type: "go", index: indexOf("where-the-motor-lives", "power-path") });
-          setEnteredTour(true);
-        }}
+        }
+        aside={
+          /*
+           * The right-hand rule itself is now drawn on the stage, so the card
+           * carries only the note that the drawing cannot make: which of the
+           * two axes on screen is which.
+           */
+          sourceState.id === "rotor-locks" ? (
+            <>
+              <strong>Two axes, one speed</strong>
+              <p>
+                The stator field leads and the rotor magnet axis trails, but both turn at the same
+                rate. The gap between them is the load angle.
+              </p>
+            </>
+          ) : null
+        }
+        evidence={<Evidence stop={sourceStop} />}
       />
-    )
+
+      <div className="stage-tools">
+        <button
+          type="button"
+          className={`stage-tool ${explore ? "is-on" : ""}`}
+          onClick={() => setExplore((e) => !e)}
+          disabled={!isThree}
+          aria-pressed={explore}
+          title={isThree ? "Pause the tour and turn the machine yourself" : "Only on 3D beats"}
+        >
+          <Cube size={13} weight={explore ? "fill" : "regular"} />
+          {explore ? "Exit explore" : "Explore"}
+        </button>
+        <button
+          type="button"
+          className="stage-tool"
+          onClick={() => setPaused((p) => !p)}
+          disabled={reducedMotion}
+          aria-pressed={paused}
+        >
+          {paused ? <Play size={13} weight="fill" /> : <Pause size={13} weight="fill" />}
+          {paused ? "Play" : "Pause"}
+        </button>
+      </div>
+    </div>
   );
 }

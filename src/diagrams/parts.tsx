@@ -116,3 +116,69 @@ export const Leader = ({
     </text>
   </g>
 );
+
+/**
+ * An annotation that points at the figure and says what to look at.
+ *
+ * The review's complaint about the old diagrams was that the explanation sat
+ * beside the drawing in small type: "what's the point of having a
+ * visualisation when you're writing on the side in some small font? Point it
+ * out directly — put an arrow, put a dabba that comes out after that arrow,
+ * have the text written."
+ *
+ * So this is a dot on the thing, a leader with an arrowhead, and a bordered
+ * note at the end of it. Coordinates are SVG user units, same as the figure.
+ */
+export const Note = ({
+  at,
+  to,
+  eyebrow,
+  children,
+  width = 190,
+  tone = "accent",
+}: {
+  /** The point on the figure being pointed at. */
+  at: [number, number];
+  /** Where the note sits. */
+  to: [number, number];
+  eyebrow?: string;
+  children: React.ReactNode;
+  width?: number;
+  tone?: "accent" | "mute";
+}) => {
+  const [x1, y1] = at;
+  const [x2, y2] = to;
+  const angle = Math.atan2(y2 - y1, x2 - x1);
+  // Stop the leader short of the note so the arrowhead has somewhere to sit.
+  const headLength = 7;
+  const hx = x2 - Math.cos(angle) * 4;
+  const hy = y2 - Math.sin(angle) * 4;
+  const spread = 0.42;
+  const head = [
+    `${hx} ${hy}`,
+    `${hx - Math.cos(angle - spread) * headLength} ${hy - Math.sin(angle - spread) * headLength}`,
+    `${hx - Math.cos(angle + spread) * headLength} ${hy - Math.sin(angle + spread) * headLength}`,
+  ].join(" L ");
+  // A note to the left of its anchor is right-aligned, so it reads inward.
+  const flip = x2 < x1;
+
+  return (
+    <g className={`d-note d-note--${tone}`}>
+      <path className="d-note__leader" d={`M ${x1} ${y1} L ${hx} ${hy}`} />
+      <path className="d-note__head" d={`M ${head} Z`} />
+      <circle className="d-note__dot" cx={x1} cy={y1} r={3} />
+      <foreignObject
+        x={flip ? x2 - width : x2}
+        y={y2 - 13}
+        width={width}
+        height={130}
+        style={{ overflow: "visible" }}
+      >
+        <div className={`d-note__box ${flip ? "is-flipped" : ""}`}>
+          {eyebrow ? <span className="d-note__eyebrow">{eyebrow}</span> : null}
+          <span className="d-note__text">{children}</span>
+        </div>
+      </foreignObject>
+    </g>
+  );
+};

@@ -1,0 +1,155 @@
+/*
+ * The floating reading box. Hairline border, no radius, no shadow — structure
+ * is drawn with rules in this design language, not with elevation.
+ */
+
+.beat-card {
+  position: absolute;
+  z-index: 3;
+  /* Centred in the space below the masthead and progress strip, not in the
+     viewport, so a tall card never slides under the chrome. */
+  top: calc(116px + (100dvh - 116px) / 2);
+  transform: translateY(-50%);
+  width: min(410px, 34vw);
+  max-height: calc(100dvh - 116px - 48px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 28px 30px 26px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: var(--rule);
+  pointer-events: auto;
+}
+
+.beat-card--left { left: var(--pad-x); }
+.beat-card--right { right: var(--pad-x); }
+
+.beat-card__eyebrow { margin-bottom: var(--gap-3); }
+
+.beat-card__title {
+  margin: 0 0 var(--gap-3);
+  font-size: var(--t-card);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: var(--track-card);
+}
+
+.beat-card__body p {
+  margin: 0 0 var(--gap-3);
+  color: var(--ink-70);
+  font-size: var(--t-dense);
+  line-height: 1.6;
+}
+.beat-card__body p:last-child { margin-bottom: 0; }
+
+.beat-card .controls {
+  margin-top: var(--gap-4);
+  padding-top: var(--gap-4);
+  border-top: var(--rule);
+}
+/* Most beats have no controls, and an empty bordered block reads as a bug. */
+.beat-card .controls:empty { display: none; }
+
+/* Definition table — the house pattern for metadata blocks. */
+.beat-card__guide {
+  margin: var(--gap-4) 0 0;
+  padding-top: var(--gap-4);
+  border-top: var(--rule);
+  display: grid;
+  gap: var(--gap-3);
+}
+.beat-card__guide div { display: grid; gap: 3px; }
+.beat-card__guide dt {
+  font-family: var(--mono);
+  font-size: var(--t-meta);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-50);
+}
+.beat-card__guide dd {
+  margin: 0;
+  font-size: var(--t-dense);
+  line-height: 1.5;
+  color: var(--ink-70);
+}
+
+.beat-card__foot {
+  margin-top: var(--gap-4);
+  padding-top: var(--gap-4);
+  border-top: var(--rule);
+}
+
+.beat-card__question {
+  margin: 0 0 var(--gap-3);
+  color: var(--wine);
+  font-size: var(--t-dense);
+  line-height: 1.45;
+}
+
+.beat-card__nav { display: flex; gap: var(--gap-2); }
+
+/*
+ * The primary Next button had no CSS at all in the old shell — it inherited
+ * only the bare button reset, which is some of why it read as unclickable.
+ */
+.beat-card__nav .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 18px;
+}
+.beat-card__next { flex: 1; justify-content: center; }
+.beat-card__back { flex: 0 0 auto; }
+
+.beat-card__evidence {
+  margin-top: var(--gap-4);
+  padding-top: var(--gap-3);
+  border-top: var(--hairline);
+}
+
+@media (max-width: 1080px) {
+  /*
+   * Below this the scene cannot give up horizontal room, so the box becomes a
+   * bottom sheet and the canvas shifts vertically instead.
+   */
+  .beat-card,
+  .beat-card--left,
+  .beat-card--right {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-height: 52dvh;
+    transform: none;
+    border-left: 0;
+    border-right: 0;
+    border-bottom: 0;
+  }
+}
+
+@media (max-width: 560px) {
+  .beat-card { padding: 20px var(--pad-x) 18px; max-height: 58dvh; }
+  .beat-card__nav { flex-direction: row; }
+}
+
+/* How-to-read note. Aside pattern: a wine rule and padding, no fill. */
+.beat-card__aside {
+  margin-top: var(--gap-4);
+  padding-left: 14px;
+  border-left: 2px solid var(--wine);
+}
+.beat-card__aside strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: var(--t-dense);
+  font-weight: 500;
+}
+.beat-card__aside p {
+  margin: 0 0 var(--gap-2);
+  color: var(--ink-70);
+  font-size: var(--t-meta);
+  line-height: 1.55;
+}
+.beat-card__aside p:last-child { margin-bottom: 0; }

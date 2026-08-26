@@ -113,6 +113,16 @@ export function cameraFor(
   bounds: Bounds,
   aspect: number,
   fovDegrees: number,
+  /**
+   * Fraction of the frame the subject may occupy, as [horizontal, vertical].
+   *
+   * The canvas is the whole viewport, but the reading card and the masthead
+   * cover part of it, and the canvas is then translated into what is left.
+   * Framing against the full frame and shifting afterwards is what pushed the
+   * shaft of the exploded motor off the right edge. Passing the usable
+   * fractions here pulls the camera back by the tighter of the two instead.
+   */
+  fit: readonly [number, number] = [1, 1],
 ): { position: [number, number, number]; target: [number, number, number] } {
   const shot: Shot = SHOTS[shotName];
   const dir = norm(shot.dir);
@@ -142,8 +152,12 @@ export function cameraFor(
     halfDepth = Math.max(halfDepth, Math.abs(dot(corner, dir)));
   }
 
+  // The subject has to clear whichever budget is tighter, so the two are not
+  // solved independently: one scale keeps the proportions the shot intends.
+  const budget = Math.max(0.15, Math.min(fit[0], fit[1]));
+
   const distance =
-    (Math.max(halfWidth / Math.tan(hFov / 2), halfHeight / Math.tan(vFov / 2)) +
+    (Math.max(halfWidth / Math.tan(hFov / 2), halfHeight / Math.tan(vFov / 2)) / budget +
       halfDepth) *
     margin;
 

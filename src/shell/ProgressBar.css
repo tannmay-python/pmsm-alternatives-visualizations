@@ -1,0 +1,54 @@
+.progress {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: var(--gap-4);
+  align-items: end;
+}
+
+.progress__stop {
+  display: grid;
+  gap: 7px;
+  padding: 0;
+  text-align: left;
+  transition: color var(--dur-hover) ease;
+}
+
+/* Stop names on the bar are positional metadata, like a breadcrumb, so they
+   take mono. The page names in the masthead are destinations and take Inter. */
+.progress__label {
+  font-family: var(--mono);
+  font-size: var(--t-meta);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-50);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color var(--dur-hover) ease;
+}
+
+.progress__stop.is-current .progress__label { color: var(--wine); }
+.progress__stop.is-done .progress__label { color: var(--ink-70); }
+.progress__stop:hover .progress__label { color: var(--ink); }
+
+.progress__ticks {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 3px;
+}
+
+.progress__tick {
+  height: 2px;
+  background: var(--ink-10);
+  transition: background var(--dur-hover) ease;
+}
+.progress__tick.is-past { background: var(--ink-20); }
+.progress__stop.is-done .progress__tick { background: var(--ink-20); }
+.progress__tick.is-on { background: var(--wine); }
+
+@media (max-width: 720px) {
+  .progress { gap: var(--gap-3); }
+  .progress__label { font-size: 9.5px; letter-spacing: 0.06em; }
+}

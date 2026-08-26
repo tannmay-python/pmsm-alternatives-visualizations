@@ -1,61 +1,86 @@
 /**
- * One design language for every stop: 3D stage, SVG diagram and shell alike.
- * Derived from design/references/*.png — dark studio ground, machined greys,
- * a single accent, thin leader lines, small type.
+ * The Takshashila design language, applied to the page chrome.
+ *
+ * Editorial, not marketing: two brand colours on near-white paper, a warm-grey
+ * ramp for everything else, structure drawn with 1px hairlines rather than
+ * shadows or radii, and large type set at regular weight with tight negative
+ * tracking so authority comes from scale.
+ *
+ * The 3D stage is deliberately exempt. Machined steel, copper and magnet blue
+ * are read as material, not as brand, and repainting them in wine and marigold
+ * makes the machine look decorated rather than drawn. Scene colour lives in
+ * src/stage/materials.ts and answers to the studio references, not to this file.
  */
 
 :root {
-  /* Ground — a light studio, paper rather than screen. */
-  --paper-000: #ffffff;
-  --paper-050: #f7f8f6;
-  --paper-100: #f1f3ef;
-  --paper-200: #e8ebe6;
-  --paper-300: #dde1da;
-  --paper-400: #cdd2ca;
+  /* Brand ---------------------------------------------------------------- */
+  --wine: #620d3c;
+  --wine-dark: #4a0a2e;
+  --wine-soft: #f5e6ec;
+  --gold: #f1a222;
+  --gold-soft: #fcf0d9;
 
-  /* Machined steel, as it reads under studio light on a pale ground. */
-  --steel-100: #b9c0bd;
-  --steel-200: #98a09d;
-  --steel-300: #78817e;
-  --steel-400: #59615f;
-  --steel-500: #3a4240;
+  /* Neutrals ------------------------------------------------------------- */
+  --paper: #ffffff;
+  --deep: #f7f5f2;
+  --ink: #171413;
+  --ink-70: rgba(23, 20, 19, 0.7);
+  --ink-50: rgba(23, 20, 19, 0.5);
+  --ink-20: rgba(23, 20, 19, 0.16);
+  --ink-10: rgba(23, 20, 19, 0.08);
 
-  /* Type */
-  --text: #141a18;
-  --text-muted: #55605c;
-  --text-faint: #8a938f;
+  /* Inverted grounds ----------------------------------------------------- */
+  --on-dark: rgba(255, 255, 255, 0.85);
+  --on-dark-meta: rgba(255, 255, 255, 0.55);
+  --on-dark-rule: rgba(255, 255, 255, 0.18);
+
+  /* Status — derived, not brand ------------------------------------------ */
+  --positive: #2f6b4a;
+  --caution: #f1a222;
+  --negative: #a3282d;
+
+  /* Dataviz — use in order, stop as early as you can --------------------- */
+  --cat-1: #620d3c;
+  --cat-2: #f1a222;
+  --cat-3: #2f6b6b;
+  --cat-4: #b8809f;
+  --cat-5: #4a5a7a;
+  --cat-6: #a8703a;
+
+  /* Type ----------------------------------------------------------------- */
+  --sans: Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --mono: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
   /*
-   * One accent, in two weights. The bright value belongs on the lit 3D model,
-   * where it sits against machined grey; the deep value is the only one that
-   * carries enough contrast for type and hairlines on a pale ground.
+   * Scale, per the style guide. Large type is never bold: display and section
+   * headings are weight 400 and earn emphasis from size and negative tracking.
+   * Card titles step up to 500; ledes step down to 300.
    */
-  --accent: #4c7a06;
-  --accent-strong: #3c6104;
-  --accent-bright: #a8d82b;
-  --accent-wash: rgba(76, 122, 6, 0.09);
-  --accent-line: rgba(76, 122, 6, 0.38);
+  --t-display: clamp(2.75rem, 5.2vw, 4.5rem);   /* 72 → 44 */
+  --t-page-title: clamp(1.75rem, 3vw, 2.5rem);  /* 40 → 28 */
+  --t-section: clamp(2rem, 3.6vw, 2.75rem);     /* 44 → 32 */
+  --t-feature: clamp(1.5rem, 2.2vw, 2rem);      /* 32 → 26 */
+  --t-card: 1.3125rem;                          /* 21 */
+  --t-subhead: 1.125rem;                        /* 18 */
+  --t-lede: clamp(1.125rem, 1.6vw, 1.375rem);   /* 22 → 18 */
+  --t-body: 0.9375rem;                          /* 15 */
+  --t-dense: 0.875rem;                          /* 14 */
+  --t-eyebrow: 0.6875rem;                       /* 11, mono */
+  --t-meta: 0.65625rem;                         /* 10.5, mono */
+  --t-button: 0.75rem;                          /* 12, mono */
+  --t-kpi: 2.75rem;                             /* 44 */
 
-  /* One warn hue, reserved for thermal load and failure states. */
-  --warn: #b23c07;
-  --warn-wash: rgba(178, 60, 7, 0.1);
-
-  /* Structure */
-  --line: rgba(20, 26, 24, 0.11);
-  --line-strong: rgba(20, 26, 24, 0.22);
-  --leader: rgba(20, 26, 24, 0.42);
-
-  /* Type scale — grotesque only, no serif */
-  --font: "Inter", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
-
-  --t-display: clamp(1.9rem, 3.4vw, 3rem);
-  --t-title: 1.0625rem;
-  --t-body: 0.8125rem;
-  --t-small: 0.75rem;
-  --t-micro: 0.6875rem;
-
+  --track-display: -0.025em;
+  --track-section: -0.02em;
+  --track-card: -0.005em;
   --track-label: 0.14em;
+  --track-button: 0.1em;
+
+  /* Layout --------------------------------------------------------------- */
+  --max: 1240px;
+  --pad-x: 40px;
+  --rule: 1px solid var(--ink-20);
+  --hairline: 1px solid var(--ink-10);
 
   /* Rhythm */
   --gap-1: 4px;
@@ -64,45 +89,113 @@
   --gap-4: 20px;
   --gap-5: 32px;
   --gap-6: 52px;
+  --band-y: 64px;
 
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
   --dur: 260ms;
+  --dur-hover: 0.15s;
+
+  /* ----------------------------------------------------------------------
+   * Compatibility aliases.
+   *
+   * The shell, stage and diagram stylesheets were written against the older
+   * paper/steel/accent names. Mapping them here moves the whole interface onto
+   * the Takshashila palette in one step; the names are retired file by file as
+   * each stylesheet is reworked.
+   * -------------------------------------------------------------------- */
+  --paper-000: var(--paper);
+  --paper-050: var(--deep);
+  --paper-100: #f2efeb;
+  --paper-200: #ebe7e2;
+  --paper-300: #e0dbd5;
+  --paper-400: #d2ccc5;
+
+  --steel-100: #bdb7b1;
+  --steel-200: #9d9791;
+  --steel-300: #7d7772;
+  --steel-400: #5c5651;
+  --steel-500: #3b3733;
+
+  --text: var(--ink);
+  --text-muted: var(--ink-70);
+  --text-faint: var(--ink-50);
+
+  --accent: var(--wine);
+  --accent-strong: var(--wine-dark);
+  /* Was the lime used on the 3D model; the accent that reads on a dark ground
+     is marigold, and nothing in the chrome should be lime any more. */
+  --accent-bright: var(--gold);
+  --accent-dim: #8f4570;
+  --accent-wash: var(--wine-soft);
+  --accent-line: rgba(98, 13, 60, 0.38);
+
+  --warn: var(--negative);
+  --warn-wash: rgba(163, 40, 45, 0.1);
+
+  --line: var(--ink-20);
+  --line-strong: rgba(23, 20, 19, 0.28);
+  --leader: rgba(23, 20, 19, 0.42);
+
+  --font: var(--sans);
+  --font-mono: var(--mono);
+
+  --t-title: var(--t-card);
+  --t-small: var(--t-dense);
+  --t-micro: var(--t-eyebrow);
 }
+
+@media (max-width: 960px) { :root { --pad-x: 24px; } }
+@media (max-width: 560px) { :root { --pad-x: 18px; --band-y: 44px; } }
 
 * { box-sizing: border-box; }
 
 html, body, #root {
   margin: 0;
   min-height: 100%;
-  background: var(--paper-050);
+  background: var(--paper);
 }
 
 body {
-  color: var(--text);
-  font-family: var(--font);
+  color: var(--ink);
+  font-family: var(--sans);
   font-size: var(--t-body);
+  line-height: 1.5;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }
+
+/* Large type is never bold. Authority comes from size and negative tracking. */
+h1, h2, h3 { margin: 0; font-weight: 400; text-wrap: balance; }
+p { text-wrap: pretty; }
+
+/* Italic in wine is the house emphasis — a punctuation mark, not a style. */
+h1 em, h2 em, h3 em { font-style: italic; color: var(--wine); }
 
 button, input, select { font: inherit; color: inherit; }
 button { background: none; border: 0; }
 button:not(:disabled) { cursor: pointer; }
 button:disabled { cursor: not-allowed; opacity: 0.3; }
 
+/* Never remove focus rings. */
 :focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
+  outline: 2px solid var(--wine);
+  outline-offset: 2px;
 }
+
+/* Zero border-radius, zero box-shadow. No exceptions in the interface. */
+a, button, input, select, textarea, .card, .panel, .chip { border-radius: 0; }
 
 /* Shared primitives ------------------------------------------------------ */
 
+/* Mono is a semantic marker, not decoration: if it describes content — a date,
+   a category, a source, a unit, an item number — it is mono. */
 .eyebrow {
   margin: 0;
-  color: var(--text-faint);
-  font-size: var(--t-micro);
-  font-weight: 500;
+  color: var(--ink-50);
+  font-family: var(--mono);
+  font-size: var(--t-eyebrow);
+  font-weight: 400;
   letter-spacing: var(--track-label);
   text-transform: uppercase;
 }
@@ -112,10 +205,47 @@ button:disabled { cursor: not-allowed; opacity: 0.3; }
   font-feature-settings: "tnum";
 }
 
+/* Navigation is Inter, Title Case. Not mono, not uppercase, not letter-spaced.
+   Only metadata gets mono — this is the most common mistake from the spec. */
+.nav-link {
+  font-family: var(--sans);
+  font-size: var(--t-body);
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: 0.3px;
+  text-transform: none;
+  text-decoration: none;
+}
+
+/* Buttons — hard-edged, mono, uppercase. The one deliberate crossover, because
+   a CTA reads as a label rather than a destination. */
+.btn {
+  font-family: var(--mono);
+  font-size: var(--t-button);
+  letter-spacing: var(--track-button);
+  text-transform: uppercase;
+  padding: 14px 28px;
+  border: 0;
+  background: var(--wine);
+  color: #fff;
+  transition: background var(--dur-hover) ease;
+}
+.btn:hover:not(:disabled) { background: var(--wine-dark); }
+.btn--accent { background: var(--gold); color: var(--ink); font-weight: 600; }
+.btn--ghost { background: transparent; border: var(--rule); color: var(--ink); }
+.btn--ghost:hover:not(:disabled) { background: var(--deep); }
+
 /* A value that must never be shown without its condition. */
 .figure { display: inline-flex; align-items: baseline; gap: 0.3em; }
-.figure__value { color: var(--text); font-size: 1.05em; font-variant-numeric: tabular-nums; }
-.figure__condition { color: var(--text-faint); font-size: 0.85em; }
+.figure__value {
+  color: var(--ink);
+  font-size: 1.05em;
+  font-variant-numeric: tabular-nums;
+}
+.figure__condition { color: var(--ink-50); font-size: 0.85em; }
+
+/* All figures use tabular lining numerals so columns align. */
+table { border-collapse: collapse; font-variant-numeric: tabular-nums; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

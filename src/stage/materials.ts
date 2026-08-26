@@ -9,23 +9,48 @@ import * as THREE from "three";
 /**
  * Values are the base colours of real machined parts under studio light, which
  * is what the reference renders show: cast aluminium is bright, not charcoal.
- * Reading them as dark greys is what made the earlier build look like plastic.
+ * Reading them as dark greys is what made an earlier build look like plastic.
+ *
+ * The cool steel, copper and magnet blue below are ported from the first
+ * version of this piece. The lime that replaced them was the single loudest
+ * complaint of the 26 August review — "that dirty green just changes the whole
+ * thing", "if you want to show a casing don't show it in that horrible green"
+ * — and it is gone. What reads as "look here" is now the copper the windings
+ * are already made of, which is warm enough to lead the eye without turning a
+ * machined part a colour no machined part is.
+ *
+ * These are deliberately not the Takshashila brand colours. Wine and marigold
+ * are the page; steel and copper are the machine. Painting the model in brand
+ * colours was tried and rejected: "that feels a little too branded… it's like
+ * you were asked to use three colours so now you're just going to paint
+ * randomly in these three colours."
  */
 export const PALETTE = {
-  accent: "#a8d82b",
-  accentDim: "#6f9414",
+  /** The "look at this part" colour. Copper, because the motor is full of it. */
+  accent: "#c4763f",
+  accentDim: "#a75c2c",
   warn: "#d9531c",
-  copper: "#b26c33",
+  copper: "#c4763f",
   copperLit: "#dd9046",
-  /** Sand-cast aluminium housing. */
-  castAluminium: "#a6afac",
-  steelMid: "#8f9997",
-  steelLight: "#c9d0cd",
+  /** Housing, ribs and cooling fins: cool light steel. */
+  castAluminium: "#cdd0d8",
+  housingRib: "#bcbfc8",
+  housingFin: "#b6bac4",
+  /** End caps, bosses and bolts sit a step darker than the shell. */
+  steelMid: "#9fa2ac",
+  steelLight: "#c3c7d0",
   /** Electrical steel laminations: darker and bluer than the castings. */
-  laminate: "#6b7573",
-  magnet: "#4a5250",
-  ferrite: "#4e5457",
+  laminate: "#b7bcc6",
+  laminateRing: "#656b76",
+  /** Magnet poles. The blue pair is what makes polarity readable at a glance. */
+  magnet: "#4b6bd6",
+  magnetSouth: "#2f3a52",
+  magnetEdge: "#e3e8f2",
+  ferrite: "#4a4d56",
   aluminium: "#aeb6b3",
+  shaft: "#7f818a",
+  bearing: "#656a74",
+  seal: "#282a31",
 } as const;
 
 const cast = (color: string, roughness: number, metalness: number) =>
@@ -33,17 +58,18 @@ const cast = (color: string, roughness: number, metalness: number) =>
 
 export const makeMaterials = () => ({
   /** Sand-cast aluminium: rough, low specular. */
-  housing: cast(PALETTE.castAluminium, 0.66, 0.5),
+  housing: cast(PALETTE.castAluminium, 0.6, 0.55),
   endCap: cast(PALETTE.steelMid, 0.54, 0.62),
   /** Lamination stacks read as stacked steel, not polished metal. */
-  laminate: cast("#78827f", 0.46, 0.84),
-  rotorLaminate: cast("#818b88", 0.42, 0.86),
+  laminate: cast(PALETTE.steelLight, 0.46, 0.84),
+  rotorLaminate: cast(PALETTE.laminate, 0.42, 0.86),
   /** Ground shaft and bearing races: the only near-mirror surfaces. */
-  shaft: cast(PALETTE.steelLight, 0.18, 0.95),
-  bearing: cast(PALETTE.steelLight, 0.24, 0.9),
+  shaft: cast(PALETTE.shaft, 0.18, 0.95),
+  bearing: cast(PALETTE.bearing, 0.24, 0.9),
   copper: cast(PALETTE.copper, 0.38, 0.72),
   aluminium: cast(PALETTE.aluminium, 0.34, 0.88),
   magnet: cast(PALETTE.magnet, 0.4, 0.35),
+  magnetSouth: cast(PALETTE.magnetSouth, 0.42, 0.35),
   ferrite: cast(PALETTE.ferrite, 0.78, 0.12),
 });
 
@@ -56,7 +82,7 @@ export const highlightMaterial = () =>
     roughness: 0.42,
     metalness: 0.3,
     emissive: PALETTE.accentDim,
-    emissiveIntensity: 0.22,
+    emissiveIntensity: 0.28,
   });
 
 export const thermalMaterial = () =>

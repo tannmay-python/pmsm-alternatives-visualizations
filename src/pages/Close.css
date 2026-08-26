@@ -1,0 +1,94 @@
+.close__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-3);
+  margin-top: var(--gap-5);
+}
+
+/* On an inverted ground the ghost button takes a white hairline. */
+.close__ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border-color: var(--on-dark-rule);
+  color: var(--on-dark);
+}
+.close__ghost:hover:not(:disabled) { background: rgba(255, 255, 255, 0.08); }
+
+/* Footer — wine ground, brand column plus link columns. */
+.close__footer {
+  padding: 80px 0 56px;
+  background: var(--wine);
+  color: var(--on-dark);
+}
+
+.close__footer-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1.4fr;
+  gap: 56px;
+}
+
+.close__wordmark {
+  margin: 0;
+  color: #fff;
+  font-size: var(--t-subhead);
+  font-weight: 500;
+}
+.close__tagline {
+  margin: var(--gap-3) 0 0;
+  max-width: 34ch;
+  color: var(--on-dark);
+  font-size: var(--t-dense);
+  line-height: 1.5;
+}
+
+.close__dashboard {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: var(--gap-4);
+  padding-bottom: 2px;
+  border-bottom: 1px solid var(--gold);
+  color: var(--gold);
+  font-size: var(--t-dense);
+  text-decoration: none;
+}
+
+/* Column heads are labels, so they take mono. */
+.close__col-head {
+  margin: 0;
+  color: var(--on-dark-meta);
+  font-family: var(--mono);
+  font-size: var(--t-eyebrow);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.close__col-head--spaced { margin-top: var(--gap-4); }
+
+/* The items beneath them are content, so they take Inter. */
+.close__col-item {
+  margin: var(--gap-2) 0 0;
+  color: var(--on-dark);
+  font-size: var(--t-dense);
+  line-height: 1.4;
+}
+
+.close__sources ol {
+  margin: var(--gap-2) 0 0;
+  padding-left: 1.2em;
+  color: var(--on-dark);
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+.close__sources li { margin-bottom: var(--gap-2); }
+.close__sources a { color: #fff; text-decoration: none; border-bottom: 1px solid var(--on-dark-rule); }
+.close__sources a:hover { border-bottom-color: var(--gold); }
+.close__sources span { color: var(--on-dark-meta); }
+
+@media (max-width: 960px) {
+  .close__footer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--gap-5); }
+  .close__footer-grid > :first-child { grid-column: 1 / -1; }
+}
+@media (max-width: 560px) {
+  .close__footer-grid { grid-template-columns: 1fr; }
+}
