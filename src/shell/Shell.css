@@ -115,7 +115,7 @@
      default 300px. */
   justify-items: stretch;
   padding: var(--gap-5) var(--pad-x);
-  overflow: auto;
+  overflow: hidden;
 }
 /*
  * The figure moves away from the reading card, the same way the 3D scene

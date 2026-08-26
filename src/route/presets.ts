@@ -24,7 +24,7 @@ export const presetFor = (stopId: string, stateId: string): StageControls => ({
         : 0,
   isolate: stateId === "stator" ? "stator" : stateId === "rotor" ? "rotor" : "none",
   activePhase: stateId === "one-phase" ? 0 : null,
-  extract: stateId === "drive-unit" ? 0.6 : stateId === "one-part" ? 0.25 : 0,
+  extract: 0,
   dysprosium: stateId === "dysprosium-tradeoff" ? 0.35 : 0,
   diffusion: stateId === "diffusion-evolution" ? 0.55 : 0,
   nucleation: stateId === "reversal-start" ? 0.25 : 0,

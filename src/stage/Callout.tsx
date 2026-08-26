@@ -1,39 +1,44 @@
 import { Html } from "@react-three/drei";
 
+export type CalloutDirection =
+  | "top"
+  | "bottom"
+  | "left"
+  | "right"
+  | "top-left"
+  | "top-right"
+  | "bottom-left"
+  | "bottom-right";
+
 /**
- * A thin leader line to small type, as in design/references. The label never
- * sits on the part; it sits off to the side with a hairline pointing at it,
- * which is what keeps a detailed model readable.
+ * A thin leader line to crisp small type, pinned directly to 3D world coordinates.
+ * Dynamic directional anchoring prevents overlapping labels during 3D rotation.
  */
 export function Callout({
   position,
   children,
   accent = false,
-  side = "right",
+  direction,
+  side,
   cardSide,
 }: {
   position: [number, number, number];
   children: React.ReactNode;
   accent?: boolean;
+  direction?: CalloutDirection;
   side?: "left" | "right";
-  /**
-   * Which side the reading card is on. A label that extends towards the card
-   * runs under it, so it extends the other way instead. The scene is already
-   * framed into the half the card is not using, which is why flipping is
-   * always safe rather than a trade of one collision for another.
-   */
   cardSide?: "left" | "right";
 }) {
-  const resolved = cardSide && side === cardSide ? (cardSide === "left" ? "right" : "left") : side;
+  const resolvedDirection: CalloutDirection =
+    direction ??
+    (side === "left" || (cardSide === "right" && !side) ? "left" : "right");
+
   return (
-    // No distanceFactor: labels hold a constant on-screen size, so they stay
-    // legible whether the camera is close on a rotor or pulled back for the
-    // full exploded row.
-    <Html position={position} center={false} zIndexRange={[10, 0]} style={{ pointerEvents: "none" }}>
-      <div className={`callout callout--${resolved} ${accent ? "callout--accent" : ""}`}>
+    <Html position={position} center zIndexRange={[100, 0]} style={{ pointerEvents: "none" }}>
+      <div className={`callout callout--${resolvedDirection} ${accent ? "callout--accent" : ""}`}>
         <span className="callout__dot" />
-        <span className="callout__line" />
-        <span className="callout__text">{children}</span>
+        <span className="callout__stem" />
+        <div className="callout__pill">{children}</div>
       </div>
     </Html>
   );

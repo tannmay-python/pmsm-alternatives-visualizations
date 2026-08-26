@@ -19,7 +19,7 @@ export type StageControls = {
   nucleation: number;
   /** Counter-current spent to weaken a permanent-magnet field. */
   weakening: number;
-  isolate: "none" | "stator" | "rotor";
+  isolate: "none" | "stator" | "rotor" | "housing" | "shaft" | "air-gap";
   activePhase: number | null;
   /** False models the inverter gated off at speed. */
   fieldLive: boolean;
@@ -31,7 +31,7 @@ export const DEFAULT_CONTROLS: StageControls = {
   explode: 0,
   angle: 0,
   load: 0.35,
-  heat: 0.2,
+  heat: 0,
   dysprosium: 0,
   diffusion: 0,
   nucleation: 0,

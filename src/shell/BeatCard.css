@@ -10,14 +10,14 @@
      viewport, so a tall card never slides under the chrome. */
   top: calc(116px + (100dvh - 116px) / 2);
   transform: translateY(-50%);
-  width: min(410px, 34vw);
+  width: min(420px, 35vw);
   max-height: calc(100dvh - 116px - 48px);
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 28px 30px 26px;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  padding: 26px 28px 24px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border: var(--rule);
   pointer-events: auto;
 }
@@ -25,14 +25,72 @@
 .beat-card--left { left: var(--pad-x); }
 .beat-card--right { right: var(--pad-x); }
 
-.beat-card__eyebrow { margin-bottom: var(--gap-3); }
+.beat-card__header {
+  margin-bottom: var(--gap-3);
+}
+
+.beat-card__eyebrow-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--gap-2);
+}
+
+.beat-card__view-tag {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-50);
+}
+
+.beat-card__counter {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ink-50);
+  letter-spacing: 0.05em;
+}
+
+.beat-card__transition-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 9px 5px;
+  margin-bottom: var(--gap-2);
+  background: rgba(98, 13, 60, 0.07);
+  border: 1px solid rgba(98, 13, 60, 0.22);
+  border-radius: 2px;
+  color: var(--wine);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+.beat-card__transition-icon {
+  font-size: 12px;
+  line-height: 1;
+}
+
+.beat-card__question {
+  margin: 0 0 6px;
+  color: var(--wine);
+  font-family: var(--sans);
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
 
 .beat-card__title {
-  margin: 0 0 var(--gap-3);
+  margin: 0;
   font-size: var(--t-card);
   font-weight: 500;
-  line-height: 1.2;
+  line-height: 1.25;
   letter-spacing: var(--track-card);
+  color: var(--ink);
 }
 
 .beat-card__body p {
@@ -80,76 +138,61 @@
   border-top: var(--rule);
 }
 
-.beat-card__question {
-  margin: 0 0 var(--gap-3);
-  color: var(--wine);
-  font-size: var(--t-dense);
-  line-height: 1.45;
-}
-
 .beat-card__nav { display: flex; gap: var(--gap-2); }
 
-/*
- * The primary Next button had no CSS at all in the old shell — it inherited
- * only the bare button reset, which is some of why it read as unclickable.
- */
 .beat-card__nav .btn {
   display: inline-flex;
   align-items: center;
   gap: 7px;
   padding: 11px 18px;
+  border-radius: 0;
+  cursor: pointer;
+  text-decoration: none;
 }
-.beat-card__next { flex: 1; justify-content: center; }
-.beat-card__back { flex: 0 0 auto; }
+
+.beat-card__back {
+  background: transparent;
+  border: var(--rule);
+  color: var(--ink-70);
+}
+.beat-card__back:hover:not(:disabled) {
+  color: var(--ink);
+  border-color: var(--ink);
+}
+.beat-card__back:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.beat-card__next {
+  background: var(--ink);
+  border: 1px solid var(--ink);
+  color: #fff;
+  font-weight: 500;
+}
+.beat-card__next:hover:not(:disabled) {
+  background: var(--ink-90);
+  border-color: var(--ink-90);
+}
+.beat-card__next:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
 
 .beat-card__evidence {
-  margin-top: var(--gap-4);
-  padding-top: var(--gap-3);
-  border-top: var(--hairline);
+  margin-top: var(--gap-3);
+  font-size: var(--t-caption);
 }
 
 @media (max-width: 1080px) {
-  /*
-   * Below this the scene cannot give up horizontal room, so the box becomes a
-   * bottom sheet and the canvas shifts vertically instead.
-   */
-  .beat-card,
-  .beat-card--left,
-  .beat-card--right {
+  .beat-card {
     top: auto;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
-    max-height: 52dvh;
+    bottom: var(--pad-x);
+    left: var(--pad-x);
+    right: var(--pad-x);
     transform: none;
-    border-left: 0;
-    border-right: 0;
-    border-bottom: 0;
+    width: auto;
+    max-height: 48dvh;
+    padding: 20px 22px 18px;
   }
 }
-
-@media (max-width: 560px) {
-  .beat-card { padding: 20px var(--pad-x) 18px; max-height: 58dvh; }
-  .beat-card__nav { flex-direction: row; }
-}
-
-/* How-to-read note. Aside pattern: a wine rule and padding, no fill. */
-.beat-card__aside {
-  margin-top: var(--gap-4);
-  padding-left: 14px;
-  border-left: 2px solid var(--wine);
-}
-.beat-card__aside strong {
-  display: block;
-  margin-bottom: 4px;
-  font-size: var(--t-dense);
-  font-weight: 500;
-}
-.beat-card__aside p {
-  margin: 0 0 var(--gap-2);
-  color: var(--ink-70);
-  font-size: var(--t-meta);
-  line-height: 1.55;
-}
-.beat-card__aside p:last-child { margin-bottom: 0; }

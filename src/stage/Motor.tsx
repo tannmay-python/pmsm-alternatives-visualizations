@@ -26,7 +26,7 @@ export type MotorProps = {
   slip?: number;
   activePhase?: number | null;
   phaseStrengths?: readonly number[];
-  isolate?: "none" | "stator" | "rotor";
+  isolate?: "none" | "stator" | "rotor" | "housing" | "shaft" | "air-gap";
   /** Thermal or excitation intensity, 0–1. */
   intensity?: number;
   fieldLive?: boolean;
@@ -221,24 +221,40 @@ export function Motor({
     if (rotorRef.current) rotorRef.current.rotation.z = effectiveFieldAngle - loadAngle;
   });
 
-  const statorHidden = isolate === "rotor";
-  const rotorHidden = isolate === "stator";
-  const showCasing = !cutaway && !statorHidden;
-  const showShaft = isolate !== "stator";
+  const isIsolated = isolate !== "none";
+  const statorHidden = isIsolated ? isolate !== "stator" && isolate !== "air-gap" : false;
+  const rotorHidden = isIsolated ? isolate !== "rotor" && isolate !== "air-gap" : false;
+  const showCasing = isIsolated ? isolate === "housing" : !cutaway;
+  const showShaft = isIsolated ? isolate === "shaft" || isolate === "rotor" || isolate === "air-gap" : true;
+  const showBearings = isIsolated ? isolate === "housing" || isolate === "shaft" : showCasing;
 
   return (
     <group>
       {showCasing && (
         <>
-          <Housing z={explodeZ("housing", explode)} />
-          <EndCap z={-MOTOR.housingLength / 2 + explodeZ("frontCap", explode)} flip={false} />
-          <EndCap z={MOTOR.housingLength / 2 + explodeZ("rearCap", explode)} flip />
+          <Housing z={isolate === "housing" ? 0 : explodeZ("housing", explode)} />
+          <EndCap
+            z={
+              isolate === "housing"
+                ? -MOTOR.housingLength / 2 - explode * 0.6
+                : -MOTOR.housingLength / 2 + explodeZ("frontCap", explode)
+            }
+            flip={false}
+          />
+          <EndCap
+            z={
+              isolate === "housing"
+                ? MOTOR.housingLength / 2 + explode * 0.6
+                : MOTOR.housingLength / 2 + explodeZ("rearCap", explode)
+            }
+            flip
+          />
         </>
       )}
 
       {!statorHidden && (
         <>
-          <group position={[0, 0, explodeZ("statorCore", explode)]}>
+          <group position={[0, 0, isolate === "stator" ? 0 : explodeZ("statorCore", explode)]}>
             {ROTORS[rotor].needsOwnStator ? (
               <SalientStator
                 materials={materials}
@@ -253,27 +269,44 @@ export function Motor({
                 phaseStrengths={phaseStrengths}
                 showWindings={showWindings}
                 dimmed={dimStator}
+                explode={isolate === "stator" ? explode : 0}
               />
             )}
           </group>
         </>
       )}
 
-      {showCasing && (
+      {showBearings && (
         <>
-          <Bearing z={-MOTOR.housingLength / 2 + explodeZ("frontBearing", explode)} />
-          <Bearing z={MOTOR.housingLength / 2 + explodeZ("rearBearing", explode)} />
+          <Bearing
+            z={
+              isolate === "housing" || isolate === "shaft"
+                ? -MOTOR.housingLength / 2 - explode * 0.65
+                : -MOTOR.housingLength / 2 + explodeZ("frontBearing", explode)
+            }
+          />
+          <Bearing
+            z={
+              isolate === "housing" || isolate === "shaft"
+                ? MOTOR.housingLength / 2 + explode * 0.65
+                : MOTOR.housingLength / 2 + explodeZ("rearBearing", explode)
+            }
+          />
         </>
       )}
 
       {!rotorHidden && (
-        <group ref={rotorRef} position={[0, 0, explodeZ("rotor", explode)]}>
+        <group
+          ref={rotorRef}
+          position={[0, 0, isolate === "rotor" ? 0 : explodeZ("rotor", explode)]}
+        >
           <Rotor
             id={rotor}
             materials={materials}
             intensity={intensity}
             fieldLive={fieldLive}
             excitation={excitation}
+            explode={isolate === "rotor" ? explode : 0}
           />
         </group>
       )}
@@ -281,7 +314,15 @@ export function Motor({
       {showShaft && (
         <mesh
           material={materials.shaft}
-          position={[0, 0, explodeZ("shaft", explode)]}
+          position={[
+            0,
+            0,
+            isolate === "rotor"
+              ? explode * 0.85
+              : isolate === "shaft"
+                ? 0
+                : explodeZ("shaft", explode),
+          ]}
           rotation={[Math.PI / 2, 0, 0]}
           castShadow
         >

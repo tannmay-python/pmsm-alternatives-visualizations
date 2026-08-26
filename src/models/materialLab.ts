@@ -38,6 +38,10 @@ export type MaterialLab = {
   label: string;
   shortLabel: string;
   role: string;
+  superpower: string;
+  theCatch: string;
+  badgeTags: readonly string[];
+  adopters: readonly string[];
   definingMetric: {
     label: string;
     value: string;
@@ -65,6 +69,10 @@ export const materialLabs: readonly MaterialLab[] = [
     label: "NdFeB reference",
     shortLabel: "NdFeB",
     role: "The incumbent traction magnet: strong and hard to reverse.",
+    superpower: "Highest magnetic strength (Remanence Br) and thermal coercivity; powers 90%+ of modern EVs.",
+    theCatch: "100% rare-earth supply risk, mining price volatility, and heavy Dysprosium/Terbium reliance.",
+    badgeTags: ["100% REE Risk", "Maximum Strength", "Global EV Standard"],
+    adopters: ["Tesla Model 3/Y", "BYD Seal / Blade", "Hyundai Ioniq 5", "Porsche Taycan"],
     definingMetric: {
       label: "Viability gate",
       value: "Br × Hcj",
@@ -108,6 +116,10 @@ export const materialLabs: readonly MaterialLab[] = [
     label: "Ferrite PM",
     shortLabel: "Ferrite",
     role: "A mature low-cost chemistry that needs a larger or faster machine.",
+    superpower: "Abundant, dirt-cheap ceramic iron oxide; 100% free of rare earths and supply restrictions.",
+    theCatch: "Weak field (~1/3 strength) forces motor to spin 50% faster, grow larger, or use axial flux.",
+    badgeTags: ["Zero Rare Earths", "1/3 Strength", "Dirt Cheap Material"],
+    adopters: ["Proterial (102 kW @ 15,000 RPM prototype)", "Conifer (Axial Flux)", "Gati Drives (India)"],
     definingMetric: {
       label: "Field penalty",
       value: "≈⅓ of NdFeB Br",
@@ -151,6 +163,10 @@ export const materialLabs: readonly MaterialLab[] = [
     label: "Iron nitride",
     shortLabel: "Fe₁₆N₂",
     role: "A promising rare-earth-free chemistry still crossing materials-scale-up gates.",
+    superpower: "High theoretical saturation from abundant iron and nitrogen without any rare-earth elements.",
+    theCatch: "Low magnetic hardness, stated 4,000–5,000 Oe coercivity limit, and thermal limits (>220°C).",
+    badgeTags: ["Zero Rare Earths", "High Lab Potential", "Materials Scale-Up"],
+    adopters: ["Niron Magnetics (Materials Scale-Up)", "Matter (Variable-Flux EV Prototype)"],
     definingMetric: {
       label: "Current blocker",
       value: "hardness below 1",

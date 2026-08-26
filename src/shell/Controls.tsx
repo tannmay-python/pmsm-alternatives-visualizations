@@ -7,7 +7,7 @@ import type { Stop, StopState } from "../route/route";
  * panel never shows a slider with nothing to move.
  */
 
-function Slider({
+export function Slider({
   label,
   value,
   onChange,
@@ -137,20 +137,18 @@ export function RotorRack({
   );
 }
 
+import { MotorInspector } from "./MotorInspector";
+
 export function Controls({
   stop,
   state,
   controls,
   setControls,
-  rotor,
-  setRotor,
 }: {
   stop: Stop;
   state: StopState;
   controls: StageControls;
   setControls: (patch: Partial<StageControls>) => void;
-  rotor: RotorId;
-  setRotor: (id: RotorId) => void;
 }) {
   const set = (patch: Partial<StageControls>) => setControls(patch);
   const pct = (value: number) => `${Math.round(value * 100)}%`;
@@ -158,107 +156,91 @@ export function Controls({
   return (
     <div className="controls">
 
-      {stop.id === "where-the-motor-lives" && state.id === "drive-unit" && (
-        <Slider
-          label="Pull the drive unit out"
-          value={controls.extract}
-          onChange={(extract) => set({ extract })}
-          low="in the car"
-          high="on the bench"
+      {stop.id === "open-the-machine" && (
+        <MotorInspector controls={controls} setControls={setControls} />
+      )}
+
+      {stop.id === "three-coils-one-field" && state.id === "one-phase" && (
+        <Segmented
+          label="Energise one coil group"
+          value={String(controls.activePhase ?? 0) as "0" | "1" | "2"}
+          onChange={(value) => set({ activePhase: Number(value) })}
+          options={[
+            { id: "0", label: "Phase A (0°)" },
+            { id: "1", label: "Phase B (120°)" },
+            { id: "2", label: "Phase C (240°)" },
+          ]}
         />
       )}
 
-      {stop.id === "open-the-machine" && (
-        <>
-          <Slider
-            label="Explode"
-            value={controls.explode}
-            onChange={(explode) => set({ explode })}
-            low="assembled"
-            high="apart"
-            readout={pct(controls.explode)}
-          />
-          <Segmented
-            label="Isolate"
-            value={controls.isolate}
-            onChange={(isolate) => set({ isolate })}
-            options={[
-              { id: "none", label: "Whole motor" },
-              { id: "stator", label: "Stator only" },
-              { id: "rotor", label: "Rotor only" },
-            ]}
-          />
-          {controls.isolate !== "none" && (
-            <p className="control-note">
-              {controls.isolate === "stator"
-                ? "Only the stationary steel ring and copper groups remain. The rotor is hidden so the winding layout is unobstructed."
-                : "Only the spinning assembly remains. Its magnets are buried in steel laminations and keyed to the shaft."}
-            </p>
-          )}
-        </>
-      )}
-
-      {stop.id === "three-coils-one-field" && (
-        <>
-          <Slider
-            label="Electrical angle"
-            value={controls.angle / (Math.PI * 2)}
-            onChange={(value) => set({ angle: value * Math.PI * 2 })}
-            low="0°"
-            high="360°"
-            readout={`${Math.round((controls.angle * 180) / Math.PI)}°`}
-          />
-          {state.id === "one-phase" && (
-            <Segmented
-              label="Energise one group"
-              value={String(controls.activePhase ?? 0) as "0" | "1" | "2"}
-              onChange={(value) => set({ activePhase: Number(value) })}
-              options={[
-                { id: "0", label: "Group A" },
-                { id: "1", label: "Group B" },
-                { id: "2", label: "Group C" },
-              ]}
-            />
-          )}
-        </>
-      )}
-
-      {stop.id === "two-pulls-one-shaft" && (
+      {stop.id === "three-coils-one-field" && state.id === "no-part-moves" && (
         <Slider
-          label="Shaft load"
+          label="Inverter AC frequency (Speed)"
+          value={controls.angle / (Math.PI * 2)}
+          onChange={(value) => set({ angle: value * Math.PI * 2 })}
+          low="low RPM"
+          high="high RPM"
+          readout={`${Math.round(50 + (controls.angle / (Math.PI * 2)) * 350)} Hz`}
+        />
+      )}
+
+      {stop.id === "three-coils-one-field" && state.id === "rotor-locks" && (
+        <Slider
+          label="Shaft load angle (δ)"
           value={controls.load}
           onChange={(load) => set({ load })}
-          low="coasting"
-          high="hard pull"
-          readout={controls.load < 0.34 ? "light" : controls.load > 0.66 ? "heavy" : "moderate"}
+          low="coasting (0°)"
+          high="hard pull (45°)"
+          readout={controls.load < 0.34 ? "light drag" : controls.load > 0.66 ? "heavy load" : "moderate load"}
         />
       )}
 
-      {stop.id === "strength-and-stubbornness" && state.id === "coercivity" && (
-          <Slider
-            label="Reverse field"
-            value={controls.load}
-            onChange={(load) => set({ load })}
-            low="none"
-            high="enough to flip it"
-            readout={`${Math.round(controls.load * 100)}% of flip threshold`}
-          />
+      {stop.id === "two-pulls-one-shaft" && state.id === "why-buried" && (
+        <Slider
+          label="Rotor rotational speed"
+          value={controls.load}
+          onChange={(load) => set({ load })}
+          low="idle (800 RPM)"
+          high="redline (20,000 RPM)"
+          readout={`${Math.round(800 + controls.load * 19200)} RPM`}
+        />
+      )}
+
+      {stop.id === "two-pulls-one-shaft" && state.id === "already-both" && (
+        <Slider
+          label="Motor cutaway inspection"
+          value={controls.explode}
+          onChange={(explode) => set({ explode })}
+          low="assembled"
+          high="exploded"
+          readout={`${Math.round(controls.explode * 100)}%`}
+        />
+      )}
+
+      {stop.id === "strength-and-stubbornness" && (state.id === "remanence" || state.id === "coercivity") && (
+        <Slider
+          label="Opposing stator current"
+          value={controls.load}
+          onChange={(load) => set({ load })}
+          low="0% (Rest)"
+          high="100% (Peak Current)"
+          readout={`${Math.round(controls.load * 100)}%`}
+        />
       )}
 
       {stop.id === "strength-and-stubbornness" && state.id === "anisotropy" && (
         <Slider
-          label="Crystal easy axis"
-          value={controls.angle / Math.PI}
-          onChange={(value) => set({ angle: value * (Math.PI / 2) })}
-          low="aligned"
-          high="hard axis"
-          readout={`${Math.round((controls.angle * 180) / (Math.PI / 2))}°`}
+          label="Opposing stator push"
+          value={controls.load}
+          onChange={(load) => set({ load })}
+          low="0% (Rest)"
+          high="100% (Full Throttle)"
+          readout={`${Math.round(controls.load * 100)}%`}
         />
       )}
 
-      {stop.id === "heat-and-the-patch" &&
-        state.id === "hot-margin" && (
-          <>
+      {stop.id === "heat-and-the-patch" && (state.id === "hot-margin" || state.id === "dysprosium-tradeoff") && (
+        <>
           <Slider
             label="Rotor temperature"
             value={controls.heat}
@@ -267,57 +249,38 @@ export function Controls({
             high="180 °C"
             readout={`${Math.round(20 + controls.heat * 160)} °C`}
           />
-          <Slider
-            label="Opposing stator field"
-            value={controls.load}
-            onChange={(load) => set({ load })}
-            low="cruising"
-            high="hard acceleration"
-          />
+          {state.id === "dysprosium-tradeoff" ? (
+            <Slider
+              label="Dysprosium content (Dy/Tb)"
+              value={controls.dysprosium}
+              onChange={(dysprosium) => set({ dysprosium })}
+              low="0% (Standard)"
+              high="6% (Heavy Doping)"
+              readout={`${Math.round(controls.dysprosium * 6)}% Dy`}
+            />
+          ) : (
+            <Slider
+              label="Opposing stator field"
+              value={controls.load}
+              onChange={(load) => set({ load })}
+              low="0%"
+              high="100%"
+              readout={`${Math.round(controls.load * 100)}%`}
+            />
+          )}
         </>
       )}
 
-      {stop.id === "heat-and-the-patch" &&
-        state.id === "reversal-start" && (
-          <Slider
-            label="Reversal progression"
-            value={controls.nucleation}
-            onChange={(nucleation) => set({ nucleation })}
-            low="healthy grain"
-            high="cooled loss"
-            readout={
-              controls.nucleation < 0.25
-                ? "surface stress"
-                : controls.nucleation < 0.72
-                  ? "sweeping inward"
-                  : "permanent loss"
-            }
-          />
-        )}
-
-      {stop.id === "heat-and-the-patch" &&
-        state.id === "dysprosium-tradeoff" && (
-          <Slider
-            label="Dysprosium added"
-            value={controls.dysprosium}
-            onChange={(dysprosium) => set({ dysprosium })}
-            low="none"
-            high="high"
-            readout={`${Math.round(controls.dysprosium * 100)}% of lesson range`}
-          />
-        )}
-
-      {stop.id === "heat-and-the-patch" &&
-        state.id === "diffusion-evolution" && (
-          <Slider
-            label="Diffusion depth"
-            value={controls.diffusion}
-            onChange={(diffusion) => set({ diffusion })}
-            low="thin shell"
-            high="deep shell"
-            readout={`${Math.round(controls.diffusion * 100)}%`}
-          />
-        )}
+      {stop.id === "heat-and-the-patch" && (state.id === "reversal-start" || state.id === "diffusion-evolution") && (
+        <Slider
+          label="GBD shell diffusion depth"
+          value={controls.diffusion}
+          onChange={(diffusion) => set({ diffusion })}
+          low="thin surface (10%)"
+          high="deep boundary (100%)"
+          readout={`${Math.round(controls.diffusion * 100)}%`}
+        />
+      )}
 
       {stop.id === "which-rare-earth" && (
         <Slider
@@ -335,24 +298,35 @@ export function Controls({
       {stop.id === "the-weakness" && (
         <>
           <Slider
-            label="Rotor speed"
+            label="Motor speed"
             value={controls.load}
             onChange={(load) => set({ load })}
-            low="standstill"
-            high="motorway"
-            readout={`${Math.round(controls.load * 100)}%`}
+            low="0 RPM (0 km/h)"
+            high="18,000 RPM (160 km/h)"
+            readout={`${Math.round(controls.load * 18000)} RPM (${Math.round(controls.load * 160)} km/h)`}
           />
           {(state.id === "field-weakening" || state.id === "fault") && (
             <Slider
-              label="Counter-current"
+              label="Field weakening counter-current"
               value={controls.weakening}
               onChange={(weakening) => set({ weakening })}
-              low="none"
-              high="maximum"
+              low="0% (No Tax)"
+              high="100% (Full Highway Tax)"
               readout={`${Math.round(controls.weakening * 100)}%`}
             />
           )}
         </>
+      )}
+
+      {stop.id === "change-the-magnet" && state.id === "ferrite-limit" && (
+        <Slider
+          label="Explode motor assembly"
+          value={controls.explode}
+          onChange={(explode) => set({ explode })}
+          low="assembled"
+          high="apart"
+          readout={pct(controls.explode)}
+        />
       )}
 
       {stop.id === "change-the-magnet" &&
@@ -367,18 +341,26 @@ export function Controls({
           />
         )}
 
-      {stop.id === "swap-the-rotor" && (
+      {stop.id === "swap-the-rotor" && state.id !== "family-tree" && (
         <>
-          <RotorRack rotor={rotor} onChange={setRotor} />
           <Slider
-            label="Shaft load"
+            label="Explode motor assembly"
+            value={controls.explode}
+            onChange={(explode) => set({ explode })}
+            low="assembled"
+            high="apart"
+            readout={pct(controls.explode)}
+          />
+          <Slider
+            label="Shaft load / torque"
             value={controls.load}
             onChange={(load) => set({ load })}
             low="coasting"
             high="hard pull"
+            readout={`${Math.round(controls.load * 100)}%`}
           />
           <Segmented
-            label="Inverter"
+            label="Inverter power"
             value={controls.fieldLive ? "on" : "off"}
             onChange={(value) => set({ fieldLive: value === "on" })}
             options={[

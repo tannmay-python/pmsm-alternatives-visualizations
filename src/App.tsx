@@ -1,4 +1,4 @@
-import { ArrowRight, Cube, Pause, Play } from "@phosphor-icons/react";
+import { ArrowRight, Pause, Play } from "@phosphor-icons/react";
 import { Suspense, lazy, useCallback, useEffect, useMemo, useReducer, useState } from "react";
 import { Diagram } from "./diagrams/Diagrams";
 import { Controls } from "./shell/Controls";
@@ -6,8 +6,9 @@ import { Evidence } from "./shell/Evidence";
 import { BeatCard } from "./shell/BeatCard";
 import { ProgressBar } from "./shell/ProgressBar";
 import { Landing } from "./pages/Landing";
-import { RightHandRule } from "./stage/RightHandRule";
+
 import { Close } from "./pages/Close";
+import { TransitionSlide } from "./components/TransitionSlide";
 import { PUBLISHER } from "./meta";
 import { STOPS, type Stop, type StopState } from "./route/route";
 import { BEATS, PAGE_LIST } from "./route/structure";
@@ -31,66 +32,66 @@ import "./shell/Shell.css";
  */
 type Screen = "landing" | "tour" | "close";
 
-const hashFor = (index: number) => {
-  const { page, stop, beat } = BEATS[index];
-  return `#${page.id}/${stop.id}/${beat.id}`;
+type Action =
+  | { type: "next" }
+  | { type: "prev" }
+  | { type: "go"; index: number };
+
+const positionFromHash = (hash: string): number | "close" | null => {
+  const clean = hash.replace(/^#/, "");
+  if (!clean || clean === "landing") return null;
+  if (clean === "close") return "close";
+  const index = BEATS.findIndex((b) => b.beat.id === clean || b.beat.sourceIds.includes(clean));
+  if (index !== -1) return index;
+  const pageIndex = PAGE_LIST.findIndex((p) => p.id === clean);
+  if (pageIndex !== -1) {
+    const firstBeat = BEATS.findIndex((b) => b.pageIndex === pageIndex);
+    return firstBeat !== -1 ? firstBeat : 0;
+  }
+  return 0;
 };
 
-const positionFromHash = (hash: string) => {
-  const raw = hash.replace(/^#/, "");
-  if (!raw) return null;
-  if (raw === "close") return "close" as const;
-  const [pageId, stopId, beatId] = raw.split("/");
-  const found = BEATS.findIndex(
-    (p) =>
-      p.page.id === pageId &&
-      (!stopId || p.stop.id === stopId) &&
-      (!beatId || p.beat.id === beatId),
-  );
-  return found >= 0 ? found : null;
+const initialFromHash = (): { screen: Screen; index: number } => {
+  const hash = typeof window !== "undefined" ? window.location.hash : "";
+  const target = positionFromHash(hash);
+  if (target === null) return { screen: "landing", index: 0 };
+  if (target === "close") return { screen: "close", index: BEATS.length - 1 };
+  return { screen: "tour", index: target };
 };
 
-type Move = { type: "go"; index: number } | { type: "step"; by: -1 | 1 };
+const initial = initialFromHash();
 
-const cursorReducer = (index: number, move: Move) => {
-  const next = move.type === "go" ? move.index : index + move.by;
-  return Math.max(0, Math.min(BEATS.length - 1, next));
-};
-
-/**
- * The route.ts stop and state whose frame a beat shows, which the stage and
- * the per-beat controls are still written against. Usually the beat's first
- * source state; a deliberate merge may name a different one.
- */
-const sourceOf = (index: number) => {
-  const { stop, beat } = BEATS[index];
-  const sourceStop = STOPS.find((s) => s.id === stop.sourceStopId) as Stop;
-  const sourceState = sourceStop.states.find((s) => s.id === beat.frameStateId) as StopState;
+const sourceOf = (index: number): { sourceStop: Stop; sourceState: StopState } => {
+  const pos = BEATS[index];
+  const sourceStop = STOPS.find((s) => s.id === pos.stop.sourceStopId) ?? STOPS[0];
+  const sourceState =
+    sourceStop.states.find((s) => s.id === pos.beat.sourceIds[0]) ?? sourceStop.states[0];
   return { sourceStop, sourceState };
 };
 
 export default function App() {
-  const initialHash = typeof window === "undefined" ? "" : window.location.hash;
-  const initial = positionFromHash(initialHash);
+  const [screen, setScreen] = useState<Screen>(initial.screen);
+  const [transitionTarget, setTransitionTarget] = useState<string | null>(null);
+  const [cursor, move] = useReducer((state: number, action: Action) => {
+    switch (action.type) {
+      case "next":
+        return Math.min(BEATS.length - 1, state + 1);
+      case "prev":
+        return Math.max(0, state - 1);
+      case "go":
+        return Math.max(0, Math.min(BEATS.length - 1, action.index));
+    }
+  }, initial.index);
 
-  const [screen, setScreen] = useState<Screen>(
-    initial === null ? "landing" : initial === "close" ? "close" : "tour",
+  const [controls, patchControls] = useReducer(
+    (state: StageControls, patch: Partial<StageControls> | ((c: StageControls) => StageControls)) =>
+      typeof patch === "function" ? patch(state) : { ...state, ...patch },
+    DEFAULT_CONTROLS,
   );
-  const [cursor, move] = useReducer(
-    cursorReducer,
-    typeof initial === "number" ? initial : 0,
-  );
-  const [controls, patchControls] = useState<StageControls>(DEFAULT_CONTROLS);
   const [rotor, setRotor] = useState<RotorId>("ipm-ndfeb");
   const [architecture, setArchitecture] = useState<ArchitectureId>("reduced-hree");
   const [paused, setPaused] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
-  /*
-   * The camera rides scripted stations so that hand-placed labels stay valid.
-   * Explore is the deliberate escape hatch: "you can obviously pause the tour
-   * at any time and play around with it if you want to."
-   */
-  const [explore, setExplore] = useState(false);
 
   const position = BEATS[cursor];
   const { page, stop, beat, stopIndex, beatIndex, pageIndex } = position;
@@ -113,42 +114,68 @@ export default function App() {
   // Each beat gets the control values it was written for, so nothing is ever
   // left mid-drag from the beat before it.
   useEffect(() => {
-    if (screen !== "tour") return;
-    window.history.replaceState(null, "", hashFor(cursor));
-    // The preset lives in route/presets.ts because the structure module needs
-    // it too: it is part of what decides whether two beats drew the same frame.
     patchControls(presetFor(sourceStop.id, sourceState.id));
+  }, [cursor, sourceStop.id, sourceState.id]);
 
-    // Leaving a beat drops the reader back onto its scripted angle.
-    setExplore(false);
-  }, [cursor, screen, sourceStop, sourceState]);
-
-  // The rotor rack drives the machine, but a few beats name their own rotor.
   useEffect(() => {
-    if (beat.stage.kind === "three" && beat.stage.scene === "motor") setRotor(beat.stage.rotor);
-  }, [beat]);
-
-  const goNext = useCallback(() => {
-    if (cursor === BEATS.length - 1) {
-      setScreen("close");
+    if (screen === "landing") {
+      window.history.replaceState(null, "", window.location.pathname);
+      return;
+    }
+    if (screen === "close") {
       window.history.replaceState(null, "", "#close");
       return;
     }
-    move({ type: "step", by: 1 });
-  }, [cursor]);
+    const hash = `#${beat.id}`;
+    if (window.location.hash !== hash) {
+      window.history.replaceState(null, "", hash);
+    }
+  }, [screen, beat.id]);
 
   const goBack = useCallback(() => {
+    if (transitionTarget !== null) {
+      setTransitionTarget(null);
+      return;
+    }
     if (cursor === 0) {
       setScreen("landing");
       window.history.replaceState(null, "", " ");
       return;
     }
-    move({ type: "step", by: -1 });
-  }, [cursor]);
+    move({ type: "prev" });
+  }, [cursor, transitionTarget]);
 
-  /** Skip the rest of this page. "There should be an option to skip that
-   *  complete page and go to the next page if the person wants." */
+  const goNext = useCallback(() => {
+    if (transitionTarget !== null) {
+      setTransitionTarget(null);
+      move({ type: "next" });
+      return;
+    }
+    // Interstitial transition when crossing from vehicle drivetrain to motor teardown
+    if (cursor === 1 && BEATS[1]?.stop.sourceStopId === "where-the-motor-lives") {
+      setTransitionTarget("open-the-machine");
+      return;
+    }
+    // Interstitial transition when crossing from motor teardown to how it turns
+    if (cursor === 2 && BEATS[2]?.stop.sourceStopId === "open-the-machine") {
+      setTransitionTarget("how-it-turns");
+      return;
+    }
+    // Interstitial transition when crossing from how it turns to the magnet
+    if (BEATS[cursor]?.pageIndex === 1 && BEATS[cursor + 1]?.pageIndex === 2) {
+      setTransitionTarget("the-magnet");
+      return;
+    }
+    if (cursor === BEATS.length - 1) {
+      setScreen("close");
+      window.history.replaceState(null, "", "#close");
+      return;
+    }
+    move({ type: "next" });
+  }, [cursor, transitionTarget]);
+
   const skipPage = useCallback(() => {
+    setTransitionTarget(null);
     const next = BEATS.findIndex((p) => p.pageIndex === pageIndex + 1);
     if (next === -1) {
       setScreen("close");
@@ -160,6 +187,7 @@ export default function App() {
 
   const jumpWithinPage = useCallback(
     (targetStop: number, targetBeat: number) => {
+      setTransitionTarget(null);
       const index = BEATS.findIndex(
         (p) =>
           p.pageIndex === pageIndex && p.stopIndex === targetStop && p.beatIndex === targetBeat,
@@ -170,6 +198,7 @@ export default function App() {
   );
 
   const goToPage = useCallback((targetPage: number) => {
+    setTransitionTarget(null);
     const index = BEATS.findIndex((p) => p.pageIndex === targetPage);
     if (index >= 0) {
       move({ type: "go", index });
@@ -184,7 +213,6 @@ export default function App() {
       if (event.key === "ArrowRight") { event.preventDefault(); goNext(); }
       if (event.key === "ArrowLeft") { event.preventDefault(); goBack(); }
       if (event.key === " ") { event.preventDefault(); setPaused((p) => !p); }
-      if (event.key === "Escape") setExplore(false);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -193,6 +221,7 @@ export default function App() {
   // In-app moves use replaceState; browser back/forward raises hashchange.
   useEffect(() => {
     const syncFromHash = () => {
+      setTransitionTarget(null);
       const next = positionFromHash(window.location.hash);
       if (next === null) { setScreen("landing"); return; }
       if (next === "close") { setScreen("close"); return; }
@@ -207,6 +236,7 @@ export default function App() {
     return (
       <Landing
         onEnter={() => {
+          setTransitionTarget(null);
           move({ type: "go", index: 0 });
           setScreen("tour");
         }}
@@ -218,10 +248,12 @@ export default function App() {
     return (
       <Close
         onBack={() => {
+          setTransitionTarget(null);
           move({ type: "go", index: BEATS.length - 1 });
           setScreen("tour");
         }}
         onRestart={() => {
+          setTransitionTarget(null);
           setScreen("landing");
           window.history.replaceState(null, "", " ");
         }}
@@ -229,9 +261,7 @@ export default function App() {
     );
   }
 
-  // A local const so the union narrows inside the branch below.
   const stage = beat.stage;
-  const isThree = stage.kind === "three";
 
   return (
     <div className="app" data-side={page.side}>
@@ -243,7 +273,11 @@ export default function App() {
           <button
             type="button"
             className="topbar__title nav-link"
-            onClick={() => { setScreen("landing"); window.history.replaceState(null, "", " "); }}
+            onClick={() => {
+              setTransitionTarget(null);
+              setScreen("landing");
+              window.history.replaceState(null, "", " ");
+            }}
           >
             The rare-earth question, inside one motor
           </button>
@@ -277,6 +311,47 @@ export default function App() {
         </button>
       </div>
 
+      {transitionTarget === "open-the-machine" ? (
+        <TransitionSlide
+          actLabel="Act I · The Machine"
+          title="Now, let's open the motor."
+          lede="Seven parts convert three alternating phases into pure magnetic rotation."
+          onNext={() => {
+            setTransitionTarget(null);
+            move({ type: "go", index: 2 });
+          }}
+          nextLabel="Open the machine"
+        />
+      ) : null}
+
+      {transitionTarget === "how-it-turns" ? (
+        <TransitionSlide
+          actLabel="Act I · The Machine"
+          title="From stationary parts to invisible magnetic forces."
+          lede="We've explored every physical part inside the motor. Now let's see how electricity flowing through stationary copper coils makes the rotor turn."
+          onNext={() => {
+            setTransitionTarget(null);
+            move({ type: "go", index: 3 });
+          }}
+          nextLabel="Enter How It Turns"
+        />
+      ) : null}
+
+      {transitionTarget === "the-magnet" ? (
+        <TransitionSlide
+          actLabel="Act II · The Material Core"
+          title="Why Neodymium? Opening the Rare-Earth Magnet"
+          lede="We saw that permanent magnets pull the rotor with immense torque. But why do EV motors rely on rare-earth elements in the first place? Let's zoom into the crystal lattice of Nd₂Fe₁₄B to see how Iron and Neodymium divide the labour of magnetic power."
+          onNext={() => {
+            const nextIdx = BEATS.findIndex((b) => b.pageIndex === 2);
+            setTransitionTarget(null);
+            if (nextIdx >= 0) move({ type: "go", index: nextIdx });
+            else move({ type: "next" });
+          }}
+          nextLabel="Enter The Magnet Lab"
+        />
+      ) : null}
+
       {/*
         The scene is full-bleed and everything else floats over it. The card
         sits on one side and the canvas shifts the other way, which is how the
@@ -296,9 +371,8 @@ export default function App() {
               state={sourceState}
               controls={controls}
               rotor={rotor}
-              paused={paused || explore}
+              paused={paused}
               reducedMotion={reducedMotion}
-              explore={explore}
               side={page.side}
             />
           </Suspense>
@@ -309,6 +383,7 @@ export default function App() {
               stateId={sourceState.id}
               emphasis={beat.emphasis}
               controls={controls}
+              onPatchControls={setControls}
               architecture={architecture}
               onPickArchitecture={setArchitecture}
               rotor={rotor}
@@ -325,13 +400,7 @@ export default function App() {
             />
           </div>
         )}
-        {/*
-          The rule is explained where the field first appears, on the
-          visualisation, and it is gone the moment you press Next.
-        */}
-        {sourceState.id === "one-phase" && (
-          <RightHandRule side={page.side} paused={paused || reducedMotion} />
-        )}
+
       </section>
 
       <BeatCard
@@ -350,8 +419,6 @@ export default function App() {
             state={sourceState}
             controls={controls}
             setControls={setControls}
-            rotor={rotor}
-            setRotor={setRotor}
           />
         }
         aside={
@@ -374,17 +441,6 @@ export default function App() {
       />
 
       <div className="stage-tools">
-        <button
-          type="button"
-          className={`stage-tool ${explore ? "is-on" : ""}`}
-          onClick={() => setExplore((e) => !e)}
-          disabled={!isThree}
-          aria-pressed={explore}
-          title={isThree ? "Pause the tour and turn the machine yourself" : "Only on 3D beats"}
-        >
-          <Cube size={13} weight={explore ? "fill" : "regular"} />
-          {explore ? "Exit explore" : "Explore"}
-        </button>
         <button
           type="button"
           className="stage-tool"

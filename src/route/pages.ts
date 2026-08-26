@@ -90,14 +90,10 @@ export const PAGES: readonly PageSpec[] = [
       },
       {
         from: "open-the-machine",
-        // `air-gap` re-rendered a plain assembled motor, identical to the base
-        // frame, so it reads as the second half of the rotor beat instead.
         groups: [
-          ["explode"],
-          ["stator"],
           {
-            ids: ["rotor", "air-gap"],
-            why: "`air-gap` re-assembled the motor to say the parts never touch, which is easier to see on the isolated rotor than on a closed housing. The rotor frame is the better one for both lines.",
+            ids: ["explode", "stator", "rotor", "air-gap"],
+            why: "The interactive Motor Inspector lets the reader explore all components, inspect their materials, and isolate each part in 3D directly on a single unified teardown stage.",
           },
         ],
       },
@@ -111,19 +107,20 @@ export const PAGES: readonly PageSpec[] = [
     stops: [
       {
         from: "three-coils-one-field",
-        // `no-part-moves` was the same frame as `three-phases`; it is the point
-        // of that frame, not a further one.
-        groups: [["one-phase"], ["three-phases", "no-part-moves"], ["rotor-locks"]],
+        groups: [
+          ["electromagnet-rule"],
+          ["one-phase"],
+          ["three-phase-math"],
+          ["no-part-moves"],
+          ["rotor-locks"],
+        ],
       },
       {
         from: "two-pulls-one-shaft",
         groups: [
           ["why-buried"],
-          ["lopsided", "reluctance"],
-          {
-            ids: ["load-angle", "already-both"],
-            why: "`already-both` is the conclusion drawn from the loaded frame, not a further frame of its own; it reads against the open load angle rather than back at rest.",
-          },
+          ["reluctance-split"],
+          ["already-both"],
         ],
       },
     ],
@@ -136,30 +133,27 @@ export const PAGES: readonly PageSpec[] = [
     stops: [
       {
         from: "strength-and-stubbornness",
-        // All four beats drew the same demagnetisation curve. Two beats, each
-        // annotating a different part of it, is the same content with half the
-        // clicks and twice the density.
         groups: [
+          ["division-of-labour"],
+          ["anisotropy"],
           {
             ids: ["remanence", "coercivity"],
             frame: "coercivity",
-            why: "The two numbers are the two axes of one curve, and the figure can annotate both at once — which is exactly what `division-of-labour` already does. Shown on the coercivity frame so the reverse field is actually applied.",
+            why: "The two numbers form the two orthogonal axes of the B-H curve: vertical remanence and horizontal coercivity.",
           },
-          ["anisotropy"],
-          ["division-of-labour"],
         ],
       },
       {
         from: "heat-and-the-patch",
-        // Was demag → composition → demag → composition. Grouped by figure.
-        // Not merged: each of these moves the curve or the grain, and the
-        // movement is the lesson. Grouped by figure so the page stops
-        // alternating between two drawings.
-        groups: [["hot-margin"], ["dysprosium-tradeoff"], ["reversal-start"], ["diffusion-evolution"]],
+        groups: [
+          ["hot-margin"],
+          ["reversal-start"],
+          ["dysprosium-tradeoff"],
+          ["diffusion-evolution"],
+        ],
       },
       {
         from: "which-rare-earth",
-        // `mitigation-ladder` was rendered three times unchanged.
         groups: [
           ["the-split", "licence-not-ban"],
           ["the-cheapest-move", "cool-it-instead"],

@@ -22,12 +22,13 @@ export type RotorProps = {
   /** Rotor field currently live. False shows a de-excited or coasting rotor. */
   fieldLive?: boolean;
   dimmed?: boolean;
+  explode?: number;
 };
 
 const POLES = 8;
 
 /** Buried magnets in V pockets — the mainstream traction rotor. */
-function IpmRotor({ materials, intensity = 0, fieldLive = true, ferrite = false }: RotorProps & { ferrite?: boolean }) {
+function IpmRotor({ materials, intensity = 0, ferrite = false, explode = 0 }: RotorProps & { ferrite?: boolean }) {
   const core = useMemo(
     () =>
       laminationGeometry(
@@ -40,9 +41,15 @@ function IpmRotor({ materials, intensity = 0, fieldLive = true, ferrite = false 
 
   const magnets = useMemo(() => {
     const pitch = (Math.PI * 2) / POLES;
-    const items: { key: string; position: [number, number, number]; rotation: number }[] = [];
+    const items: {
+      key: string;
+      position: [number, number, number];
+      rotation: number;
+      isNorth: boolean;
+    }[] = [];
     for (let pole = 0; pole < POLES; pole += 1) {
       const centre = pole * pitch;
+      const isNorth = pole % 2 === 0;
       for (const side of [-1, 1] as const) {
         const angle = centre + side * pitch * 0.19 * 0.95;
         const radius = MOTOR.rotorOuter * 0.66;
@@ -50,29 +57,34 @@ function IpmRotor({ materials, intensity = 0, fieldLive = true, ferrite = false 
           key: `${pole}-${side}`,
           position: [Math.cos(angle) * radius, Math.sin(angle) * radius, 0],
           rotation: angle + (side * Math.PI) / 2.4,
+          isNorth,
         });
       }
     }
     return items;
   }, []);
 
-  const magnetMaterial = ferrite ? materials.ferrite : materials.magnet;
-
   return (
     <group>
       <mesh geometry={core} material={materials.rotorLaminate} castShadow receiveShadow />
-      {magnets.map(({ key, position, rotation }) => (
-        <mesh key={key} position={position} rotation={[0, 0, rotation]} castShadow>
-          <boxGeometry args={[ferrite ? 0.13 : 0.075, 0.26, MOTOR.stackLength * 0.99]} />
-          <meshStandardMaterial
-            color={intensity > 0.05 ? PALETTE.warn : magnetMaterial.color}
-            roughness={magnetMaterial.roughness}
-            metalness={magnetMaterial.metalness}
-            emissive={intensity > 0.05 ? PALETTE.warn : "#000000"}
-            emissiveIntensity={fieldLive ? intensity * 0.5 : 0}
-          />
-        </mesh>
-      ))}
+      <group position={[0, 0, explode * 0.75]}>
+        {magnets.map(({ key, position, rotation, isNorth }) => {
+          const isHot = intensity > 0.65;
+          const poleColor = isNorth ? materials.magnet.color : materials.magnetSouth.color;
+          return (
+            <mesh key={key} position={position} rotation={[0, 0, rotation]} castShadow>
+              <boxGeometry args={[ferrite ? 0.13 : 0.075, 0.26, MOTOR.stackLength * 0.99]} />
+              <meshStandardMaterial
+                color={isHot ? PALETTE.warn : ferrite ? materials.ferrite.color : poleColor}
+                roughness={ferrite ? materials.ferrite.roughness : 0.28}
+                metalness={ferrite ? materials.ferrite.metalness : 0.82}
+                emissive={isHot ? PALETTE.warn : "#000000"}
+                emissiveIntensity={isHot ? (intensity - 0.65) * 1.5 : 0}
+              />
+            </mesh>
+          );
+        })}
+      </group>
     </group>
   );
 }

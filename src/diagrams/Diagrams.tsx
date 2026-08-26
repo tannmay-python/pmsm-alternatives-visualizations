@@ -1,8 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   MITIGATION_RUNGS,
-  calculateBackEmfHeight,
-  calculateFieldWeakeningVectors,
   getMitigationFootprintInfo,
 } from "../models/exposure";
 import { architectureLabs, rotorToAlternativeFamily } from "../models/alternativeLab";
@@ -10,7 +8,7 @@ import { materialIdForState, materialLabs } from "../models/materialLab";
 import { burdenRoutes, architectureOptions, architectureStates, type ArchitectureId } from "../models/swapBurden";
 import type { DiagramId } from "../route/route";
 import type { StageControls } from "../stage/controls";
-import { Axes, Leader, Note, SegmentBar } from "./parts";
+import { Axes } from "./parts";
 import "./Diagrams.css";
 
 const W = 820;
@@ -173,494 +171,1367 @@ function SupplyConcentration({ state }: { state: string }) {
   );
 }
 
-/* ── Act II: the two magnet properties ──────────────────────────────────── */
+/* ── Act II Diagrams: The Magnet ────────────────────────────────────────── */
 
-/**
- * The second-quadrant demagnetisation curve, which is where both magnet
- * properties live at once: where the curve meets the vertical axis is what the
- * magnet holds unaided, and where it turns down is what it takes to undo it.
- *
- * The alloys are drawn from the same curve function so the comparison is
- * structural rather than three unrelated drawings: iron has the strength and
- * nearly no resistance, neodymium metal has neither at temperature, and NdFeB
- * has both because each element supplies one of them.
- */
-const ALLOYS = {
-  ndfeb: { label: "NdFeB", br: 1, hc: 1 },
-  iron: { label: "Iron alone", br: 0.94, hc: 0.04 },
-  neodymium: { label: "Neodymium alone", br: 0.22, hc: 0.3 },
-} as const;
+function DivisionOfLabourDiagram({
+  onPatchControls,
+}: {
+  controls?: StageControls;
+  onPatchControls?: (patch: Partial<StageControls>) => void;
+}) {
+  const [selected, setSelected] = useState<"ndfeb" | "iron" | "neodymium">("ndfeb");
 
-type AlloyKey = keyof typeof ALLOYS;
+  const items = [
+    {
+      id: "iron" as const,
+      name: "Iron Alone (Fe)",
+      strength: 95,
+      strengthLabel: "High Pull (1.4 T)",
+      lock: 5,
+      lockLabel: "No Lock (0.05 T)",
+      lines: [
+        "Massive electron pulling power,",
+        "but zero directional grip.",
+        "Flips instantly when pushed back.",
+      ],
+      verdict1: "The Muscle (Raw Pull)",
+      verdict2: "Zero Directional Lock",
+    },
+    {
+      id: "neodymium" as const,
+      name: "Neodymium Alone (Nd)",
+      strength: 15,
+      strengthLabel: "Weak Pull (0.2 T)",
+      lock: 85,
+      lockLabel: "Strong Lock (1.2 T)",
+      lines: [
+        "Unbreakable atomic direction lock,",
+        "providing permanent alignment,",
+        "but almost no pull at room temp.",
+      ],
+      verdict1: "The Lock (Rigid Spine)",
+      verdict2: "Nearly Zero Pull Alone",
+    },
+    {
+      id: "ndfeb" as const,
+      name: "Nd₂Fe₁₄B (The Team)",
+      strength: 100,
+      strengthLabel: "Peak Pull (1.4 T)",
+      lock: 100,
+      lockLabel: "Unbreakable (1.5 T)",
+      lines: [
+        "Iron supplies raw pulling power;",
+        "Neodymium locks the direction.",
+        "Together: the ideal EV motor magnet.",
+      ],
+      verdict1: "Peak Pulling Power",
+      verdict2: "Unbreakable Atomic Lock",
+    },
+  ];
 
-function DemagCurve({
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Division of labour between Iron and Neodymium in NdFeB">
+      <text className="d-axis-label" x={24} y={22}>
+        MAGNETIC CHEMISTRY · THE DIVISION OF LABOUR
+      </text>
+
+      {/* 3 Material Cards */}
+      <g transform="translate(24, 44)">
+        {items.map((item, idx) => {
+          const isSelected = selected === item.id;
+          const cardX = idx * 266;
+          const cardW = 248;
+          return (
+            <g
+              key={item.id}
+              transform={`translate(${cardX}, 0)`}
+              style={{ cursor: "pointer" }}
+              onClick={() => {
+                setSelected(item.id);
+                onPatchControls?.({
+                  angle: item.id === "iron" ? Math.PI : 0,
+                });
+              }}
+            >
+              {/* Card background */}
+              <rect
+                x={0}
+                y={0}
+                width={cardW}
+                height={306}
+                rx={8}
+                fill={isSelected ? "#ffffff" : "#f8fafc"}
+                stroke={isSelected ? "var(--wine, #620d3c)" : "rgba(23, 20, 19, 0.12)"}
+                strokeWidth={isSelected ? 2 : 1}
+              />
+
+              {/* Title */}
+              <text
+                x={16}
+                y={28}
+                fontSize={12.5}
+                fontFamily="var(--mono)"
+                fontWeight="bold"
+                fill={isSelected ? "var(--wine, #620d3c)" : "var(--text, #171413)"}
+              >
+                {item.name}
+              </text>
+
+              {/* Metric 1: Pulling Power */}
+              <text className="d-axis-label" x={16} y={60}>
+                PULLING POWER (MAGNETIC STRENGTH)
+              </text>
+              <rect x={16} y={68} width={216} height={12} rx={4} fill="#e2e8f0" />
+              <rect
+                x={16}
+                y={68}
+                width={(216 * item.strength) / 100}
+                height={12}
+                rx={4}
+                fill={item.id === "neodymium" ? "#94a3b8" : "#4b6bd6"}
+              />
+              <text x={232} y={78} textAnchor="end" fontSize={9} fontFamily="var(--mono)" fontWeight="bold" fill={item.id === "neodymium" ? "#475569" : "#ffffff"}>
+                {item.strengthLabel}
+              </text>
+
+              {/* Metric 2: Directional Lock */}
+              <text className="d-axis-label" x={16} y={106}>
+                DIRECTIONAL GRIP (RESISTS REVERSAL)
+              </text>
+              <rect x={16} y={114} width={216} height={12} rx={4} fill="#e2e8f0" />
+              <rect
+                x={16}
+                y={114}
+                width={(216 * item.lock) / 100}
+                height={12}
+                rx={4}
+                fill={item.id === "iron" ? "#94a3b8" : "#c4763f"}
+              />
+              <text
+                x={item.id === "iron" ? 232 : 232}
+                y={124}
+                textAnchor="end"
+                fontSize={9}
+                fontFamily="var(--mono)"
+                fontWeight="bold"
+                fill={item.id === "iron" ? "#475569" : "#ffffff"}
+              >
+                {item.lockLabel}
+              </text>
+
+              {/* Description text */}
+              <g transform="translate(16, 154)">
+                {item.lines.map((line, lIdx) => (
+                  <text
+                    key={lIdx}
+                    x={0}
+                    y={lIdx * 17}
+                    fontSize={10.5}
+                    fontFamily="sans-serif"
+                    fill="var(--text-muted, #475569)"
+                  >
+                    {line}
+                  </text>
+                ))}
+              </g>
+
+              {/* Verdict Pill */}
+              <rect
+                x={16}
+                y={234}
+                width={216}
+                height={50}
+                rx={6}
+                fill={isSelected ? "rgba(98, 13, 60, 0.08)" : "#f1f5f9"}
+              />
+              <text
+                x={124}
+                y={254}
+                textAnchor="middle"
+                fontSize={10.5}
+                fontFamily="var(--mono)"
+                fontWeight="bold"
+                fill={isSelected ? "var(--wine, #620d3c)" : "#64748b"}
+              >
+                {item.verdict1}
+              </text>
+              <text
+                x={124}
+                y={272}
+                textAnchor="middle"
+                fontSize={10}
+                fontFamily="var(--mono)"
+                fill={isSelected ? "var(--wine, #620d3c)" : "#64748b"}
+              >
+                {item.verdict2}
+              </text>
+            </g>
+          );
+        })}
+      </g>
+
+      {/* Footnote */}
+      <text className="d-label d-label--faint" x={24} y={376}>
+        Neither element can power a motor alone: iron gives magnetic pull,
+      </text>
+      <text className="d-label d-label--faint" x={24} y={392}>
+        and neodymium provides the lock that prevents demagnetisation.
+      </text>
+    </svg>
+  );
+}
+
+function AnisotropyCrystalDiagram({
+  controls,
+  onPatchControls,
+}: {
+  controls: StageControls;
+  onPatchControls?: (patch: Partial<StageControls>) => void;
+}) {
+  const pushPct = Math.round(controls.load * 100);
+  const isHeavyPush = pushPct > 70;
+
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Intuitive compass lock against opposing stator force">
+      <defs>
+        <marker id="arrowUpAccent" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="var(--wine, #620d3c)" />
+        </marker>
+        <marker id="arrowDownWarn" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="#c4763f" />
+        </marker>
+      </defs>
+
+      <text className="d-axis-label" x={24} y={22}>
+        MAGNETIC STUBBORNNESS · THE ATOMIC LOCK
+      </text>
+
+      {/* Left: The Atomic Compass Needle Lock */}
+      <g transform="translate(24, 44)">
+        <rect x={0} y={0} width={370} height={306} rx={8} fill="#ffffff" stroke="rgba(23, 20, 19, 0.12)" strokeWidth={1} />
+
+        <text className="d-label d-label--strong" x={20} y={28}>
+          The Atomic Compass Lock
+        </text>
+
+        {/* Compass Visual Stage */}
+        <g transform="translate(185, 142)">
+          {/* Status badge above dial */}
+          <text
+            x={0}
+            y={-80}
+            textAnchor="middle"
+            fill={pushPct > 0 ? "#c4763f" : "#64748b"}
+            fontSize={10.5}
+            fontFamily="var(--mono)"
+            fontWeight="bold"
+          >
+            {pushPct > 0 ? `OPPOSING STATOR PUSH: ${pushPct}%` : "MOTOR RESTING (0% PUSH)"}
+          </text>
+
+          {/* Stator Push Downward Arrow pushing towards the N pole from outside */}
+          {pushPct > 0 && (
+            <line
+              x1={0}
+              y1={-72}
+              x2={0}
+              y2={-72 + Math.min(16, (pushPct / 100) * 16)}
+              stroke="#c4763f"
+              strokeWidth={3}
+              markerEnd="url(#arrowDownWarn)"
+            />
+          )}
+
+          {/* Compass dial circle */}
+          <circle cx={0} cy={0} r={56} fill="#f8fafc" stroke="#e2e8f0" strokeWidth={1.5} />
+
+          {/* North and South Labels with clear margins */}
+          <text x={0} y={-40} textAnchor="middle" fill="var(--wine, #620d3c)" fontSize={12} fontFamily="var(--mono)" fontWeight="bold">N</text>
+          <text x={0} y={48} textAnchor="middle" fill="#64748b" fontSize={11} fontFamily="var(--mono)" fontWeight="bold">S</text>
+
+          {/* Dotted horizontal alignment line */}
+          <line x1={-42} y1={0} x2={42} y2={0} stroke="#4b6bd6" strokeWidth={1.5} strokeDasharray="2 2" />
+
+          {/* Neodymium Atomic Clamp Badges (Equator) */}
+          <rect x={-50} y={-10} width={20} height={20} rx={4} fill="#4b6bd6" />
+          <text x={-40} y={4} textAnchor="middle" fill="#ffffff" fontSize={9.5} fontFamily="var(--mono)" fontWeight="bold">Nd</text>
+
+          <rect x={30} y={-10} width={20} height={20} rx={4} fill="#4b6bd6" />
+          <text x={40} y={4} textAnchor="middle" fill="#ffffff" fontSize={9.5} fontFamily="var(--mono)" fontWeight="bold">Nd</text>
+
+          {/* Sleek Diamond Compass Needle (North in maroon, South in slate) */}
+          {/* North Half: Points to y = -26 (Leaving 14px gap before the letter N at y = -40) */}
+          <polygon points="0,-26 5,-2 0,0 -5,-2" fill="var(--wine, #620d3c)" />
+          
+          {/* South Half: Points to y = 26 (Leaving 22px gap before the letter S at y = 48) */}
+          <polygon points="0,26 5,2 0,0 -5,2" fill="#94a3b8" />
+
+          {/* Center Hub */}
+          <circle cx={0} cy={0} r={4.5} fill="#ffffff" stroke="var(--wine, #620d3c)" strokeWidth={2} />
+        </g>
+
+        <text className="d-label d-label--faint" x={20} y={268} fontSize={9.5}>
+          • Iron creates the powerful forward magnetic moment.
+        </text>
+        <text className="d-label d-label--faint" x={20} y={284} fontSize={9.5}>
+          • Neodymium atoms act as rigid clamps holding North locked.
+        </text>
+      </g>
+
+      {/* Right: Interactive Stator Push Test */}
+      <g transform="translate(414, 44)">
+        <rect x={0} y={0} width={382} height={306} rx={8} fill="#ffffff" stroke="rgba(23, 20, 19, 0.12)" strokeWidth={1} />
+
+        <text className="d-label d-label--strong" x={24} y={28}>
+          Opposing Stator Push Test
+        </text>
+
+        <text className="d-label" x={24} y={52} fontSize={10.5}>
+          During hard acceleration, the motor's coils push
+        </text>
+        <text className="d-label" x={24} y={68} fontSize={10.5}>
+          an intense reverse electrical field against the magnet:
+        </text>
+
+        {/* Live Push Slider */}
+        <g transform="translate(24, 94)">
+          <text className="d-axis-label" x={0} y={10}>
+            APPLY OPPOSING STATOR PUSH: {pushPct}%
+          </text>
+          <rect
+            x={0}
+            y={18}
+            width={334}
+            height={14}
+            rx={7}
+            fill="#e2e8f0"
+            style={{ cursor: "ew-resize" }}
+            onClick={(e) => {
+              const rect = e.currentTarget.getBoundingClientRect();
+              const clickX = e.clientX - rect.left;
+              const ratio = Math.max(0, Math.min(1, clickX / rect.width));
+              onPatchControls?.({ load: ratio });
+            }}
+          />
+          <circle
+            cx={(controls.load) * 334}
+            cy={25}
+            r={8}
+            fill="#c4763f"
+            stroke="#ffffff"
+            strokeWidth={2}
+            style={{ cursor: "ew-resize" }}
+          />
+        </g>
+
+        {/* Holding Status Meter */}
+        <g transform="translate(24, 160)">
+          <text className="d-axis-label" x={0} y={0}>
+            MAGNETIC LOCK STATUS:
+          </text>
+          <rect x={0} y={8} width={334} height={28} rx={6} fill={isHeavyPush ? "rgba(196, 118, 63, 0.1)" : "rgba(98, 13, 60, 0.08)"} stroke={isHeavyPush ? "#c4763f" : "var(--wine, #620d3c)"} strokeWidth={1} />
+          <text x={167} y={26} textAnchor="middle" fontSize={11} fontFamily="var(--mono)" fontWeight="bold" fill={isHeavyPush ? "#c4763f" : "var(--wine, #620d3c)"}>
+            {pushPct === 0
+              ? "Resting: 100% Lock Intact"
+              : isHeavyPush
+              ? "High Acceleration: Holding Solid"
+              : "Moderate Stator Push: Locked Forward"}
+          </text>
+        </g>
+
+        {/* Takeaway Box */}
+        <g transform="translate(24, 222)">
+          <rect width={334} height={60} rx={6} fill="#f8fafc" stroke="rgba(23, 20, 19, 0.08)" />
+          <text x={16} y={22} fontSize={10} fontFamily="var(--mono)" fill="var(--wine, #620d3c)" fontWeight="bold">
+            Why Plain Iron Fails:
+          </text>
+          <text x={16} y={38} fontSize={9.5} fontFamily="sans-serif" fill="#475569">
+            Plain iron flips backwards at 5% push. Neodymium holds
+          </text>
+          <text x={16} y={50} fontSize={9.5} fontFamily="sans-serif" fill="#475569">
+            the field locked forward under 100% full motor current.
+          </text>
+        </g>
+      </g>
+
+      {/* Footnote */}
+      <text className="d-label d-label--faint" x={24} y={376}>
+        Neodymium's atomic structure acts like a rigid clamp, preventing
+      </text>
+      <text className="d-label d-label--faint" x={24} y={392}>
+        stator current from flipping the magnet backwards at full throttle.
+      </text>
+    </svg>
+  );
+}
+
+function DemagCurveDiagram({
+  controls,
+  onPatchControls,
+}: {
+  controls: StageControls;
+  onPatchControls?: (patch: Partial<StageControls>) => void;
+}) {
+  const x0 = 64;
+  const y0 = 48;
+  const w = 680;
+  const h = 230;
+
+  const reverse = Math.max(0, Math.min(1, controls.load));
+
+  // Generate curve path
+  const pathData = useMemo(() => {
+    const pts: string[] = [];
+    for (let x = 0; x <= w; x += 4) {
+      const hNorm = x / w;
+      let bNorm = 1.0;
+      if (hNorm > 0.75) {
+        const over = (hNorm - 0.75) / 0.25;
+        bNorm = Math.max(0, 1.0 - over ** 2.2);
+      }
+      const y = y0 + h - bNorm * h;
+      pts.push(`${x0 + x},${y}`);
+    }
+    return pts.join(" ");
+  }, []);
+
+  const cursorX = x0 + reverse * w;
+  let currentBNorm = 1.0;
+  if (reverse > 0.75) {
+    const over = (reverse - 0.75) / 0.25;
+    currentBNorm = Math.max(0, 1.0 - over ** 2.2);
+  }
+  const cursorY = y0 + h - currentBNorm * h;
+  const isPastKnee = reverse > 0.78;
+
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="The Operating Cliff Demagnetisation Curve">
+      <text className="d-axis-label" x={24} y={22}>
+        THE OPERATING CLIFF · HOW HARD CAN YOU PUSH?
+      </text>
+
+      <Axes
+        x={x0}
+        y={y0}
+        w={w}
+        h={h}
+        xLabel="Opposing Stator Current (Push) →"
+        yLabel="Retained Magnetic Pull (Tesla) →"
+      />
+
+      {/* Axis Intercept Markers */}
+      <text className="d-axis-label" x={x0 + 8} y={y0 + 16} textAnchor="start">
+        Full Pull (1.4 T)
+      </text>
+      <text className="d-axis-label" x={x0 + w - 8} y={y0 + h + 16} textAnchor="end">
+        Maximum Opposing Push
+      </text>
+
+      {/* Shaded Safe Operating Area */}
+      <polygon
+        points={`${x0},${y0 + h} ${x0},${y0} ${x0 + w * 0.75},${y0} ${x0 + w * 0.75},${y0 + h}`}
+        fill="rgba(98, 13, 60, 0.05)"
+      />
+      <text x={x0 + w * 0.35} y={y0 + h / 2} textAnchor="middle" fill="var(--wine, #620d3c)" fontSize={11.5} fontFamily="var(--mono)" opacity={0.7}>
+        Safe Motor Operating Zone (100% Torque Retained)
+      </text>
+
+      {/* The Cliff Annotation */}
+      <text x={x0 + w * 0.76} y={y0 + 24} fill="#c4763f" fontSize={11} fontFamily="var(--mono)" fontWeight="bold">
+        ↓ The Cliff (Demagnetisation Knee)
+      </text>
+
+      {/* Curve */}
+      <polyline
+        points={pathData}
+        fill="none"
+        stroke={isPastKnee ? "#c4763f" : "var(--wine, #620d3c)"}
+        strokeWidth={3}
+      />
+
+      {/* Operating Point Cursor */}
+      <line
+        x1={cursorX}
+        y1={y0}
+        x2={cursorX}
+        y2={y0 + h}
+        stroke={isPastKnee ? "#c4763f" : "var(--wine, #620d3c)"}
+        strokeWidth={1.5}
+        strokeDasharray="3 3"
+      />
+      <circle
+        cx={cursorX}
+        cy={cursorY}
+        r={6}
+        fill={isPastKnee ? "#c4763f" : "var(--wine, #620d3c)"}
+        stroke="#ffffff"
+        strokeWidth={2}
+      />
+
+      {/* Status Badge */}
+      <g transform={`translate(${Math.min(x0 + w - 260, Math.max(x0 + 10, cursorX - 120))}, ${y0 + 44})`}>
+        <rect width={250} height={26} rx={4} fill="#ffffff" stroke="rgba(23, 20, 19, 0.15)" strokeWidth={1} />
+        <text x={125} y={17} textAnchor="middle" fontSize={10.5} fontFamily="var(--mono)" fill={isPastKnee ? "#c4763f" : "var(--wine, #620d3c)"} fontWeight="bold">
+          {isPastKnee ? "Cliff Crossed: Permanent Loss" : `Safe Operating: ${(currentBNorm * 1.4).toFixed(2)} T Pull`}
+        </text>
+      </g>
+
+      {/* Drag Slider */}
+      <g transform={`translate(${x0}, 312)`}>
+        <text className="d-axis-label" x={0} y={10}>
+          APPLY OPPOSING STATOR CURRENT: {Math.round(reverse * 100)}%
+        </text>
+        <rect
+          x={0}
+          y={18}
+          width={w}
+          height={14}
+          rx={7}
+          fill="#e2e8f0"
+          style={{ cursor: "ew-resize" }}
+          onClick={(e) => {
+            const rect = e.currentTarget.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const ratio = Math.max(0, Math.min(1, clickX / rect.width));
+            onPatchControls?.({ load: ratio });
+          }}
+        />
+        <circle
+          cx={reverse * w}
+          cy={25}
+          r={8}
+          fill="var(--wine, #620d3c)"
+          stroke="#ffffff"
+          strokeWidth={2}
+          style={{ cursor: "ew-resize" }}
+        />
+      </g>
+
+      {/* Editorial Note */}
+      <text className="d-label d-label--faint" x={24} y={376}>
+        Inside the safe plateau, the magnet delivers 100% torque.
+      </text>
+      <text className="d-label d-label--faint" x={24} y={392}>
+        Pushing past the cliff permanently destroys the magnetic field.
+      </text>
+    </svg>
+  );
+}
+
+function ThermalDemagDiagram({
+  controls,
+  onPatchControls,
+}: {
+  controls: StageControls;
+  onPatchControls?: (patch: Partial<StageControls>) => void;
+}) {
+  const x0 = 64;
+  const y0 = 48;
+  const w = 680;
+  const h = 230;
+
+  const tempC = Math.round(20 + controls.heat * 160);
+  const reverse = Math.max(0, Math.min(1, controls.load));
+  const dy = controls.dysprosium;
+
+  const hcThermal = Math.max(0.35, (1.0 - controls.heat * 0.55) * (1.0 + dy * 0.45));
+  const brThermal = Math.max(0.8, 1.0 - controls.heat * 0.12 - dy * 0.08);
+
+  const kneeXNorm = hcThermal * 0.78;
+  const isDemagnetised = reverse > kneeXNorm;
+
+  const hotPts: string[] = [];
+  const coldGhostPts: string[] = [];
+
+  for (let x = 0; x <= w; x += 4) {
+    const hNorm = x / w;
+
+    let bCold = 1.0;
+    if (hNorm > 0.78) {
+      const over = (hNorm - 0.78) / 0.22;
+      bCold = Math.max(0, 1.0 - over ** 2.2);
+    }
+    coldGhostPts.push(`${x0 + x},${y0 + h - bCold * h}`);
+
+    let bHot = brThermal;
+    if (hNorm > kneeXNorm) {
+      const over = (hNorm - kneeXNorm) / Math.max(0.05, 1.0 - kneeXNorm);
+      bHot = Math.max(0, brThermal * (1.0 - over ** 2.2));
+    }
+    hotPts.push(`${x0 + x},${y0 + h - bHot * h}`);
+  }
+
+  const cursorX = x0 + reverse * w;
+  const cursorY = y0 + h - (isDemagnetised ? 0.1 : brThermal) * h;
+
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Thermal demagnetisation under rotor heat">
+      <text className="d-axis-label" x={24} y={22}>
+        THE HEAT THREAT · WHY ROTOR TEMPERATURE MATTERS
+      </text>
+
+      <Axes
+        x={x0}
+        y={y0}
+        w={w}
+        h={h}
+        xLabel="Opposing Stator Current (Push) →"
+        yLabel="Retained Magnetic Pull →"
+      />
+
+      {/* Cold Ghost Reference */}
+      <polyline points={coldGhostPts.join(" ")} fill="none" stroke="#94a3b8" strokeWidth={1.5} strokeDasharray="4 4" />
+      <text x={x0 + w * 0.72} y={y0 + 20} fill="#94a3b8" fontSize={10} fontFamily="var(--mono)">
+        -- Cold Reference (20 °C)
+      </text>
+
+      {/* Hot Active Curve */}
+      <polyline
+        points={hotPts.join(" ")}
+        fill="none"
+        stroke={isDemagnetised ? "#c4763f" : "var(--wine, #620d3c)"}
+        strokeWidth={3}
+      />
+      <text x={x0 + kneeXNorm * w - 10} y={y0 + h - brThermal * h - 10} fill={isDemagnetised ? "#c4763f" : "var(--wine, #620d3c)"} fontSize={11} fontFamily="var(--mono)" fontWeight="bold">
+        Hot Operating Cliff at {tempC} °C
+      </text>
+
+      {/* Reverse Field Cursor */}
+      <line
+        x1={cursorX}
+        y1={y0}
+        x2={cursorX}
+        y2={y0 + h}
+        stroke={isDemagnetised ? "#c4763f" : "var(--wine, #620d3c)"}
+        strokeWidth={1.5}
+        strokeDasharray="3 3"
+      />
+      <circle cx={cursorX} cy={cursorY} r={6} fill={isDemagnetised ? "#c4763f" : "var(--wine, #620d3c)"} stroke="#ffffff" strokeWidth={2} />
+
+      {/* Status Warning Pill */}
+      <g transform={`translate(${Math.min(x0 + w - 310, Math.max(x0 + 10, cursorX - 140))}, ${y0 + 36})`}>
+        <rect width={290} height={26} rx={4} fill="#ffffff" stroke="rgba(23, 20, 19, 0.15)" strokeWidth={1} />
+        <text x={145} y={17} textAnchor="middle" fontSize={10.5} fontFamily="var(--mono)" fill={isDemagnetised ? "#c4763f" : "var(--wine, #620d3c)"} fontWeight="bold">
+          {isDemagnetised ? "WARNING: CROSSED THE CLIFF!" : `Safe Headroom: ${Math.round(((kneeXNorm - reverse) / kneeXNorm) * 100)}% remaining`}
+        </text>
+      </g>
+
+      {/* Sliders Area */}
+      <g transform={`translate(${x0}, 312)`}>
+        {/* Slider 1: Temperature */}
+        <g>
+          <text className="d-axis-label" x={0} y={10}>ROTOR TEMPERATURE: {tempC} °C</text>
+          <rect
+            x={0}
+            y={16}
+            width={320}
+            height={12}
+            rx={6}
+            fill="#e2e8f0"
+            style={{ cursor: "ew-resize" }}
+            onClick={(e) => {
+              const rect = e.currentTarget.getBoundingClientRect();
+              const clickX = e.clientX - rect.left;
+              const ratio = Math.max(0, Math.min(1, clickX / rect.width));
+              onPatchControls?.({ heat: ratio });
+            }}
+          />
+          <circle cx={controls.heat * 320} cy={22} r={7} fill="#c4763f" stroke="#ffffff" strokeWidth={2} style={{ cursor: "ew-resize" }} />
+        </g>
+
+        {/* Slider 2: Stator Current */}
+        <g transform="translate(360, 0)">
+          <text className="d-axis-label" x={0} y={10}>STATOR ACCELERATION PUSH: {Math.round(reverse * 100)}%</text>
+          <rect
+            x={0}
+            y={16}
+            width={320}
+            height={12}
+            rx={6}
+            fill="#e2e8f0"
+            style={{ cursor: "ew-resize" }}
+            onClick={(e) => {
+              const rect = e.currentTarget.getBoundingClientRect();
+              const clickX = e.clientX - rect.left;
+              const ratio = Math.max(0, Math.min(1, clickX / rect.width));
+              onPatchControls?.({ load: ratio });
+            }}
+          />
+          <circle cx={reverse * 320} cy={22} r={7} fill="var(--wine, #620d3c)" stroke="#ffffff" strokeWidth={2} style={{ cursor: "ew-resize" }} />
+        </g>
+      </g>
+
+      {/* Editorial Footnote */}
+      <text className="d-label d-label--faint" x={24} y={376}>
+        Heat weakens the magnetic lock, pulling the cliff closer;
+      </text>
+      <text className="d-label d-label--faint" x={24} y={392}>
+        hard acceleration pushes the magnet over into permanent loss.
+      </text>
+    </svg>
+  );
+}
+
+function GrainBoundaryDiffusionDiagram({
+  controls,
+  onPatchControls,
+}: {
+  controls: StageControls;
+  onPatchControls?: (patch: Partial<StageControls>) => void;
+}) {
+  const gbd = controls.diffusion > 0.4;
+  const shellDepth = 12 + controls.diffusion * 32;
+
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Grain Boundary Diffusion microstructure in NdFeB">
+      <text className="d-axis-label" x={24} y={22}>
+        GRAIN BOUNDARY DIFFUSION · MICROSCOPIC SHIELDING
+      </text>
+
+      {/* Left Card: Uniform Doping (Legacy) */}
+      <g transform="translate(24, 44)">
+        <rect x={0} y={0} width={370} height={306} rx={8} fill="#ffffff" stroke="rgba(23, 20, 19, 0.12)" strokeWidth={1} />
+        <text className="d-label d-label--strong" x={20} y={28}>
+          1. Legacy Bulk Doping (Pre-2015)
+        </text>
+
+        {/* Grain Circle with bulk Dy dots */}
+        <g transform="translate(185, 120)">
+          <circle cx={0} cy={0} r={72} fill="#f1f5f9" stroke="#94a3b8" strokeWidth={2} />
+          {Array.from({ length: 24 }, (_, i) => {
+            const a = (i / 24) * Math.PI * 2;
+            const r = 16 + (i % 4) * 16;
+            return <circle key={i} cx={Math.cos(a) * r} cy={Math.sin(a) * r} r={3.5} fill="#c4763f" />;
+          })}
+          <text x={0} y={4} textAnchor="middle" fontSize={11} fontFamily="var(--mono)" fill="#475569" fontWeight="bold">
+            8% Dy bulk wasted
+          </text>
+        </g>
+
+        <rect x={20} y={215} width={330} height={72} rx={4} fill="#f8fafc" />
+        <text x={30} y={236} fontSize={10.5} fontFamily="var(--mono)" fill="#c4763f" fontWeight="bold">
+          Wasteful Core Doping:
+        </text>
+        <text x={30} y={254} fontSize={10} fontFamily="sans-serif" fill="#64748b">
+          Heavy Dy is wasted through the core,
+        </text>
+        <text x={30} y={270} fontSize={10} fontFamily="sans-serif" fill="#64748b">
+          diluting pure iron and cutting pull by 15%.
+        </text>
+      </g>
+
+      {/* Right Card: Grain Boundary Diffusion (Modern) */}
+      <g transform="translate(414, 44)">
+        <rect
+          x={0}
+          y={0}
+          width={382}
+          height={306}
+          rx={8}
+          fill="#ffffff"
+          stroke={gbd ? "var(--wine, #620d3c)" : "rgba(23, 20, 19, 0.12)"}
+          strokeWidth={gbd ? 2 : 1}
+        />
+        <text className="d-label d-label--strong" x={20} y={28} fill={gbd ? "var(--wine, #620d3c)" : "var(--text, #171413)"}>
+          2. Modern GBD (Surface Shield)
+        </text>
+
+        {/* Grain with distinct Dy Shell */}
+        <g transform="translate(191, 120)">
+          {/* Outer Shell */}
+          <circle cx={0} cy={0} r={72} fill="#fef3c7" stroke="var(--wine, #620d3c)" strokeWidth={2} />
+          {/* Inner Iron-Rich Core */}
+          <circle cx={0} cy={0} r={72 - shellDepth} fill="#e0e7ff" stroke="#4b6bd6" strokeWidth={1.5} />
+          {/* Dy particles only on the outer rim */}
+          {Array.from({ length: 20 }, (_, i) => {
+            const a = (i / 20) * Math.PI * 2;
+            return <circle key={i} cx={Math.cos(a) * (72 - shellDepth / 2)} cy={Math.sin(a) * (72 - shellDepth / 2)} r={3.5} fill="var(--wine, #620d3c)" />;
+          })}
+          <text x={0} y={-8} textAnchor="middle" fontSize={11} fontFamily="var(--mono)" fill="#4b6bd6" fontWeight="bold">
+            Pure NdFeB Core (100% Pull)
+          </text>
+          <text x={0} y={10} textAnchor="middle" fontSize={9.5} fontFamily="var(--mono)" fill="#64748b">
+            Zero Flux Loss
+          </text>
+        </g>
+
+        <rect x={20} y={215} width={342} height={72} rx={4} fill="rgba(98, 13, 60, 0.05)" />
+        <text x={30} y={236} fontSize={10.5} fontFamily="var(--mono)" fill="var(--wine, #620d3c)" fontWeight="bold">
+          Targeted 200 nm Shell Shield:
+        </text>
+        <text x={30} y={254} fontSize={10} fontFamily="sans-serif" fill="#475569">
+          Shields only the outer rim where heat attacks.
+        </text>
+        <text x={30} y={270} fontSize={10} fontFamily="sans-serif" fill="#475569">
+          Cuts Heavy REE consumption by 75%!
+        </text>
+      </g>
+
+      {/* Interactive Depth Slider at bottom */}
+      <g transform="translate(24, 358)">
+        <text className="d-axis-label" x={0} y={-6}>
+          GBD SHIELD PENETRATION DEPTH: {Math.round(controls.diffusion * 100)}%
+        </text>
+        <rect
+          x={0}
+          y={4}
+          width={772}
+          height={12}
+          rx={6}
+          fill="#e2e8f0"
+          style={{ cursor: "ew-resize" }}
+          onClick={(e) => {
+            const rect = e.currentTarget.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const ratio = Math.max(0.1, Math.min(1, clickX / rect.width));
+            onPatchControls?.({ diffusion: ratio });
+          }}
+        />
+        <circle cx={controls.diffusion * 772} cy={10} r={7} fill="var(--wine, #620d3c)" stroke="#ffffff" strokeWidth={2} style={{ cursor: "ew-resize" }} />
+      </g>
+
+      {/* Footnote */}
+      <text className="d-label d-label--faint" x={24} y={386}>
+        Magnetic reversal starts at grain boundaries; GBD shields only
+      </text>
+      <text className="d-label d-label--faint" x={24} y={402}>
+        the outer skin, keeping the core 100% pure iron for maximum pull.
+      </text>
+    </svg>
+  );
+}
+
+function LightHeavySplitDiagram() {
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Light vs Heavy rare earths in EV traction magnets">
+      <text className="d-axis-label" x={24} y={22}>
+        RARE-EARTH TAXONOMY · LIGHT VS HEAVY BREAKDOWN
+      </text>
+
+      {/* Composition Bar */}
+      <g transform="translate(24, 44)">
+        <text className="d-label d-label--strong" x={0} y={-10}>
+          Element Breakdown by Mass in an EV Traction Magnet
+        </text>
+
+        {/* Stack Bar */}
+        <g>
+          {/* Iron */}
+          <rect x={0} y={0} width={515} height={34} rx={4} fill="#94a3b8" />
+          <text x={257} y={21} textAnchor="middle" fill="#ffffff" fontSize={11.5} fontFamily="var(--mono)" fontWeight="bold">
+            Iron (Fe) ≈ 68% · Main Body
+          </text>
+
+          {/* Light REE (Nd/Pr) */}
+          <rect x={521} y={0} width={224} height={34} rx={4} fill="#4b6bd6" />
+          <text x={633} y={21} textAnchor="middle" fill="#ffffff" fontSize={11} fontFamily="var(--mono)" fontWeight="bold">
+            Nd/Pr ≈ 29% (Light)
+          </text>
+
+          {/* Heavy REE (Dy/Tb) */}
+          <rect x={749} y={0} width={23} height={34} rx={4} fill="#c4763f" />
+        </g>
+      </g>
+
+      {/* Comparison Columns */}
+      <g transform="translate(24, 100)">
+        {/* Left Column: Light Rare Earths */}
+        <g transform="translate(0, 0)">
+          <rect x={0} y={0} width={370} height={240} rx={8} fill="#ffffff" stroke="rgba(23, 20, 19, 0.12)" strokeWidth={1} />
+          <rect x={0} y={0} width={370} height={36} rx={8} fill="#f1f5f9" />
+          <text x={16} y={23} fontSize={12} fontFamily="var(--mono)" fontWeight="bold" fill="#4b6bd6">
+            Light Rare Earths (Neodymium, Praseodymium)
+          </text>
+
+          <text x={16} y={64} className="d-label" fontSize={11}>
+            • Share: <tspan className="d-label--strong">≈ 29–30% of total magnet mass</tspan>
+          </text>
+          <text x={16} y={92} className="d-label" fontSize={11}>
+            • Mines: USA (Mountain Pass), Australia, China
+          </text>
+          <text x={16} y={120} className="d-label" fontSize={11}>
+            • Status: <tspan className="d-label--strong" fill="#16a34a">100% UNRESTRICTED (Not on licence list)</tspan>
+          </text>
+          <text x={16} y={154} className="d-label d-label--faint" fontSize={10.5}>
+            The bulk magnet material, mined globally.
+          </text>
+        </g>
+
+        {/* Right Column: Heavy Rare Earths */}
+        <g transform="translate(414, 0)">
+          <rect x={0} y={0} width={382} height={240} rx={8} fill="#ffffff" stroke="#c4763f" strokeWidth={1.5} />
+          <rect x={0} y={0} width={382} height={36} rx={8} fill="rgba(196, 118, 63, 0.12)" />
+          <text x={16} y={23} fontSize={12} fontFamily="var(--mono)" fontWeight="bold" fill="#c4763f">
+            Heavy Rare Earths (Dysprosium, Terbium)
+          </text>
+
+          <text x={16} y={64} className="d-label" fontSize={11}>
+            • Share: <tspan className="d-label--strong">Only 1–2% of magnet mass</tspan> (Heat shield)
+          </text>
+          <text x={16} y={92} className="d-label" fontSize={11}>
+            • Global Sources: 99% ionic clays in S. China/Myanmar
+          </text>
+          <text x={16} y={120} className="d-label" fontSize={11}>
+            • Status: <tspan className="d-label--strong" fill="#c4763f">SUBJECT TO APRIL 2025 EXPORT LICENCE</tspan>
+          </text>
+          <text x={16} y={154} className="d-label d-label--faint" fontSize={10.5}>
+            The specific 2% heat additive that was controlled.
+          </text>
+        </g>
+      </g>
+
+      {/* Editorial Footnote */}
+      <text className="d-label d-label--faint" x={24} y={368}>
+        The April 2025 controls targeted the 1–2% heavy rare earths (Dy/Tb),
+      </text>
+      <text className="d-label d-label--faint" x={24} y={384}>
+        not the bulk neodymium (Nd/Pr) that makes up 95% of REE content.
+      </text>
+    </svg>
+  );
+}
+
+function MitigationLadderDiagram({
+  controls,
+  onPatchControls,
+}: {
+  controls: StageControls;
+  onPatchControls?: (patch: Partial<StageControls>) => void;
+}) {
+  const rung = Math.min(4, Math.round(controls.load * 4));
+  const active = getMitigationFootprintInfo(rung as 0 | 1 | 2 | 3 | 4);
+
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Mitigation ladder to eliminate heavy rare earths">
+      <text className="d-axis-label" x={24} y={22}>
+        THE MITIGATION LADDER · FIXING THE SUPPLY RISK
+      </text>
+
+      {/* 5 Rung Cards */}
+      <g transform="translate(24, 44)">
+        {MITIGATION_RUNGS.map((item, i) => {
+          const isSelected = i === rung;
+          const y = i * 44;
+          return (
+            <g
+              key={item.id}
+              style={{ cursor: "pointer" }}
+              onClick={() => onPatchControls?.({ load: i / 4 })}
+            >
+              <rect
+                x={0}
+                y={y}
+                width={370}
+                height={38}
+                rx={6}
+                fill={isSelected ? "var(--wine, #620d3c)" : "#ffffff"}
+                stroke={isSelected ? "var(--wine, #620d3c)" : "rgba(23, 20, 19, 0.12)"}
+                strokeWidth={1}
+              />
+              <text
+                x={16}
+                y={y + 24}
+                fontSize={11.5}
+                fontFamily="var(--mono)"
+                fontWeight="bold"
+                fill={isSelected ? "#ffffff" : "var(--text, #171413)"}
+              >
+                Rung {i + 1}: {item.label}
+              </text>
+            </g>
+          );
+        })}
+      </g>
+
+      {/* Right Detail Card for Active Rung */}
+      <g transform="translate(414, 44)">
+        <rect x={0} y={0} width={382} height={222} rx={8} fill="#ffffff" stroke="var(--wine, #620d3c)" strokeWidth={1.5} />
+
+        <rect x={0} y={0} width={382} height={36} rx={8} fill="rgba(98, 13, 60, 0.06)" />
+        <text x={16} y={23} fontSize={12} fontFamily="var(--mono)" fontWeight="bold" fill="var(--wine, #620d3c)">
+          Rung {rung + 1}: {active.label}
+        </text>
+
+        <text className="d-axis-label" x={16} y={64}>CARRIES OVER 100% (UNTOUCHED):</text>
+        {active.retainedModules.map((mod, idx) => (
+          <text key={mod} x={16} y={82 + idx * 18} className="d-label" fontSize={10.5}>
+            ✓ {mod}
+          </text>
+        ))}
+
+        <text className="d-axis-label" x={16} y={146}>WHAT CHANGES:</text>
+        {active.affectedModules.map((mod, idx) => (
+          <text key={mod} x={16} y={164 + idx * 18} className="d-label d-label--strong" fill="var(--wine, #620d3c)" fontSize={10.5}>
+            • {mod}
+          </text>
+        ))}
+      </g>
+
+      {/* Footnote */}
+      <text className="d-label d-label--faint" x={24} y={368}>
+        Rungs 1–3 keep the proven PMSM motor and car platform untouched,
+      </text>
+      <text className="d-label d-label--faint" x={24} y={384}>
+        eliminating heavy rare earths via oil cooling and grain shielding.
+      </text>
+    </svg>
+  );
+}
+
+/* ── Act III Diagrams: The Ceiling & The Alternatives ──────────────────── */
+
+function BackEmfCeiling({
   controls,
   state,
-  emphasis,
+  onPatchControls,
 }: {
   controls: StageControls;
   state: string;
-  emphasis?: string;
+  onPatchControls?: (patch: Partial<StageControls>) => void;
 }) {
-  const x0 = 60;
-  const y0 = 30;
-  const w = 600;
-  const h = 290;
+  const isWeakeningView = state === "field-weakening" || state === "fault" || state === "the-obvious-fix";
+  const speedRatio = Math.max(0, Math.min(1, controls.load));
+  const rpm = Math.round(speedRatio * 18000);
+  const kmh = Math.round(speedRatio * 160);
 
-  // Heat only enters the picture once the lesson is about heat.
-  const heat =
-    state === "hot-margin" || state === "dysprosium-tradeoff"
-      ? controls.heat
-      : 0;
-  const reverse = state === "hot-margin" || state === "coercivity" ? controls.load : 0;
-  const dysprosium = state === "dysprosium-tradeoff" ? controls.dysprosium : 0;
+  const backEmfVolts = Math.round(speedRatio * 380);
+  const dcBusVolts = 400;
+  const headroomVolts = Math.max(0, dcBusVolts - backEmfVolts);
+  const isNearCeiling = speedRatio >= 0.65;
+  const isAtCeiling = speedRatio >= 0.88;
 
-  const path = (br: number, hcInput: number) => {
-    const top = y0 + h - br * h;
-    const hc = Math.min(1.08, hcInput);
-    const knee = x0 + Math.min(w, hc * w * 0.78);
-    return `M ${x0} ${top} L ${knee} ${top - 4} Q ${x0 + hc * w} ${top} ${x0 + Math.min(w, hc * w)} ${y0 + h}`;
-  };
+  // Dynamic color transition based on voltage severity
+  const voltageColor =
+    backEmfVolts >= 330 ? "#c4763f" : backEmfVolts >= 200 ? "#d97706" : "var(--wine, #620d3c)";
 
-  const compare = state === "division-of-labour";
-  const shown: AlloyKey[] = compare ? ["ndfeb", "iron", "neodymium"] : ["ndfeb"];
+  const weakeningRatio = Math.max(0, Math.min(1, controls.weakening || speedRatio));
+  const counterPct = Math.round(weakeningRatio * 42);
+  const torquePct = 100 - counterPct;
+  const highwayKmh = Math.round(80 + weakeningRatio * 80);
+  const isFault = state === "fault";
 
-  const br = Math.max(0.2, 1 - heat * 0.18 - dysprosium * 0.22);
-  const hc = Math.min(1.08, (1 - heat * 0.55) * (1 + dysprosium * 0.45));
-  const reverseX = x0 + reverse * w;
-  const flipThreshold = hc * 0.78;
-  const past = state !== "anisotropy" && reverse >= flipThreshold;
-  const margin = Math.max(0, flipThreshold - reverse);
+  return isWeakeningView ? (
+    /* ── Stop 2 View: Field Weakening & Inverter Fault ──────────────────────── */
+    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Field weakening highway tax and inverter cutoff fault">
+      <text className="d-axis-label" x={24} y={22}>
+        FIELD WEAKENING · THE HIGHWAY TAX & THE INVERTER FAULT
+      </text>
 
-  const axisTurn = (controls.angle % (Math.PI / 2)) / (Math.PI / 2);
-  const hardAxisEnergy = Math.sin(Math.min(Math.PI, Math.abs(controls.angle))) ** 2;
-  const axisX = x0 + w - 92;
-  const axisY = y0 + 74;
-  const axisRadius = 34;
-  const axisEnd = [axisX - Math.cos(axisTurn * Math.PI) * axisRadius, axisY - Math.sin(axisTurn * Math.PI) * axisRadius];
+      {/* Left Card: The Highway Inverter Tax */}
+      <g transform="translate(24, 44)">
+        <rect x={0} y={0} width={370} height={306} rx={8} fill="#ffffff" stroke="rgba(23, 20, 19, 0.12)" strokeWidth={1} />
 
-  return (
-    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Demagnetisation curve showing remanence and coercivity">
-      <Axes x={x0} y={y0} w={w} h={h} xLabel="reverse field applied →" yLabel="magnetisation held" />
+        <text className="d-label d-label--strong" x={20} y={28}>
+          1. The Highway Inverter Tax
+        </text>
 
-      {/* The unheated reference, so any shift from heat is visible as a shift. */}
-      {heat > 0.02 && <path className="d-curve d-curve--ghost" d={path(1, 1)} />}
+        <text className="d-label" x={20} y={50} fontSize={10.5}>
+          To push past the voltage ceiling at highway speed,
+        </text>
+        <text className="d-label" x={20} y={66} fontSize={10.5}>
+          the inverter injects reverse current to cancel magnet flux:
+        </text>
 
-      {shown.map((key) => {
-        const alloy = ALLOYS[key];
-        const main = key === "ndfeb";
-        return (
-          <g key={key}>
-            <path
-              className={`d-curve ${main ? (past ? "d-curve--warn" : "d-curve--accent") : ""}`}
-              d={path(main ? br * alloy.br : alloy.br, main ? hc * alloy.hc : alloy.hc)}
-              opacity={main ? 1 : 0.55}
-            />
-            {compare && (
-              <text
-                className={`d-label ${main ? "d-label--accent" : "d-label--faint"}`}
-                x={x0 + 8}
-                y={y0 + h - alloy.br * h - 6}
-              >
-                {alloy.label}
-              </text>
-            )}
-          </g>
-        );
-      })}
-
-      {/* The anisotropy lesson needs an orientation dial, not another curve. */}
-      {state === "anisotropy" && (
-        <g>
-          <circle className="d-fill--mute" cx={axisX} cy={axisY} r={axisRadius} />
-          <path className="d-curve d-curve--warn" d={`M ${axisX - 44} ${axisY} L ${axisX + 44} ${axisY}`} />
-          <text className="d-label d-label--faint" x={axisX + 50} y={axisY + 4}>reverse field</text>
-          <path
-            className="d-rule"
-            style={{ stroke: "var(--accent)" }}
-            d={`M ${axisX} ${axisY} L ${axisEnd[0]} ${axisEnd[1]}`}
+        {/* Highway Speed Scrub Slider */}
+        <g transform="translate(20, 84)">
+          <text className="d-axis-label" x={0} y={10}>
+            HIGHWAY SPEED: {highwayKmh} km/h
+          </text>
+          <rect
+            x={0}
+            y={18}
+            width={330}
+            height={14}
+            rx={7}
+            fill="#e2e8f0"
+            style={{ cursor: "ew-resize" }}
+            onClick={(e) => {
+              const rect = e.currentTarget.getBoundingClientRect();
+              const clickX = e.clientX - rect.left;
+              const ratio = Math.max(0, Math.min(1, clickX / rect.width));
+              onPatchControls?.({ weakening: ratio, load: ratio });
+            }}
           />
-          <circle className="d-fill--accent" cx={axisEnd[0]} cy={axisEnd[1]} r={3} />
-          <text className="d-label" x={axisX - axisRadius - 8} y={axisY + axisRadius + 24}>
-            easy axis · {Math.round(axisTurn * 180)}° from field
-          </text>
-          <rect className="d-fill--mute" x={axisX - axisRadius} y={axisY + axisRadius + 32} width={axisRadius * 2} height={7} />
-          <rect className={`d-bar ${hardAxisEnergy > 0.72 ? "d-fill--warn" : "d-fill--accent"}`} x={axisX - axisRadius} y={axisY + axisRadius + 32} width={axisRadius * 2 * hardAxisEnergy} height={7} />
-          <text className="d-label d-label--faint" x={axisX - axisRadius} y={axisY + axisRadius + 58}>
-            energy cost of turning the easy axis away from the field
-          </text>
-        </g>
-      )}
-
-      {emphasis === "energy-product" && (
-        <Note
-          at={[x0 + w * 0.34, y0 + h * 0.46]}
-          to={[x0 + w * 0.1, y0 + h * 0.14]}
-          eyebrow="What the area is"
-          width={210}
-        >
-          The area under the curve is the work the magnet can do. Turning the easy axis away from
-          the field shrinks it.
-        </Note>
-      )}
-
-      {/* Each state points at the part of the curve it is actually about. */}
-      {(state === "remanence" ||
-        state === "division-of-labour" ||
-        emphasis === "remanence-and-coercivity") && (
-        <Leader from={[x0, y0 + h - br * h]} to={[x0 + w + 16, y0 + 20]} accent>
-          remanence — what is left with no help
-        </Leader>
-      )}
-      {(state === "coercivity" ||
-        state === "division-of-labour" ||
-        emphasis === "remanence-and-coercivity") && (
-        <Leader from={[x0 + hc * w * 0.9, y0 + h]} to={[x0 + w + 16, y0 + h - 16]} accent>
-          coercivity — what it takes to undo it
-        </Leader>
-      )}
-
-      {reverse > 0.01 && (
-        <g>
-          <path className="d-rule d-rule--dash" d={`M ${reverseX} ${y0} L ${reverseX} ${y0 + h}`} />
-          <text className={`d-label ${past ? "d-label--warn" : ""}`} x={reverseX + 6} y={y0 + 14}>
-            {past
-              ? "past the knee — this loss stays after cooling"
-              : state === "coercivity"
-                ? "pushing back against the magnet"
-                : "stator pushing back"}
-          </text>
-        </g>
-      )}
-
-      {(state === "hot-margin" || state === "dysprosium-tradeoff") && !past && (
-        <g>
-          <path
-            className="d-rule d-rule--dash"
-            d={`M ${Math.min(x0 + w, x0 + flipThreshold * w)} ${y0 + h - 12} L ${Math.min(x0 + w, x0 + reverse * w)} ${y0 + h - 12}`}
+          <circle
+            cx={weakeningRatio * 330}
+            cy={25}
+            r={8}
+            fill="#c4763f"
+            stroke="#ffffff"
+            strokeWidth={2}
+            style={{ cursor: "ew-resize" }}
           />
-          <text className="d-label d-label--accent" x={x0 + 8} y={y0 + h - 20}>
-            remaining margin before reversal: {Math.round((margin / flipThreshold) * 100)}%
+        </g>
+
+        {/* Stacked Battery Current Meter */}
+        <g transform="translate(20, 140)">
+          <text className="d-axis-label" x={0} y={0}>
+            BATTERY CURRENT BREAKDOWN AT {highwayKmh} km/h:
+          </text>
+
+          {/* Stats Row above the bar */}
+          <text x={0} y={18} fontSize={10.5} fontFamily="var(--mono)" fontWeight="bold" fill="#4b6bd6">
+            ✓ Drives Wheels: {torquePct}%
+          </text>
+          <text x={330} y={18} textAnchor="end" fontSize={10.5} fontFamily="var(--mono)" fontWeight="bold" fill="#c4763f">
+            ✕ Cancels Magnet: {counterPct}%
+          </text>
+
+          {/* Stack track */}
+          <rect x={0} y={26} width={330} height={16} rx={8} fill="#e2e8f0" />
+          {/* Useful Torque Current (Blue) */}
+          <rect x={0} y={26} width={(330 * torquePct) / 100} height={16} rx={8} fill="#4b6bd6" />
+          {/* Wasted Counter-Current (Orange) */}
+          <rect x={(330 * torquePct) / 100} y={26} width={(330 * counterPct) / 100} height={16} rx={8} fill="#c4763f" />
+        </g>
+
+        {/* Paradox Box */}
+        <g transform="translate(20, 224)">
+          <rect width={330} height={62} rx={6} fill="rgba(196, 118, 63, 0.06)" stroke="#c4763f" strokeWidth={0.5} />
+          <text x={14} y={20} fontSize={10} fontFamily="var(--mono)" fill="#c4763f" fontWeight="bold">
+            The Permanent Magnet Highway Paradox:
+          </text>
+          <text x={14} y={36} fontSize={9.5} fontFamily="sans-serif" fill="#475569">
+            At 150 km/h, up to 40% of battery power is burned purely
+          </text>
+          <text x={14} y={50} fontSize={9.5} fontFamily="sans-serif" fill="#475569">
+            fighting the very magnet you paid to put in the vehicle.
           </text>
         </g>
-      )}
+      </g>
 
-      <text className="d-label d-label--faint" x={x0} y={y0 + h + 46}>
-        {state === "anisotropy"
-          ? "The green needle is the crystal's preferred magnetisation direction. Moving it away from the reverse field raises the energy needed to reverse the magnet."
-          : state === "division-of-labour"
-            ? "Iron supplies the height of the curve. Neodymium supplies its reach to the right. Neither element does both."
-            : heat > 0.02
-              ? `Rotor at ${Math.round(20 + heat * 160)} °C. Coercivity falls roughly 0.5% per degree; a traction rotor runs 150–180 °C.`
-              : "A usable permanent magnet needs both: height on this axis, and reach along that one."}
-      </text>
-    </svg>
-  );
-}
+      {/* Right Card: The Inverter Fault & The Solution */}
+      <g transform="translate(414, 44)">
+        <rect x={0} y={0} width={382} height={306} rx={8} fill="#ffffff" stroke={isFault ? "#c4763f" : "rgba(23, 20, 19, 0.12)"} strokeWidth={isFault ? 2 : 1} />
 
-function MagnetComposition({ controls, state }: { controls: StageControls; state: string }) {
-  const gbd = state === "diffusion-evolution";
+        <text className="d-label d-label--strong" x={24} y={28}>
+          2. Inverter Fault & The Alternative Fix
+        </text>
 
-  if (state === "reversal-start") {
-    const progress = Math.max(0, Math.min(1, controls.nucleation));
-    const inward = progress ** 0.85;
-    const reversalRadius = 12 + inward * 112;
-    const centreX = 410 + 170 * (1 - inward);
-    const phase =
-      progress < 0.06
-        ? "healthy grain under stress"
-        : progress < 0.72
-          ? "reversed region sweeping inward"
-          : "cooled magnet with permanent loss";
-
-    return (
-      <svg viewBox="0 0 820 520" role="img" aria-label="Surface-nucleated demagnetisation progressing through one NdFeB grain">
-        <text className="d-axis-label" x={0} y={16}>One grain under combined thermal and reverse-field stress</text>
-        <text className="d-value d-value--big" x={0} y={58}>{phase}</text>
-
-        <g>
-          <circle className="d-fill--warn-soft" cx={410} cy={270} r={170} />
-          <circle className="d-fill--mute" cx={410} cy={270} r={170} opacity={0.55} />
-          {Array.from({ length: 64 }, (_, i) => {
-            const a = (i / 64) * Math.PI * 2;
-            const ring = i % 4;
-            const radius = 24 + ring * 42;
-            return (
-              <circle
-                key={i}
-                className="d-fill--warn"
-                cx={410 + Math.cos(a) * radius}
-                cy={270 + Math.sin(a) * radius}
-                r={3.2}
-              />
-            );
-          })}
-
-          {progress > 0.04 && (
-            <>
-              <circle
-                className="d-fill--warn"
-                cx={centreX}
-                cy={270}
-                r={reversalRadius}
-                opacity={progress > 0.72 ? 0.72 : 0.88}
-              />
-              <path
-                className="d-rule"
-                d={`M ${centreX} ${270 - reversalRadius} L ${centreX} 112`}
-              />
-              <text
-                className={`d-label ${progress > 0.72 ? "d-label--warn" : ""}`}
-                x={centreX + 8}
-                y={106}
-              >
-                {progress > 0.72 ? "loss remains after cooling" : "reversed region"}
-              </text>
-            </>
-          )}
-          <circle className="d-fill--accent" cx={580} cy={270} r={4} />
-          <path className="d-rule d-rule--dash" d="M 580 270 L 668 352 L 724 352" />
-          <text className="d-label d-label--strong" x={730} y={356}>surface</text>
-        </g>
-
-        <g transform="translate(0, 480)">
-          <rect className="d-fill--warn-soft" width={820} height={30} />
-          <rect className="d-fill--warn" width={3} height={30} />
-          <text className="d-label d-label--warn" x={18} y={20}>
-            Reversal begins where the crystal boundary meets the highest local field. It does not require the whole grain to flip at once.
+        {/* Fault Status Banner */}
+        <g transform="translate(24, 46)">
+          <rect width={334} height={68} rx={6} fill={isFault ? "rgba(196, 118, 63, 0.1)" : "rgba(98, 13, 60, 0.05)"} stroke={isFault ? "#c4763f" : "var(--wine, #620d3c)"} strokeWidth={1} />
+          <text x={16} y={22} fontSize={10.5} fontFamily="var(--mono)" fontWeight="bold" fill={isFault ? "#c4763f" : "var(--wine, #620d3c)"}>
+            {isFault ? "⚠ INVERTER CUTOFF FAULT AT SPEED" : "✓ INVERTER ACTIVE (CRUISING)"}
+          </text>
+          <text x={16} y={40} fontSize={9.5} fontFamily="sans-serif" fill="#475569">
+            {isFault
+              ? "Inverter shuts off, but spinning magnets keep generating"
+              : "Counter-current suppresses Back-EMF. Drive is stable."}
+          </text>
+          <text x={16} y={54} fontSize={9.5} fontFamily="sans-serif" fill={isFault ? "#c4763f" : "#475569"} fontWeight={isFault ? "bold" : "normal"}>
+            {isFault
+              ? "650 V+ uncontrolled voltage spikes into the drive unit!"
+              : "Safe operation within DC bus voltage limits."}
           </text>
         </g>
-      </svg>
-    );
-  }
 
-  const shellDepth = 18 + controls.diffusion * 38;
-  return (
-    <svg viewBox="0 0 820 520" role="img" aria-label="NdFeB magnet composition by mass and where dysprosium sits in the grain">
-      <text className="d-axis-label" x={0} y={16}>By mass, an illustrative traction-grade NdFeB magnet</text>
-      <SegmentBar
-        x={0}
-        y={34}
-        w={W}
-        h={34}
-        segments={[
-          { id: "fe", value: 69, label: "≈69% iron — carries the strength" },
-          { id: "ndpr", value: 30, label: "≈30% Nd/Pr — holds the direction", tone: "accent" },
-          { id: "dy", value: 3, label: "1–4% Dy", tone: "warn" },
-        ]}
-      />
-      <text className="d-label d-label--faint" x={0} y={104}>
-        Composition varies by grade and duty. Dysprosium is the smallest share and the only one under the April 2025 licence.
+        {/* The Solution / Bridge Box */}
+        <g transform="translate(24, 126)">
+          <rect width={334} height={160} rx={6} fill="#f8fafc" stroke="rgba(23, 20, 19, 0.1)" />
+          <text x={16} y={24} fontSize={11} fontFamily="var(--mono)" fontWeight="bold" fill="var(--wine, #620d3c)">
+            The Obvious Fix: Rotors You Can Turn Off!
+          </text>
+          <text x={16} y={44} fontSize={9.5} fontFamily="sans-serif" fill="#475569">
+            Replace permanent magnets with controllable rotors:
+          </text>
+          <text x={16} y={64} fontSize={9.5} fontFamily="sans-serif" fill="#171413" fontWeight="bold">
+            • BMW & Renault (Wound Rotor / EESM):
+          </text>
+          <text x={26} y={78} fontSize={9} fontFamily="sans-serif" fill="#64748b">
+            Turns off rotor current on the highway for 0% drag.
+          </text>
+          <text x={16} y={98} fontSize={9.5} fontFamily="sans-serif" fill="#171413" fontWeight="bold">
+            • Tesla & Audi (Induction Motor / IM):
+          </text>
+          <text x={26} y={112} fontSize={9} fontFamily="sans-serif" fill="#64748b">
+            No magnets in rotor; coasts with zero drag on the highway.
+          </text>
+          <text x={16} y={136} fontSize={9.5} fontFamily="var(--mono)" fontWeight="bold" fill="var(--wine, #620d3c)">
+            Outcome: Zero counter-current tax at high speed!
+          </text>
+        </g>
+      </g>
+
+      {/* Footnote */}
+      <text className="d-label d-label--faint" x={24} y={376}>
+        To cruise at top speed, PMSMs burn extra battery power fighting their own magnets;
       </text>
-
-      {/* One grain, in section: where the dysprosium actually sits. */}
-      <g transform="translate(90, 150)">
-        <text className="d-axis-label" x={0} y={-12}>Uniform doping</text>
-        <circle className="d-fill--warn-soft" cx={110} cy={110} r={104} />
-        <circle className="d-fill--mute" cx={110} cy={110} r={104} opacity={0.5} />
-        {Array.from({ length: 26 }, (_, i) => {
-          const a = (i / 26) * Math.PI * 2;
-          const r = 26 + (i % 4) * 24;
-          return <circle key={i} className="d-fill--warn" cx={110 + Math.cos(a) * r} cy={110 + Math.sin(a) * r} r={3.4} />;
-        })}
-        <text className="d-label" x={0} y={242}>Dysprosium everywhere, including the</text>
-        <text className="d-label d-label--faint" x={0} y={260}>core where it is not needed.</text>
-      </g>
-
-      <g transform="translate(450, 150)">
-        <text className={`d-axis-label ${gbd ? "d-label--accent" : ""}`} x={0} y={-12}>
-          Grain-boundary diffusion
-        </text>
-        <circle className="d-fill--mute" cx={110} cy={110} r={104} />
-        <circle className="d-fill--warn-soft" cx={110} cy={110} r={104} />
-        <circle className="d-fill--mute" cx={110} cy={110} r={104 - shellDepth} />
-        {Array.from({ length: 22 }, (_, i) => {
-          const a = (i / 22) * Math.PI * 2;
-          return <circle key={i} className="d-fill--warn" cx={110 + Math.cos(a) * 95} cy={110 + Math.sin(a) * 95} r={3.4} />;
-        })}
-        <text className="d-label d-label--strong" x={70} y={114}>NdFeB core</text>
-        <text className="d-label" x={0} y={242}>
-          Dysprosium only in the outer shell, where reversal starts.
-        </text>
-        <text className="d-label d-label--faint" x={0} y={260}>
-          Same protection, far less of it.
-        </text>
-      </g>
-
-      <g transform="translate(0, 470)">
-        <rect className="d-fill--mute" width={340} height={36} />
-        <text className="d-label d-label--strong" x={12} y={23}>
-          Shell depth: {Math.round(controls.diffusion * 100)}% · Dy inventory lower than uniform doping
-        </text>
-      </g>
-    </svg>
-  );
-}
-
-function LightHeavySplit() {
-  return (
-    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Light and heavy rare earths in the magnet, and which the export notice names">
-      <text className="d-axis-label" x={0} y={16}>The rare earths in one traction magnet</text>
-
-      <g transform="translate(0, 46)">
-        <rect className="d-fill--accent" x={0} y={0} width={520} height={54} />
-        <text className="d-label--strong d-label" x={16} y={24} style={{ fill: "#0b0d0c" }}>
-          Neodymium · Praseodymium
-        </text>
-        <text className="d-label" x={16} y={42} style={{ fill: "#1c2415" }}>
-          Light rare earths · ≈30% of magnet mass · more widely mined
-        </text>
-      </g>
-
-      <g transform="translate(540, 46)">
-        <rect className="d-fill--warn" x={0} y={0} width={130} height={54} />
-        <text className="d-label d-label--strong" x={12} y={24} style={{ fill: "#140a06" }}>
-          Dy · Tb
-        </text>
-        <text className="d-label" x={12} y={42} style={{ fill: "#2a1409" }}>
-          Heavy · 1–4%
-        </text>
-      </g>
-
-      <path className="d-rule" d="M 605 100 L 605 150" />
-      <path className="d-rule" d="M 260 100 L 260 150" />
-
-      <g transform="translate(0, 160)">
-        <rect className="d-fill--warn-soft" x={520} y={0} width={150} height={78} />
-        <text className="d-label d-label--warn" x={534} y={24}>Named in the</text>
-        <text className="d-label d-label--warn" x={534} y={42}>April 2025 notice</text>
-        <text className="d-label d-label--faint" x={534} y={64}>licence required</text>
-
-        <rect className="d-fill--mute" x={140} y={0} width={240} height={78} />
-        <text className="d-label d-label--strong" x={156} y={24}>Not named in it</text>
-        <text className="d-label" x={156} y={46}>Supply is broader and</text>
-        <text className="d-label" x={156} y={64}>less concentrated than Dy/Tb.</text>
-      </g>
-
-      <text className="d-label d-label--strong" x={0} y={300}>
-        The controlled element is the 1–4% one.
-      </text>
-      <text className="d-label" x={0} y={324}>
-        Grain-boundary diffusion already existed to use less of it, and cutting it costs temperature range, not the motor.
-      </text>
-      <text className="d-label d-label--faint" x={0} y={352}>
-        Removing Dy/Tb keeps the inverter, the calibration, the control software and the safety case. Nothing else in the car changes.
+      <text className="d-label d-label--faint" x={24} y={392}>
+        magnet-free rotors turn the field off, eliminating the highway penalty.
       </text>
     </svg>
-  );
-}
+  ) : (
+    /* ── Stop 1 View: Back-EMF Generator & Voltage Ceiling ─────────────────── */
+    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Back-EMF generator effect and DC bus voltage ceiling">
+      <text className="d-axis-label" x={24} y={22}>
+        BACK-EMF · THE VOLTAGE CEILING
+      </text>
 
-function MitigationLadder({ controls }: { controls: StageControls }) {
-  const rung = Math.min(4, Math.round(controls.load * 4));
-  const active = getMitigationFootprintInfo(rung as 0 | 1 | 2 | 3 | 4);
-  const detail = [
-    "Direct rotor-oil cooling lowers magnet temperature. It does not remove dysprosium by itself.",
-    "Dysprosium migrates to grain boundaries, where reversal begins. The core remains NdFeB.",
-    "The magnet keeps the NdFeB architecture while deleting the controlled heavy rare earths.",
-    "A weaker or cheaper magnet may require more mass, higher speed or a different geometry.",
-    "The rotor mechanism changes, and so do excitation, inverter control, cooling and validation.",
-  ][rung];
+      {/* Left Card: The Spinning Generator Effect */}
+      <g transform="translate(24, 44)">
+        <rect x={0} y={0} width={370} height={306} rx={8} fill="#ffffff" stroke="rgba(23, 20, 19, 0.12)" strokeWidth={1} />
 
-  return (
-    <svg viewBox="0 0 820 560" role="img" aria-label="Mitigation ladder from rotor cooling to a new motor architecture">
-      <text className="d-axis-label" x={0} y={16}>Smallest credible change first</text>
-      {MITIGATION_RUNGS.map((item, i) => {
-        const y = 40 + i * 58;
-        const isActive = i === rung;
-        return (
-          <g key={item.id}>
-            <rect className={`d-node ${isActive ? "is-on" : "is-off"}`} x={0} y={y} width={610} height={46} />
-            <text className={`d-label ${isActive ? "d-label--accent" : ""}`} x={16} y={y + 21}>
-              {i + 1}. {item.label}
-            </text>
-            <text className={`d-label ${isActive ? "d-label--strong" : "d-label--faint"}`} x={630} y={y + 28}>
-              {["cooling", "material", "material", "motor", "platform"][i]}
-            </text>
+        <text className="d-label d-label--strong" x={20} y={28}>
+          1. The Spinning Generator Effect
+        </text>
+
+        <text className="d-label" x={20} y={50} fontSize={10.5}>
+          Spinning permanent magnets induce a reverse
+        </text>
+        <text className="d-label" x={20} y={66} fontSize={10.5}>
+          voltage (Back-EMF) that grows with rotor speed:
+        </text>
+
+        {/* Rotor Generator Graphic */}
+        <g transform="translate(185, 140)">
+          {/* Stator Ring */}
+          <circle cx={0} cy={0} r={52} fill="#f8fafc" stroke="#e2e8f0" strokeWidth={1.5} />
+          
+          {/* 4 Stator Pole Teeth */}
+          <rect x={-8} y={-52} width={16} height={12} rx={2} fill="#94a3b8" />
+          <rect x={-8} y={40} width={16} height={12} rx={2} fill="#94a3b8" />
+          <rect x={-52} y={-8} width={12} height={16} rx={2} fill="#94a3b8" />
+          <rect x={40} y={-8} width={12} height={16} rx={2} fill="#94a3b8" />
+
+          {/* Rotating 4-Pole Rotor in Center */}
+          <g transform={`rotate(${speedRatio * 180})`}>
+            {/* North Poles (Dynamic color matching speed/voltage) */}
+            <circle cx={0} cy={-24} r={10} fill={voltageColor} />
+            <text x={0} y={-20} textAnchor="middle" fill="#ffffff" fontSize={9} fontFamily="var(--mono)" fontWeight="bold">N</text>
+            <circle cx={0} cy={24} r={10} fill={voltageColor} />
+            <text x={0} y={28} textAnchor="middle" fill="#ffffff" fontSize={9} fontFamily="var(--mono)" fontWeight="bold">N</text>
+
+            {/* South Poles (Slate) */}
+            <circle cx={-24} cy={0} r={10} fill="#64748b" />
+            <text x={-24} y={4} textAnchor="middle" fill="#ffffff" fontSize={9} fontFamily="var(--mono)" fontWeight="bold">S</text>
+            <circle cx={24} cy={0} r={10} fill="#64748b" />
+            <text x={24} y={4} textAnchor="middle" fill="#ffffff" fontSize={9} fontFamily="var(--mono)" fontWeight="bold">S</text>
+
+            {/* Shaft */}
+            <circle cx={0} cy={0} r={6} fill="#1e293b" />
           </g>
-        );
-      })}
-
-      <g transform="translate(0, 345)">
-        <rect className="d-fill--warn-soft" width={820} height={195} />
-        <rect className="d-fill--warn" width={3} height={195} />
-        <text className="d-label d-label--warn" x={18} y={26}>{rung + 1}. {active.label}</text>
-        <text className="d-label d-label--strong" x={18} y={56}>What it changes</text>
-        {active.affectedModules.map((module, index) => (
-          <text key={module} className="d-label d-label--warn" x={18} y={82 + index * 22}>· {module}</text>
-        ))}
-        <text className="d-label d-label--strong" x={430} y={56}>What carries over</text>
-        {active.retainedModules.map((module, index) => (
-          <text key={module} className="d-label" x={430} y={82 + index * 22}>· {module}</text>
-        ))}
-        <text className="d-label d-label--faint" x={18} y={180}>{detail}</text>
-      </g>
-    </svg>
-  );
-}
-
-/* ── Act III: the weakness, the family, the properties ──────────────────── */
-
-function BackEmfCeiling({ controls, state }: { controls: StageControls; state: string }) {
-  const x0 = 60;
-  const y0 = 30;
-  const w = 600;
-  const h = 290;
-  const speed = controls.load * 100;
-  const { normalized, nearingCeiling } = calculateBackEmfHeight(speed);
-  const weakening = state === "field-weakening" || state === "fault";
-  const rawCurrent = calculateFieldWeakeningVectors(controls.weakening * 100);
-  const current =
-    state === "fault"
-      ? { ...rawCurrent, counterFlux: 0, netFlux: rawCurrent.magnetFlux }
-      : rawCurrent;
-
-  return (
-    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Induced voltage rising toward the DC bus ceiling with speed">
-      <Axes x={x0} y={y0} w={w} h={h} xLabel="rotor speed →" yLabel="voltage" />
-      <path className="d-rule d-rule--dash" d={`M ${x0} ${y0 + 26} L ${x0 + w} ${y0 + 26}`} />
-      <text className="d-label d-label--faint" x={x0 + w + 8} y={y0 + 30}>DC bus</text>
-
-      <path
-        className={`d-curve ${nearingCeiling ? "d-curve--warn" : "d-curve--accent"}`}
-        d={`M ${x0} ${y0 + h} L ${x0 + w * (speed / 100)} ${y0 + h - normalized * (h - 26)}`}
-      />
-      <circle
-        className={nearingCeiling ? "d-fill--warn" : "d-fill--accent"}
-        cx={x0 + w * (speed / 100)}
-        cy={y0 + h - normalized * (h - 26)}
-        r={4}
-      />
-      <text className={`d-label ${nearingCeiling ? "d-label--warn" : ""}`} x={x0 + 8} y={y0 + h - normalized * (h - 26) - 12}>
-        induced voltage from the magnet
-      </text>
-
-      {nearingCeiling && !weakening && (
-        <text className="d-label d-label--warn" x={x0} y={y0 + h + 46}>
-          At the ceiling no more current can be pushed in. The motor cannot go faster on torque alone.
-        </text>
-      )}
-
-      {weakening && (
-        <g transform={`translate(${x0}, ${y0 + h + 40})`}>
-          <text className="d-axis-label" x={0} y={0}>Stator current, at this speed</text>
-          <rect className="d-fill--accent" x={0} y={12} width={Math.max(1, current.magnetFlux)} height={20} />
-          <rect className="d-fill--warn" x={Math.max(1, current.magnetFlux) + 8} y={12} width={Math.max(1, current.counterFlux)} height={20} />
-          <path className="d-rule" d={`M ${current.netFlux} 6 L ${current.netFlux} 38`} />
-          <text className="d-label d-label--faint" x={current.netFlux + 5} y={4}>net flux</text>
-          <text className="d-label d-label--accent" x={0} y={50}>makes torque</text>
-          <text className="d-label d-label--warn" x={222} y={50}>
-            cancels the magnet's own flux — makes no torque, and is spent only because the magnets are there
-          </text>
-          {state === "fault" && (
-            <>
-              <rect className="d-fill--warn-soft" x={0} y={62} width={520} height={34} />
-              <text className="d-label d-label--warn" x={12} y={84}>
-                Inverter gated off: counter-current stops, but the magnet's induced voltage remains.
-              </text>
-            </>
-          )}
         </g>
-      )}
+
+        {/* Motor Speed Slider */}
+        <g transform="translate(20, 218)">
+          <text className="d-axis-label" x={0} y={10} fill={voltageColor}>
+            MOTOR SPEED: {rpm.toLocaleString()} RPM ({kmh} km/h)
+          </text>
+          <rect
+            x={0}
+            y={18}
+            width={330}
+            height={14}
+            rx={7}
+            fill="#e2e8f0"
+            style={{ cursor: "ew-resize" }}
+            onClick={(e) => {
+              const rect = e.currentTarget.getBoundingClientRect();
+              const clickX = e.clientX - rect.left;
+              const ratio = Math.max(0, Math.min(1, clickX / rect.width));
+              onPatchControls?.({ load: ratio });
+            }}
+          />
+          <circle
+            cx={speedRatio * 330}
+            cy={25}
+            r={8}
+            fill={voltageColor}
+            stroke="#ffffff"
+            strokeWidth={2}
+            style={{ cursor: "ew-resize" }}
+          />
+        </g>
+
+        {/* Speed Callout Notes */}
+        <text className="d-label d-label--faint" x={20} y={276} fontSize={9.5}>
+          • Low RPM: Magnet delivers peak launch torque.
+        </text>
+        <text className="d-label d-label--faint" x={20} y={292} fontSize={9.5}>
+          • High RPM: Spinning magnet generates 350+ V pushback.
+        </text>
+      </g>
+
+      {/* Right Card: The Battery Voltage Ceiling */}
+      <g transform="translate(414, 44)">
+        <rect x={0} y={0} width={382} height={306} rx={8} fill="#ffffff" stroke="rgba(23, 20, 19, 0.12)" strokeWidth={1} />
+
+        <text className="d-label d-label--strong" x={24} y={28}>
+          2. The Battery Voltage Ceiling (DC Bus)
+        </text>
+
+        <text className="d-label" x={24} y={50} fontSize={10.5}>
+          The battery sets an absolute voltage limit.
+        </text>
+        <text className="d-label" x={24} y={66} fontSize={10.5}>
+          When Back-EMF matches it, torque drops to zero:
+        </text>
+
+        {/* Voltage Headroom Meter with Clean Non-Overlapping Labels Above Bar */}
+        <g transform="translate(24, 84)">
+          <text className="d-axis-label" x={0} y={0}>
+            DC BUS CEILING: 400 V (BATTERY MAXIMUM)
+          </text>
+          
+          {/* Dynamic Stats Row above the bar */}
+          <text x={0} y={18} fontSize={10.5} fontFamily="var(--mono)" fontWeight="bold" fill={voltageColor}>
+            Back-EMF: {backEmfVolts} V
+          </text>
+          <text x={334} y={18} textAnchor="end" fontSize={10.5} fontFamily="var(--mono)" fontWeight="bold" fill={isNearCeiling ? "#c4763f" : "#64748b"}>
+            {headroomVolts > 0 ? `Headroom: ${headroomVolts} V` : "0 V Headroom"}
+          </text>
+
+          {/* Meter track */}
+          <rect x={0} y={26} width={334} height={16} rx={8} fill="#f1f5f9" stroke="#e2e8f0" strokeWidth={1} />
+          {/* Back-EMF Fill Bar with dynamic color */}
+          <rect x={0} y={26} width={Math.max(12, Math.min(334, (334 * backEmfVolts) / 400))} height={16} rx={8} fill={voltageColor} />
+        </g>
+
+        {/* Status Warning Pill with dynamic color matching */}
+        <g transform="translate(24, 156)">
+          <rect
+            width={334}
+            height={32}
+            rx={6}
+            fill={isAtCeiling ? "rgba(196, 118, 63, 0.12)" : isNearCeiling ? "rgba(217, 119, 6, 0.08)" : "rgba(98, 13, 60, 0.05)"}
+            stroke={voltageColor}
+            strokeWidth={1}
+          />
+          <text x={167} y={20} textAnchor="middle" fontSize={10.5} fontFamily="var(--mono)" fontWeight="bold" fill={voltageColor}>
+            {isAtCeiling
+              ? "CEILING HIT: Battery cannot push more torque!"
+              : isNearCeiling
+              ? "Approaching Ceiling: Voltage Margin Shrinking"
+              : "Safe Drive Zone: 100% Torque Voltage Available"}
+          </text>
+        </g>
+
+        {/* Takeaway Box */}
+        <g transform="translate(24, 206)">
+          <rect width={334} height={80} rx={6} fill="#f8fafc" stroke="rgba(23, 20, 19, 0.08)" />
+          <text x={16} y={22} fontSize={10.5} fontFamily="var(--mono)" fill="var(--wine, #620d3c)" fontWeight="bold">
+            Why Permanent Magnet Motors Hit a Wall:
+          </text>
+          <text x={16} y={40} fontSize={9.5} fontFamily="sans-serif" fill="#475569">
+            When Back-EMF equals battery voltage, current flow
+          </text>
+          <text x={16} y={54} fontSize={9.5} fontFamily="sans-serif" fill="#475569">
+            stops and the motor cannot accelerate further on torque.
+          </text>
+          <text x={16} y={68} fontSize={9.5} fontFamily="sans-serif" fill="var(--wine, #620d3c)" fontWeight="bold">
+            To go faster, the inverter must weaken the magnet.
+          </text>
+        </g>
+      </g>
+
+      {/* Footnote */}
+      <text className="d-label d-label--faint" x={24} y={376}>
+        A permanent magnet cannot be switched off: as motor RPM climbs,
+      </text>
+      <text className="d-label d-label--faint" x={24} y={392}>
+        its spinning field generates counter-voltage that hits the battery ceiling.
+      </text>
     </svg>
   );
 }
@@ -671,6 +1542,7 @@ function FamilyTree({ onPick, rotor }: { onPick?: (id: string) => void; rotor?: 
 
   return (
     <div className="alt-lab" aria-label="Interactive comparison of traction-motor alternatives">
+      {/* 1. Selector Tab Pills */}
       <div className="alt-lab__tabs" role="group" aria-label="Choose a motor family">
         {architectureLabs.map((item) => (
           <button
@@ -680,143 +1552,174 @@ function FamilyTree({ onPick, rotor }: { onPick?: (id: string) => void; rotor?: 
             aria-pressed={item.id === active.id}
             onClick={() => onPick?.(item.id)}
           >
-            {item.shortLabel}
+            <span className="lab-tab__name">{item.shortLabel}</span>
+            <small className="lab-tab__tag">{item.badgeTags[0]}</small>
           </button>
         ))}
       </div>
 
-      <div className="alt-compare" aria-label="Relative teaching-scale comparison across motor families">
-        <div className="alt-compare__row alt-compare__row--head">
-          <span>Metric</span>
-          {architectureLabs.map((item) => (
-            <span key={item.id} className={item.id === active.id ? "is-active" : ""}>{item.shortLabel}</span>
-          ))}
-        </div>
-
-        {architectureLabs[0].comparison.map((metric, metricIndex) => (
-          <div key={metric.label} className="alt-compare__row">
-            <span>{metric.label}</span>
-            {architectureLabs.map((item) => {
-              const cell = item.comparison[metricIndex];
-              return (
-                <div
-                  key={`${item.id}-${metric.label}`}
-                  className={`alt-compare__cell ${item.id === active.id ? "is-active" : ""}`}
-                  title={cell.note}
-                  aria-label={`${item.shortLabel}, ${metric.label}: ${cell.value} of 4`}
+      {/* 2. High-Contrast Comparative Trade-Off Matrix */}
+      <div className="alt-matrix-wrap">
+        <table className="alt-matrix" aria-label="5-Way Motor Architecture Trade-Off Matrix">
+          <thead>
+            <tr>
+              <th scope="col" className="matrix-metric-col">Architecture Dimension</th>
+              {architectureLabs.map((item) => (
+                <th
+                  key={item.id}
+                  scope="col"
+                  className={`matrix-col-head ${item.id === active.id ? "is-active" : ""}`}
+                  onClick={() => onPick?.(item.id)}
                 >
-                  {Array.from({ length: 4 }, (_, dot) => (
-                    <i key={dot} className={dot < cell.value ? "is-on" : ""} />
-                  ))}
-                  {/* A zero is otherwise indistinguishable from a row that
-                      failed to render, since both are four empty pips. */}
-                  <small className={cell.value === 0 ? "is-zero" : ""}>{cell.value}</small>
-                </div>
-              );
-            })}
-          </div>
-        ))}
-        <p>0–4 is a teaching scale for comparing mechanisms. It is not a measured score.</p>
-      </div>
-
-      {/*
-        The reasoning behind each score used to live in a `title` tooltip,
-        which is invisible on touch and to a keyboard. It is the substance of
-        the comparison, so it belongs under the figure: "explain to me what
-        Motor A versus Motor B is, right below the image."
-      */}
-      <dl className="alt-compare__notes">
-        <div className="alt-compare__notes-head">
-          <dt>Reading the column</dt>
-          <dd>{active.shortLabel}</dd>
-        </div>
-        {active.comparison.map((cell, i) => (
-          <div key={cell.note}>
-            <dt>
-              {architectureLabs[0].comparison[i].label}
-              <span className="num"> · {cell.value}/4</span>
-            </dt>
-            <dd>{cell.note}</dd>
-          </div>
-        ))}
-      </dl>
-
-      <div className="alt-lab__head">
-        <div>
-          <p className="eyebrow">Defining parameter</p>
-          <h3>{active.label}</h3>
-          <p>{active.principle}</p>
-        </div>
-        <div className="alt-lab__metric">
-          <span>{active.definingMetric.label}</span>
-          <strong>{active.definingMetric.value}</strong>
-          <small>{active.definingMetric.meaning}</small>
-        </div>
-      </div>
-
-      <div className="alt-lab__grid">
-        <section className="alt-lab__panel">
-          <h4>What changes</h4>
-          <dl>
-            <div>
-              <dt>Rotor field</dt>
-              <dd>{active.rotorField}</dd>
-            </div>
-            <div>
-              <dt>Rare earths</dt>
-              <dd>{active.rareEarth}</dd>
-            </div>
-            <div>
-              <dt>Cost drivers</dt>
-              <dd>{active.costDrivers.join(" · ")}</dd>
-            </div>
-          </dl>
-        </section>
-
-        <section className="alt-lab__panel">
-          <h4>Track these</h4>
-          <ul>
-            {active.trackThese.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        </section>
-
-        {active.regions.map((region) => (
-          <section key={region.region} className="alt-lab__panel">
-            <h4>{region.region}</h4>
-            <ul className="company-list">
-              {region.records.map((record) => (
-                <li key={`${region.region}-${record.name}`}>
-                  <strong>{record.name}</strong>
-                  <span>{record.scope}</span>
-                  <em>{record.maturity}</em>
-                </li>
+                  {item.shortLabel}
+                </th>
               ))}
-            </ul>
-          </section>
-        ))}
+            </tr>
+          </thead>
+          <tbody>
+            {/* Row 1: Rare-Earth Exposure */}
+            <tr>
+              <th scope="row">Rare-Earth Exposure</th>
+              {architectureLabs.map((item) => {
+                const isPM = item.id === "pmsm";
+                return (
+                  <td key={item.id} className={item.id === active.id ? "is-active" : ""}>
+                    <span className={`pill ${isPM ? "pill--danger" : "pill--success"}`}>
+                      {isPM ? "100% REE" : "0% Magnets"}
+                    </span>
+                  </td>
+                );
+              })}
+            </tr>
+
+            {/* Row 2: Highway Cruising Efficiency */}
+            <tr>
+              <th scope="row">Highway Cruising</th>
+              {architectureLabs.map((item) => {
+                let badge = "Free Coasting";
+                let type = "pill--success";
+                if (item.id === "pmsm") {
+                  badge = "Highway Drag";
+                  type = "pill--danger";
+                } else if (item.id === "wound") {
+                  badge = "Field Off (0 Drag)";
+                  type = "pill--success";
+                } else if (item.id === "synrm") {
+                  badge = "Zero Drag";
+                  type = "pill--success";
+                } else if (item.id === "srm") {
+                  badge = "Zero Drag";
+                  type = "pill--success";
+                }
+                return (
+                  <td key={item.id} className={item.id === active.id ? "is-active" : ""}>
+                    <span className={`pill ${type}`}>{badge}</span>
+                  </td>
+                );
+              })}
+            </tr>
+
+            {/* Row 3: Rotor Moving Parts / Complexity */}
+            <tr>
+              <th scope="row">Rotor Hardware</th>
+              {architectureLabs.map((item) => {
+                let badge = "Standard";
+                let type = "pill--neutral";
+                if (item.id === "pmsm") {
+                  badge = "Embedded Magnets";
+                  type = "pill--neutral";
+                } else if (item.id === "induction") {
+                  badge = "Solid Cage";
+                  type = "pill--success";
+                } else if (item.id === "wound") {
+                  badge = "Slip Rings";
+                  type = "pill--warn";
+                } else if (item.id === "synrm") {
+                  badge = "Pure Steel";
+                  type = "pill--success";
+                } else if (item.id === "srm") {
+                  badge = "Toothed Steel";
+                  type = "pill--success";
+                }
+                return (
+                  <td key={item.id} className={item.id === active.id ? "is-active" : ""}>
+                    <span className={`pill ${type}`}>{badge}</span>
+                  </td>
+                );
+              })}
+            </tr>
+
+            {/* Row 4: Inverter & Silicon Burden */}
+            <tr>
+              <th scope="row">Inverter & Control</th>
+              {architectureLabs.map((item) => {
+                let badge = "Standard";
+                let type = "pill--success";
+                if (item.id === "pmsm") {
+                  badge = "Standard Drive";
+                  type = "pill--success";
+                } else if (item.id === "induction") {
+                  badge = "Standard Drive";
+                  type = "pill--success";
+                } else if (item.id === "wound") {
+                  badge = "Dual Supply";
+                  type = "pill--warn";
+                } else if (item.id === "synrm") {
+                  badge = "Larger Silicon";
+                  type = "pill--warn";
+                } else if (item.id === "srm") {
+                  badge = "Ripple Tuning";
+                  type = "pill--warn";
+                }
+                return (
+                  <td key={item.id} className={item.id === active.id ? "is-active" : ""}>
+                    <span className={`pill ${type}`}>{badge}</span>
+                  </td>
+                );
+              })}
+            </tr>
+          </tbody>
+        </table>
       </div>
 
-      <section className="conductor-reference" aria-label="Conductor reference for winding cost and resistance">
-        <h4>Conductor reference</h4>
-        <div className="conductor-reference__grid">
+      {/* 3. Active Contender Profile Spotlight */}
+      <div className="alt-spotlight">
+        <div className="alt-spotlight__header">
           <div>
-            <strong>Copper</strong>
-            <span>Relative resistance 1.0× · compact windings · higher raw-material exposure</span>
+            <h3 className="alt-spotlight__title">{active.label}</h3>
+            <p className="alt-spotlight__principle">{active.principle}</p>
           </div>
-          <div>
-            <strong>Aluminium</strong>
-            <span>≈1.6× resistance · lower raw-material cost and density · larger conductor for the same resistance</span>
+          <div className="alt-spotlight__tags">
+            {active.badgeTags.map((tag) => (
+              <span key={tag} className="tag-pill">{tag}</span>
+            ))}
           </div>
         </div>
-        <p>
-          Resistance is a physical design constraint. Cost is a market and system question: aluminium can lower
-          conductor spend while adding loss, volume or inverter duty.
-        </p>
-      </section>
 
-      <p className="alt-lab__note">{active.caveat}</p>
+        <div className="alt-spotlight__grid">
+          {/* Green Card: The Superpower */}
+          <div className="spotlight-card spotlight-card--superpower">
+            <h4>✓ THE SUPERPOWER (WHY ADOPT IT)</h4>
+            <p>{active.superpower}</p>
+          </div>
+
+          {/* Amber Card: The Catch */}
+          <div className="spotlight-card spotlight-card--catch">
+            <h4>✕ THE CATCH (ENGINEERING TRADE-OFF)</h4>
+            <p>{active.theCatch}</p>
+          </div>
+        </div>
+
+        {/* Real-World Production Fleet */}
+        <div className="alt-spotlight__fleet">
+          <span className="fleet-label">PRODUCTION & PILOT FLEET:</span>
+          <div className="fleet-pills">
+            {active.productionCars.map((car) => (
+              <span key={car} className="car-pill">{car}</span>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -831,8 +1734,9 @@ function MaterialLab({ state }: { state: string }) {
   const active = materialLabs.find((item) => item.id === selected) ?? materialLabs[0];
 
   return (
-    <div className="material-lab" aria-label="Interactive comparison of permanent-magnet materials">
-      <div className="lab-tab-row" role="group" aria-label="Choose a magnet chemistry">
+    <div className="material-lab alt-lab" aria-label="Interactive comparison of permanent-magnet materials">
+      {/* 1. Selector Tabs */}
+      <div className="alt-lab__tabs" role="group" aria-label="Choose a magnet chemistry">
         {materialLabs.map((item) => (
           <button
             key={item.id}
@@ -841,123 +1745,150 @@ function MaterialLab({ state }: { state: string }) {
             aria-pressed={item.id === active.id}
             onClick={() => setSelected(item.id)}
           >
-            {item.shortLabel}
+            <span className="lab-tab__name">{item.shortLabel}</span>
+            <small className="lab-tab__tag">{item.badgeTags[0]}</small>
           </button>
         ))}
       </div>
 
-      {/* Rows below use `material-compare__*`, so the container has to carry
-          that class too — the responsive overflow guard targets it, and with
-          only `alt-compare` here it was never attaching. */}
-      <div
-        className="alt-compare material-compare"
-        aria-label="Relative teaching-scale comparison across magnet chemistries"
-      >
-        <div className="material-compare__row material-compare__row--head">
-          <span>Metric</span>
-          {materialLabs.map((item) => (
-            <span key={item.id} className={item.id === active.id ? "is-active" : ""}>{item.shortLabel}</span>
-          ))}
-        </div>
-
-        {materialLabs[0].comparison.map((metric, metricIndex) => (
-          <div key={metric.label} className="material-compare__row">
-            <span>{metric.label}</span>
-            {materialLabs.map((item) => {
-              const cell = item.comparison[metricIndex];
-              return (
-                <div
-                  key={`${item.id}-${metric.label}`}
-                  className={`material-compare__cell ${item.id === active.id ? "is-active" : ""}`}
-                  title={cell.note}
+      {/* 2. High-Contrast Comparative Trade-Off Matrix */}
+      <div className="alt-matrix-wrap">
+        <table className="alt-matrix" aria-label="3-Way Magnet Chemistry Trade-Off Matrix">
+          <thead>
+            <tr>
+              <th scope="col" className="matrix-metric-col">Chemistry Dimension</th>
+              {materialLabs.map((item) => (
+                <th
+                  key={item.id}
+                  scope="col"
+                  className={`matrix-col-head ${item.id === active.id ? "is-active" : ""}`}
+                  onClick={() => setSelected(item.id)}
                 >
-                  {Array.from({ length: 4 }, (_, dot) => (
-                    <i key={dot} className={dot < cell.value ? "is-on" : ""} />
-                  ))}
-                  <small>{cell.value}</small>
-                </div>
-              );
-            })}
-          </div>
-        ))}
-        <p>0–4 compares teaching mechanisms. It is not a measured universal score.</p>
-      </div>
-
-      <div className="alt-lab__head">
-        <div>
-          <p className="eyebrow">Defining gate</p>
-          <h3>{active.label}</h3>
-          <p>{active.role}</p>
-        </div>
-        <div className="alt-lab__metric">
-          <span>{active.definingMetric.label}</span>
-          <strong>{active.definingMetric.value}</strong>
-          <small>{active.definingMetric.meaning}</small>
-        </div>
-      </div>
-
-      <div className="alt-lab__grid">
-        <section className="alt-lab__panel">
-          <h4>Magnet properties</h4>
-          <dl className="property-list">
-            {active.properties.map((property) => (
-              <div key={property.id}>
-                <dt>{property.label}</dt>
-                <dd>
-                  <span className="meter" aria-hidden="true">
-                    <i style={{ width: `${Math.max(2, Math.min(100, property.value * 100))}%` }} />
-                  </span>
-                  {property.reading}
-                </dd>
-              </div>
-            ))}
-          </dl>
-        </section>
-
-        <section className="alt-lab__panel">
-          <h4>Supply and cost</h4>
-          <dl>
-            <div>
-              <dt>Rare earths</dt>
-              <dd>{active.rareEarth}</dd>
-            </div>
-            <div>
-              <dt>Cost baseline</dt>
-              <dd>{active.costStatus}</dd>
-            </div>
-            <div>
-              <dt>Cost drivers</dt>
-              <dd>{active.costDrivers.join(" · ")}</dd>
-            </div>
-          </dl>
-        </section>
-
-        <section className="alt-lab__panel">
-          <h4>Track these</h4>
-          <ul>
-            {active.trackThese.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        </section>
-
-        {active.regions.map((region) => (
-          <section key={region.region} className="alt-lab__panel">
-            <h4>{region.region}</h4>
-            <ul className="company-list">
-              {region.records.map((record) => (
-                <li key={`${region.region}-${record.name}`}>
-                  <strong>{record.name}</strong>
-                  <span>{record.scope}</span>
-                  <em>{record.maturity}</em>
-                </li>
+                  {item.shortLabel}
+                </th>
               ))}
-            </ul>
-          </section>
-        ))}
+            </tr>
+          </thead>
+          <tbody>
+            {/* Row 1: Rare-Earth Supply Exposure */}
+            <tr>
+              <th scope="row">Rare-Earth Exposure</th>
+              {materialLabs.map((item) => {
+                const isNd = item.id === "ndfeb";
+                return (
+                  <td key={item.id} className={item.id === active.id ? "is-active" : ""}>
+                    <span className={`pill ${isNd ? "pill--danger" : "pill--success"}`}>
+                      {isNd ? "100% Nd/Dy" : "0% Magnets"}
+                    </span>
+                  </td>
+                );
+              })}
+            </tr>
+
+            {/* Row 2: Magnetic Strength (Br) */}
+            <tr>
+              <th scope="row">Magnetic Strength (Br)</th>
+              {materialLabs.map((item) => {
+                let badge = "Reference (100%)";
+                let type = "pill--success";
+                if (item.id === "ferrite") {
+                  badge = "Weak (~33%)";
+                  type = "pill--warn";
+                } else if (item.id === "iron-nitride") {
+                  badge = "High (~75%)";
+                  type = "pill--success";
+                }
+                return (
+                  <td key={item.id} className={item.id === active.id ? "is-active" : ""}>
+                    <span className={`pill ${type}`}>{badge}</span>
+                  </td>
+                );
+              })}
+            </tr>
+
+            {/* Row 3: Reversal & Thermal Limits */}
+            <tr>
+              <th scope="row">Thermal & Coercivity Gate</th>
+              {materialLabs.map((item) => {
+                let badge = "High Coercivity";
+                let type = "pill--success";
+                if (item.id === "ferrite") {
+                  badge = "Cold-Start Risk";
+                  type = "pill--warn";
+                } else if (item.id === "iron-nitride") {
+                  badge = "Decomposes >220°C";
+                  type = "pill--danger";
+                }
+                return (
+                  <td key={item.id} className={item.id === active.id ? "is-active" : ""}>
+                    <span className={`pill ${type}`}>{badge}</span>
+                  </td>
+                );
+              })}
+            </tr>
+
+            {/* Row 4: Traction Readiness */}
+            <tr>
+              <th scope="row">Traction Production Status</th>
+              {materialLabs.map((item) => {
+                let badge = "Production Vehicle";
+                let type = "pill--success";
+                if (item.id === "ferrite") {
+                  badge = "Axial / EV Pilot";
+                  type = "pill--warn";
+                } else if (item.id === "iron-nitride") {
+                  badge = "Materials Scale-Up";
+                  type = "pill--neutral";
+                }
+                return (
+                  <td key={item.id} className={item.id === active.id ? "is-active" : ""}>
+                    <span className={`pill ${type}`}>{badge}</span>
+                  </td>
+                );
+              })}
+            </tr>
+          </tbody>
+        </table>
       </div>
 
-      <p className="alt-lab__note">{active.caveat}</p>
+      {/* 3. Active Chemistry Spotlight */}
+      <div className="alt-spotlight">
+        <div className="alt-spotlight__header">
+          <div>
+            <h3 className="alt-spotlight__title">{active.label}</h3>
+            <p className="alt-spotlight__principle">{active.role}</p>
+          </div>
+          <div className="alt-spotlight__tags">
+            {active.badgeTags.map((tag) => (
+              <span key={tag} className="tag-pill">{tag}</span>
+            ))}
+          </div>
+        </div>
+
+        <div className="alt-spotlight__grid">
+          {/* Green Card: The Superpower */}
+          <div className="spotlight-card spotlight-card--superpower">
+            <h4>✓ THE SUPERPOWER (WHY ADOPT IT)</h4>
+            <p>{active.superpower}</p>
+          </div>
+
+          {/* Amber Card: The Catch */}
+          <div className="spotlight-card spotlight-card--catch">
+            <h4>✕ THE CATCH (ENGINEERING TRADE-OFF)</h4>
+            <p>{active.theCatch}</p>
+          </div>
+        </div>
+
+        {/* Real-World Production & Pilot Fleet */}
+        <div className="alt-spotlight__fleet">
+          <span className="fleet-label">REAL-WORLD ADOPTERS & PROGRAMMES:</span>
+          <div className="fleet-pills">
+            {active.adopters.map((car) => (
+              <span key={car} className="car-pill">{car}</span>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -1068,17 +1999,552 @@ function SwapBurden({
   );
 }
 
+/* ── Act I Diagrams: How It Turns ───────────────────────────────────────── */
+
+function ElectromagnetCoilDiagram({
+  onPatchControls,
+}: {
+  controls: StageControls;
+  onPatchControls?: (patch: Partial<StageControls>) => void;
+}) {
+  const [ccw, setCcw] = useState(true);
+
+  const toggle = (val: boolean) => {
+    setCcw(val);
+    onPatchControls?.({ angle: val ? 0 : Math.PI });
+  };
+
+  const isNorthUp = ccw;
+
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Electromagnet coil and magnetic field vector diagram">
+      <defs>
+        <linearGradient id="coilCopperGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#a85d2c" />
+          <stop offset="50%" stopColor="#e59858" />
+          <stop offset="100%" stopColor="#a85d2c" />
+        </linearGradient>
+        <marker id="fluxArrowUp" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="#4b6bd6" />
+        </marker>
+        <marker id="fluxArrowDown" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="#4b6bd6" />
+        </marker>
+      </defs>
+
+      <text className="d-axis-label" x={0} y={16}>
+        ELECTROMAGNETIC FORCE · AMPÈRE&apos;S LAW &amp; RIGHT-HAND RULE
+      </text>
+
+      {/* Left: Physical Coil & Flux Stage */}
+      <g transform="translate(40, 30)">
+        {/* Exterior Flux Loops */}
+        <path
+          d="M 180 50 C 60 20, 20 180, 20 180 C 20 180, 60 340, 180 310"
+          fill="none"
+          stroke="#4b6bd6"
+          strokeWidth="1.75"
+          strokeDasharray="4 4"
+          opacity="0.45"
+        />
+        <path
+          d="M 180 50 C 300 20, 340 180, 340 180 C 340 180, 300 340, 180 310"
+          fill="none"
+          stroke="#4b6bd6"
+          strokeWidth="1.75"
+          strokeDasharray="4 4"
+          opacity="0.45"
+        />
+
+        {/* Steel core */}
+        <rect x="135" y="60" width="90" height="240" rx="8" fill="#d1d5db" stroke="#9ca3af" strokeWidth="1.5" />
+
+        {/* Magnetic Vector Arrow */}
+        {isNorthUp ? (
+          <line
+            x1="180"
+            y1="300"
+            x2="180"
+            y2="36"
+            stroke="#4b6bd6"
+            strokeWidth="5"
+            markerEnd="url(#fluxArrowUp)"
+          />
+        ) : (
+          <line
+            x1="180"
+            y1="60"
+            x2="180"
+            y2="324"
+            stroke="#4b6bd6"
+            strokeWidth="5"
+            markerEnd="url(#fluxArrowDown)"
+          />
+        )}
+
+        {/* 5 Copper Wire Loops */}
+        {[85, 135, 185, 235, 285].map((y) => (
+          <g key={y}>
+            <ellipse
+              cx="180"
+              cy={y}
+              rx="55"
+              ry="14"
+              fill="none"
+              stroke="url(#coilCopperGrad)"
+              strokeWidth="10"
+            />
+            {/* Current direction particle */}
+            <circle
+              cx={isNorthUp ? 232 : 128}
+              cy={y}
+              r="4"
+              fill="#ffffff"
+            />
+          </g>
+        ))}
+
+        {/* Polarity Badges */}
+        <g transform={`translate(180, ${isNorthUp ? 32 : 328})`}>
+          <circle r="16" fill="#4b6bd6" />
+          <text textAnchor="middle" dominantBaseline="central" fill="#ffffff" fontSize="13" fontWeight="bold" fontFamily="var(--mono)">
+            N
+          </text>
+        </g>
+
+        <g transform={`translate(180, ${isNorthUp ? 328 : 32})`}>
+          <circle r="16" fill="#2c384e" />
+          <text textAnchor="middle" dominantBaseline="central" fill="#ffffff" fontSize="13" fontWeight="bold" fontFamily="var(--mono)">
+            S
+          </text>
+        </g>
+
+        {/* Floating Labels */}
+        <text x="180" y={isNorthUp ? 8 : 362} textAnchor="middle" className="d-label d-label--accent" fontSize="11">
+          {isNorthUp ? "Magnetic North (B ↑)" : "Magnetic North (B ↓)"}
+        </text>
+        <text x="245" y="190" className="d-label" fill="#c4763f" fontSize="11" fontWeight="bold">
+          Current (I) →
+        </text>
+      </g>
+
+      {/* Right: Right-Hand Rule Explanation & Interactive Toggle Card */}
+      <g transform="translate(440, 50)">
+        <rect x="0" y="0" width="360" height="340" rx="8" fill="#ffffff" stroke="rgba(23, 20, 19, 0.12)" strokeWidth="1" />
+
+        <text className="d-label d-label--strong" x="24" y="36" fontSize="14">
+          The Right-Hand Grip Rule
+        </text>
+
+        <text className="d-label" x="24" y="70" fontSize="12">
+          1. Curl the four fingers of your right hand in the direction
+        </text>
+        <text className="d-label" x="24" y="90" fontSize="12">
+          of electric current flowing through the wire coil.
+        </text>
+
+        <text className="d-label" x="24" y="125" fontSize="12">
+          2. Your outstretched thumb points directly along the
+        </text>
+        <text className="d-label" x="24" y="145" fontSize="12">
+          coil axis toward the concentrated North Pole (N).
+        </text>
+
+        <line x1="24" y1="170" x2="336" y2="170" stroke="rgba(23, 20, 19, 0.08)" strokeWidth="1" />
+
+        <text className="d-axis-label" x="24" y="196">
+          SELECT CURRENT DIRECTION (FLIP POLARITY):
+        </text>
+
+        {/* Button 1: Counter-Clockwise (North Up) */}
+        <g
+          style={{ cursor: "pointer" }}
+          onClick={() => toggle(true)}
+          role="button"
+          tabIndex={0}
+        >
+          <rect
+            x="24"
+            y="212"
+            width="312"
+            height="44"
+            rx="6"
+            fill={isNorthUp ? "var(--wine, #620d3c)" : "#f8fafc"}
+            stroke={isNorthUp ? "var(--wine, #620d3c)" : "rgba(23, 20, 19, 0.18)"}
+            strokeWidth="1"
+          />
+          <text
+            x="40"
+            y="238"
+            fill={isNorthUp ? "#ffffff" : "var(--text, #171413)"}
+            fontSize="12"
+            fontFamily="var(--mono)"
+            fontWeight="bold"
+          >
+            Counter-Clockwise Current  →  North UP
+          </text>
+        </g>
+
+        {/* Button 2: Clockwise (North Down) */}
+        <g
+          style={{ cursor: "pointer" }}
+          onClick={() => toggle(false)}
+          role="button"
+          tabIndex={0}
+        >
+          <rect
+            x="24"
+            y="268"
+            width="312"
+            height="44"
+            rx="6"
+            fill={!isNorthUp ? "var(--wine, #620d3c)" : "#f8fafc"}
+            stroke={!isNorthUp ? "var(--wine, #620d3c)" : "rgba(23, 20, 19, 0.18)"}
+            strokeWidth="1"
+          />
+          <text
+            x="40"
+            y="294"
+            fill={!isNorthUp ? "#ffffff" : "var(--text, #171413)"}
+            fontSize="12"
+            fontFamily="var(--mono)"
+            fontWeight="bold"
+          >
+            Clockwise Current  →  North DOWN
+          </text>
+        </g>
+      </g>
+    </svg>
+  );
+}
+
+// Waveform plot geometry
+const THREE_PHASE_PLOT_X = 40;
+const THREE_PHASE_PLOT_Y = 80;
+const THREE_PHASE_PLOT_W = 400;
+const THREE_PHASE_PLOT_H = 180;
+const THREE_PHASE_MID_Y = THREE_PHASE_PLOT_Y + THREE_PHASE_PLOT_H / 2;
+const THREE_PHASE_AMP = 70;
+
+function ThreePhaseSuperpositionDiagram({
+  controls,
+  onPatchControls,
+}: {
+  controls: StageControls;
+  onPatchControls?: (patch: Partial<StageControls>) => void;
+}) {
+  const normAngle = ((controls.angle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+  const angleDeg = Math.round((normAngle * 180) / Math.PI);
+
+  const iA = Math.cos(normAngle);
+  const iB = Math.cos(normAngle - (Math.PI * 2) / 3);
+  const iC = Math.cos(normAngle + (Math.PI * 2) / 3);
+
+  const pointsA = useMemo(() => {
+    const pts: string[] = [];
+    for (let x = 0; x <= THREE_PHASE_PLOT_W; x += 4) {
+      const rad = (x / THREE_PHASE_PLOT_W) * Math.PI * 2;
+      const y = THREE_PHASE_MID_Y - Math.cos(rad) * THREE_PHASE_AMP;
+      pts.push(`${THREE_PHASE_PLOT_X + x},${y}`);
+    }
+    return pts.join(" ");
+  }, []);
+
+  const pointsB = useMemo(() => {
+    const pts: string[] = [];
+    for (let x = 0; x <= THREE_PHASE_PLOT_W; x += 4) {
+      const rad = (x / THREE_PHASE_PLOT_W) * Math.PI * 2;
+      const y = THREE_PHASE_MID_Y - Math.cos(rad - (Math.PI * 2) / 3) * THREE_PHASE_AMP;
+      pts.push(`${THREE_PHASE_PLOT_X + x},${y}`);
+    }
+    return pts.join(" ");
+  }, []);
+
+  const pointsC = useMemo(() => {
+    const pts: string[] = [];
+    for (let x = 0; x <= THREE_PHASE_PLOT_W; x += 4) {
+      const rad = (x / THREE_PHASE_PLOT_W) * Math.PI * 2;
+      const y = THREE_PHASE_MID_Y - Math.cos(rad + (Math.PI * 2) / 3) * THREE_PHASE_AMP;
+      pts.push(`${THREE_PHASE_PLOT_X + x},${y}`);
+    }
+    return pts.join(" ");
+  }, []);
+
+  const scrubX = THREE_PHASE_PLOT_X + (normAngle / (Math.PI * 2)) * THREE_PHASE_PLOT_W;
+
+  // Phasor Circle Geometry
+  const circleX = 640;
+  const circleY = 170;
+  const circleR = 100;
+
+  // Resultant vector coordinates (constant length = circleR * 0.9)
+  const resX = circleX + Math.cos(normAngle) * (circleR * 0.9);
+  const resY = circleY - Math.sin(normAngle) * (circleR * 0.9);
+
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="3-Phase AC Superposition diagram">
+      <defs>
+        <marker id="phasorArrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="var(--wine, #620d3c)" />
+        </marker>
+      </defs>
+
+      <text className="d-axis-label" x={0} y={16}>
+        STATOR SUPERPOSITION · THREE-PHASE AC TO ROTATING FIELD
+      </text>
+
+      {/* Left: Waveforms */}
+      <g>
+        <text className="d-label d-label--strong" x={THREE_PHASE_PLOT_X} y={56}>
+          Three AC Sinusoids Offset by 120°
+        </text>
+
+        {/* Zero Axis */}
+        <line x1={THREE_PHASE_PLOT_X} y1={THREE_PHASE_MID_Y} x2={THREE_PHASE_PLOT_X + THREE_PHASE_PLOT_W} y2={THREE_PHASE_MID_Y} stroke="rgba(23,20,19,0.15)" strokeWidth="1" strokeDasharray="3 3" />
+
+        {/* 3 Curves */}
+        <polyline points={pointsA} fill="none" stroke="#c4763f" strokeWidth="2.5" />
+        <polyline points={pointsB} fill="none" stroke="#4b6bd6" strokeWidth="2.5" />
+        <polyline points={pointsC} fill="none" stroke="#2a7a58" strokeWidth="2.5" />
+
+        {/* Vertical Scrubber */}
+        <line x1={scrubX} y1={THREE_PHASE_PLOT_Y} x2={scrubX} y2={THREE_PHASE_PLOT_Y + THREE_PHASE_PLOT_H} stroke="var(--wine, #620d3c)" strokeWidth="2" />
+        <circle cx={scrubX} cy={THREE_PHASE_MID_Y - iA * THREE_PHASE_AMP} r="4.5" fill="#c4763f" stroke="#ffffff" strokeWidth="1.5" />
+        <circle cx={scrubX} cy={THREE_PHASE_MID_Y - iB * THREE_PHASE_AMP} r="4.5" fill="#4b6bd6" stroke="#ffffff" strokeWidth="1.5" />
+        <circle cx={scrubX} cy={THREE_PHASE_MID_Y - iC * THREE_PHASE_AMP} r="4.5" fill="#2a7a58" stroke="#ffffff" strokeWidth="1.5" />
+
+        {/* Readouts below waveforms */}
+        <g transform={`translate(${THREE_PHASE_PLOT_X}, 280)`}>
+          <circle cx="6" cy="6" r="5" fill="#c4763f" />
+          <text x="18" y="10" className="d-label" fontSize="11">Phase A: <tspan className="d-label--strong">{iA >= 0 ? `+${iA.toFixed(2)}` : iA.toFixed(2)}</tspan></text>
+
+          <circle cx="146" cy="6" r="5" fill="#4b6bd6" />
+          <text x="158" y="10" className="d-label" fontSize="11">Phase B: <tspan className="d-label--strong">{iB >= 0 ? `+${iB.toFixed(2)}` : iB.toFixed(2)}</tspan></text>
+
+          <circle cx="286" cy="6" r="5" fill="#2a7a58" />
+          <text x="298" y="10" className="d-label" fontSize="11">Phase C: <tspan className="d-label--strong">{iC >= 0 ? `+${iC.toFixed(2)}` : iC.toFixed(2)}</tspan></text>
+        </g>
+
+        {/* Interactive angle scrub track in SVG */}
+        <g transform={`translate(${THREE_PHASE_PLOT_X}, 310)`}>
+          <text className="d-axis-label" x="0" y="12">SCRUB ELECTRICAL ANGLE (θ): {angleDeg}°</text>
+          <rect
+            x="0"
+            y="20"
+            width={THREE_PHASE_PLOT_W}
+            height="16"
+            rx="8"
+            fill="#e2e8f0"
+            style={{ cursor: "ew-resize" }}
+            onClick={(e) => {
+              const rect = e.currentTarget.getBoundingClientRect();
+              const clickX = e.clientX - rect.left;
+              const ratio = Math.max(0, Math.min(1, clickX / rect.width));
+              onPatchControls?.({ angle: ratio * Math.PI * 2 });
+            }}
+          />
+          <circle
+            cx={THREE_PHASE_PLOT_X + (normAngle / (Math.PI * 2)) * THREE_PHASE_PLOT_W}
+            cy="28"
+            r="9"
+            fill="var(--wine, #620d3c)"
+            stroke="#ffffff"
+            strokeWidth="2"
+            style={{ cursor: "ew-resize" }}
+          />
+        </g>
+      </g>
+
+      {/* Right: Vector Sum Phasor Circle */}
+      <g>
+        <text className="d-label d-label--strong" x={circleX - circleR} y={56}>
+          Resultant Rotating Field Vector (B_net)
+        </text>
+
+        {/* Circle Track */}
+        <circle cx={circleX} cy={circleY} r={circleR} fill="#f8fafc" stroke="rgba(23,20,19,0.15)" strokeWidth="1.5" />
+
+        {/* 3 Coil Axes */}
+        <line x1={circleX} y1={circleY} x2={circleX + circleR} y2={circleY} stroke="#c4763f" strokeWidth="1.5" strokeDasharray="3 3" />
+        <line x1={circleX} y1={circleY} x2={circleX + Math.cos((Math.PI * 2) / 3) * circleR} y2={circleY - Math.sin((Math.PI * 2) / 3) * circleR} stroke="#4b6bd6" strokeWidth="1.5" strokeDasharray="3 3" />
+        <line x1={circleX} y1={circleY} x2={circleX + Math.cos((Math.PI * 4) / 3) * circleR} y2={circleY - Math.sin((Math.PI * 4) / 3) * circleR} stroke="#2a7a58" strokeWidth="1.5" strokeDasharray="3 3" />
+
+        {/* Resultant Vector */}
+        <line
+          x1={circleX}
+          y1={circleY}
+          x2={resX}
+          y2={resY}
+          stroke="var(--wine, #620d3c)"
+          strokeWidth="3.5"
+          markerEnd="url(#phasorArrow)"
+        />
+        <circle cx={circleX} cy={circleY} r="4" fill="var(--wine, #620d3c)" />
+
+        {/* Takeaway badge */}
+        <rect x={circleX - 110} y={300} width="220" height="52" rx="6" fill="#f1f5f9" stroke="rgba(23,20,19,0.08)" />
+        <text x={circleX} y="322" textAnchor="middle" className="d-label d-label--strong" fontSize="11">
+          |B_net| = 1.5 · B_max = CONSTANT
+        </text>
+        <text x={circleX} y="340" textAnchor="middle" className="d-label d-label--faint" fontSize="10">
+          Smooth continuous rotation at frequency f
+        </text>
+      </g>
+    </svg>
+  );
+}
+
+function DualTorqueSplitDiagram({
+  controls,
+  onPatchControls,
+}: {
+  controls: StageControls;
+  onPatchControls?: (patch: Partial<StageControls>) => void;
+}) {
+  const x0 = 60;
+  const y0 = 48;
+  const w = 680;
+  const h = 240;
+
+  const deltaRad = (controls.load * 0.9 * Math.PI) / 2;
+  const deltaDeg = Math.round((deltaRad * 180) / Math.PI);
+
+  const tMag = Math.sin(deltaRad);
+  const tRel = 0.5 * Math.sin(2 * deltaRad);
+  const tTotal = tMag + tRel;
+
+  const totalSafe = Math.max(0.01, tTotal);
+  const pctMag = Math.round((tMag / totalSafe) * 100);
+  const pctRel = 100 - pctMag;
+
+  const maxTotal = 1.35;
+
+  const ptsMag: string[] = [];
+  const ptsRel: string[] = [];
+  const ptsTotal: string[] = [];
+
+  for (let x = 0; x <= w; x += 4) {
+    const d = (x / w) * (Math.PI / 2);
+    const mag = Math.sin(d);
+    const rel = 0.5 * Math.sin(2 * d);
+    const tot = mag + rel;
+
+    const yMag = y0 + h - (mag / maxTotal) * h;
+    const yRel = y0 + h - (rel / maxTotal) * h;
+    const yTot = y0 + h - (tot / maxTotal) * h;
+
+    ptsMag.push(`${x0 + x},${yMag}`);
+    ptsRel.push(`${x0 + x},${yRel}`);
+    ptsTotal.push(`${x0 + x},${yTot}`);
+  }
+
+  const cursorX = x0 + (deltaRad / (Math.PI / 2)) * w;
+  const cursorY = y0 + h - (tTotal / maxTotal) * h;
+
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Dual torque decomposition diagram">
+      <text className="d-axis-label" x={0} y={16}>
+        TORQUE DECOMPOSITION · PERMANENT MAGNET VS RELUCTANCE
+      </text>
+
+      <Axes
+        x={x0}
+        y={y0}
+        w={w}
+        h={h}
+        xLabel="load angle δ (degrees) →"
+        yLabel="shaft torque generated →"
+      />
+
+      {/* Axis Degree Markers */}
+      <text className="d-axis-label" x={x0} y={y0 + h + 16} textAnchor="start">0°</text>
+      <text className="d-axis-label" x={x0 + w / 2} y={y0 + h + 16} textAnchor="middle">45° (Peak Reluctance)</text>
+      <text className="d-axis-label" x={x0 + w} y={y0 + h + 16} textAnchor="end">90° (Peak Magnet)</text>
+
+      {/* Component Curves */}
+      <polyline points={ptsMag.join(" ")} fill="none" stroke="#4b6bd6" strokeWidth="1.75" strokeDasharray="4 3" />
+      <polyline points={ptsRel.join(" ")} fill="none" stroke="#c4763f" strokeWidth="1.75" strokeDasharray="4 3" />
+      <polyline points={ptsTotal.join(" ")} fill="none" stroke="var(--wine, #620d3c)" strokeWidth="3" />
+
+      {/* Inline Curve Annotations */}
+      <text x={x0 + w * 0.48} y={y0 + h - (0.5 / maxTotal) * h - 10} fill="#c4763f" fontSize="11" fontFamily="var(--mono)">
+        Reluctance Torque (peaks at 45°)
+      </text>
+      <text x={x0 + w * 0.72} y={y0 + h - (1.0 / maxTotal) * h - 10} fill="#4b6bd6" fontSize="11" fontFamily="var(--mono)">
+        Magnet Torque (peaks at 90°)
+      </text>
+      <text x={x0 + w * 0.38} y={y0 + 20} fill="var(--wine, #620d3c)" fontSize="12" fontWeight="bold" fontFamily="var(--mono)">
+        Combined Total Output (peaks at ~65°)
+      </text>
+
+      {/* Cursor Leader & Dot */}
+      <line
+        x1={cursorX}
+        y1={y0}
+        x2={cursorX}
+        y2={y0 + h}
+        stroke="var(--wine, #620d3c)"
+        strokeWidth="1.25"
+        strokeDasharray="3 3"
+      />
+      <circle cx={cursorX} cy={cursorY} r="5" fill="var(--wine, #620d3c)" stroke="#ffffff" strokeWidth="2" />
+
+      {/* Cursor Readout Badge */}
+      <g transform={`translate(${Math.min(x0 + w - 240, Math.max(x0 + 10, cursorX - 110))}, ${y0 + 38})`}>
+        <rect width="220" height="28" rx="4" fill="#ffffff" stroke="rgba(23, 20, 19, 0.15)" strokeWidth="1" />
+        <text x="110" y="18" textAnchor="middle" fontSize="11" fontFamily="var(--mono)" fill="var(--text, #171413)">
+          δ = {deltaDeg}°: <tspan fill="#4b6bd6" fontWeight="bold">{pctMag}% Mag</tspan> + <tspan fill="#c4763f" fontWeight="bold">{pctRel}% Rel</tspan>
+        </text>
+      </g>
+
+      {/* Clean Drag Slider at Bottom */}
+      <g transform={`translate(${x0}, 330)`}>
+        <text className="d-axis-label" x="0" y="10">SCRUB LOAD ANGLE (δ): {deltaDeg}°</text>
+        <rect
+          x="0"
+          y="18"
+          width={w}
+          height="14"
+          rx="7"
+          fill="#e2e8f0"
+          style={{ cursor: "ew-resize" }}
+          onClick={(e) => {
+            const rect = e.currentTarget.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const ratio = Math.max(0.05, Math.min(1, clickX / rect.width));
+            onPatchControls?.({ load: ratio });
+          }}
+        />
+        <circle
+          cx={(deltaRad / (Math.PI / 2)) * w}
+          cy="25"
+          r="8"
+          fill="var(--wine, #620d3c)"
+          stroke="#ffffff"
+          strokeWidth="2"
+          style={{ cursor: "ew-resize" }}
+        />
+      </g>
+
+      {/* Editorial Note */}
+      <text className="d-label d-label--faint" x={x0} y={390}>
+        Interior magnet placement forces flux through steel paths, adding 30–40% reluctance torque without extra NdFeB magnets.
+      </text>
+    </svg>
+  );
+}
+
 /* ── Router ─────────────────────────────────────────────────────────────── */
 
 export function Diagram({
   id,
   stateId,
-  emphasis,
   controls,
   architecture,
   onPickArchitecture,
   rotor,
   onPickFamily,
+  onPatchControls,
 }: {
   id: DiagramId;
   stateId: string;
@@ -1093,16 +2559,46 @@ export function Diagram({
   onPickArchitecture?: (id: ArchitectureId) => void;
   rotor?: string;
   onPickFamily?: (id: string) => void;
+  onPatchControls?: (patch: Partial<StageControls>) => void;
 }) {
   return (
     <div className="diagram">
       {id === "why-it-matters" && <WhyItMatters state={stateId} />}
       {id === "supply-concentration" && <SupplyConcentration state={stateId} />}
-      {id === "demag-curve" && <DemagCurve controls={controls} state={stateId} emphasis={emphasis} />}
-      {id === "magnet-composition" && <MagnetComposition controls={controls} state={stateId} />}
-      {id === "light-heavy-split" && <LightHeavySplit />}
-      {id === "mitigation-ladder" && <MitigationLadder controls={controls} />}
-      {id === "back-emf-ceiling" && <BackEmfCeiling controls={controls} state={stateId} />}
+      {id === "electromagnet-coil" && (
+        <ElectromagnetCoilDiagram controls={controls} onPatchControls={onPatchControls} />
+      )}
+      {id === "three-phase-superposition" && (
+        <ThreePhaseSuperpositionDiagram controls={controls} onPatchControls={onPatchControls} />
+      )}
+      {id === "dual-torque-split" && (
+        <DualTorqueSplitDiagram controls={controls} onPatchControls={onPatchControls} />
+      )}
+      {id === "division-of-labour" && (
+        <DivisionOfLabourDiagram controls={controls} onPatchControls={onPatchControls} />
+      )}
+      {id === "anisotropy-crystal" && (
+        <AnisotropyCrystalDiagram controls={controls} onPatchControls={onPatchControls} />
+      )}
+      {id === "demag-curve" && (
+        <DemagCurveDiagram controls={controls} onPatchControls={onPatchControls} />
+      )}
+      {id === "hot-margin" && (
+        <ThermalDemagDiagram controls={controls} onPatchControls={onPatchControls} />
+      )}
+      {id === "grain-diffusion" && (
+        <GrainBoundaryDiffusionDiagram controls={controls} onPatchControls={onPatchControls} />
+      )}
+      {id === "magnet-composition" && (
+        <GrainBoundaryDiffusionDiagram controls={controls} onPatchControls={onPatchControls} />
+      )}
+      {id === "light-heavy-split" && <LightHeavySplitDiagram />}
+      {id === "mitigation-ladder" && (
+        <MitigationLadderDiagram controls={controls} onPatchControls={onPatchControls} />
+      )}
+      {id === "back-emf-ceiling" && (
+        <BackEmfCeiling controls={controls} state={stateId} onPatchControls={onPatchControls} />
+      )}
       {id === "family-tree" && <FamilyTree rotor={rotor} onPick={onPickFamily} />}
       {id === "property-board" && <MaterialLab state={stateId} />}
       {id === "swap-burden" && <SwapBurden architecture={architecture} onPick={onPickArchitecture} />}

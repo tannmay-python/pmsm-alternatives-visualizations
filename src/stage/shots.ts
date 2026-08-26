@@ -7,6 +7,7 @@ import type { ShotName } from "./framing";
  * rotor answers it. The housing and end caps hide exactly that, so they come off.
  */
 export const CUTAWAY_STATES: ReadonlySet<string> = new Set([
+  "air-gap",
   "one-phase",
   "three-phases",
   "no-part-moves",
@@ -28,16 +29,24 @@ export const CUTAWAY_STATES: ReadonlySet<string> = new Set([
 ]);
 
 /** Which camera shot a given stop and state wants. */
-export function shotFor(stop: Stop, state: StopState, explode: number): ShotName {
+export function shotFor(
+  stop: Stop,
+  state: StopState,
+  explode: number,
+  isolate: string = "none",
+): ShotName {
   const stage = stageForState(stop, state);
   if (stage.kind !== "three") return "motor";
   if (stage.scene === "axial") return "axial";
   if (stage.scene === "car") {
     return state.id === "one-part" || state.id === "drive-unit" ? "car-close" : "car";
   }
-  if (explode > 0.15) return "motor-exploded";
-  // Anything about the rotating field is read down the bore, not side-on.
+  if (isolate === "air-gap") return "motor-face";
+  if (isolate === "rotor" || isolate === "shaft") return "rotor";
+  if (explode > 0.15 && isolate === "none") return "motor-exploded";
+  // Anything about the rotating field or air gap is read down the bore, not side-on.
   if ([
+    "air-gap",
     "one-phase",
     "three-phases",
     "no-part-moves",
@@ -45,7 +54,6 @@ export function shotFor(stop: Stop, state: StopState, explode: number): ShotName
     "lopsided",
     "reluctance",
     "reluctance-spectrum",
-    "rotor",
     "one-kilogram",
   ].includes(state.id)) {
     return "motor-face";
@@ -58,23 +66,18 @@ export function shotFor(stop: Stop, state: StopState, explode: number): ShotName
 /**
  * Which field lesson a beat runs.
  *
- * Lifted out of the scene alongside the shot table so the route structure can
- * ask whether two states really produced the same frame before merging them.
+ * This controls the field lines and the green resultant-flux arrow in the bore.
  */
-export function fieldLessonFor(stop: Stop, state: StopState): "fixed" | "lock" | "sweep" | "none" {
-  return (
-    stop.id === "three-coils-one-field"
-      ? state.id === "one-phase"
-        ? "fixed"
-        : state.id === "rotor-locks"
-          ? "lock"
-          : "sweep"
-      : stop.id === "two-pulls-one-shaft"
-        ? state.id === "load-angle" || state.id === "already-both"
-          ? "lock"
-          : "sweep"
-        : stop.id === "swap-the-rotor" && state.id !== "family-tree"
-          ? "sweep"
-          : "none"
-  );
+export function fieldLessonFor(
+  stop: Stop,
+  state: StopState,
+): "none" | "fixed" | "sweep" | "lock" {
+  if (stop.id === "three-coils-one-field") {
+    if (state.id === "one-phase") return "fixed";
+    if (state.id === "three-phases" || state.id === "no-part-moves") return "sweep";
+  }
+  if (stop.id === "rotor-locks-to-field") {
+    return "lock";
+  }
+  return "none";
 }

@@ -24,6 +24,7 @@ type StatorProps = {
   phaseStrengths?: readonly number[];
   dimmed?: boolean;
   showWindings?: boolean;
+  explode?: number;
 };
 
 export function Stator({
@@ -32,6 +33,7 @@ export function Stator({
   phaseStrengths,
   dimmed = false,
   showWindings = true,
+  explode = 0,
 }: StatorProps) {
   const core = useMemo(
     () => laminationGeometry(statorLaminationShape(), MOTOR.stackLength, 0),
@@ -73,8 +75,9 @@ export function Stator({
         );
       })}
 
-      {showWindings &&
-        hairpins.map(({ slot, phase, geometry }) => {
+      {showWindings && (
+        <group position={[0, 0, explode * 0.8]}>
+          {hairpins.map(({ slot, phase, geometry }) => {
           const strength = phaseStrengths?.[phase];
           // While scrubbing the electrical angle, "lit" tracks the group that is
           // actually carrying the most current at this instant.
@@ -103,6 +106,8 @@ export function Stator({
             </mesh>
           );
         })}
+        </group>
+      )}
     </group>
   );
 }

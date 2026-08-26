@@ -43,8 +43,8 @@ export const PALETTE = {
   laminate: "#b7bcc6",
   laminateRing: "#656b76",
   /** Magnet poles. The blue pair is what makes polarity readable at a glance. */
-  magnet: "#4b6bd6",
-  magnetSouth: "#2f3a52",
+  magnet: "#4a6792",
+  magnetSouth: "#2c384e",
   magnetEdge: "#e3e8f2",
   ferrite: "#4a4d56",
   aluminium: "#aeb6b3",
@@ -68,8 +68,8 @@ export const makeMaterials = () => ({
   bearing: cast(PALETTE.bearing, 0.24, 0.9),
   copper: cast(PALETTE.copper, 0.38, 0.72),
   aluminium: cast(PALETTE.aluminium, 0.34, 0.88),
-  magnet: cast(PALETTE.magnet, 0.4, 0.35),
-  magnetSouth: cast(PALETTE.magnetSouth, 0.42, 0.35),
+  magnet: cast(PALETTE.magnet, 0.28, 0.82),
+  magnetSouth: cast(PALETTE.magnetSouth, 0.32, 0.78),
   ferrite: cast(PALETTE.ferrite, 0.78, 0.12),
 });
 

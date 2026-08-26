@@ -28,6 +28,10 @@ export type ArchitectureLab = {
   id: AlternativeFamilyId;
   label: string;
   shortLabel: string;
+  superpower: string;
+  theCatch: string;
+  badgeTags: readonly string[];
+  productionCars: readonly string[];
   principle: string;
   rotorField: string;
   rareEarth: string;
@@ -53,8 +57,12 @@ const noIndiaRecord = {
 export const architectureLabs: readonly ArchitectureLab[] = [
   {
     id: "pmsm",
-    label: "Permanent-magnet synchronous",
+    label: "Permanent-magnet synchronous (PMSM)",
     shortLabel: "PM",
+    superpower: "Highest power density and peak launch torque at city speeds.",
+    theCatch: "100% rare-earth supply risk + burns battery fighting magnet on the highway.",
+    badgeTags: ["100% REE Risk", "Highway Inverter Drag", "Current Standard"],
+    productionCars: ["Tesla Model 3/Y (Rear)", "BYD Seal / Atto 3", "Hyundai Ioniq 5"],
     principle: "A permanent rotor field pulls in step with the stator's moving field.",
     rotorField: "Always on; made by NdFeB magnets.",
     rareEarth: "Nd/Pr always present; Dy/Tb added for thermal margin.",
@@ -86,8 +94,12 @@ export const architectureLabs: readonly ArchitectureLab[] = [
   },
   {
     id: "induction",
-    label: "Squirrel-cage induction",
+    label: "Squirrel-cage induction (IM)",
     shortLabel: "Induction",
+    superpower: "Rugged steel cage, 0% rare-earth magnets, and 100% drag-free coasting on the highway.",
+    theCatch: "Rotor heat (slip) reduces continuous low-speed efficiency; ideal for secondary boost axles.",
+    badgeTags: ["Zero Rare Earths", "100% Free Coasting", "Rotor Slip Heat"],
+    productionCars: ["Audi Q6 e-tron (Front Axle)", "Tesla Model S/X (Front)", "Mercedes EQE 4MATIC"],
     principle: "Relative motion induces rotor current; the rotor runs slightly behind the field.",
     rotorField: "Made on demand by induced cage current.",
     rareEarth: "None.",
@@ -119,8 +131,12 @@ export const architectureLabs: readonly ArchitectureLab[] = [
   },
   {
     id: "wound",
-    label: "Wound-field synchronous",
+    label: "Wound-field synchronous (EESM)",
     shortLabel: "Wound",
+    superpower: "0% rare earths + switches off rotor field on the highway for maximum cruising efficiency.",
+    theCatch: "Needs a power feed to the spinning rotor (brushes or rotating transformer) and rotor cooling.",
+    badgeTags: ["Zero Rare Earths", "Controllable Field", "Slip Rings / Exciter"],
+    productionCars: ["BMW i4 / iX / i7 (Gen5 EESM)", "Renault Megane E-Tech", "Nissan Ariya"],
     principle: "Fed rotor current creates a controllable electromagnet that stays synchronised.",
     rotorField: "An input: excite it, weaken it or switch it off.",
     rareEarth: "None.",
@@ -156,8 +172,12 @@ export const architectureLabs: readonly ArchitectureLab[] = [
   },
   {
     id: "synrm",
-    label: "Synchronous reluctance",
+    label: "Synchronous reluctance (SynRM)",
     shortLabel: "SynRM",
+    superpower: "Pure shaped steel rotor; zero magnets, zero rotor coils, ultra-low parts cost.",
+    theCatch: "Lower power factor requires a larger inverter with more silicon to supply magnetising current.",
+    badgeTags: ["Zero Rare Earths", "Zero Rotor Heat", "Larger Inverter"],
+    productionCars: ["ABB Industrial Drives", "Chara Tech (India Pilot)", "Viridian (India Pilot)"],
     principle: "Shaped steel follows the easiest magnetic route through the rotor.",
     rotorField: "Not made; shaped steel is pulled into alignment.",
     rareEarth: "None unless small PM assists are added.",
@@ -193,8 +213,12 @@ export const architectureLabs: readonly ArchitectureLab[] = [
   },
   {
     id: "srm",
-    label: "Switched reluctance",
+    label: "Switched reluctance (SRM)",
     shortLabel: "SRM",
+    superpower: "Indestructible toothed steel rotor with concentrated coils; supports cheap aluminium windings.",
+    theCatch: "Acoustic torque ripple (NVH) requires advanced high-frequency controller calibration.",
+    badgeTags: ["Zero Rare Earths", "Aluminium Option", "NVH Calibration"],
+    productionCars: ["Advanced Electric Machines (SSRD)", "Commercial / Mining Heavy EV"],
     principle: "Sequentially energised stator poles pull toothed steel lumps into alignment.",
     rotorField: "None; torque comes from varying magnetic reluctance.",
     rareEarth: "None.",

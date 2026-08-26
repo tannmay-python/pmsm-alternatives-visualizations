@@ -64,7 +64,7 @@ const NUMBER_TOKEN = /(?<![\w.,])\d(?:[\d,]*\d)?(?:\.\d+)?(?![\d,.])/g;
 
 /** Units and qualifiers that count as a condition following the figure. */
 const UNIT_AFTER =
-  /^\s*(?:%|°\s*C|°|kW|kWh|Nm|rpm|MGOe|Oe|T\b|G\b|kg|g\b|mm|cm|km|V\b|A\b|Hz|units?\b)/;
+  /^\s*(?:%|°\s*C|°|kW|kWh|Nm|rpm|MGOe|Oe|T\b|G\b|kg|g\b|mm|cm|km|nm|µm|um|V\b|A\b|Hz|units?\b)/;
 
 /** Ranges: the condition may sit after the far end of the range. */
 const RANGE_AFTER = /^\s*(?:–|—|-|to)\s*\d/;

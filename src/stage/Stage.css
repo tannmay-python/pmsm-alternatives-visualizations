@@ -1,20 +1,12 @@
 .stage {
   position: absolute;
   inset: 0;
-  /*
-   * Off-centre framing without moving the camera. Both offsets are solved in
-   * Stage.tsx from the measured viewport and the card width, alongside the
-   * aspect the camera is framed against, so the machine lands centred in the
-   * space the card leaves rather than half off the edge.
-   */
   --scene-shift-x: 0%;
   --scene-shift-y: 0%;
-  /* The translated canvas must not be able to raise a scrollbar. */
   overflow: hidden;
 }
 
-/* A faint studio floor, as in the reference renders: it gives the machine
-   something to sit on without drawing a horizon. */
+/* A faint studio floor */
 .stage::after {
   content: "";
   position: absolute;
@@ -25,22 +17,34 @@
 }
 
 /*
- * The !important sizing is R3F's documented requirement: without it the canvas
- * keeps its intrinsic 300x150 whenever the container is measured before layout
- * settles, which is what happened at mobile widths.
+ * Both the WebGL canvas and the Drei Html DOM layer live inside the direct
+ * child div created by R3F Canvas. Translating this wrapper moves both the
+ * 3D rendered pixels and the 2D projected HTML labels in exact 100% lockstep!
  */
-.stage canvas {
-  display: block;
+.stage > div {
   width: 100% !important;
   height: 100% !important;
   transform: translate3d(var(--scene-shift-x), var(--scene-shift-y), 0);
   transition: transform 620ms var(--ease);
 }
 
-.stage[data-hidden] { visibility: hidden; }
-/* In explore mode the machine returns to the middle and takes the pointer. */
-.stage[data-explore] canvas { cursor: grab; }
-.stage[data-explore] canvas:active { cursor: grabbing; }
+/*
+ * 3D Canvas is always interactive and draggable.
+ */
+.stage canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  cursor: grab;
+}
+
+.stage canvas:active {
+  cursor: grabbing;
+}
+
+.stage[data-hidden] {
+  visibility: hidden;
+}
 
 .stage--loading,
 .stage-fallback {
@@ -56,41 +60,185 @@
   text-align: center;
 }
 
-/* Callouts ---------------------------------------------------------------- */
+/* --------------------------------------------------------------------------
+ * 3D Dynamic Callouts & Non-Colliding Directional Leader Lines
+ * ----------------------------------------------------------------------- */
 
 .callout {
-  display: flex;
-  align-items: center;
-  gap: 0;
+  position: relative;
   pointer-events: none;
-  white-space: nowrap;
-  transform: translate(0, -50%);
+  user-select: none;
+  font-size: 0;
 }
-.callout--left { flex-direction: row-reverse; transform: translate(-100%, -50%); }
 
 .callout__dot {
-  width: 5px;
-  height: 5px;
-  flex: 0 0 auto;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 7px;
+  height: 7px;
   background: var(--ink);
-}
-.callout--accent .callout__dot { background: var(--cat-6); }
-
-.callout__line {
-  width: 26px;
-  height: 1px;
-  flex: 0 0 auto;
-  background: var(--ink-20);
+  border: 1.5px solid #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(23, 20, 19, 0.25);
+  transform: translate(-50%, -50%);
+  z-index: 3;
 }
 
-.callout__text {
-  padding: 5px 9px 6px;
-  background: rgba(255, 255, 255, 0.92);
-  border: var(--rule);
-  color: var(--ink-70);
+.callout--accent .callout__dot {
+  background: var(--wine);
+  box-shadow: 0 0 0 2px rgba(98, 13, 60, 0.35);
+}
+
+.callout__pill {
+  position: absolute;
+  padding: 4px 8px 5px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(23, 20, 19, 0.18);
+  border-radius: 3px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+  color: var(--ink);
   font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.06em;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
   line-height: 1.35;
+  white-space: nowrap;
+  z-index: 2;
 }
-.callout--accent .callout__text { color: var(--ink); }
+
+.callout--accent .callout__pill {
+  border-color: rgba(98, 13, 60, 0.4);
+  color: var(--ink);
+  background: #ffffff;
+}
+
+/* Direction: right */
+.callout--right .callout__stem {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 22px;
+  height: 1px;
+  background: var(--ink-30);
+  z-index: 1;
+}
+.callout--right .callout__pill {
+  left: 22px;
+  top: 0;
+  transform: translateY(-50%);
+}
+
+/* Direction: left */
+.callout--left .callout__stem {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 22px;
+  height: 1px;
+  background: var(--ink-30);
+  z-index: 1;
+}
+.callout--left .callout__pill {
+  right: 22px;
+  top: 0;
+  transform: translateY(-50%);
+}
+
+/* Direction: top */
+.callout--top .callout__stem {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 1px;
+  height: 20px;
+  background: var(--ink-30);
+  z-index: 1;
+}
+.callout--top .callout__pill {
+  left: 0;
+  bottom: 20px;
+  transform: translateX(-50%);
+}
+
+/* Direction: bottom */
+.callout--bottom .callout__stem {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1px;
+  height: 20px;
+  background: var(--ink-30);
+  z-index: 1;
+}
+.callout--bottom .callout__pill {
+  left: 0;
+  top: 20px;
+  transform: translateX(-50%);
+}
+
+/* Direction: top-right */
+.callout--top-right .callout__stem {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 20px;
+  height: 20px;
+  border-left: 1px solid var(--ink-30);
+  border-top: 1px solid var(--ink-30);
+  z-index: 1;
+}
+.callout--top-right .callout__pill {
+  left: 20px;
+  bottom: 12px;
+}
+
+/* Direction: top-left */
+.callout--top-left .callout__stem {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 20px;
+  height: 20px;
+  border-right: 1px solid var(--ink-30);
+  border-top: 1px solid var(--ink-30);
+  z-index: 1;
+}
+.callout--top-left .callout__pill {
+  right: 20px;
+  bottom: 12px;
+}
+
+/* Direction: bottom-left */
+.callout--bottom-left .callout__stem {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 20px;
+  height: 20px;
+  border-right: 1px solid var(--ink-30);
+  border-bottom: 1px solid var(--ink-30);
+  z-index: 1;
+}
+.callout--bottom-left .callout__pill {
+  right: 20px;
+  top: 12px;
+}
+
+/* Direction: bottom-right */
+.callout--bottom-right .callout__stem {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 20px;
+  height: 20px;
+  border-left: 1px solid var(--ink-30);
+  border-bottom: 1px solid var(--ink-30);
+  z-index: 1;
+}
+.callout--bottom-right .callout__pill {
+  left: 20px;
+  top: 12px;
+}
+

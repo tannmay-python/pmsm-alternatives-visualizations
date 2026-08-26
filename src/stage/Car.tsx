@@ -12,14 +12,12 @@ import { PALETTE } from "./materials";
 
 export type CarProps = {
   /** Which object takes the accent. */
-  /** Stage only ever selects one of these three. */
   focus?: "none" | "drive-unit" | "battery";
   /** Energy pulses running battery → inverter → motor → wheel. */
   flowing?: boolean;
-  /** 0–1, pulls the rear drive unit out of the car. */
+  /** 0–1, extract parameter kept for interface backwards compatibility */
   extract?: number;
   spinning?: boolean;
-  /** Which side the reading card is on, so no label extends under it. */
   cardSide?: "left" | "right";
 };
 
@@ -61,13 +59,6 @@ function Body() {
     });
   }, []);
 
-  /*
-   * The body is a glass shell with an ink wireframe over it. The old build did
-   * the same and it is most of why its car read as a cutaway rather than as a
-   * vague grey lozenge — the transparency alone gives the eye no edge to hold.
-   * The threshold angle keeps the silhouette and the wheel arches and drops
-   * the extrusion's own facet lines.
-   */
   const edges = useMemo(() => new THREE.EdgesGeometry(geometry, 22), [geometry]);
 
   return (
@@ -153,12 +144,10 @@ function Skateboard({ focus }: { focus: CarProps["focus"] }) {
 function DriveUnit({
   x,
   lit,
-  offset = 0,
   spinning,
 }: {
   x: number;
   lit: boolean;
-  offset?: number;
   spinning: boolean;
 }) {
   const barrel = useRef<THREE.Group>(null);
@@ -167,7 +156,7 @@ function DriveUnit({
   });
   const shell = lit ? PALETTE.accent : "#9fa2ac";
   return (
-    <group position={[x, 0.66, offset]}>
+    <group position={[x, 0.66, 0]}>
       <mesh position={[-0.42, 0.16, 0]}>
         <boxGeometry args={[0.5, 0.4, 0.78]} />
         <meshStandardMaterial color={lit ? PALETTE.accentDim : "#7d8088"} roughness={0.6} metalness={0.5} />
@@ -221,10 +210,8 @@ function Pulse({ curve, offset, flowing }: { curve: THREE.CatmullRomCurve3; offs
 }
 
 export function Car({
-  cardSide,
   focus = "none",
   flowing = false,
-  extract = 0,
   spinning = false,
 }: CarProps) {
   const curve = useMemo(
@@ -242,7 +229,7 @@ export function Car({
     <group rotation={[0, 0.5, 0]} position={[0, -0.9, 0]}>
       <Body />
       <Skateboard focus={focus} />
-      <DriveUnit x={2.05} lit={focus === "drive-unit"} offset={extract * 2.4} spinning={spinning} />
+      <DriveUnit x={2.05} lit={focus === "drive-unit"} spinning={spinning} />
       <Wheel x={-2.12} z={0.78} spinning={spinning} />
       <Wheel x={2.06} z={0.78} spinning={spinning} />
       <Wheel x={-2.12} z={-0.78} spinning={spinning} />
@@ -256,28 +243,32 @@ export function Car({
       <Pulse curve={curve} offset={0.75} flowing={flowing} />
 
       {focus === "battery" && (
-        <Callout cardSide={cardSide} position={[-1.7, 0.98, 0]} accent>
-          battery pack · stores DC energy
-        </Callout>
-      )}
-
-      {focus === "drive-unit" && (
         <>
-          <Callout cardSide={cardSide} position={[2.05 - 0.42, 0.94, extract * 2.4]} accent>
-            inverter · DC becomes three AC phases
+          <Callout position={[-0.35, 0.76, 0.85]} direction="top-left" accent>
+            battery pack · stores DC energy
           </Callout>
-          <Callout cardSide={cardSide} position={[2.05, 1.12, extract * 2.4]} accent>
-            motor · magnetic torque turns the shaft
-          </Callout>
-          <Callout cardSide={cardSide} position={[2.51, 0.82, extract * 2.4]}>
-            reduction gear · speed becomes wheel torque
-          </Callout>
-          <Callout cardSide={cardSide} position={[2.06, 0.16, 0.78]}>
-            wheel · the only part that touches the road
+          <Callout position={[2.05, 1.15, 0.45]} direction="top-right">
+            drive unit · motor &amp; inverter
           </Callout>
         </>
       )}
 
+      {focus === "drive-unit" && (
+        <>
+          <Callout position={[1.55, 1.05, 0.42]} direction="top-left" accent>
+            inverter · DC to 3-phase AC
+          </Callout>
+          <Callout position={[2.05, 1.2, 0.45]} direction="top-right" accent>
+            motor · magnetic torque
+          </Callout>
+          <Callout position={[2.55, 0.72, -0.1]} direction="bottom-right">
+            reduction gear · speed to torque
+          </Callout>
+          <Callout position={[2.06, 0.2, 0.88]} direction="bottom-left">
+            wheel · torque to road
+          </Callout>
+        </>
+      )}
     </group>
   );
 }
