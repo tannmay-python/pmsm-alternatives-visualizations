@@ -259,9 +259,9 @@ function DivisionOfLabourDiagram({
                 y={0}
                 width={cardW}
                 height={306}
-                rx={8}
-                fill={isSelected ? "#ffffff" : "#f8fafc"}
-                stroke={isSelected ? "var(--wine, #620d3c)" : "rgba(23, 20, 19, 0.12)"}
+                rx={0}
+                fill={isSelected ? "var(--paper)" : "var(--deep)"}
+                stroke={isSelected ? "var(--wine)" : "rgba(23, 20, 19, 0.12)"}
                 strokeWidth={isSelected ? 2 : 1}
               />
 
@@ -272,7 +272,7 @@ function DivisionOfLabourDiagram({
                 fontSize={12.5}
                 fontFamily="var(--mono)"
                 fontWeight="bold"
-                fill={isSelected ? "var(--wine, #620d3c)" : "var(--text, #171413)"}
+                fill={isSelected ? "var(--wine)" : "var(--ink)"}
               >
                 {item.name}
               </text>
@@ -281,16 +281,16 @@ function DivisionOfLabourDiagram({
               <text className="d-axis-label" x={16} y={60}>
                 PULLING POWER (MAGNETIC STRENGTH)
               </text>
-              <rect x={16} y={68} width={216} height={12} rx={4} fill="#e2e8f0" />
+              <rect x={16} y={68} width={216} height={12} rx={0} fill="var(--ink-10)" />
               <rect
                 x={16}
                 y={68}
                 width={(216 * item.strength) / 100}
                 height={12}
-                rx={4}
-                fill={item.id === "neodymium" ? "#94a3b8" : "#4b6bd6"}
+                rx={0}
+                fill={item.id === "neodymium" ? "var(--ink-50)" : "var(--cat-5)"}
               />
-              <text x={232} y={78} textAnchor="end" fontSize={9} fontFamily="var(--mono)" fontWeight="bold" fill={item.id === "neodymium" ? "#475569" : "#ffffff"}>
+              <text x={232} y={78} textAnchor="end" fontSize={9} fontFamily="var(--mono)" fontWeight="bold" fill={item.id === "neodymium" ? "var(--ink-70)" : "var(--paper)"}>
                 {item.strengthLabel}
               </text>
 
@@ -298,14 +298,14 @@ function DivisionOfLabourDiagram({
               <text className="d-axis-label" x={16} y={106}>
                 DIRECTIONAL GRIP (RESISTS REVERSAL)
               </text>
-              <rect x={16} y={114} width={216} height={12} rx={4} fill="#e2e8f0" />
+              <rect x={16} y={114} width={216} height={12} rx={0} fill="var(--ink-10)" />
               <rect
                 x={16}
                 y={114}
                 width={(216 * item.lock) / 100}
                 height={12}
-                rx={4}
-                fill={item.id === "iron" ? "#94a3b8" : "#c4763f"}
+                rx={0}
+                fill={item.id === "iron" ? "var(--ink-50)" : "var(--cat-6)"}
               />
               <text
                 x={item.id === "iron" ? 232 : 232}
@@ -314,7 +314,7 @@ function DivisionOfLabourDiagram({
                 fontSize={9}
                 fontFamily="var(--mono)"
                 fontWeight="bold"
-                fill={item.id === "iron" ? "#475569" : "#ffffff"}
+                fill={item.id === "iron" ? "var(--ink-70)" : "var(--paper)"}
               >
                 {item.lockLabel}
               </text>
@@ -327,8 +327,8 @@ function DivisionOfLabourDiagram({
                     x={0}
                     y={lIdx * 17}
                     fontSize={10.5}
-                    fontFamily="sans-serif"
-                    fill="var(--text-muted, #475569)"
+                    fontFamily="var(--sans)"
+                    fill="var(--ink-70)"
                   >
                     {line}
                   </text>
@@ -341,8 +341,8 @@ function DivisionOfLabourDiagram({
                 y={234}
                 width={216}
                 height={50}
-                rx={6}
-                fill={isSelected ? "rgba(98, 13, 60, 0.08)" : "#f1f5f9"}
+                rx={0}
+                fill={isSelected ? "rgba(98, 13, 60, 0.08)" : "var(--deep)"}
               />
               <text
                 x={124}
@@ -351,7 +351,7 @@ function DivisionOfLabourDiagram({
                 fontSize={10.5}
                 fontFamily="var(--mono)"
                 fontWeight="bold"
-                fill={isSelected ? "var(--wine, #620d3c)" : "#64748b"}
+                fill={isSelected ? "var(--wine)" : "var(--ink-70)"}
               >
                 {item.verdict1}
               </text>
@@ -361,7 +361,7 @@ function DivisionOfLabourDiagram({
                 textAnchor="middle"
                 fontSize={10}
                 fontFamily="var(--mono)"
-                fill={isSelected ? "var(--wine, #620d3c)" : "#64748b"}
+                fill={isSelected ? "var(--wine)" : "var(--ink-70)"}
               >
                 {item.verdict2}
               </text>
@@ -395,10 +395,10 @@ function AnisotropyCrystalDiagram({
     <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Intuitive compass lock against opposing stator force">
       <defs>
         <marker id="arrowUpAccent" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-          <path d="M 0 1 L 10 5 L 0 9 z" fill="var(--wine, #620d3c)" />
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="var(--wine)" />
         </marker>
         <marker id="arrowDownWarn" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-          <path d="M 0 1 L 10 5 L 0 9 z" fill="#c4763f" />
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="var(--cat-6)" />
         </marker>
       </defs>
 
@@ -408,7 +408,7 @@ function AnisotropyCrystalDiagram({
 
       {/* Left: The Atomic Compass Needle Lock */}
       <g transform="translate(24, 44)">
-        <rect x={0} y={0} width={370} height={306} rx={8} fill="#ffffff" stroke="rgba(23, 20, 19, 0.12)" strokeWidth={1} />
+        <rect x={0} y={0} width={370} height={306} rx={0} fill="var(--paper)" stroke="rgba(23, 20, 19, 0.12)" strokeWidth={1} />
 
         <text className="d-label d-label--strong" x={20} y={28}>
           The Atomic Compass Lock
@@ -421,7 +421,7 @@ function AnisotropyCrystalDiagram({
             x={0}
             y={-80}
             textAnchor="middle"
-            fill={pushPct > 0 ? "#c4763f" : "#64748b"}
+            fill={pushPct > 0 ? "var(--cat-6)" : "var(--ink-70)"}
             fontSize={10.5}
             fontFamily="var(--mono)"
             fontWeight="bold"
@@ -436,38 +436,38 @@ function AnisotropyCrystalDiagram({
               y1={-72}
               x2={0}
               y2={-72 + Math.min(16, (pushPct / 100) * 16)}
-              stroke="#c4763f"
+              stroke="var(--cat-6)"
               strokeWidth={3}
               markerEnd="url(#arrowDownWarn)"
             />
           )}
 
           {/* Compass dial circle */}
-          <circle cx={0} cy={0} r={56} fill="#f8fafc" stroke="#e2e8f0" strokeWidth={1.5} />
+          <circle cx={0} cy={0} r={56} fill="var(--deep)" stroke="var(--ink-10)" strokeWidth={1.5} />
 
           {/* North and South Labels with clear margins */}
-          <text x={0} y={-40} textAnchor="middle" fill="var(--wine, #620d3c)" fontSize={12} fontFamily="var(--mono)" fontWeight="bold">N</text>
-          <text x={0} y={48} textAnchor="middle" fill="#64748b" fontSize={11} fontFamily="var(--mono)" fontWeight="bold">S</text>
+          <text x={0} y={-40} textAnchor="middle" fill="var(--wine)" fontSize={12} fontFamily="var(--mono)" fontWeight="bold">N</text>
+          <text x={0} y={48} textAnchor="middle" fill="var(--ink-70)" fontSize={11} fontFamily="var(--mono)" fontWeight="bold">S</text>
 
           {/* Dotted horizontal alignment line */}
-          <line x1={-42} y1={0} x2={42} y2={0} stroke="#4b6bd6" strokeWidth={1.5} strokeDasharray="2 2" />
+          <line x1={-42} y1={0} x2={42} y2={0} stroke="var(--cat-5)" strokeWidth={1.5} strokeDasharray="2 2" />
 
           {/* Neodymium Atomic Clamp Badges (Equator) */}
-          <rect x={-50} y={-10} width={20} height={20} rx={4} fill="#4b6bd6" />
-          <text x={-40} y={4} textAnchor="middle" fill="#ffffff" fontSize={9.5} fontFamily="var(--mono)" fontWeight="bold">Nd</text>
+          <rect x={-50} y={-10} width={20} height={20} rx={0} fill="var(--cat-5)" />
+          <text x={-40} y={4} textAnchor="middle" fill="var(--paper)" fontSize={9.5} fontFamily="var(--mono)" fontWeight="bold">Nd</text>
 
-          <rect x={30} y={-10} width={20} height={20} rx={4} fill="#4b6bd6" />
-          <text x={40} y={4} textAnchor="middle" fill="#ffffff" fontSize={9.5} fontFamily="var(--mono)" fontWeight="bold">Nd</text>
+          <rect x={30} y={-10} width={20} height={20} rx={0} fill="var(--cat-5)" />
+          <text x={40} y={4} textAnchor="middle" fill="var(--paper)" fontSize={9.5} fontFamily="var(--mono)" fontWeight="bold">Nd</text>
 
           {/* Sleek Diamond Compass Needle (North in maroon, South in slate) */}
           {/* North Half: Points to y = -26 (Leaving 14px gap before the letter N at y = -40) */}
-          <polygon points="0,-26 5,-2 0,0 -5,-2" fill="var(--wine, #620d3c)" />
+          <polygon points="0,-26 5,-2 0,0 -5,-2" fill="var(--wine)" />
           
           {/* South Half: Points to y = 26 (Leaving 22px gap before the letter S at y = 48) */}
-          <polygon points="0,26 5,2 0,0 -5,2" fill="#94a3b8" />
+          <polygon points="0,26 5,2 0,0 -5,2" fill="var(--ink-50)" />
 
           {/* Center Hub */}
-          <circle cx={0} cy={0} r={4.5} fill="#ffffff" stroke="var(--wine, #620d3c)" strokeWidth={2} />
+          <circle cx={0} cy={0} r={4.5} fill="var(--paper)" stroke="var(--wine)" strokeWidth={2} />
         </g>
 
         <text className="d-label d-label--faint" x={20} y={268} fontSize={9.5}>
@@ -480,7 +480,7 @@ function AnisotropyCrystalDiagram({
 
       {/* Right: Interactive Stator Push Test */}
       <g transform="translate(414, 44)">
-        <rect x={0} y={0} width={382} height={306} rx={8} fill="#ffffff" stroke="rgba(23, 20, 19, 0.12)" strokeWidth={1} />
+        <rect x={0} y={0} width={382} height={306} rx={0} fill="var(--paper)" stroke="rgba(23, 20, 19, 0.12)" strokeWidth={1} />
 
         <text className="d-label d-label--strong" x={24} y={28}>
           Opposing Stator Push Test
@@ -503,8 +503,8 @@ function AnisotropyCrystalDiagram({
             y={18}
             width={334}
             height={14}
-            rx={7}
-            fill="#e2e8f0"
+            rx={0}
+            fill="var(--ink-10)"
             style={{ cursor: "ew-resize" }}
             onClick={(e) => {
               const rect = e.currentTarget.getBoundingClientRect();
@@ -517,8 +517,8 @@ function AnisotropyCrystalDiagram({
             cx={(controls.load) * 334}
             cy={25}
             r={8}
-            fill="#c4763f"
-            stroke="#ffffff"
+            fill="var(--cat-6)"
+            stroke="var(--paper)"
             strokeWidth={2}
             style={{ cursor: "ew-resize" }}
           />
@@ -529,8 +529,8 @@ function AnisotropyCrystalDiagram({
           <text className="d-axis-label" x={0} y={0}>
             MAGNETIC LOCK STATUS:
           </text>
-          <rect x={0} y={8} width={334} height={28} rx={6} fill={isHeavyPush ? "rgba(196, 118, 63, 0.1)" : "rgba(98, 13, 60, 0.08)"} stroke={isHeavyPush ? "#c4763f" : "var(--wine, #620d3c)"} strokeWidth={1} />
-          <text x={167} y={26} textAnchor="middle" fontSize={11} fontFamily="var(--mono)" fontWeight="bold" fill={isHeavyPush ? "#c4763f" : "var(--wine, #620d3c)"}>
+          <rect x={0} y={8} width={334} height={28} rx={0} fill={isHeavyPush ? "rgba(196, 118, 63, 0.1)" : "rgba(98, 13, 60, 0.08)"} stroke={isHeavyPush ? "var(--cat-6)" : "var(--wine)"} strokeWidth={1} />
+          <text x={167} y={26} textAnchor="middle" fontSize={11} fontFamily="var(--mono)" fontWeight="bold" fill={isHeavyPush ? "var(--cat-6)" : "var(--wine)"}>
             {pushPct === 0
               ? "Resting: 100% Lock Intact"
               : isHeavyPush
@@ -541,14 +541,14 @@ function AnisotropyCrystalDiagram({
 
         {/* Takeaway Box */}
         <g transform="translate(24, 222)">
-          <rect width={334} height={60} rx={6} fill="#f8fafc" stroke="rgba(23, 20, 19, 0.08)" />
-          <text x={16} y={22} fontSize={10} fontFamily="var(--mono)" fill="var(--wine, #620d3c)" fontWeight="bold">
+          <rect width={334} height={60} rx={0} fill="var(--deep)" stroke="rgba(23, 20, 19, 0.08)" />
+          <text x={16} y={22} fontSize={10} fontFamily="var(--mono)" fill="var(--wine)" fontWeight="bold">
             Why Plain Iron Fails:
           </text>
-          <text x={16} y={38} fontSize={9.5} fontFamily="sans-serif" fill="#475569">
+          <text x={16} y={38} fontSize={9.5} fontFamily="var(--sans)" fill="var(--ink-70)">
             Plain iron flips backwards at 5% push. Neodymium holds
           </text>
-          <text x={16} y={50} fontSize={9.5} fontFamily="sans-serif" fill="#475569">
+          <text x={16} y={50} fontSize={9.5} fontFamily="var(--sans)" fill="var(--ink-70)">
             the field locked forward under 100% full motor current.
           </text>
         </g>
@@ -615,8 +615,6 @@ function DemagCurveDiagram({
         y={y0}
         w={w}
         h={h}
-        xLabel="Opposing Stator Current (Push) →"
-        yLabel="Retained Magnetic Pull (Tesla) →"
       />
 
       {/* Axis Intercept Markers */}
@@ -632,12 +630,12 @@ function DemagCurveDiagram({
         points={`${x0},${y0 + h} ${x0},${y0} ${x0 + w * 0.75},${y0} ${x0 + w * 0.75},${y0 + h}`}
         fill="rgba(98, 13, 60, 0.05)"
       />
-      <text x={x0 + w * 0.35} y={y0 + h / 2} textAnchor="middle" fill="var(--wine, #620d3c)" fontSize={11.5} fontFamily="var(--mono)" opacity={0.7}>
+      <text x={x0 + w * 0.35} y={y0 + h / 2} textAnchor="middle" fill="var(--wine)" fontSize={11.5} fontFamily="var(--mono)" opacity={0.7}>
         Safe Motor Operating Zone (100% Torque Retained)
       </text>
 
       {/* The Cliff Annotation */}
-      <text x={x0 + w * 0.76} y={y0 + 24} fill="#c4763f" fontSize={11} fontFamily="var(--mono)" fontWeight="bold">
+      <text x={x0 + w * 0.76} y={y0 + 24} fill="var(--cat-6)" fontSize={11} fontFamily="var(--mono)" fontWeight="bold">
         ↓ The Cliff (Demagnetisation Knee)
       </text>
 
@@ -645,7 +643,7 @@ function DemagCurveDiagram({
       <polyline
         points={pathData}
         fill="none"
-        stroke={isPastKnee ? "#c4763f" : "var(--wine, #620d3c)"}
+        stroke={isPastKnee ? "var(--cat-6)" : "var(--wine)"}
         strokeWidth={3}
       />
 
@@ -655,7 +653,7 @@ function DemagCurveDiagram({
         y1={y0}
         x2={cursorX}
         y2={y0 + h}
-        stroke={isPastKnee ? "#c4763f" : "var(--wine, #620d3c)"}
+        stroke={isPastKnee ? "var(--cat-6)" : "var(--wine)"}
         strokeWidth={1.5}
         strokeDasharray="3 3"
       />
@@ -663,15 +661,15 @@ function DemagCurveDiagram({
         cx={cursorX}
         cy={cursorY}
         r={6}
-        fill={isPastKnee ? "#c4763f" : "var(--wine, #620d3c)"}
-        stroke="#ffffff"
+        fill={isPastKnee ? "var(--cat-6)" : "var(--wine)"}
+        stroke="var(--paper)"
         strokeWidth={2}
       />
 
       {/* Status Badge */}
       <g transform={`translate(${Math.min(x0 + w - 260, Math.max(x0 + 10, cursorX - 120))}, ${y0 + 44})`}>
-        <rect width={250} height={26} rx={4} fill="#ffffff" stroke="rgba(23, 20, 19, 0.15)" strokeWidth={1} />
-        <text x={125} y={17} textAnchor="middle" fontSize={10.5} fontFamily="var(--mono)" fill={isPastKnee ? "#c4763f" : "var(--wine, #620d3c)"} fontWeight="bold">
+        <rect width={250} height={26} rx={0} fill="var(--paper)" stroke="rgba(23, 20, 19, 0.15)" strokeWidth={1} />
+        <text x={125} y={17} textAnchor="middle" fontSize={10.5} fontFamily="var(--mono)" fill={isPastKnee ? "var(--cat-6)" : "var(--wine)"} fontWeight="bold">
           {isPastKnee ? "Cliff Crossed: Permanent Loss" : `Safe Operating: ${(currentBNorm * 1.4).toFixed(2)} T Pull`}
         </text>
       </g>
@@ -686,8 +684,8 @@ function DemagCurveDiagram({
           y={18}
           width={w}
           height={14}
-          rx={7}
-          fill="#e2e8f0"
+          rx={0}
+          fill="var(--ink-10)"
           style={{ cursor: "ew-resize" }}
           onClick={(e) => {
             const rect = e.currentTarget.getBoundingClientRect();
@@ -700,8 +698,8 @@ function DemagCurveDiagram({
           cx={reverse * w}
           cy={25}
           r={8}
-          fill="var(--wine, #620d3c)"
-          stroke="#ffffff"
+          fill="var(--wine)"
+          stroke="var(--paper)"
           strokeWidth={2}
           style={{ cursor: "ew-resize" }}
         />
@@ -766,8 +764,13 @@ function ThermalDemagDiagram({
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Thermal demagnetisation under rotor heat">
-      <text className="d-axis-label" x={24} y={22}>
+      <text className="d-axis-label" x={24} y={20}>
         THE HEAT THREAT · WHY ROTOR TEMPERATURE MATTERS
+      </text>
+      {/* The unit sits here rather than on the axis, whose rotated title ran
+          off the top of the figure and rendered clipped. */}
+      <text className="d-label d-label--faint" x={24} y={36}>
+        Retained magnetic pull · against opposing stator current
       </text>
 
       <Axes
@@ -775,25 +778,35 @@ function ThermalDemagDiagram({
         y={y0}
         w={w}
         h={h}
-        xLabel="Opposing Stator Current (Push) →"
-        yLabel="Retained Magnetic Pull →"
       />
 
       {/* Cold Ghost Reference */}
-      <polyline points={coldGhostPts.join(" ")} fill="none" stroke="#94a3b8" strokeWidth={1.5} strokeDasharray="4 4" />
-      <text x={x0 + w * 0.72} y={y0 + 20} fill="#94a3b8" fontSize={10} fontFamily="var(--mono)">
-        -- Cold Reference (20 °C)
+      <polyline points={coldGhostPts.join(" ")} fill="none" stroke="var(--ink-50)" strokeWidth={1.5} strokeDasharray="4 4" />
+      <text x={x0 + w - 6} y={y0 + 16} textAnchor="end" fill="var(--ink-50)" fontSize={10} fontFamily="var(--mono)">
+        Cold reference · 20 °C
       </text>
 
       {/* Hot Active Curve */}
       <polyline
         points={hotPts.join(" ")}
         fill="none"
-        stroke={isDemagnetised ? "#c4763f" : "var(--wine, #620d3c)"}
+        stroke={isDemagnetised ? "var(--cat-6)" : "var(--wine)"}
         strokeWidth={3}
       />
-      <text x={x0 + kneeXNorm * w - 10} y={y0 + h - brThermal * h - 10} fill={isDemagnetised ? "#c4763f" : "var(--wine, #620d3c)"} fontSize={11} fontFamily="var(--mono)" fontWeight="bold">
-        Hot Operating Cliff at {tempC} °C
+      {/*
+        Sits below the plateau it names rather than on top of it, and tracks
+        the plateau as the temperature slider moves it. Anchored to the right
+        and clamped so the text can never run out of the plot on either side.
+      */}
+      <text
+        x={Math.max(x0 + 190, Math.min(x0 + w - 6, x0 + kneeXNorm * w - 10))}
+        y={y0 + h - brThermal * h + 20}
+        textAnchor="end"
+        fill={isDemagnetised ? "var(--cat-6)" : "var(--wine)"}
+        fontSize={11}
+        fontFamily="var(--mono)"
+      >
+        Hot operating cliff · {tempC} °C
       </text>
 
       {/* Reverse Field Cursor */}
@@ -802,16 +815,18 @@ function ThermalDemagDiagram({
         y1={y0}
         x2={cursorX}
         y2={y0 + h}
-        stroke={isDemagnetised ? "#c4763f" : "var(--wine, #620d3c)"}
+        stroke={isDemagnetised ? "var(--cat-6)" : "var(--wine)"}
         strokeWidth={1.5}
         strokeDasharray="3 3"
       />
-      <circle cx={cursorX} cy={cursorY} r={6} fill={isDemagnetised ? "#c4763f" : "var(--wine, #620d3c)"} stroke="#ffffff" strokeWidth={2} />
+      <circle cx={cursorX} cy={cursorY} r={6} fill={isDemagnetised ? "var(--cat-6)" : "var(--wine)"} stroke="var(--paper)" strokeWidth={2} />
 
       {/* Status Warning Pill */}
-      <g transform={`translate(${Math.min(x0 + w - 310, Math.max(x0 + 10, cursorX - 140))}, ${y0 + 36})`}>
-        <rect width={290} height={26} rx={4} fill="#ffffff" stroke="rgba(23, 20, 19, 0.15)" strokeWidth={1} />
-        <text x={145} y={17} textAnchor="middle" fontSize={10.5} fontFamily="var(--mono)" fill={isDemagnetised ? "#c4763f" : "var(--wine, #620d3c)"} fontWeight="bold">
+      {/* Moved below the plot: floating over it, this pill covered whichever
+          curve happened to be under the cursor. */}
+      <g transform={`translate(${Math.min(x0 + w - 290, Math.max(x0, cursorX - 145))}, ${y0 + h + 4})`}>
+        <rect width={290} height={26} rx={0} fill="var(--paper)" stroke="rgba(23, 20, 19, 0.16)" strokeWidth={1} />
+        <text x={145} y={17} textAnchor="middle" fontSize={10.5} fontFamily="var(--mono)" fill={isDemagnetised ? "var(--cat-6)" : "var(--wine)"} fontWeight="bold">
           {isDemagnetised ? "WARNING: CROSSED THE CLIFF!" : `Safe Headroom: ${Math.round(((kneeXNorm - reverse) / kneeXNorm) * 100)}% remaining`}
         </text>
       </g>
@@ -826,8 +841,8 @@ function ThermalDemagDiagram({
             y={16}
             width={320}
             height={12}
-            rx={6}
-            fill="#e2e8f0"
+            rx={0}
+            fill="var(--ink-10)"
             style={{ cursor: "ew-resize" }}
             onClick={(e) => {
               const rect = e.currentTarget.getBoundingClientRect();
@@ -836,7 +851,7 @@ function ThermalDemagDiagram({
               onPatchControls?.({ heat: ratio });
             }}
           />
-          <circle cx={controls.heat * 320} cy={22} r={7} fill="#c4763f" stroke="#ffffff" strokeWidth={2} style={{ cursor: "ew-resize" }} />
+          <circle cx={controls.heat * 320} cy={22} r={7} fill="var(--cat-6)" stroke="var(--paper)" strokeWidth={2} style={{ cursor: "ew-resize" }} />
         </g>
 
         {/* Slider 2: Stator Current */}
@@ -847,8 +862,8 @@ function ThermalDemagDiagram({
             y={16}
             width={320}
             height={12}
-            rx={6}
-            fill="#e2e8f0"
+            rx={0}
+            fill="var(--ink-10)"
             style={{ cursor: "ew-resize" }}
             onClick={(e) => {
               const rect = e.currentTarget.getBoundingClientRect();
@@ -857,7 +872,7 @@ function ThermalDemagDiagram({
               onPatchControls?.({ load: ratio });
             }}
           />
-          <circle cx={reverse * 320} cy={22} r={7} fill="var(--wine, #620d3c)" stroke="#ffffff" strokeWidth={2} style={{ cursor: "ew-resize" }} />
+          <circle cx={reverse * 320} cy={22} r={7} fill="var(--wine)" stroke="var(--paper)" strokeWidth={2} style={{ cursor: "ew-resize" }} />
         </g>
       </g>
 
@@ -890,32 +905,34 @@ function GrainBoundaryDiffusionDiagram({
 
       {/* Left Card: Uniform Doping (Legacy) */}
       <g transform="translate(24, 44)">
-        <rect x={0} y={0} width={370} height={306} rx={8} fill="#ffffff" stroke="rgba(23, 20, 19, 0.12)" strokeWidth={1} />
+        <rect x={0} y={0} width={370} height={306} rx={0} fill="var(--paper)" stroke="rgba(23, 20, 19, 0.12)" strokeWidth={1} />
         <text className="d-label d-label--strong" x={20} y={28}>
           1. Legacy Bulk Doping (Pre-2015)
         </text>
 
         {/* Grain Circle with bulk Dy dots */}
-        <g transform="translate(185, 120)">
-          <circle cx={0} cy={0} r={72} fill="#f1f5f9" stroke="#94a3b8" strokeWidth={2} />
+        <g transform="translate(185, 112)">
+          <circle cx={0} cy={0} r={62} fill="var(--deep)" stroke="var(--ink-50)" strokeWidth={2} />
           {Array.from({ length: 24 }, (_, i) => {
             const a = (i / 24) * Math.PI * 2;
-            const r = 16 + (i % 4) * 16;
-            return <circle key={i} cx={Math.cos(a) * r} cy={Math.sin(a) * r} r={3.5} fill="#c4763f" />;
+            const r = 14 + (i % 4) * 14;
+            return <circle key={i} cx={Math.cos(a) * r} cy={Math.sin(a) * r} r={3.5} fill="var(--cat-6)" />;
           })}
-          <text x={0} y={4} textAnchor="middle" fontSize={11} fontFamily="var(--mono)" fill="#475569" fontWeight="bold">
-            8% Dy bulk wasted
+          {/* Below the grain, not through it: centred in the circle the caption
+              was struck through by the very dots it describes. */}
+          <text x={0} y={84} textAnchor="middle" fontSize={11} fontFamily="var(--mono)" fill="var(--ink-70)">
+            8% Dy dispersed through the bulk
           </text>
         </g>
 
-        <rect x={20} y={215} width={330} height={72} rx={4} fill="#f8fafc" />
-        <text x={30} y={236} fontSize={10.5} fontFamily="var(--mono)" fill="#c4763f" fontWeight="bold">
+        <rect x={20} y={215} width={330} height={72} rx={0} fill="var(--deep)" />
+        <text x={30} y={236} fontSize={10.5} fontFamily="var(--mono)" fill="var(--cat-6)" fontWeight="bold">
           Wasteful Core Doping:
         </text>
-        <text x={30} y={254} fontSize={10} fontFamily="sans-serif" fill="#64748b">
+        <text x={30} y={254} fontSize={10} fontFamily="var(--sans)" fill="var(--ink-70)">
           Heavy Dy is wasted through the core,
         </text>
-        <text x={30} y={270} fontSize={10} fontFamily="sans-serif" fill="#64748b">
+        <text x={30} y={270} fontSize={10} fontFamily="var(--sans)" fill="var(--ink-70)">
           diluting pure iron and cutting pull by 15%.
         </text>
       </g>
@@ -927,42 +944,42 @@ function GrainBoundaryDiffusionDiagram({
           y={0}
           width={382}
           height={306}
-          rx={8}
-          fill="#ffffff"
-          stroke={gbd ? "var(--wine, #620d3c)" : "rgba(23, 20, 19, 0.12)"}
+          rx={0}
+          fill="var(--paper)"
+          stroke={gbd ? "var(--wine)" : "rgba(23, 20, 19, 0.12)"}
           strokeWidth={gbd ? 2 : 1}
         />
-        <text className="d-label d-label--strong" x={20} y={28} fill={gbd ? "var(--wine, #620d3c)" : "var(--text, #171413)"}>
+        <text className="d-label d-label--strong" x={20} y={28} fill={gbd ? "var(--wine)" : "var(--ink)"}>
           2. Modern GBD (Surface Shield)
         </text>
 
         {/* Grain with distinct Dy Shell */}
-        <g transform="translate(191, 120)">
+        <g transform="translate(191, 112)">
           {/* Outer Shell */}
-          <circle cx={0} cy={0} r={72} fill="#fef3c7" stroke="var(--wine, #620d3c)" strokeWidth={2} />
+          <circle cx={0} cy={0} r={62} fill="var(--gold-soft)" stroke="var(--wine)" strokeWidth={2} />
           {/* Inner Iron-Rich Core */}
-          <circle cx={0} cy={0} r={72 - shellDepth} fill="#e0e7ff" stroke="#4b6bd6" strokeWidth={1.5} />
+          <circle cx={0} cy={0} r={Math.max(14, 62 - shellDepth)} fill="var(--wine-soft)" stroke="var(--cat-5)" strokeWidth={1.5} />
           {/* Dy particles only on the outer rim */}
           {Array.from({ length: 20 }, (_, i) => {
             const a = (i / 20) * Math.PI * 2;
-            return <circle key={i} cx={Math.cos(a) * (72 - shellDepth / 2)} cy={Math.sin(a) * (72 - shellDepth / 2)} r={3.5} fill="var(--wine, #620d3c)" />;
+            const rr = 62 - Math.min(shellDepth, 44) / 2;
+            return <circle key={i} cx={Math.cos(a) * rr} cy={Math.sin(a) * rr} r={3.5} fill="var(--wine)" />;
           })}
-          <text x={0} y={-8} textAnchor="middle" fontSize={11} fontFamily="var(--mono)" fill="#4b6bd6" fontWeight="bold">
-            Pure NdFeB Core (100% Pull)
-          </text>
-          <text x={0} y={10} textAnchor="middle" fontSize={9.5} fontFamily="var(--mono)" fill="#64748b">
-            Zero Flux Loss
+          {/* Below the grain: this caption is wider than the circle, so inside
+              it, it crossed both the rim particles and the outer edge. */}
+          <text x={0} y={84} textAnchor="middle" fontSize={11} fontFamily="var(--mono)" fill="var(--cat-5)">
+            Pure NdFeB core · zero flux loss
           </text>
         </g>
 
-        <rect x={20} y={215} width={342} height={72} rx={4} fill="rgba(98, 13, 60, 0.05)" />
-        <text x={30} y={236} fontSize={10.5} fontFamily="var(--mono)" fill="var(--wine, #620d3c)" fontWeight="bold">
+        <rect x={20} y={215} width={342} height={72} rx={0} fill="rgba(98, 13, 60, 0.05)" />
+        <text x={30} y={236} fontSize={10.5} fontFamily="var(--mono)" fill="var(--wine)" fontWeight="bold">
           Targeted 200 nm Shell Shield:
         </text>
-        <text x={30} y={254} fontSize={10} fontFamily="sans-serif" fill="#475569">
+        <text x={30} y={254} fontSize={10} fontFamily="var(--sans)" fill="var(--ink-70)">
           Shields only the outer rim where heat attacks.
         </text>
-        <text x={30} y={270} fontSize={10} fontFamily="sans-serif" fill="#475569">
+        <text x={30} y={270} fontSize={10} fontFamily="var(--sans)" fill="var(--ink-70)">
           Cuts Heavy REE consumption by 75%!
         </text>
       </g>
@@ -977,8 +994,8 @@ function GrainBoundaryDiffusionDiagram({
           y={4}
           width={772}
           height={12}
-          rx={6}
-          fill="#e2e8f0"
+          rx={0}
+          fill="var(--ink-10)"
           style={{ cursor: "ew-resize" }}
           onClick={(e) => {
             const rect = e.currentTarget.getBoundingClientRect();
@@ -987,14 +1004,14 @@ function GrainBoundaryDiffusionDiagram({
             onPatchControls?.({ diffusion: ratio });
           }}
         />
-        <circle cx={controls.diffusion * 772} cy={10} r={7} fill="var(--wine, #620d3c)" stroke="#ffffff" strokeWidth={2} style={{ cursor: "ew-resize" }} />
+        <circle cx={controls.diffusion * 772} cy={10} r={7} fill="var(--wine)" stroke="var(--paper)" strokeWidth={2} style={{ cursor: "ew-resize" }} />
       </g>
 
       {/* Footnote */}
-      <text className="d-label d-label--faint" x={24} y={386}>
+      <text className="d-label d-label--faint" x={24} y={400}>
         Magnetic reversal starts at grain boundaries; GBD shields only
       </text>
-      <text className="d-label d-label--faint" x={24} y={402}>
+      <text className="d-label d-label--faint" x={24} y={416}>
         the outer skin, keeping the core 100% pure iron for maximum pull.
       </text>
     </svg>
@@ -1009,7 +1026,9 @@ function LightHeavySplitDiagram() {
       </text>
 
       {/* Composition Bar */}
-      <g transform="translate(24, 44)">
+      <g transform="translate(24, 60)">
+        {/* Was translate(…, 44) with the caption at y=-10, which put it on the
+            baseline of the figure title above it. */}
         <text className="d-label d-label--strong" x={0} y={-10}>
           Element Breakdown by Mass in an EV Traction Magnet
         </text>
@@ -1017,19 +1036,19 @@ function LightHeavySplitDiagram() {
         {/* Stack Bar */}
         <g>
           {/* Iron */}
-          <rect x={0} y={0} width={515} height={34} rx={4} fill="#94a3b8" />
-          <text x={257} y={21} textAnchor="middle" fill="#ffffff" fontSize={11.5} fontFamily="var(--mono)" fontWeight="bold">
+          <rect x={0} y={0} width={515} height={34} rx={0} fill="var(--ink-50)" />
+          <text x={257} y={21} textAnchor="middle" fill="var(--paper)" fontSize={11.5} fontFamily="var(--mono)" fontWeight="bold">
             Iron (Fe) ≈ 68% · Main Body
           </text>
 
           {/* Light REE (Nd/Pr) */}
-          <rect x={521} y={0} width={224} height={34} rx={4} fill="#4b6bd6" />
-          <text x={633} y={21} textAnchor="middle" fill="#ffffff" fontSize={11} fontFamily="var(--mono)" fontWeight="bold">
+          <rect x={521} y={0} width={224} height={34} rx={0} fill="var(--cat-5)" />
+          <text x={633} y={21} textAnchor="middle" fill="var(--paper)" fontSize={11} fontFamily="var(--mono)" fontWeight="bold">
             Nd/Pr ≈ 29% (Light)
           </text>
 
           {/* Heavy REE (Dy/Tb) */}
-          <rect x={749} y={0} width={23} height={34} rx={4} fill="#c4763f" />
+          <rect x={749} y={0} width={23} height={34} rx={0} fill="var(--cat-6)" />
         </g>
       </g>
 
@@ -1037,9 +1056,9 @@ function LightHeavySplitDiagram() {
       <g transform="translate(24, 100)">
         {/* Left Column: Light Rare Earths */}
         <g transform="translate(0, 0)">
-          <rect x={0} y={0} width={370} height={240} rx={8} fill="#ffffff" stroke="rgba(23, 20, 19, 0.12)" strokeWidth={1} />
-          <rect x={0} y={0} width={370} height={36} rx={8} fill="#f1f5f9" />
-          <text x={16} y={23} fontSize={12} fontFamily="var(--mono)" fontWeight="bold" fill="#4b6bd6">
+          <rect x={0} y={0} width={370} height={240} rx={0} fill="var(--paper)" stroke="rgba(23, 20, 19, 0.12)" strokeWidth={1} />
+          <rect x={0} y={0} width={370} height={36} rx={0} fill="var(--deep)" />
+          <text x={16} y={23} fontSize={12} fontFamily="var(--mono)" fontWeight="bold" fill="var(--cat-5)">
             Light Rare Earths (Neodymium, Praseodymium)
           </text>
 
@@ -1050,7 +1069,7 @@ function LightHeavySplitDiagram() {
             • Mines: USA (Mountain Pass), Australia, China
           </text>
           <text x={16} y={120} className="d-label" fontSize={11}>
-            • Status: <tspan className="d-label--strong" fill="#16a34a">100% UNRESTRICTED (Not on licence list)</tspan>
+            • Status: <tspan className="d-label--strong" fill="var(--positive)">100% UNRESTRICTED (Not on licence list)</tspan>
           </text>
           <text x={16} y={154} className="d-label d-label--faint" fontSize={10.5}>
             The bulk magnet material, mined globally.
@@ -1059,9 +1078,9 @@ function LightHeavySplitDiagram() {
 
         {/* Right Column: Heavy Rare Earths */}
         <g transform="translate(414, 0)">
-          <rect x={0} y={0} width={382} height={240} rx={8} fill="#ffffff" stroke="#c4763f" strokeWidth={1.5} />
-          <rect x={0} y={0} width={382} height={36} rx={8} fill="rgba(196, 118, 63, 0.12)" />
-          <text x={16} y={23} fontSize={12} fontFamily="var(--mono)" fontWeight="bold" fill="#c4763f">
+          <rect x={0} y={0} width={382} height={240} rx={0} fill="var(--paper)" stroke="var(--cat-6)" strokeWidth={1.5} />
+          <rect x={0} y={0} width={382} height={36} rx={0} fill="rgba(196, 118, 63, 0.12)" />
+          <text x={16} y={23} fontSize={12} fontFamily="var(--mono)" fontWeight="bold" fill="var(--cat-6)">
             Heavy Rare Earths (Dysprosium, Terbium)
           </text>
 
@@ -1072,7 +1091,7 @@ function LightHeavySplitDiagram() {
             • Global Sources: 99% ionic clays in S. China/Myanmar
           </text>
           <text x={16} y={120} className="d-label" fontSize={11}>
-            • Status: <tspan className="d-label--strong" fill="#c4763f">SUBJECT TO APRIL 2025 EXPORT LICENCE</tspan>
+            • Status: <tspan className="d-label--strong" fill="var(--cat-6)">SUBJECT TO APRIL 2025 EXPORT LICENCE</tspan>
           </text>
           <text x={16} y={154} className="d-label d-label--faint" fontSize={10.5}>
             The specific 2% heat additive that was controlled.
@@ -1101,6 +1120,14 @@ function MitigationLadderDiagram({
   const rung = Math.min(4, Math.round(controls.load * 4));
   const active = getMitigationFootprintInfo(rung as 0 | 1 | 2 | 3 | 4);
 
+  // The detail card is laid out from its own content: the retained list sets
+  // where the second heading starts, and both lists set the card's height.
+  const changesY = 82 + active.retainedModules.length * 18 + 14;
+  const cardHeight = Math.max(
+    222,
+    changesY + 18 + active.affectedModules.length * 18 + 8,
+  );
+
   return (
     <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Mitigation ladder to eliminate heavy rare earths">
       <text className="d-axis-label" x={24} y={22}>
@@ -1123,9 +1150,9 @@ function MitigationLadderDiagram({
                 y={y}
                 width={370}
                 height={38}
-                rx={6}
-                fill={isSelected ? "var(--wine, #620d3c)" : "#ffffff"}
-                stroke={isSelected ? "var(--wine, #620d3c)" : "rgba(23, 20, 19, 0.12)"}
+                rx={0}
+                fill={isSelected ? "var(--wine)" : "var(--paper)"}
+                stroke={isSelected ? "var(--wine)" : "rgba(23, 20, 19, 0.12)"}
                 strokeWidth={1}
               />
               <text
@@ -1134,7 +1161,7 @@ function MitigationLadderDiagram({
                 fontSize={11.5}
                 fontFamily="var(--mono)"
                 fontWeight="bold"
-                fill={isSelected ? "#ffffff" : "var(--text, #171413)"}
+                fill={isSelected ? "var(--paper)" : "var(--ink)"}
               >
                 Rung {i + 1}: {item.label}
               </text>
@@ -1145,10 +1172,10 @@ function MitigationLadderDiagram({
 
       {/* Right Detail Card for Active Rung */}
       <g transform="translate(414, 44)">
-        <rect x={0} y={0} width={382} height={222} rx={8} fill="#ffffff" stroke="var(--wine, #620d3c)" strokeWidth={1.5} />
+        <rect x={0} y={0} width={382} height={cardHeight} rx={0} fill="var(--paper)" stroke="var(--wine)" strokeWidth={1.5} />
 
-        <rect x={0} y={0} width={382} height={36} rx={8} fill="rgba(98, 13, 60, 0.06)" />
-        <text x={16} y={23} fontSize={12} fontFamily="var(--mono)" fontWeight="bold" fill="var(--wine, #620d3c)">
+        <rect x={0} y={0} width={382} height={36} rx={0} fill="rgba(98, 13, 60, 0.06)" />
+        <text x={16} y={23} fontSize={12} fontFamily="var(--mono)" fontWeight="bold" fill="var(--wine)">
           Rung {rung + 1}: {active.label}
         </text>
 
@@ -1159,9 +1186,20 @@ function MitigationLadderDiagram({
           </text>
         ))}
 
-        <text className="d-axis-label" x={16} y={146}>WHAT CHANGES:</text>
+        {/*
+          The second heading follows the first list rather than sitting at a
+          fixed y: with a fixed 146 a five-item list ran straight through it.
+        */}
+        <text className="d-axis-label" x={16} y={changesY}>WHAT CHANGES:</text>
         {active.affectedModules.map((mod, idx) => (
-          <text key={mod} x={16} y={164 + idx * 18} className="d-label d-label--strong" fill="var(--wine, #620d3c)" fontSize={10.5}>
+          <text
+            key={mod}
+            x={16}
+            y={changesY + 18 + idx * 18}
+            className="d-label d-label--strong"
+            fill="var(--wine)"
+            fontSize={10.5}
+          >
             • {mod}
           </text>
         ))}
@@ -1202,7 +1240,7 @@ function BackEmfCeiling({
 
   // Dynamic color transition based on voltage severity
   const voltageColor =
-    backEmfVolts >= 330 ? "#c4763f" : backEmfVolts >= 200 ? "#d97706" : "var(--wine, #620d3c)";
+    backEmfVolts >= 330 ? "var(--cat-6)" : backEmfVolts >= 200 ? "var(--cat-6)" : "var(--wine)";
 
   const weakeningRatio = Math.max(0, Math.min(1, controls.weakening || speedRatio));
   const counterPct = Math.round(weakeningRatio * 42);
@@ -1219,7 +1257,7 @@ function BackEmfCeiling({
 
       {/* Left Card: The Highway Inverter Tax */}
       <g transform="translate(24, 44)">
-        <rect x={0} y={0} width={370} height={306} rx={8} fill="#ffffff" stroke="rgba(23, 20, 19, 0.12)" strokeWidth={1} />
+        <rect x={0} y={0} width={370} height={306} rx={0} fill="var(--paper)" stroke="rgba(23, 20, 19, 0.12)" strokeWidth={1} />
 
         <text className="d-label d-label--strong" x={20} y={28}>
           1. The Highway Inverter Tax
@@ -1242,8 +1280,8 @@ function BackEmfCeiling({
             y={18}
             width={330}
             height={14}
-            rx={7}
-            fill="#e2e8f0"
+            rx={0}
+            fill="var(--ink-10)"
             style={{ cursor: "ew-resize" }}
             onClick={(e) => {
               const rect = e.currentTarget.getBoundingClientRect();
@@ -1256,8 +1294,8 @@ function BackEmfCeiling({
             cx={weakeningRatio * 330}
             cy={25}
             r={8}
-            fill="#c4763f"
-            stroke="#ffffff"
+            fill="var(--cat-6)"
+            stroke="var(--paper)"
             strokeWidth={2}
             style={{ cursor: "ew-resize" }}
           />
@@ -1270,31 +1308,31 @@ function BackEmfCeiling({
           </text>
 
           {/* Stats Row above the bar */}
-          <text x={0} y={18} fontSize={10.5} fontFamily="var(--mono)" fontWeight="bold" fill="#4b6bd6">
+          <text x={0} y={18} fontSize={10.5} fontFamily="var(--mono)" fontWeight="bold" fill="var(--cat-5)">
             ✓ Drives Wheels: {torquePct}%
           </text>
-          <text x={330} y={18} textAnchor="end" fontSize={10.5} fontFamily="var(--mono)" fontWeight="bold" fill="#c4763f">
+          <text x={330} y={18} textAnchor="end" fontSize={10.5} fontFamily="var(--mono)" fontWeight="bold" fill="var(--cat-6)">
             ✕ Cancels Magnet: {counterPct}%
           </text>
 
           {/* Stack track */}
-          <rect x={0} y={26} width={330} height={16} rx={8} fill="#e2e8f0" />
+          <rect x={0} y={26} width={330} height={16} rx={0} fill="var(--ink-10)" />
           {/* Useful Torque Current (Blue) */}
-          <rect x={0} y={26} width={(330 * torquePct) / 100} height={16} rx={8} fill="#4b6bd6" />
+          <rect x={0} y={26} width={(330 * torquePct) / 100} height={16} rx={0} fill="var(--cat-5)" />
           {/* Wasted Counter-Current (Orange) */}
-          <rect x={(330 * torquePct) / 100} y={26} width={(330 * counterPct) / 100} height={16} rx={8} fill="#c4763f" />
+          <rect x={(330 * torquePct) / 100} y={26} width={(330 * counterPct) / 100} height={16} rx={0} fill="var(--cat-6)" />
         </g>
 
         {/* Paradox Box */}
         <g transform="translate(20, 224)">
-          <rect width={330} height={62} rx={6} fill="rgba(196, 118, 63, 0.06)" stroke="#c4763f" strokeWidth={0.5} />
-          <text x={14} y={20} fontSize={10} fontFamily="var(--mono)" fill="#c4763f" fontWeight="bold">
+          <rect width={330} height={62} rx={0} fill="rgba(196, 118, 63, 0.06)" stroke="var(--cat-6)" strokeWidth={0.5} />
+          <text x={14} y={20} fontSize={10} fontFamily="var(--mono)" fill="var(--cat-6)" fontWeight="bold">
             The Permanent Magnet Highway Paradox:
           </text>
-          <text x={14} y={36} fontSize={9.5} fontFamily="sans-serif" fill="#475569">
+          <text x={14} y={36} fontSize={9.5} fontFamily="var(--sans)" fill="var(--ink-70)">
             At 150 km/h, up to 40% of battery power is burned purely
           </text>
-          <text x={14} y={50} fontSize={9.5} fontFamily="sans-serif" fill="#475569">
+          <text x={14} y={50} fontSize={9.5} fontFamily="var(--sans)" fill="var(--ink-70)">
             fighting the very magnet you paid to put in the vehicle.
           </text>
         </g>
@@ -1302,7 +1340,7 @@ function BackEmfCeiling({
 
       {/* Right Card: The Inverter Fault & The Solution */}
       <g transform="translate(414, 44)">
-        <rect x={0} y={0} width={382} height={306} rx={8} fill="#ffffff" stroke={isFault ? "#c4763f" : "rgba(23, 20, 19, 0.12)"} strokeWidth={isFault ? 2 : 1} />
+        <rect x={0} y={0} width={382} height={306} rx={0} fill="var(--paper)" stroke={isFault ? "var(--cat-6)" : "rgba(23, 20, 19, 0.12)"} strokeWidth={isFault ? 2 : 1} />
 
         <text className="d-label d-label--strong" x={24} y={28}>
           2. Inverter Fault & The Alternative Fix
@@ -1310,16 +1348,16 @@ function BackEmfCeiling({
 
         {/* Fault Status Banner */}
         <g transform="translate(24, 46)">
-          <rect width={334} height={68} rx={6} fill={isFault ? "rgba(196, 118, 63, 0.1)" : "rgba(98, 13, 60, 0.05)"} stroke={isFault ? "#c4763f" : "var(--wine, #620d3c)"} strokeWidth={1} />
-          <text x={16} y={22} fontSize={10.5} fontFamily="var(--mono)" fontWeight="bold" fill={isFault ? "#c4763f" : "var(--wine, #620d3c)"}>
+          <rect width={334} height={68} rx={0} fill={isFault ? "rgba(196, 118, 63, 0.1)" : "rgba(98, 13, 60, 0.05)"} stroke={isFault ? "var(--cat-6)" : "var(--wine)"} strokeWidth={1} />
+          <text x={16} y={22} fontSize={10.5} fontFamily="var(--mono)" fontWeight="bold" fill={isFault ? "var(--cat-6)" : "var(--wine)"}>
             {isFault ? "⚠ INVERTER CUTOFF FAULT AT SPEED" : "✓ INVERTER ACTIVE (CRUISING)"}
           </text>
-          <text x={16} y={40} fontSize={9.5} fontFamily="sans-serif" fill="#475569">
+          <text x={16} y={40} fontSize={9.5} fontFamily="var(--sans)" fill="var(--ink-70)">
             {isFault
               ? "Inverter shuts off, but spinning magnets keep generating"
               : "Counter-current suppresses Back-EMF. Drive is stable."}
           </text>
-          <text x={16} y={54} fontSize={9.5} fontFamily="sans-serif" fill={isFault ? "#c4763f" : "#475569"} fontWeight={isFault ? "bold" : "normal"}>
+          <text x={16} y={54} fontSize={9.5} fontFamily="var(--sans)" fill={isFault ? "var(--cat-6)" : "var(--ink-70)"} fontWeight={isFault ? "bold" : "normal"}>
             {isFault
               ? "650 V+ uncontrolled voltage spikes into the drive unit!"
               : "Safe operation within DC bus voltage limits."}
@@ -1328,26 +1366,26 @@ function BackEmfCeiling({
 
         {/* The Solution / Bridge Box */}
         <g transform="translate(24, 126)">
-          <rect width={334} height={160} rx={6} fill="#f8fafc" stroke="rgba(23, 20, 19, 0.1)" />
-          <text x={16} y={24} fontSize={11} fontFamily="var(--mono)" fontWeight="bold" fill="var(--wine, #620d3c)">
+          <rect width={334} height={160} rx={0} fill="var(--deep)" stroke="rgba(23, 20, 19, 0.1)" />
+          <text x={16} y={24} fontSize={11} fontFamily="var(--mono)" fontWeight="bold" fill="var(--wine)">
             The Obvious Fix: Rotors You Can Turn Off!
           </text>
-          <text x={16} y={44} fontSize={9.5} fontFamily="sans-serif" fill="#475569">
+          <text x={16} y={44} fontSize={9.5} fontFamily="var(--sans)" fill="var(--ink-70)">
             Replace permanent magnets with controllable rotors:
           </text>
-          <text x={16} y={64} fontSize={9.5} fontFamily="sans-serif" fill="#171413" fontWeight="bold">
+          <text x={16} y={64} fontSize={9.5} fontFamily="var(--sans)" fill="var(--ink)" fontWeight="bold">
             • BMW & Renault (Wound Rotor / EESM):
           </text>
-          <text x={26} y={78} fontSize={9} fontFamily="sans-serif" fill="#64748b">
+          <text x={26} y={78} fontSize={9} fontFamily="var(--sans)" fill="var(--ink-70)">
             Turns off rotor current on the highway for 0% drag.
           </text>
-          <text x={16} y={98} fontSize={9.5} fontFamily="sans-serif" fill="#171413" fontWeight="bold">
+          <text x={16} y={98} fontSize={9.5} fontFamily="var(--sans)" fill="var(--ink)" fontWeight="bold">
             • Tesla & Audi (Induction Motor / IM):
           </text>
-          <text x={26} y={112} fontSize={9} fontFamily="sans-serif" fill="#64748b">
+          <text x={26} y={112} fontSize={9} fontFamily="var(--sans)" fill="var(--ink-70)">
             No magnets in rotor; coasts with zero drag on the highway.
           </text>
-          <text x={16} y={136} fontSize={9.5} fontFamily="var(--mono)" fontWeight="bold" fill="var(--wine, #620d3c)">
+          <text x={16} y={136} fontSize={9.5} fontFamily="var(--mono)" fontWeight="bold" fill="var(--wine)">
             Outcome: Zero counter-current tax at high speed!
           </text>
         </g>
@@ -1370,7 +1408,7 @@ function BackEmfCeiling({
 
       {/* Left Card: The Spinning Generator Effect */}
       <g transform="translate(24, 44)">
-        <rect x={0} y={0} width={370} height={306} rx={8} fill="#ffffff" stroke="rgba(23, 20, 19, 0.12)" strokeWidth={1} />
+        <rect x={0} y={0} width={370} height={306} rx={0} fill="var(--paper)" stroke="rgba(23, 20, 19, 0.12)" strokeWidth={1} />
 
         <text className="d-label d-label--strong" x={20} y={28}>
           1. The Spinning Generator Effect
@@ -1386,30 +1424,30 @@ function BackEmfCeiling({
         {/* Rotor Generator Graphic */}
         <g transform="translate(185, 140)">
           {/* Stator Ring */}
-          <circle cx={0} cy={0} r={52} fill="#f8fafc" stroke="#e2e8f0" strokeWidth={1.5} />
+          <circle cx={0} cy={0} r={52} fill="var(--deep)" stroke="var(--ink-10)" strokeWidth={1.5} />
           
           {/* 4 Stator Pole Teeth */}
-          <rect x={-8} y={-52} width={16} height={12} rx={2} fill="#94a3b8" />
-          <rect x={-8} y={40} width={16} height={12} rx={2} fill="#94a3b8" />
-          <rect x={-52} y={-8} width={12} height={16} rx={2} fill="#94a3b8" />
-          <rect x={40} y={-8} width={12} height={16} rx={2} fill="#94a3b8" />
+          <rect x={-8} y={-52} width={16} height={12} rx={0} fill="var(--ink-50)" />
+          <rect x={-8} y={40} width={16} height={12} rx={0} fill="var(--ink-50)" />
+          <rect x={-52} y={-8} width={12} height={16} rx={0} fill="var(--ink-50)" />
+          <rect x={40} y={-8} width={12} height={16} rx={0} fill="var(--ink-50)" />
 
           {/* Rotating 4-Pole Rotor in Center */}
           <g transform={`rotate(${speedRatio * 180})`}>
             {/* North Poles (Dynamic color matching speed/voltage) */}
             <circle cx={0} cy={-24} r={10} fill={voltageColor} />
-            <text x={0} y={-20} textAnchor="middle" fill="#ffffff" fontSize={9} fontFamily="var(--mono)" fontWeight="bold">N</text>
+            <text x={0} y={-20} textAnchor="middle" fill="var(--paper)" fontSize={9} fontFamily="var(--mono)" fontWeight="bold">N</text>
             <circle cx={0} cy={24} r={10} fill={voltageColor} />
-            <text x={0} y={28} textAnchor="middle" fill="#ffffff" fontSize={9} fontFamily="var(--mono)" fontWeight="bold">N</text>
+            <text x={0} y={28} textAnchor="middle" fill="var(--paper)" fontSize={9} fontFamily="var(--mono)" fontWeight="bold">N</text>
 
             {/* South Poles (Slate) */}
-            <circle cx={-24} cy={0} r={10} fill="#64748b" />
-            <text x={-24} y={4} textAnchor="middle" fill="#ffffff" fontSize={9} fontFamily="var(--mono)" fontWeight="bold">S</text>
-            <circle cx={24} cy={0} r={10} fill="#64748b" />
-            <text x={24} y={4} textAnchor="middle" fill="#ffffff" fontSize={9} fontFamily="var(--mono)" fontWeight="bold">S</text>
+            <circle cx={-24} cy={0} r={10} fill="var(--ink-70)" />
+            <text x={-24} y={4} textAnchor="middle" fill="var(--paper)" fontSize={9} fontFamily="var(--mono)" fontWeight="bold">S</text>
+            <circle cx={24} cy={0} r={10} fill="var(--ink-70)" />
+            <text x={24} y={4} textAnchor="middle" fill="var(--paper)" fontSize={9} fontFamily="var(--mono)" fontWeight="bold">S</text>
 
             {/* Shaft */}
-            <circle cx={0} cy={0} r={6} fill="#1e293b" />
+            <circle cx={0} cy={0} r={6} fill="var(--ink)" />
           </g>
         </g>
 
@@ -1423,8 +1461,8 @@ function BackEmfCeiling({
             y={18}
             width={330}
             height={14}
-            rx={7}
-            fill="#e2e8f0"
+            rx={0}
+            fill="var(--ink-10)"
             style={{ cursor: "ew-resize" }}
             onClick={(e) => {
               const rect = e.currentTarget.getBoundingClientRect();
@@ -1438,7 +1476,7 @@ function BackEmfCeiling({
             cy={25}
             r={8}
             fill={voltageColor}
-            stroke="#ffffff"
+            stroke="var(--paper)"
             strokeWidth={2}
             style={{ cursor: "ew-resize" }}
           />
@@ -1455,7 +1493,7 @@ function BackEmfCeiling({
 
       {/* Right Card: The Battery Voltage Ceiling */}
       <g transform="translate(414, 44)">
-        <rect x={0} y={0} width={382} height={306} rx={8} fill="#ffffff" stroke="rgba(23, 20, 19, 0.12)" strokeWidth={1} />
+        <rect x={0} y={0} width={382} height={306} rx={0} fill="var(--paper)" stroke="rgba(23, 20, 19, 0.12)" strokeWidth={1} />
 
         <text className="d-label d-label--strong" x={24} y={28}>
           2. The Battery Voltage Ceiling (DC Bus)
@@ -1478,14 +1516,14 @@ function BackEmfCeiling({
           <text x={0} y={18} fontSize={10.5} fontFamily="var(--mono)" fontWeight="bold" fill={voltageColor}>
             Back-EMF: {backEmfVolts} V
           </text>
-          <text x={334} y={18} textAnchor="end" fontSize={10.5} fontFamily="var(--mono)" fontWeight="bold" fill={isNearCeiling ? "#c4763f" : "#64748b"}>
+          <text x={334} y={18} textAnchor="end" fontSize={10.5} fontFamily="var(--mono)" fontWeight="bold" fill={isNearCeiling ? "var(--cat-6)" : "var(--ink-70)"}>
             {headroomVolts > 0 ? `Headroom: ${headroomVolts} V` : "0 V Headroom"}
           </text>
 
           {/* Meter track */}
-          <rect x={0} y={26} width={334} height={16} rx={8} fill="#f1f5f9" stroke="#e2e8f0" strokeWidth={1} />
+          <rect x={0} y={26} width={334} height={16} rx={0} fill="var(--deep)" stroke="var(--ink-10)" strokeWidth={1} />
           {/* Back-EMF Fill Bar with dynamic color */}
-          <rect x={0} y={26} width={Math.max(12, Math.min(334, (334 * backEmfVolts) / 400))} height={16} rx={8} fill={voltageColor} />
+          <rect x={0} y={26} width={Math.max(12, Math.min(334, (334 * backEmfVolts) / 400))} height={16} rx={0} fill={voltageColor} />
         </g>
 
         {/* Status Warning Pill with dynamic color matching */}
@@ -1493,7 +1531,7 @@ function BackEmfCeiling({
           <rect
             width={334}
             height={32}
-            rx={6}
+            rx={0}
             fill={isAtCeiling ? "rgba(196, 118, 63, 0.12)" : isNearCeiling ? "rgba(217, 119, 6, 0.08)" : "rgba(98, 13, 60, 0.05)"}
             stroke={voltageColor}
             strokeWidth={1}
@@ -1509,17 +1547,17 @@ function BackEmfCeiling({
 
         {/* Takeaway Box */}
         <g transform="translate(24, 206)">
-          <rect width={334} height={80} rx={6} fill="#f8fafc" stroke="rgba(23, 20, 19, 0.08)" />
-          <text x={16} y={22} fontSize={10.5} fontFamily="var(--mono)" fill="var(--wine, #620d3c)" fontWeight="bold">
+          <rect width={334} height={80} rx={0} fill="var(--deep)" stroke="rgba(23, 20, 19, 0.08)" />
+          <text x={16} y={22} fontSize={10.5} fontFamily="var(--mono)" fill="var(--wine)" fontWeight="bold">
             Why Permanent Magnet Motors Hit a Wall:
           </text>
-          <text x={16} y={40} fontSize={9.5} fontFamily="sans-serif" fill="#475569">
+          <text x={16} y={40} fontSize={9.5} fontFamily="var(--sans)" fill="var(--ink-70)">
             When Back-EMF equals battery voltage, current flow
           </text>
-          <text x={16} y={54} fontSize={9.5} fontFamily="sans-serif" fill="#475569">
+          <text x={16} y={54} fontSize={9.5} fontFamily="var(--sans)" fill="var(--ink-70)">
             stops and the motor cannot accelerate further on torque.
           </text>
-          <text x={16} y={68} fontSize={9.5} fontFamily="sans-serif" fill="var(--wine, #620d3c)" fontWeight="bold">
+          <text x={16} y={68} fontSize={9.5} fontFamily="var(--sans)" fill="var(--wine)" fontWeight="bold">
             To go faster, the inverter must weaken the magnet.
           </text>
         </g>
@@ -2020,15 +2058,15 @@ function ElectromagnetCoilDiagram({
     <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Electromagnet coil and magnetic field vector diagram">
       <defs>
         <linearGradient id="coilCopperGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#a85d2c" />
-          <stop offset="50%" stopColor="#e59858" />
-          <stop offset="100%" stopColor="#a85d2c" />
+          <stop offset="0%" stopColor="var(--cat-6)" />
+          <stop offset="50%" stopColor="var(--cat-6)" />
+          <stop offset="100%" stopColor="var(--cat-6)" />
         </linearGradient>
         <marker id="fluxArrowUp" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-          <path d="M 0 1 L 10 5 L 0 9 z" fill="#4b6bd6" />
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="var(--cat-5)" />
         </marker>
         <marker id="fluxArrowDown" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-          <path d="M 0 1 L 10 5 L 0 9 z" fill="#4b6bd6" />
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="var(--cat-5)" />
         </marker>
       </defs>
 
@@ -2042,7 +2080,7 @@ function ElectromagnetCoilDiagram({
         <path
           d="M 180 50 C 60 20, 20 180, 20 180 C 20 180, 60 340, 180 310"
           fill="none"
-          stroke="#4b6bd6"
+          stroke="var(--cat-5)"
           strokeWidth="1.75"
           strokeDasharray="4 4"
           opacity="0.45"
@@ -2050,14 +2088,14 @@ function ElectromagnetCoilDiagram({
         <path
           d="M 180 50 C 300 20, 340 180, 340 180 C 340 180, 300 340, 180 310"
           fill="none"
-          stroke="#4b6bd6"
+          stroke="var(--cat-5)"
           strokeWidth="1.75"
           strokeDasharray="4 4"
           opacity="0.45"
         />
 
         {/* Steel core */}
-        <rect x="135" y="60" width="90" height="240" rx="8" fill="#d1d5db" stroke="#9ca3af" strokeWidth="1.5" />
+        <rect x="135" y="60" width="90" height="240" rx="8" fill="var(--ink-20)" stroke="var(--ink-50)" strokeWidth="1.5" />
 
         {/* Magnetic Vector Arrow */}
         {isNorthUp ? (
@@ -2066,7 +2104,7 @@ function ElectromagnetCoilDiagram({
             y1="300"
             x2="180"
             y2="36"
-            stroke="#4b6bd6"
+            stroke="var(--cat-5)"
             strokeWidth="5"
             markerEnd="url(#fluxArrowUp)"
           />
@@ -2076,7 +2114,7 @@ function ElectromagnetCoilDiagram({
             y1="60"
             x2="180"
             y2="324"
-            stroke="#4b6bd6"
+            stroke="var(--cat-5)"
             strokeWidth="5"
             markerEnd="url(#fluxArrowDown)"
           />
@@ -2099,22 +2137,22 @@ function ElectromagnetCoilDiagram({
               cx={isNorthUp ? 232 : 128}
               cy={y}
               r="4"
-              fill="#ffffff"
+              fill="var(--paper)"
             />
           </g>
         ))}
 
         {/* Polarity Badges */}
         <g transform={`translate(180, ${isNorthUp ? 32 : 328})`}>
-          <circle r="16" fill="#4b6bd6" />
-          <text textAnchor="middle" dominantBaseline="central" fill="#ffffff" fontSize="13" fontWeight="bold" fontFamily="var(--mono)">
+          <circle r="16" fill="var(--cat-5)" />
+          <text textAnchor="middle" dominantBaseline="central" fill="var(--paper)" fontSize="13" fontWeight="bold" fontFamily="var(--mono)">
             N
           </text>
         </g>
 
         <g transform={`translate(180, ${isNorthUp ? 328 : 32})`}>
-          <circle r="16" fill="#2c384e" />
-          <text textAnchor="middle" dominantBaseline="central" fill="#ffffff" fontSize="13" fontWeight="bold" fontFamily="var(--mono)">
+          <circle r="16" fill="var(--ink)" />
+          <text textAnchor="middle" dominantBaseline="central" fill="var(--paper)" fontSize="13" fontWeight="bold" fontFamily="var(--mono)">
             S
           </text>
         </g>
@@ -2123,14 +2161,14 @@ function ElectromagnetCoilDiagram({
         <text x="180" y={isNorthUp ? 8 : 362} textAnchor="middle" className="d-label d-label--accent" fontSize="11">
           {isNorthUp ? "Magnetic North (B ↑)" : "Magnetic North (B ↓)"}
         </text>
-        <text x="245" y="190" className="d-label" fill="#c4763f" fontSize="11" fontWeight="bold">
+        <text x="245" y="190" className="d-label" fill="var(--cat-6)" fontSize="11" fontWeight="bold">
           Current (I) →
         </text>
       </g>
 
       {/* Right: Right-Hand Rule Explanation & Interactive Toggle Card */}
       <g transform="translate(440, 50)">
-        <rect x="0" y="0" width="360" height="340" rx="8" fill="#ffffff" stroke="rgba(23, 20, 19, 0.12)" strokeWidth="1" />
+        <rect x="0" y="0" width="360" height="340" rx="8" fill="var(--paper)" stroke="rgba(23, 20, 19, 0.12)" strokeWidth="1" />
 
         <text className="d-label d-label--strong" x="24" y="36" fontSize="14">
           The Right-Hand Grip Rule
@@ -2169,14 +2207,14 @@ function ElectromagnetCoilDiagram({
             width="312"
             height="44"
             rx="6"
-            fill={isNorthUp ? "var(--wine, #620d3c)" : "#f8fafc"}
-            stroke={isNorthUp ? "var(--wine, #620d3c)" : "rgba(23, 20, 19, 0.18)"}
+            fill={isNorthUp ? "var(--wine)" : "var(--deep)"}
+            stroke={isNorthUp ? "var(--wine)" : "rgba(23, 20, 19, 0.18)"}
             strokeWidth="1"
           />
           <text
             x="40"
             y="238"
-            fill={isNorthUp ? "#ffffff" : "var(--text, #171413)"}
+            fill={isNorthUp ? "var(--paper)" : "var(--ink)"}
             fontSize="12"
             fontFamily="var(--mono)"
             fontWeight="bold"
@@ -2198,14 +2236,14 @@ function ElectromagnetCoilDiagram({
             width="312"
             height="44"
             rx="6"
-            fill={!isNorthUp ? "var(--wine, #620d3c)" : "#f8fafc"}
-            stroke={!isNorthUp ? "var(--wine, #620d3c)" : "rgba(23, 20, 19, 0.18)"}
+            fill={!isNorthUp ? "var(--wine)" : "var(--deep)"}
+            stroke={!isNorthUp ? "var(--wine)" : "rgba(23, 20, 19, 0.18)"}
             strokeWidth="1"
           />
           <text
             x="40"
             y="294"
-            fill={!isNorthUp ? "#ffffff" : "var(--text, #171413)"}
+            fill={!isNorthUp ? "var(--paper)" : "var(--ink)"}
             fontSize="12"
             fontFamily="var(--mono)"
             fontWeight="bold"
@@ -2285,7 +2323,7 @@ function ThreePhaseSuperpositionDiagram({
     <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="3-Phase AC Superposition diagram">
       <defs>
         <marker id="phasorArrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-          <path d="M 0 1 L 10 5 L 0 9 z" fill="var(--wine, #620d3c)" />
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="var(--wine)" />
         </marker>
       </defs>
 
@@ -2303,25 +2341,25 @@ function ThreePhaseSuperpositionDiagram({
         <line x1={THREE_PHASE_PLOT_X} y1={THREE_PHASE_MID_Y} x2={THREE_PHASE_PLOT_X + THREE_PHASE_PLOT_W} y2={THREE_PHASE_MID_Y} stroke="rgba(23,20,19,0.15)" strokeWidth="1" strokeDasharray="3 3" />
 
         {/* 3 Curves */}
-        <polyline points={pointsA} fill="none" stroke="#c4763f" strokeWidth="2.5" />
-        <polyline points={pointsB} fill="none" stroke="#4b6bd6" strokeWidth="2.5" />
-        <polyline points={pointsC} fill="none" stroke="#2a7a58" strokeWidth="2.5" />
+        <polyline points={pointsA} fill="none" stroke="var(--cat-6)" strokeWidth="2.5" />
+        <polyline points={pointsB} fill="none" stroke="var(--cat-5)" strokeWidth="2.5" />
+        <polyline points={pointsC} fill="none" stroke="var(--positive)" strokeWidth="2.5" />
 
         {/* Vertical Scrubber */}
-        <line x1={scrubX} y1={THREE_PHASE_PLOT_Y} x2={scrubX} y2={THREE_PHASE_PLOT_Y + THREE_PHASE_PLOT_H} stroke="var(--wine, #620d3c)" strokeWidth="2" />
-        <circle cx={scrubX} cy={THREE_PHASE_MID_Y - iA * THREE_PHASE_AMP} r="4.5" fill="#c4763f" stroke="#ffffff" strokeWidth="1.5" />
-        <circle cx={scrubX} cy={THREE_PHASE_MID_Y - iB * THREE_PHASE_AMP} r="4.5" fill="#4b6bd6" stroke="#ffffff" strokeWidth="1.5" />
-        <circle cx={scrubX} cy={THREE_PHASE_MID_Y - iC * THREE_PHASE_AMP} r="4.5" fill="#2a7a58" stroke="#ffffff" strokeWidth="1.5" />
+        <line x1={scrubX} y1={THREE_PHASE_PLOT_Y} x2={scrubX} y2={THREE_PHASE_PLOT_Y + THREE_PHASE_PLOT_H} stroke="var(--wine)" strokeWidth="2" />
+        <circle cx={scrubX} cy={THREE_PHASE_MID_Y - iA * THREE_PHASE_AMP} r="4.5" fill="var(--cat-6)" stroke="var(--paper)" strokeWidth="1.5" />
+        <circle cx={scrubX} cy={THREE_PHASE_MID_Y - iB * THREE_PHASE_AMP} r="4.5" fill="var(--cat-5)" stroke="var(--paper)" strokeWidth="1.5" />
+        <circle cx={scrubX} cy={THREE_PHASE_MID_Y - iC * THREE_PHASE_AMP} r="4.5" fill="var(--positive)" stroke="var(--paper)" strokeWidth="1.5" />
 
         {/* Readouts below waveforms */}
         <g transform={`translate(${THREE_PHASE_PLOT_X}, 280)`}>
-          <circle cx="6" cy="6" r="5" fill="#c4763f" />
+          <circle cx="6" cy="6" r="5" fill="var(--cat-6)" />
           <text x="18" y="10" className="d-label" fontSize="11">Phase A: <tspan className="d-label--strong">{iA >= 0 ? `+${iA.toFixed(2)}` : iA.toFixed(2)}</tspan></text>
 
-          <circle cx="146" cy="6" r="5" fill="#4b6bd6" />
+          <circle cx="146" cy="6" r="5" fill="var(--cat-5)" />
           <text x="158" y="10" className="d-label" fontSize="11">Phase B: <tspan className="d-label--strong">{iB >= 0 ? `+${iB.toFixed(2)}` : iB.toFixed(2)}</tspan></text>
 
-          <circle cx="286" cy="6" r="5" fill="#2a7a58" />
+          <circle cx="286" cy="6" r="5" fill="var(--positive)" />
           <text x="298" y="10" className="d-label" fontSize="11">Phase C: <tspan className="d-label--strong">{iC >= 0 ? `+${iC.toFixed(2)}` : iC.toFixed(2)}</tspan></text>
         </g>
 
@@ -2334,7 +2372,7 @@ function ThreePhaseSuperpositionDiagram({
             width={THREE_PHASE_PLOT_W}
             height="16"
             rx="8"
-            fill="#e2e8f0"
+            fill="var(--ink-10)"
             style={{ cursor: "ew-resize" }}
             onClick={(e) => {
               const rect = e.currentTarget.getBoundingClientRect();
@@ -2347,8 +2385,8 @@ function ThreePhaseSuperpositionDiagram({
             cx={THREE_PHASE_PLOT_X + (normAngle / (Math.PI * 2)) * THREE_PHASE_PLOT_W}
             cy="28"
             r="9"
-            fill="var(--wine, #620d3c)"
-            stroke="#ffffff"
+            fill="var(--wine)"
+            stroke="var(--paper)"
             strokeWidth="2"
             style={{ cursor: "ew-resize" }}
           />
@@ -2362,12 +2400,12 @@ function ThreePhaseSuperpositionDiagram({
         </text>
 
         {/* Circle Track */}
-        <circle cx={circleX} cy={circleY} r={circleR} fill="#f8fafc" stroke="rgba(23,20,19,0.15)" strokeWidth="1.5" />
+        <circle cx={circleX} cy={circleY} r={circleR} fill="var(--deep)" stroke="rgba(23,20,19,0.15)" strokeWidth="1.5" />
 
         {/* 3 Coil Axes */}
-        <line x1={circleX} y1={circleY} x2={circleX + circleR} y2={circleY} stroke="#c4763f" strokeWidth="1.5" strokeDasharray="3 3" />
-        <line x1={circleX} y1={circleY} x2={circleX + Math.cos((Math.PI * 2) / 3) * circleR} y2={circleY - Math.sin((Math.PI * 2) / 3) * circleR} stroke="#4b6bd6" strokeWidth="1.5" strokeDasharray="3 3" />
-        <line x1={circleX} y1={circleY} x2={circleX + Math.cos((Math.PI * 4) / 3) * circleR} y2={circleY - Math.sin((Math.PI * 4) / 3) * circleR} stroke="#2a7a58" strokeWidth="1.5" strokeDasharray="3 3" />
+        <line x1={circleX} y1={circleY} x2={circleX + circleR} y2={circleY} stroke="var(--cat-6)" strokeWidth="1.5" strokeDasharray="3 3" />
+        <line x1={circleX} y1={circleY} x2={circleX + Math.cos((Math.PI * 2) / 3) * circleR} y2={circleY - Math.sin((Math.PI * 2) / 3) * circleR} stroke="var(--cat-5)" strokeWidth="1.5" strokeDasharray="3 3" />
+        <line x1={circleX} y1={circleY} x2={circleX + Math.cos((Math.PI * 4) / 3) * circleR} y2={circleY - Math.sin((Math.PI * 4) / 3) * circleR} stroke="var(--positive)" strokeWidth="1.5" strokeDasharray="3 3" />
 
         {/* Resultant Vector */}
         <line
@@ -2375,14 +2413,14 @@ function ThreePhaseSuperpositionDiagram({
           y1={circleY}
           x2={resX}
           y2={resY}
-          stroke="var(--wine, #620d3c)"
+          stroke="var(--wine)"
           strokeWidth="3.5"
           markerEnd="url(#phasorArrow)"
         />
-        <circle cx={circleX} cy={circleY} r="4" fill="var(--wine, #620d3c)" />
+        <circle cx={circleX} cy={circleY} r="4" fill="var(--wine)" />
 
         {/* Takeaway badge */}
-        <rect x={circleX - 110} y={300} width="220" height="52" rx="6" fill="#f1f5f9" stroke="rgba(23,20,19,0.08)" />
+        <rect x={circleX - 110} y={300} width="220" height="52" rx="6" fill="var(--deep)" stroke="rgba(23,20,19,0.08)" />
         <text x={circleX} y="322" textAnchor="middle" className="d-label d-label--strong" fontSize="11">
           |B_net| = 1.5 · B_max = CONSTANT
         </text>
@@ -2443,8 +2481,13 @@ function DualTorqueSplitDiagram({
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Dual torque decomposition diagram">
-      <text className="d-axis-label" x={0} y={16}>
+      <text className="d-axis-label" x={0} y={14}>
         TORQUE DECOMPOSITION · PERMANENT MAGNET VS RELUCTANCE
+      </text>
+      {/* The unit lives here rather than on the axis, where its title landed
+          on top of the right-hand tick. */}
+      <text className="d-label d-label--faint" x={0} y={30}>
+        Shaft torque, normalised · by load angle δ in degrees
       </text>
 
       <Axes
@@ -2452,29 +2495,53 @@ function DualTorqueSplitDiagram({
         y={y0}
         w={w}
         h={h}
-        xLabel="load angle δ (degrees) →"
-        yLabel="shaft torque generated →"
       />
 
       {/* Axis Degree Markers */}
-      <text className="d-axis-label" x={x0} y={y0 + h + 16} textAnchor="start">0°</text>
-      <text className="d-axis-label" x={x0 + w / 2} y={y0 + h + 16} textAnchor="middle">45° (Peak Reluctance)</text>
-      <text className="d-axis-label" x={x0 + w} y={y0 + h + 16} textAnchor="end">90° (Peak Magnet)</text>
+      <text className="d-axis-label" x={x0} y={y0 + h + 14} textAnchor="start">0°</text>
+      <text className="d-axis-label" x={x0 + w / 2} y={y0 + h + 14} textAnchor="middle">45° · peak reluctance</text>
+      <text className="d-axis-label" x={x0 + w} y={y0 + h + 14} textAnchor="end">90° · peak magnet</text>
 
       {/* Component Curves */}
-      <polyline points={ptsMag.join(" ")} fill="none" stroke="#4b6bd6" strokeWidth="1.75" strokeDasharray="4 3" />
-      <polyline points={ptsRel.join(" ")} fill="none" stroke="#c4763f" strokeWidth="1.75" strokeDasharray="4 3" />
-      <polyline points={ptsTotal.join(" ")} fill="none" stroke="var(--wine, #620d3c)" strokeWidth="3" />
+      <polyline points={ptsMag.join(" ")} fill="none" stroke="var(--cat-5)" strokeWidth="1.75" strokeDasharray="4 3" />
+      <polyline points={ptsRel.join(" ")} fill="none" stroke="var(--cat-6)" strokeWidth="1.75" strokeDasharray="4 3" />
+      <polyline points={ptsTotal.join(" ")} fill="none" stroke="var(--wine)" strokeWidth="3" />
 
       {/* Inline Curve Annotations */}
-      <text x={x0 + w * 0.48} y={y0 + h - (0.5 / maxTotal) * h - 10} fill="#c4763f" fontSize="11" fontFamily="var(--mono)">
-        Reluctance Torque (peaks at 45°)
+      {/*
+        Direct labels, placed in the gaps between the curves rather than on
+        them. Each y is derived from the curve it names, so the label tracks
+        the drawing instead of being pinned to a guessed coordinate.
+      */}
+      <text
+        x={x0 + w * 0.5}
+        y={y0 + h - (0.5 / maxTotal) * h + 22}
+        textAnchor="middle"
+        fill="var(--cat-6)"
+        fontSize="11"
+        fontFamily="var(--mono)"
+      >
+        Reluctance
       </text>
-      <text x={x0 + w * 0.72} y={y0 + h - (1.0 / maxTotal) * h - 10} fill="#4b6bd6" fontSize="11" fontFamily="var(--mono)">
-        Magnet Torque (peaks at 90°)
+      <text
+        x={x0 + w * 0.93}
+        y={y0 + h - (Math.sin(0.93 * (Math.PI / 2)) / maxTotal) * h + 24}
+        textAnchor="end"
+        fill="var(--cat-5)"
+        fontSize="11"
+        fontFamily="var(--mono)"
+      >
+        Magnet
       </text>
-      <text x={x0 + w * 0.38} y={y0 + 20} fill="var(--wine, #620d3c)" fontSize="12" fontWeight="bold" fontFamily="var(--mono)">
-        Combined Total Output (peaks at ~65°)
+      <text
+        x={x0 + w * 0.93}
+        y={y0 + h - ((Math.sin(0.93 * (Math.PI / 2)) + 0.5 * Math.sin(2 * 0.93 * (Math.PI / 2))) / maxTotal) * h - 12}
+        textAnchor="end"
+        fill="var(--wine)"
+        fontSize="11.5"
+        fontFamily="var(--mono)"
+      >
+        Combined
       </text>
 
       {/* Cursor Leader & Dot */}
@@ -2483,22 +2550,22 @@ function DualTorqueSplitDiagram({
         y1={y0}
         x2={cursorX}
         y2={y0 + h}
-        stroke="var(--wine, #620d3c)"
+        stroke="var(--wine)"
         strokeWidth="1.25"
         strokeDasharray="3 3"
       />
-      <circle cx={cursorX} cy={cursorY} r="5" fill="var(--wine, #620d3c)" stroke="#ffffff" strokeWidth="2" />
+      <circle cx={cursorX} cy={cursorY} r="5" fill="var(--wine)" stroke="var(--paper)" strokeWidth="2" />
 
       {/* Cursor Readout Badge */}
-      <g transform={`translate(${Math.min(x0 + w - 240, Math.max(x0 + 10, cursorX - 110))}, ${y0 + 38})`}>
-        <rect width="220" height="28" rx="4" fill="#ffffff" stroke="rgba(23, 20, 19, 0.15)" strokeWidth="1" />
-        <text x="110" y="18" textAnchor="middle" fontSize="11" fontFamily="var(--mono)" fill="var(--text, #171413)">
-          δ = {deltaDeg}°: <tspan fill="#4b6bd6" fontWeight="bold">{pctMag}% Mag</tspan> + <tspan fill="#c4763f" fontWeight="bold">{pctRel}% Rel</tspan>
+      <g transform={`translate(${Math.min(x0 + w - 220, Math.max(x0, cursorX - 110))}, ${y0 + h + 24})`}>
+        <rect width="220" height="26" rx="0" fill="var(--paper)" stroke="rgba(23, 20, 19, 0.16)" strokeWidth="1" />
+        <text x="110" y="17" textAnchor="middle" fontSize="11" fontFamily="var(--mono)" fill="var(--ink)">
+          δ = {deltaDeg}°: <tspan fill="var(--cat-5)" fontWeight="bold">{pctMag}% Mag</tspan> + <tspan fill="var(--cat-6)" fontWeight="bold">{pctRel}% Rel</tspan>
         </text>
       </g>
 
       {/* Clean Drag Slider at Bottom */}
-      <g transform={`translate(${x0}, 330)`}>
+      <g transform={`translate(${x0}, 352)`}>
         <text className="d-axis-label" x="0" y="10">SCRUB LOAD ANGLE (δ): {deltaDeg}°</text>
         <rect
           x="0"
@@ -2506,7 +2573,7 @@ function DualTorqueSplitDiagram({
           width={w}
           height="14"
           rx="7"
-          fill="#e2e8f0"
+          fill="var(--ink-10)"
           style={{ cursor: "ew-resize" }}
           onClick={(e) => {
             const rect = e.currentTarget.getBoundingClientRect();
@@ -2519,15 +2586,15 @@ function DualTorqueSplitDiagram({
           cx={(deltaRad / (Math.PI / 2)) * w}
           cy="25"
           r="8"
-          fill="var(--wine, #620d3c)"
-          stroke="#ffffff"
+          fill="var(--wine)"
+          stroke="var(--paper)"
           strokeWidth="2"
           style={{ cursor: "ew-resize" }}
         />
       </g>
 
       {/* Editorial Note */}
-      <text className="d-label d-label--faint" x={x0} y={390}>
+      <text className="d-label d-label--faint" x={x0} y={408}>
         Interior magnet placement forces flux through steel paths, adding 30–40% reluctance torque without extra NdFeB magnets.
       </text>
     </svg>

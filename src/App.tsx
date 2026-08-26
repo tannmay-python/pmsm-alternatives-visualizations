@@ -132,6 +132,18 @@ export default function App() {
     }
   }, [screen, beat.id]);
 
+  /**
+   * The transition currently pending, and the beat it hands the reader to:
+   * the first beat of the chapter it introduces.
+   */
+  const activeTransition = useMemo(() => {
+    if (transitionTarget === null) return null;
+    const index = BEATS.findIndex((b) => b.page.id === transitionTarget);
+    if (index < 0) return null;
+    const { page } = BEATS[index];
+    return page.transition ? { page, index } : null;
+  }, [transitionTarget]);
+
   const goBack = useCallback(() => {
     if (transitionTarget !== null) {
       setTransitionTarget(null);
@@ -151,19 +163,15 @@ export default function App() {
       move({ type: "next" });
       return;
     }
-    // Interstitial transition when crossing from vehicle drivetrain to motor teardown
-    if (cursor === 1 && BEATS[1]?.stop.sourceStopId === "where-the-motor-lives") {
-      setTransitionTarget("open-the-machine");
-      return;
-    }
-    // Interstitial transition when crossing from motor teardown to how it turns
-    if (cursor === 2 && BEATS[2]?.stop.sourceStopId === "open-the-machine") {
-      setTransitionTarget("how-it-turns");
-      return;
-    }
-    // Interstitial transition when crossing from how it turns to the magnet
-    if (BEATS[cursor]?.pageIndex === 1 && BEATS[cursor + 1]?.pageIndex === 2) {
-      setTransitionTarget("the-magnet");
+    /*
+     * Every chapter boundary gets its interstitial, and it comes from the page
+     * table rather than from a cursor index. The three hardcoded checks this
+     * replaces covered only three of the five boundaries, so most of the tour
+     * cut straight from a closing beat into an unrelated opening frame.
+     */
+    const upcoming = BEATS[cursor + 1];
+    if (upcoming && upcoming.pageIndex > BEATS[cursor].pageIndex && upcoming.page.transition) {
+      setTransitionTarget(upcoming.page.id);
       return;
     }
     if (cursor === BEATS.length - 1) {
@@ -311,44 +319,16 @@ export default function App() {
         </button>
       </div>
 
-      {transitionTarget === "open-the-machine" ? (
+      {activeTransition ? (
         <TransitionSlide
-          actLabel="Act I · The Machine"
-          title="Now, let's open the motor."
-          lede="Seven parts convert three alternating phases into pure magnetic rotation."
+          actLabel={activeTransition.page.transition!.act}
+          title={activeTransition.page.transition!.title}
+          lede={activeTransition.page.transition!.lede}
+          nextLabel={activeTransition.page.transition!.nextLabel}
           onNext={() => {
             setTransitionTarget(null);
-            move({ type: "go", index: 2 });
+            move({ type: "go", index: activeTransition.index });
           }}
-          nextLabel="Open the machine"
-        />
-      ) : null}
-
-      {transitionTarget === "how-it-turns" ? (
-        <TransitionSlide
-          actLabel="Act I · The Machine"
-          title="From stationary parts to invisible magnetic forces."
-          lede="We've explored every physical part inside the motor. Now let's see how electricity flowing through stationary copper coils makes the rotor turn."
-          onNext={() => {
-            setTransitionTarget(null);
-            move({ type: "go", index: 3 });
-          }}
-          nextLabel="Enter How It Turns"
-        />
-      ) : null}
-
-      {transitionTarget === "the-magnet" ? (
-        <TransitionSlide
-          actLabel="Act II · The Material Core"
-          title="Why Neodymium? Opening the Rare-Earth Magnet"
-          lede="We saw that permanent magnets pull the rotor with immense torque. But why do EV motors rely on rare-earth elements in the first place? Let's zoom into the crystal lattice of Nd₂Fe₁₄B to see how Iron and Neodymium divide the labour of magnetic power."
-          onNext={() => {
-            const nextIdx = BEATS.findIndex((b) => b.pageIndex === 2);
-            setTransitionTarget(null);
-            if (nextIdx >= 0) move({ type: "go", index: nextIdx });
-            else move({ type: "next" });
-          }}
-          nextLabel="Enter The Magnet Lab"
         />
       ) : null}
 

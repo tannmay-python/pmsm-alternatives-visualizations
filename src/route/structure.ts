@@ -6,6 +6,7 @@ import {
   LANDING_STOP_ID,
   PAGES,
   type BeatGroup,
+  type PageTransition,
   type StopSpec,
 } from "./pages";
 
@@ -15,7 +16,7 @@ import {
  */
 
 export { CLOSE_STOP_ID, EMPHASIS, LANDING_STOP_ID, PAGES } from "./pages";
-export type { BeatGroup, DeliberateMerge, PageSpec, StopSpec } from "./pages";
+export type { BeatGroup, DeliberateMerge, PageSpec, PageTransition, StopSpec } from "./pages";
 
 /* ------------------------------------------------------------------------ */
 
@@ -53,6 +54,8 @@ export type Page = {
   eyebrow: string;
   title: string;
   side: "left" | "right";
+  /** The interstitial shown on the way into this chapter, if it has one. */
+  transition?: PageTransition;
   stops: readonly PageStop[];
   /** Flat beat list for the page, which is what Back and Next walk. */
   beatCount: number;
@@ -167,6 +170,7 @@ export const buildPages = (): readonly Page[] => {
       eyebrow: spec.eyebrow,
       title: spec.title,
       side: spec.side,
+      transition: spec.transition,
       stops,
       beatCount: stops.reduce((n, s) => n + s.beats.length, 0),
     };

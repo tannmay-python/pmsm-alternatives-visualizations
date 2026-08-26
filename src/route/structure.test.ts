@@ -94,4 +94,18 @@ describe("page structure", () => {
       }
     }
   });
+
+  it("gives every chapter boundary an interstitial", () => {
+    // The first page needs none: the landing hands the reader in. Every
+    // boundary after it does, or the tour cuts from a closing beat straight
+    // into an unrelated opening frame.
+    PAGE_LIST.forEach((page, i) => {
+      if (i === 0) return;
+      expect(page.transition, `page "${page.id}" has no transition`).toBeDefined();
+      expect(page.transition!.act.length).toBeGreaterThan(0);
+      expect(page.transition!.title.length).toBeGreaterThan(0);
+      expect(page.transition!.lede.length).toBeGreaterThan(40);
+      expect(page.transition!.nextLabel.length).toBeGreaterThan(0);
+    });
+  });
 });

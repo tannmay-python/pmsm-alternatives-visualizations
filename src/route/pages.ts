@@ -30,6 +30,24 @@
 export const LANDING_STOP_ID = "the-problem";
 export const CLOSE_STOP_ID = "what-must-change";
 
+/**
+ * The interstitial shown on the way into a chapter.
+ *
+ * These were hardcoded against cursor indices, so only three of the five
+ * chapter boundaries had one and the rest of the tour cut straight from a
+ * closing beat into an unrelated opening frame. Declaring them next to the
+ * page they introduce means every boundary gets one by construction, and a
+ * test can check that.
+ */
+export type PageTransition = {
+  /** Mono, uppercase. Where the reader is in the argument. */
+  act: string;
+  title: string;
+  lede: string;
+  /** Mono, uppercase button label. */
+  nextLabel: string;
+};
+
 export type PageSpec = {
   id: string;
   /** Mono, uppercase. Positional metadata. */
@@ -38,6 +56,11 @@ export type PageSpec = {
   title: string;
   /** Which side the reading box sits on; the scene shifts the other way. */
   side: "left" | "right";
+  /**
+   * Shown when arriving at this page from the one before. The first page has
+   * none: the landing already hands the reader in.
+   */
+  transition?: PageTransition;
   stops: readonly StopSpec[];
 };
 
@@ -104,6 +127,12 @@ export const PAGES: readonly PageSpec[] = [
     eyebrow: "Page 02",
     title: "How It Turns",
     side: "right",
+    transition: {
+      act: "Act I · The Machine",
+      title: "From stationary parts to a turning field",
+      lede: "You have seen the seven parts and where each one sits. What follows is how three coils that never move produce a field that does, and why the rotor keeps pace with it.",
+      nextLabel: "See how it turns",
+    },
     stops: [
       {
         from: "three-coils-one-field",
@@ -130,6 +159,12 @@ export const PAGES: readonly PageSpec[] = [
     eyebrow: "Page 03",
     title: "The Magnet",
     side: "left",
+    transition: {
+      act: "Act II · The Material",
+      title: "Why neodymium, and not something cheaper",
+      lede: "The rotor is pulled by a magnet whose strength comes from one alloy. This chapter looks at what that alloy does, what heat costs it, and which rare earth the April 2025 notice actually named.",
+      nextLabel: "Open the magnet",
+    },
     stops: [
       {
         from: "strength-and-stubbornness",
@@ -167,6 +202,12 @@ export const PAGES: readonly PageSpec[] = [
     eyebrow: "Page 04",
     title: "The Ceiling",
     side: "right",
+    transition: {
+      act: "Act III · The Limit",
+      title: "A magnet you cannot switch off",
+      lede: "A permanent magnet is always on. That helps at low speed and constrains at high speed, and the constraint is an engineering reason to look at alternatives rather than only a supply one.",
+      nextLabel: "Find the ceiling",
+    },
     stops: [
       {
         from: "the-weakness",
@@ -193,6 +234,12 @@ export const PAGES: readonly PageSpec[] = [
     eyebrow: "Page 05",
     title: "Swap the Rotor",
     side: "left",
+    transition: {
+      act: "Act IV · The Alternatives",
+      title: "Change the rotor, keep the machine",
+      lede: "The first way out is to change what the rotor does. Induction, wound-field and reluctance rotors each keep pace with the stator field by a different mechanism, and each moves the cost somewhere else.",
+      nextLabel: "Compare the rotors",
+    },
     stops: [
       {
         from: "swap-the-rotor",
@@ -219,6 +266,12 @@ export const PAGES: readonly PageSpec[] = [
     eyebrow: "Page 06",
     title: "Change the Magnet",
     side: "right",
+    transition: {
+      act: "Act IV · The Alternatives",
+      title: "Change the magnet, not the machine",
+      lede: "Rotor architecture and magnet chemistry are separate choices, and the evidence audit is explicit that they must not be presented as one column. This chapter holds the machine still and changes only what the magnet is made of.",
+      nextLabel: "Compare the magnets",
+    },
     stops: [
       {
         from: "change-the-magnet",
