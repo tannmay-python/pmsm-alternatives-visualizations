@@ -5,7 +5,6 @@ import { TakshashilaLogo } from "./components/TakshashilaLogo";
 import { BeatCard } from "./shell/BeatCard";
 import { ProgressBar } from "./shell/ProgressBar";
 import { Landing } from "./pages/Landing";
-import { PUBLISHER } from "./meta";
 import { STOPS, type Stop, type StopState } from "./route/route";
 import { BEATS, PAGE_LIST } from "./route/structure";
 import { presetFor } from "./route/presets";
@@ -124,6 +123,7 @@ export default function App() {
   const [architecture, setArchitecture] = useState<ArchitectureId>("reduced-hree");
   const [reducedMotion, setReducedMotion] = useState(false);
   const autoplayToken = useRef(0);
+  const userInteracted = useRef(false);
 
   const position = BEATS[cursor];
   const { page, stop, beat, pageIndex } = position;
@@ -137,8 +137,14 @@ export default function App() {
   }, [chapterBeats, cursor]);
 
   const setControls = useCallback((patch: Partial<StageControls>) => {
+    userInteracted.current = true;
     autoplayToken.current += 1;
     patchControls((current) => ({ ...current, ...patch }));
+  }, []);
+
+  const markUserScroll = useCallback(() => {
+    userInteracted.current = true;
+    autoplayToken.current += 1;
   }, []);
 
   useEffect(() => {
@@ -155,7 +161,7 @@ export default function App() {
     autoplayToken.current += 1;
     const token = autoplayToken.current;
     const target = presetFor(sourceStop.id, sourceState.id);
-    if (reducedMotion) {
+    if (reducedMotion || userInteracted.current) {
       patchControls(target);
       return undefined;
     }
@@ -203,6 +209,7 @@ export default function App() {
   }, [cursor]);
 
   const goNextChapter = useCallback(() => {
+    userInteracted.current = false;
     const next = BEATS.findIndex((item) => item.pageIndex === pageIndex + 1);
     if (next >= 0) move({ type: "go", index: next });
     else setScreen("close");
@@ -213,6 +220,7 @@ export default function App() {
     if (index < 0) return;
     setContentsOpen(false);
     setScreen("tour");
+    userInteracted.current = false;
     move({ type: "go", index });
   }, []);
 
@@ -229,7 +237,7 @@ export default function App() {
   }, [goBack, goNext, screen]);
 
   if (screen === "landing") {
-    return <Landing onEnter={() => { move({ type: "go", index: 0 }); setScreen("tour"); }} />;
+    return <Landing onEnter={() => { userInteracted.current = false; move({ type: "go", index: 0 }); setScreen("tour"); }} />;
   }
 
   if (screen === "close") {
@@ -241,13 +249,9 @@ export default function App() {
     <div className="app" data-side="left">
       <a className="skip-link" href="#stage">Skip to the stage</a>
       <header className="topbar">
-        <div className="topbar__brand">
+        <a className="topbar__brand" href="https://takshashila.org.in/" target="_blank" rel="noreferrer" aria-label="The Takshashila Institution">
           <TakshashilaLogo className="topbar__logo" height={42} />
-          <div>
-            <p className="topbar__publisher eyebrow">{PUBLISHER}</p>
-            <div className="topbar__title">The rare-earth question, inside one motor</div>
-          </div>
-        </div>
+        </a>
         <div className="topbar__progress">
           <ProgressBar pages={PAGE_LIST} pageIndex={pageIndex} />
           <button type="button" className="contents-button" onClick={() => setContentsOpen(true)}>Contents</button>
@@ -294,6 +298,7 @@ export default function App() {
         positions={chapterBeats}
         activeIndex={chapterBeatIndex}
         onSelect={selectChapterBeat}
+        onUserScroll={markUserScroll}
         onBack={goBack}
         onNext={goNext}
         canGoBack={cursor > 0}

@@ -1,5 +1,5 @@
 import { ArrowLeft, ArrowRight } from "@phosphor-icons/react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Page, Position } from "../route/structure";
 import { guideFor } from "../route/guide";
 import "./BeatCard.css";
@@ -9,6 +9,7 @@ export function BeatCard({
   positions,
   activeIndex,
   onSelect,
+  onUserScroll,
   onBack,
   onNext,
   canGoBack,
@@ -20,6 +21,7 @@ export function BeatCard({
   positions: readonly Position[];
   activeIndex: number;
   onSelect: (index: number) => void;
+  onUserScroll: () => void;
   onBack: () => void;
   onNext: () => void;
   canGoBack: boolean;
@@ -30,6 +32,14 @@ export function BeatCard({
   const scrollRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Record<string, HTMLElement | null>>({});
   const lastSelected = useRef(activeIndex);
+  const suppressScroll = useRef(false);
+  const [hasScrolled, setHasScrolled] = useState(false);
+
+  const handleScroll = () => {
+    if (suppressScroll.current) return;
+    if (!hasScrolled) setHasScrolled(true);
+    onUserScroll();
+  };
 
   useEffect(() => {
     const root = scrollRef.current;
@@ -53,14 +63,22 @@ export function BeatCard({
   }, [onSelect, positions]);
 
   useEffect(() => {
+    setHasScrolled(false);
+  }, [positions]);
+
+  useEffect(() => {
     lastSelected.current = activeIndex;
     const node = itemRefs.current[positions[activeIndex]?.beat.id ?? ""];
-    if (node) node.scrollIntoView({ block: activeIndex === 0 ? "start" : "nearest" });
+    if (!node) return;
+    suppressScroll.current = true;
+    node.scrollIntoView({ block: activeIndex === 0 ? "start" : "nearest" });
+    const timer = window.setTimeout(() => { suppressScroll.current = false; }, 180);
+    return () => window.clearTimeout(timer);
   }, [activeIndex, positions]);
 
   return (
     <aside className="beat-card beat-card--left" aria-label={page.title} data-page={page.id}>
-      <div className="beat-card__scroll" ref={scrollRef}>
+      <div className="beat-card__scroll" ref={scrollRef} tabIndex={0} onScroll={handleScroll}>
         {positions.map((position, index) => {
           const guide = guideFor(position.stop.sourceStopId, position.beat.sourceIds[0]);
           const isActive = index === activeIndex;
@@ -84,6 +102,7 @@ export function BeatCard({
                 <span className="beat-card__guide-label">Takeaway</span>
                 <p>{guide.takeaway}</p>
               </div>
+              <p className="beat-card__scroll-hint" aria-hidden="true">Scroll to continue <span>↓</span></p>
             </article>
           );
         })}
@@ -96,7 +115,7 @@ export function BeatCard({
         </div>
       </div>
 
-      <div className="beat-card__edge-nav" aria-label="Beat navigation">
+      <div className={`beat-card__edge-nav ${hasScrolled ? "is-visible" : ""}`} aria-label="Beat navigation">
         <button type="button" className="beat-card__edge beat-card__edge--prev" onClick={onBack} disabled={!canGoBack} aria-label="Previous beat">
           <ArrowLeft size={16} weight="bold" />
         </button>
