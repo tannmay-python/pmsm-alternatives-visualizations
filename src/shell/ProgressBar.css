@@ -1,54 +1,61 @@
-.progress {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: 1fr;
-  gap: var(--gap-4);
-  align-items: end;
+.progress-bar {
+  position: relative;
+  width: 100%;
 }
 
-.progress__stop {
-  display: grid;
-  gap: 7px;
-  padding: 0;
-  text-align: left;
-  transition: color var(--dur-hover) ease;
-}
-
-/* Stop names on the bar are positional metadata, like a breadcrumb, so they
-   take mono. The page names in the masthead are destinations and take Inter. */
-.progress__label {
-  font-family: var(--mono);
-  font-size: var(--t-meta);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ink-50);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  transition: color var(--dur-hover) ease;
-}
-
-.progress__stop.is-current .progress__label { color: var(--wine); }
-.progress__stop.is-done .progress__label { color: var(--ink-70); }
-.progress__stop:hover .progress__label { color: var(--ink); }
-
-.progress__ticks {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: 1fr;
-  gap: 3px;
-}
-
-.progress__tick {
+.progress-bar__hairline {
+  position: absolute;
+  top: -15px;
+  right: 0;
+  left: 0;
+  display: block;
   height: 2px;
   background: var(--ink-10);
-  transition: background var(--dur-hover) ease;
 }
-.progress__tick.is-past { background: var(--ink-20); }
-.progress__stop.is-done .progress__tick { background: var(--ink-20); }
-.progress__tick.is-on { background: var(--wine); }
 
-@media (max-width: 720px) {
-  .progress { gap: var(--gap-3); }
-  .progress__label { font-size: 9.5px; letter-spacing: 0.06em; }
+.progress-bar__hairline span {
+  display: block;
+  height: 100%;
+  background: var(--wine);
+  transition: width 420ms var(--ease);
+}
+
+.progress-bar__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-4);
+}
+
+.progress-bar__marks {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.progress-bar__mark {
+  display: block;
+  flex: 1 1 0;
+  height: 3px;
+  background: rgba(23, 20, 19, 0.14);
+  transition: width 260ms var(--ease), background 260ms ease;
+}
+
+.progress-bar__mark.is-done { background: rgba(23, 20, 19, 0.4); }
+.progress-bar__mark.is-current { flex: 2.3 1 0; background: var(--wine); }
+
+.progress-bar__readout {
+  flex: 0 0 auto;
+  color: var(--ink-50);
+  font-family: var(--mono);
+  font-size: var(--t-meta);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+@media (max-width: 560px) {
+  .progress-bar__meta { align-items: flex-start; flex-direction: column; gap: var(--gap-2); }
+  .progress-bar__marks { width: 100%; }
+  .progress-bar__readout { font-size: 9px; }
 }

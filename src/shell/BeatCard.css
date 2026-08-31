@@ -1,96 +1,60 @@
-/*
- * The floating reading box. Hairline border, no radius, no shadow — structure
- * is drawn with rules in this design language, not with elevation.
- */
-
 .beat-card {
   position: absolute;
   z-index: 3;
-  /* Centred in the space below the masthead and progress strip, not in the
-     viewport, so a tall card never slides under the chrome. */
-  top: calc(116px + (100dvh - 116px) / 2);
+  top: calc(78px + (100dvh - 78px) / 2);
+  left: var(--pad-x);
   transform: translateY(-50%);
-  width: min(420px, 35vw);
-  max-height: calc(100dvh - 116px - 48px);
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding: 26px 28px 24px;
+  width: min(430px, 38vw);
+  max-height: calc(100dvh - 118px);
+  overflow: visible;
+  padding: 0;
   background: rgba(255, 255, 255, 0.94);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: var(--rule);
-  pointer-events: auto;
 }
 
-.beat-card--left { left: var(--pad-x); }
-.beat-card--right { right: var(--pad-x); }
-
-.beat-card__header {
-  margin-bottom: var(--gap-3);
+.beat-card__scroll {
+  max-height: calc(100dvh - 118px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 24px 26px 20px;
 }
+
+.beat-card__header { margin-bottom: var(--gap-3); }
 
 .beat-card__eyebrow-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: var(--gap-2);
   margin-bottom: var(--gap-2);
 }
 
-.beat-card__view-tag {
+.beat-card__view-tag,
+.beat-card__counter,
+.beat-card__guide-label {
+  color: var(--ink-50);
   font-family: var(--mono);
-  font-size: 11px;
-  font-weight: 500;
-  text-transform: uppercase;
+  font-size: var(--t-meta);
   letter-spacing: 0.08em;
-  color: var(--ink-50);
-}
-
-.beat-card__counter {
-  font-family: var(--mono);
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--ink-50);
-  letter-spacing: 0.05em;
-}
-
-.beat-card__transition-banner {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 9px 5px;
-  margin-bottom: var(--gap-2);
-  background: rgba(98, 13, 60, 0.07);
-  border: 1px solid rgba(98, 13, 60, 0.22);
-  border-radius: 0;
-  color: var(--wine);
-  font-family: var(--mono);
-  font-size: 10.5px;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-}
-
-.beat-card__transition-icon {
-  font-size: 12px;
-  line-height: 1;
+  text-transform: uppercase;
 }
 
 .beat-card__question {
   margin: 0 0 6px;
   color: var(--wine);
-  font-family: var(--sans);
-  font-size: 13.5px;
-  font-weight: 600;
+  font-size: var(--t-dense);
+  font-weight: 500;
   line-height: 1.4;
-  letter-spacing: -0.01em;
 }
 
 .beat-card__title {
-  margin: 0;
+  color: var(--ink);
   font-size: var(--t-card);
   font-weight: 500;
   line-height: 1.25;
   letter-spacing: var(--track-card);
-  color: var(--ink);
 }
 
 .beat-card__body p {
@@ -101,98 +65,118 @@
 }
 .beat-card__body p:last-child { margin-bottom: 0; }
 
-.beat-card .controls {
-  margin-top: var(--gap-4);
-  padding-top: var(--gap-4);
-  border-top: var(--rule);
-}
-/* Most beats have no controls, and an empty bordered block reads as a bug. */
-.beat-card .controls:empty { display: none; }
-
-/* Definition table — the house pattern for metadata blocks. */
 .beat-card__guide {
-  margin: var(--gap-4) 0 0;
-  padding-top: var(--gap-4);
-  border-top: var(--rule);
-  display: grid;
-  gap: var(--gap-3);
+  margin-top: var(--gap-4);
+  padding-top: var(--gap-3);
+  border-top: var(--hairline);
 }
-.beat-card__guide div { display: grid; gap: 3px; }
-.beat-card__guide dt {
-  font-family: var(--mono);
-  font-size: var(--t-meta);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ink-50);
-}
-.beat-card__guide dd {
-  margin: 0;
+
+.beat-card__guide p {
+  margin: 5px 0 0;
+  color: var(--ink-70);
   font-size: var(--t-dense);
   line-height: 1.5;
+}
+
+.beat-card__watch-line {
+  display: block;
+  height: 2px;
+  margin-top: 12px;
+  background: var(--ink-10);
+  overflow: hidden;
+}
+
+.beat-card__watch-line span {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: var(--wine);
+  animation: watch-fill 6000ms linear forwards;
+}
+
+@keyframes watch-fill { to { width: 100%; } }
+
+.beat-card__takeaway {
+  padding-left: 12px;
+  border-left: 2px solid var(--wine);
+  animation: takeaway-in 220ms var(--ease) both;
+}
+
+@keyframes takeaway-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.beat-card__takeaway p { color: var(--ink); }
+
+.beat-card__aside {
+  margin-top: var(--gap-3);
+  padding-left: 12px;
+  border-left: 2px solid var(--wine);
   color: var(--ink-70);
+  font-size: var(--t-meta);
+  line-height: 1.55;
 }
 
-.beat-card__foot {
-  margin-top: var(--gap-4);
-  padding-top: var(--gap-4);
-  border-top: var(--rule);
+.beat-card__aside p { margin: 3px 0 0; }
+
+.beat-card__controls { margin-top: var(--gap-4); }
+
+.beat-card__controls-toggle {
+  padding: 0;
+  color: var(--ink-50);
+  font-family: var(--mono);
+  font-size: var(--t-meta);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
-.beat-card__nav { display: flex; gap: var(--gap-2); }
+.beat-card__controls-toggle:hover,
+.beat-card__controls-toggle:focus-visible { color: var(--wine); }
 
-.beat-card__nav .btn {
+.beat-card__controls-panel {
+  margin-top: var(--gap-3);
+  padding-top: var(--gap-2);
+  border-top: var(--hairline);
+}
+
+.beat-card__edge-nav {
+  position: absolute;
+  top: 50%;
+  right: -17px;
+  left: -17px;
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.beat-card__edge {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 11px 18px;
-  border-radius: 0;
-  cursor: pointer;
-  text-decoration: none;
-}
-
-.beat-card__back {
-  background: transparent;
-  border: var(--rule);
-  color: var(--ink-70);
-}
-.beat-card__back:hover:not(:disabled) {
-  color: var(--ink);
-  border-color: var(--ink);
-}
-.beat-card__back:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
-
-.beat-card__next {
-  background: var(--ink);
-  border: 1px solid var(--ink);
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: var(--wine);
   color: #fff;
-  font-weight: 500;
-}
-.beat-card__next:hover:not(:disabled) {
-  background: var(--ink-90);
-  border-color: var(--ink-90);
-}
-.beat-card__next:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
+  border: 1px solid var(--paper);
+  pointer-events: auto;
 }
 
-.beat-card__evidence {
-  margin-top: var(--gap-3);
-  font-size: var(--t-caption);
-}
+.beat-card__edge:hover:not(:disabled) { background: var(--wine-dark); }
+.beat-card__edge:disabled { opacity: 0.3; }
 
 @media (max-width: 1080px) {
   .beat-card {
     top: auto;
+    right: var(--pad-x);
     bottom: var(--pad-x);
     left: var(--pad-x);
-    right: var(--pad-x);
     transform: none;
     width: auto;
-    max-height: 48dvh;
-    padding: 20px 22px 18px;
+    max-height: 50dvh;
+    padding: 0;
   }
+  .beat-card__scroll { max-height: 50dvh; padding: 20px 22px 18px; }
+  .beat-card__edge-nav { right: -14px; left: -14px; }
 }

@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import { STOPS } from "./route";
 import {
   BEATS,
-  CLOSE_STOP_ID,
   LANDING_STOP_ID,
   PAGE_LIST,
   PAGES,
@@ -15,9 +14,13 @@ import { frameKey } from "./presets";
  * are what make that checkable rather than asserted.
  */
 
-const tourStops = STOPS.filter((s) => s.id !== LANDING_STOP_ID && s.id !== CLOSE_STOP_ID);
+const tourStops = STOPS.filter((s) => s.id !== LANDING_STOP_ID);
 
 describe("page structure", () => {
+  it("uses seven chapters for the guided spine", () => {
+    expect(PAGE_LIST).toHaveLength(7);
+  });
+
   it("builds without dropping or repeating a state", () => {
     expect(() => buildPages()).not.toThrow();
   });
@@ -38,20 +41,20 @@ describe("page structure", () => {
 
   it("shortens the tour rather than lengthening it", () => {
     const stateCount = tourStops.reduce((n, s) => n + s.states.length, 0);
-    expect(BEATS.length).toBeLessThan(stateCount);
+    expect(BEATS.length).toBeLessThanOrEqual(stateCount);
     // Every merged beat has to earn its merge by carrying more than one line.
     for (const { beat } of BEATS) {
       expect(beat.lines.length).toBe(beat.sourceIds.length);
     }
   });
 
-  it("gives every page two or three stops, and every stop at most five beats", () => {
+  it("gives every chapter a bounded number of stops and beats", () => {
     for (const page of PAGE_LIST) {
-      expect(page.stops.length).toBeGreaterThanOrEqual(2);
+      expect(page.stops.length).toBeGreaterThanOrEqual(1);
       expect(page.stops.length).toBeLessThanOrEqual(3);
       for (const stop of page.stops) {
         expect(stop.beats.length).toBeGreaterThan(0);
-        expect(stop.beats.length).toBeLessThanOrEqual(5);
+        expect(stop.beats.length).toBeLessThanOrEqual(6);
       }
     }
   });

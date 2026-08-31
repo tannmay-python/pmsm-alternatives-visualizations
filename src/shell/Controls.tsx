@@ -138,6 +138,19 @@ export function RotorRack({
 }
 
 import { MotorInspector } from "./MotorInspector";
+import type { MotorComponentId } from "./MotorInspector";
+
+/** Whether this stop has a control drawer worth revealing. */
+export function hasControls(stop: Stop, state: StopState): boolean {
+  if (stop.id === "open-the-machine") return true;
+  if (stop.id === "three-coils-one-field") return ["one-phase", "no-part-moves", "rotor-locks"].includes(state.id);
+  if (stop.id === "two-pulls-one-shaft") return ["why-buried", "already-both"].includes(state.id);
+  if (stop.id === "strength-and-stubbornness") return ["remanence", "coercivity", "anisotropy"].includes(state.id);
+  if (stop.id === "heat-and-the-patch") return ["hot-margin", "dysprosium-tradeoff", "reversal-start", "diffusion-evolution"].includes(state.id);
+  if (stop.id === "which-rare-earth" || stop.id === "the-weakness") return true;
+  if (stop.id === "change-the-magnet") return ["ferrite-limit", "compensate-geometry", "independent-geometry"].includes(state.id);
+  return stop.id === "swap-the-rotor" && state.id !== "family-tree";
+}
 
 export function Controls({
   stop,
@@ -152,12 +165,16 @@ export function Controls({
 }) {
   const set = (patch: Partial<StageControls>) => setControls(patch);
   const pct = (value: number) => `${Math.round(value * 100)}%`;
+  const inspectorComponent: MotorComponentId =
+    state.id === "housing" || state.id === "stator" || state.id === "rotor" || state.id === "shaft" || state.id === "air-gap"
+      ? state.id
+      : "all";
 
   return (
     <div className="controls">
 
       {stop.id === "open-the-machine" && (
-        <MotorInspector controls={controls} setControls={setControls} />
+        <MotorInspector component={inspectorComponent} controls={controls} setControls={setControls} />
       )}
 
       {stop.id === "three-coils-one-field" && state.id === "one-phase" && (

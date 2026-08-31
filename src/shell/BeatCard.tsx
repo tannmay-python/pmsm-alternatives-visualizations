@@ -1,19 +1,21 @@
 import { ArrowLeft, ArrowRight } from "@phosphor-icons/react";
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import type { Beat, Page, PageStop } from "../route/structure";
 import { guideFor } from "../route/guide";
 import "./BeatCard.css";
 
+const DEMO_DURATION_MS = 6000;
+
 const SECTION_CONTEXT: Record<string, string> = {
-  "where-the-motor-lives": "Macro View · Vehicle Drivetrain",
-  "open-the-machine": "Micro View · Inside the Motor",
-  "three-coils-one-field": "Electromagnetic Physics · Stator",
-  "rotor-locks-to-field": "Torque Physics · Rotor Lock",
-  "two-pulls-one-rotor": "Torque Physics · Dual Torque",
-  "heat-and-the-patch": "Materials & Limits · Dy / Tb",
-  "swap-the-rotor": "Alternatives · Rotor Topologies",
-  "change-the-magnet": "Alternatives · Magnet Chemistries",
-  "the-shape-of-the-escape": "Strategic Synthesis · EV Segments",
+  "where-the-motor-lives": "Macro view · Vehicle drivetrain",
+  "open-the-machine": "Micro view · Inside the motor",
+  "three-coils-one-field": "Electromagnetic physics · Stator",
+  "rotor-locks-to-field": "Torque physics · Rotor lock",
+  "two-pulls-one-rotor": "Torque physics · Dual torque",
+  "heat-and-the-patch": "Materials & limits · Dy / Tb",
+  "swap-the-rotor": "Alternatives · Rotor topologies",
+  "change-the-magnet": "Alternatives · Magnet chemistries",
+  "what-must-change": "Strategic synthesis · EV segments",
 };
 
 export function BeatCard({
@@ -27,8 +29,9 @@ export function BeatCard({
   canGoBack,
   canGoNext,
   controls,
+  hasControls,
   aside,
-  evidence,
+  reducedMotion = false,
 }: {
   page: Page;
   stop: PageStop;
@@ -40,74 +43,83 @@ export function BeatCard({
   canGoBack: boolean;
   canGoNext: boolean;
   controls?: ReactNode;
+  hasControls?: boolean;
   aside?: ReactNode;
-  evidence?: ReactNode;
+  reducedMotion?: boolean;
 }) {
   const guide = guideFor(stop.sourceStopId, beat.sourceIds[0]);
-  const viewTag = SECTION_CONTEXT[stop.sourceStopId] ?? stop.title;
-  const isLastBeatOfStop = beatNumber === beatTotal;
+  const [settled, setSettled] = useState(reducedMotion);
+  const [controlsOpen, setControlsOpen] = useState(false);
+
+  useEffect(() => {
+    setControlsOpen(false);
+    if (reducedMotion) {
+      setSettled(true);
+      return undefined;
+    }
+    setSettled(false);
+    const timer = window.setTimeout(() => setSettled(true), DEMO_DURATION_MS);
+    return () => window.clearTimeout(timer);
+  }, [beat.id, reducedMotion]);
 
   return (
-    <aside className={`beat-card beat-card--${page.side}`} aria-label={stop.title}>
+    <aside className="beat-card beat-card--left" aria-label={stop.title} data-page={page.id}>
+      <div className="beat-card__scroll">
       <header className="beat-card__header">
         <div className="beat-card__eyebrow-row">
-          <span className="beat-card__view-tag">{viewTag}</span>
+          <span className="beat-card__view-tag">{SECTION_CONTEXT[stop.sourceStopId] ?? stop.title}</span>
           <span className="beat-card__counter">
-            {String(beatNumber).padStart(2, "0")}/{String(beatTotal).padStart(2, "0")}
+            {String(beatNumber).padStart(2, "0")} / {String(beatTotal).padStart(2, "0")}
           </span>
         </div>
-
         <h2 className="beat-card__question">{stop.question}</h2>
         <h3 className="beat-card__title">{beat.label}</h3>
       </header>
 
       <div className="beat-card__body">
-        {stop.sourceStopId === "open-the-machine" ? (
-          <p>
-            Pulling the assembly apart reveals two systems: stationary parts (housing, end caps, stator) and rotating parts (rotor, magnets, shaft). Explore each component below to inspect its materials, function, and view it in 3D isolation.
-          </p>
+        {beat.lines.map((line) => <p key={line}>{line}</p>)}
+      </div>
+
+      <div className={`beat-card__guide ${settled ? "is-settled" : "is-watching"}`}>
+        {settled ? (
+          <div className="beat-card__takeaway">
+            <span className="beat-card__guide-label">Takeaway</span>
+            <p>{guide.takeaway}</p>
+          </div>
         ) : (
-          beat.lines.map((line) => <p key={line}>{line}</p>)
+          <div className="beat-card__watch">
+            <span className="beat-card__guide-label">Watch</span>
+            <p>{guide.lookFor}</p>
+            <span className="beat-card__watch-line" aria-hidden="true"><span /></span>
+          </div>
         )}
       </div>
 
-      {controls}
-
       {aside ? <aside className="beat-card__aside">{aside}</aside> : null}
 
-      {stop.sourceStopId !== "open-the-machine" && (
-        <dl className="beat-card__guide">
-          <div>
-            <dt>Look for</dt>
-            <dd>{guide.lookFor}</dd>
-          </div>
-          <div>
-            <dt>Takeaway</dt>
-            <dd>{guide.takeaway}</dd>
-          </div>
-        </dl>
-      )}
-
-      <div className="beat-card__foot">
-        <div className="beat-card__nav">
+      {hasControls && controls ? (
+        <div className="beat-card__controls">
           <button
             type="button"
-            className="btn btn--ghost beat-card__back"
-            onClick={onBack}
-            disabled={!canGoBack}
+            className="beat-card__controls-toggle"
+            aria-expanded={controlsOpen}
+            onClick={() => setControlsOpen((open) => !open)}
           >
-            <ArrowLeft size={13} weight="bold" /> Back
+            {controlsOpen ? "Hide controls" : "Try it yourself"}
           </button>
-          <button type="button" className="btn beat-card__next" onClick={onNext} disabled={!canGoNext}>
-            {isLastBeatOfStop && stop.sourceStopId === "where-the-motor-lives"
-              ? "Open the motor"
-              : "Next"}{" "}
-            <ArrowRight size={13} weight="bold" />
-          </button>
+          {controlsOpen ? <div className="beat-card__controls-panel">{controls}</div> : null}
         </div>
-      </div>
+      ) : null}
 
-      {evidence ? <div className="beat-card__evidence">{evidence}</div> : null}
+      </div>
+      <div className="beat-card__edge-nav" aria-label="Beat navigation">
+        <button type="button" className="beat-card__edge beat-card__edge--prev" onClick={onBack} disabled={!canGoBack} aria-label="Previous beat">
+          <ArrowLeft size={16} weight="bold" />
+        </button>
+        <button type="button" className="beat-card__edge beat-card__edge--next" onClick={onNext} disabled={!canGoNext} aria-label="Next beat">
+          <ArrowRight size={16} weight="bold" />
+        </button>
+      </div>
     </aside>
   );
 }

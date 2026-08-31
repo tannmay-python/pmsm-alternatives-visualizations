@@ -1,78 +1,36 @@
 .motor-inspector {
-  margin-top: var(--gap-1);
   display: flex;
   flex-direction: column;
   gap: var(--gap-2);
 }
 
-.motor-inspector__tabs-label {
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+.motor-inspector__step {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding-bottom: var(--gap-2);
+  border-bottom: var(--hairline);
+}
+
+.motor-inspector__step-index,
+.motor-inspector__step-label {
   color: var(--ink-50);
-  margin-bottom: 2px;
-}
-
-.motor-inspector__tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-  margin-bottom: var(--gap-3);
-}
-
-.motor-inspector__tab {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 8px;
-  background: rgba(23, 20, 19, 0.04);
-  border: 1px solid rgba(23, 20, 19, 0.12);
-  border-radius: 0;
-  color: var(--ink-70);
   font-family: var(--mono);
-  font-size: 11px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 160ms ease;
-  white-space: nowrap;
+  font-size: var(--t-meta);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
-.motor-inspector__tab:hover {
-  background: rgba(23, 20, 19, 0.08);
-  color: var(--ink);
-  border-color: var(--ink-30);
-}
-
-.motor-inspector__tab.is-active {
-  background: var(--wine);
-  border-color: var(--wine);
-  color: #ffffff;
-}
-
-/* Overview Mode */
-.motor-inspector__overview {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-2);
-}
-
-/* Detail View */
 .motor-inspector__detail {
   display: flex;
   flex-direction: column;
-  gap: var(--gap-2);
-  animation: inspectorFadeIn 200ms ease-out forwards;
+  gap: var(--gap-3);
+  animation: inspectorFadeIn 200ms ease-out both;
 }
 
 @keyframes inspectorFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .motor-inspector__detail-header {
@@ -83,108 +41,63 @@
 }
 
 .motor-inspector__tag {
-  font-size: 10px;
-  color: var(--wine);
-  font-weight: 500;
   display: block;
   margin-bottom: 2px;
+  color: var(--wine);
+  font-size: var(--t-meta);
 }
 
 .motor-inspector__name {
-  font-size: 14px;
-  font-weight: 600;
   color: var(--ink);
-  margin: 0;
-}
-
-.motor-inspector__isolate-btn {
-  font-size: 10.5px;
-  padding: 4px 7px;
-  white-space: nowrap;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.motor-inspector__isolate-btn.is-isolated {
-  background: var(--wine);
-  border-color: var(--wine);
-  color: #ffffff;
+  font-size: var(--t-subhead);
+  font-weight: 500;
 }
 
 .motor-inspector__spec-block {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 7px 9px;
-  background: var(--paper-warm, #f8faf8);
-  border: 1px solid rgba(23, 20, 19, 0.08);
-  border-radius: 0;
+  gap: var(--gap-2);
+  padding: var(--gap-2) 10px;
+  background: var(--deep);
+  border: var(--hairline);
 }
 
 .motor-inspector__spec-row {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 2px;
 }
 
 .motor-inspector__spec-label {
+  color: var(--ink-50);
   font-family: var(--mono);
   font-size: 9px;
-  text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--ink-50);
+  text-transform: uppercase;
 }
 
 .motor-inspector__spec-val {
-  font-size: 11px;
-  color: var(--ink-80);
-  line-height: 1.35;
+  color: var(--ink-70);
+  font-size: var(--t-meta);
+  line-height: 1.45;
 }
 
 .motor-inspector__spec-val--accent {
-  font-family: var(--mono);
-  font-weight: 600;
   color: var(--wine);
+  font-family: var(--mono);
 }
 
-.motor-inspector__desc {
-  font-size: 11.5px;
-  color: var(--ink-70);
-  line-height: 1.5;
+.motor-inspector__desc,
+.motor-inspector__insight {
   margin: 0;
+  color: var(--ink-70);
+  font-size: var(--t-meta);
+  line-height: 1.55;
 }
 
 .motor-inspector__insight {
-  font-size: 11px;
-  line-height: 1.45;
-  color: var(--ink-70);
-  padding: 7px 9px;
-  background: rgba(98, 13, 60, 0.04);
+  padding-left: 10px;
   border-left: 2px solid var(--wine);
 }
 
-.motor-inspector__insight strong {
-  color: var(--wine);
-  font-weight: 600;
-}
-
-.motor-inspector__detail-footer {
-  margin-top: 2px;
-}
-
-.motor-inspector__back-link {
-  background: none;
-  border: none;
-  padding: 0;
-  font-family: var(--mono);
-  font-size: 10.5px;
-  color: var(--ink-60);
-  cursor: pointer;
-  transition: color 160ms ease;
-}
-
-.motor-inspector__back-link:hover {
-  color: var(--wine);
-  text-decoration: underline;
-}
+.motor-inspector__insight strong { color: var(--ink); }

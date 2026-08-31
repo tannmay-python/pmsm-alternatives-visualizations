@@ -244,3 +244,10 @@
   top: 12px;
 }
 
+@media (max-width: 720px) {
+  /* The explanatory card carries the words on narrow screens. Leaving the
+     projected labels on the canvas makes edge callouts clip against the
+     viewport, so retain the anchor dots and let the card do the reading. */
+  .stage .callout__stem,
+  .stage .callout__pill { display: none; }
+}

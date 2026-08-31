@@ -188,6 +188,12 @@ export const STOPS: readonly Stop[] = [
         action: "Drag the explode slider to separate the parts.",
       },
       {
+        id: "housing",
+        label: "The casing holds the system",
+        line: "The casing and end caps seal the electromagnetic core, carry coolant around the stator, and hold the bearings that support the shaft.",
+        action: "Inspect the stationary casing and its cooling path.",
+      },
+      {
         id: "stator",
         label: "The stator stays still",
         line: "The stator never moves. A stack of thin silicon steel sheets holds copper windings in slots, grouped into three electrical phases.",
@@ -198,6 +204,12 @@ export const STOPS: readonly Stop[] = [
         label: "The rotor turns",
         line: "The rotor is the spinning core. Steel laminations hold powerful NdFeB permanent magnets buried in V-shaped pockets, keyed to the output shaft.",
         action: "Inspect the buried magnets inside the spinning rotor core.",
+      },
+      {
+        id: "shaft",
+        label: "The shaft carries the torque",
+        line: "The shaft is keyed to the rotor and transfers its torque through supported bearings into the reduction gear.",
+        action: "Follow the shaft from the rotor to the gearbox connection.",
       },
       {
         id: "air-gap",

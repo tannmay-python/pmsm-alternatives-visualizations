@@ -1,58 +1,39 @@
 import type { Page } from "../route/structure";
 import "./ProgressBar.css";
 
-/**
- * The per-page progress bar.
- *
- * The old tour put all 62 beats on one rail, which the review read correctly
- * as a deterrent: "don't have 30 — no one's starting the walkthrough. Club it
- * into five six pages, each with two three on top… and that progress bar can
- * be clicked on."
- *
- * So the bar shows only the current page's stops. Each segment fills tick by
- * tick as Next walks that stop's beats, and clicking a segment jumps to it.
- * Reaching the end of the last segment advances to the next page.
- */
 export function ProgressBar({
-  page,
-  stopIndex,
+  pages,
+  pageIndex,
   beatIndex,
-  onJump,
+  beatTotal,
 }: {
-  page: Page;
-  stopIndex: number;
+  pages: readonly Page[];
+  pageIndex: number;
   beatIndex: number;
-  onJump: (stopIndex: number, beatIndex: number) => void;
+  beatTotal: number;
 }) {
+  const currentPage = pages[pageIndex];
+  const chapterProgress = currentPage ? (beatIndex + 1) / currentPage.beatCount : 0;
+  const overallProgress = ((pageIndex + chapterProgress) / pages.length) * 100;
+
   return (
-    <div className="progress" role="group" aria-label={`${page.title} progress`}>
-      {page.stops.map((stop, i) => {
-        const current = i === stopIndex;
-        const done = i < stopIndex;
-        return (
-          <button
-            key={stop.id}
-            type="button"
-            className={`progress__stop ${current ? "is-current" : ""} ${done ? "is-done" : ""}`}
-            aria-current={current ? "step" : undefined}
-            onClick={() => onJump(i, 0)}
-          >
-            <span className="progress__label">{stop.title}</span>
-            <span className="progress__ticks">
-              {stop.beats.map((beat, j) => {
-                const on = current && j === beatIndex;
-                const past = done || (current && j < beatIndex);
-                return (
-                  <span
-                    key={beat.id}
-                    className={`progress__tick ${on ? "is-on" : ""} ${past ? "is-past" : ""}`}
-                  />
-                );
-              })}
-            </span>
-          </button>
-        );
-      })}
+    <div className="progress-bar" aria-label="Walkthrough progress">
+      <span className="progress-bar__hairline" aria-hidden="true">
+        <span style={{ width: `${overallProgress}%` }} />
+      </span>
+      <div className="progress-bar__meta">
+        <div className="progress-bar__marks" aria-hidden="true">
+          {pages.map((page, index) => (
+            <span
+              key={page.id}
+              className={`progress-bar__mark ${index < pageIndex ? "is-done" : ""} ${index === pageIndex ? "is-current" : ""}`}
+            />
+          ))}
+        </div>
+        <span className="progress-bar__readout">
+          Chapter {pageIndex + 1} of {pages.length} · Step {beatIndex + 1} of {beatTotal}
+        </span>
+      </div>
     </div>
   );
 }

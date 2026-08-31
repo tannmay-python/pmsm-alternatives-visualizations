@@ -441,6 +441,7 @@ export function Stage({
   hidden?: boolean;
 }) {
   const [failed, setFailed] = useState(false);
+  const [autoRotate, setAutoRotate] = useState(!reducedMotion);
   const controlsRef = useRef<OrbitControlsImpl>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [size, setSize] = useState({ width: 1440, height: 900 });
@@ -510,6 +511,10 @@ export function Stage({
       canvas.removeEventListener("webglcontextrestored", onRestored);
     };
   }, [failed]);
+
+  useEffect(() => {
+    setAutoRotate(!reducedMotion);
+  }, [stop.id, state.id, reducedMotion]);
 
   if (failed) {
     return (
@@ -581,6 +586,9 @@ export function Stage({
             enableDamping
             dampingFactor={0.06}
             rotateSpeed={0.42}
+            autoRotate={autoRotate}
+            autoRotateSpeed={0.35}
+            onStart={() => setAutoRotate(false)}
             minPolarAngle={Math.PI / 6}
             maxPolarAngle={Math.PI / 1.8}
           />

@@ -60,6 +60,11 @@ export const stateGuides: Record<string, StateGuide> = {
     takeaway: "The motor splits into a stationary electromagnetic system (stator) and a spinning permanent magnet assembly (rotor).",
     next: "Inspect the stationary stator ring first.",
   },
+  "open-the-machine/housing": {
+    lookFor: "Follow the outer casing, end caps and cooling path around the stationary electromagnetic core.",
+    takeaway: "The casing is part of the motor system: it seals the core, moves heat away and supports the bearings.",
+    next: "Inspect the stationary stator ring inside that frame.",
+  },
   "open-the-machine/stator": {
     lookFor: "Follow the copper winding coils distributed inside the slots of the laminated silicon steel ring.",
     takeaway: "The stator is the stationary electromagnet: steel laminations channel magnetic flux, and 3-phase copper coils carry AC current.",
@@ -68,6 +73,11 @@ export const stateGuides: Record<string, StateGuide> = {
   "open-the-machine/rotor": {
     lookFor: "Find the V-shaped pockets inside the spinning rotor steel where NdFeB permanent magnets are buried.",
     takeaway: "Burying magnets inside the rotor steel (IPM) keeps them structurally secure at 18,000 RPM and produces reluctance torque.",
+    next: "Inspect the narrow air gap where the two magnetic systems interact.",
+  },
+  "open-the-machine/shaft": {
+    lookFor: "Follow the shaft from the keyed rotor core through its bearings to the reduction gear connection.",
+    takeaway: "The shaft turns the rotor's electromagnetic torque into the mechanical input the gearbox can use.",
     next: "Inspect the narrow air gap where the two magnetic systems interact.",
   },
   "open-the-machine/air-gap": {

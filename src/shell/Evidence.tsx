@@ -29,7 +29,7 @@ export function Evidence({ stop }: { stop: Stop }) {
   return (
     <details className="evidence">
       <summary>
-        Evidence · {shown.length} claim{shown.length === 1 ? "" : "s"}
+        › {shown.length} sourced claim{shown.length === 1 ? "" : "s"} behind this stop
       </summary>
       <ul>
         {shown.map((claim) => (

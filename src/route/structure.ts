@@ -146,7 +146,7 @@ const assertComplete = () => {
     }
   }
   for (const stop of STOPS) {
-    if (stop.id === LANDING_STOP_ID || stop.id === CLOSE_STOP_ID) continue;
+    if (stop.id === LANDING_STOP_ID) continue;
     const seen = placed.get(stop.id) ?? [];
     const expected = stop.states.map((s) => s.id);
     const missing = expected.filter((id) => !seen.includes(id));

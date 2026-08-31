@@ -5,7 +5,7 @@
  * route.ts owns the prose and is not edited here. This file owns three
  * decisions about presentation, all of which came out of the 26 August review:
  *
- *  1. Which stops share a page, so the reader meets six pages rather than one
+ *  1. Which stops share a chapter, so the reader meets seven chapters rather than one
  *     rail of thirty-odd stops. "Don't have 30 — no one's starting the
  *     walkthrough. Club it into five six pages."
  *
@@ -21,10 +21,9 @@
  *  3. Which feature each figure points at, so that beats sharing a figure
  *     still differ: the annotation moves even when the drawing does not.
  *
- * The opening and closing stops are not tour pages at all. `the-problem` is
- * absorbed into the landing page — it duplicated the old four-panel intro, and
- * the tour's entry point skipped past it anyway — and `what-must-change`
- * becomes the editorial close.
+ * The opening stop is absorbed into the landing page. `what-must-change` is
+ * kept in the route as the ordinary seventh chapter so the tour has one spine
+ * and an explicit end screen.
  */
 
 export const LANDING_STOP_ID = "the-problem";
@@ -113,12 +112,7 @@ export const PAGES: readonly PageSpec[] = [
       },
       {
         from: "open-the-machine",
-        groups: [
-          {
-            ids: ["explode", "stator", "rotor", "air-gap"],
-            why: "The interactive Motor Inspector lets the reader explore all components, inspect their materials, and isolate each part in 3D directly on a single unified teardown stage.",
-          },
-        ],
+        groups: [["explode"], ["housing"], ["stator"], ["rotor"], ["shaft"], ["air-gap"]],
       },
     ],
   },
@@ -297,6 +291,24 @@ export const PAGES: readonly PageSpec[] = [
           ["variable-flux-fit"],
           ["stackable-layers"],
         ],
+      },
+    ],
+  },
+  {
+    id: "what-has-to-change",
+    eyebrow: "Page 07",
+    title: "What Has to Change",
+    side: "left",
+    transition: {
+      act: "Act V · The Decision",
+      title: "The decision is problem-first",
+      lede: "The alternatives are not one ladder. Each route keeps some parts of the vehicle and rewrites others, so the useful comparison is the problem each route solves and the burden it adds.",
+      nextLabel: "Make the comparison",
+    },
+    stops: [
+      {
+        from: "what-must-change",
+        groups: [["survivors"], ["burden"], ["spectrum"], ["validation"], ["two-markets"], ["where-we-are"]],
       },
     ],
   },

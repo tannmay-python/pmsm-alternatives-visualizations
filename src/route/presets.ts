@@ -22,7 +22,18 @@ export const presetFor = (stopId: string, stateId: string): StageControls => ({
       : stateId === "compensate-geometry" || stateId === "independent-geometry"
         ? 0.6
         : 0,
-  isolate: stateId === "stator" ? "stator" : stateId === "rotor" ? "rotor" : "none",
+  isolate:
+    stateId === "housing"
+      ? "housing"
+      : stateId === "stator"
+        ? "stator"
+        : stateId === "rotor"
+          ? "rotor"
+          : stateId === "shaft"
+            ? "shaft"
+            : stateId === "air-gap"
+              ? "air-gap"
+              : "none",
   activePhase: stateId === "one-phase" ? 0 : null,
   extract: 0,
   dysprosium: stateId === "dysprosium-tradeoff" ? 0.35 : 0,

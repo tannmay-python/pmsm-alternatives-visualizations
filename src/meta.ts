@@ -1,9 +1,4 @@
-/**
- * Publication metadata, in one place so the masthead, the close and the
- * document title cannot drift apart.
- *
- * TODO — confirm the author list and its order before this ships.
- */
+/** Publication metadata, in one place so the masthead, close and document title cannot drift apart. */
 export const PUBLISHER = "The Takshashila Institution";
 export const AUTHORS = [
   {
