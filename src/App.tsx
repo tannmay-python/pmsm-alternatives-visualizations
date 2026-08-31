@@ -250,7 +250,7 @@ export default function App() {
       <a className="skip-link" href="#stage">Skip to the stage</a>
       <header className="topbar">
         <a className="topbar__brand" href="https://takshashila.org.in/" target="_blank" rel="noreferrer" aria-label="The Takshashila Institution">
-          <TakshashilaLogo className="topbar__logo" height={42} />
+          <TakshashilaLogo className="topbar__logo" height={65} />
         </a>
         <div className="topbar__progress">
           <ProgressBar pages={PAGE_LIST} pageIndex={pageIndex} />

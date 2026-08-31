@@ -299,7 +299,7 @@
  * Guided spine overrides
  * ----------------------------------------------------------------------- */
 .topbar {
-  min-height: 78px;
+  min-height: 92px;
   align-items: center;
   padding-top: 12px;
   padding-bottom: 12px;
@@ -312,7 +312,7 @@
   min-width: 0;
 }
 
-.topbar__logo { flex: 0 0 auto; width: auto; height: 42px !important; }
+.topbar__logo { flex: 0 0 auto; width: auto; height: 65px !important; }
 .topbar__publisher { margin: 0 0 2px; }
 .topbar__title { font-size: var(--t-dense); }
 .topbar__progress { display: flex; align-items: center; gap: var(--gap-5); min-width: min(560px, 50vw); }
@@ -332,7 +332,7 @@
 .topbar__progress .progress-bar { width: min(440px, 38vw); }
 .progress-bar__hairline { top: -13px; }
 
-.stage-diagram { inset: 78px 0 0; }
+.stage-diagram { inset: 92px 0 0; }
 .stage-diagram--left,
 .stage-diagram--right { padding-left: calc(min(450px, 40vw) + var(--pad-x) * 2); padding-right: var(--pad-x); }
 .stage-tools { display: none; }
@@ -340,7 +340,7 @@
 .chapter-screen,
 .tour-end {
   position: fixed;
-  inset: 78px 0 0;
+  inset: 92px 0 0;
   z-index: 5;
   display: flex;
   align-items: center;
@@ -414,7 +414,7 @@
   position: fixed;
   inset: 0;
   z-index: 8;
-  padding: 78px var(--pad-x) 32px;
+  padding: 92px var(--pad-x) 32px;
   background: rgba(247, 245, 242, 0.98);
   overflow: auto;
 }
@@ -448,7 +448,7 @@
 }
 
 @media (max-width: 560px) {
-  .topbar__logo { height: 30px !important; }
+  .topbar__logo { height: 38px !important; }
   .topbar__title { font-size: var(--t-meta); }
   .topbar__progress { gap: var(--gap-3); }
   .contents-overlay { padding: 116px var(--pad-x) 24px; }
