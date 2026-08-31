@@ -1,117 +1,101 @@
 import { ArrowLeft, ArrowRight } from "@phosphor-icons/react";
-import { useEffect, useState, type ReactNode } from "react";
-import type { Beat, Page, PageStop } from "../route/structure";
+import { useEffect, useRef } from "react";
+import type { Page, Position } from "../route/structure";
 import { guideFor } from "../route/guide";
 import "./BeatCard.css";
 
-const DEMO_DURATION_MS = 6000;
-
-const SECTION_CONTEXT: Record<string, string> = {
-  "where-the-motor-lives": "Macro view · Vehicle drivetrain",
-  "open-the-machine": "Micro view · Inside the motor",
-  "three-coils-one-field": "Electromagnetic physics · Stator",
-  "rotor-locks-to-field": "Torque physics · Rotor lock",
-  "two-pulls-one-rotor": "Torque physics · Dual torque",
-  "heat-and-the-patch": "Materials & limits · Dy / Tb",
-  "swap-the-rotor": "Alternatives · Rotor topologies",
-  "change-the-magnet": "Alternatives · Magnet chemistries",
-  "what-must-change": "Strategic synthesis · EV segments",
-};
-
 export function BeatCard({
   page,
-  stop,
-  beat,
-  beatNumber,
-  beatTotal,
+  positions,
+  activeIndex,
+  onSelect,
   onBack,
   onNext,
   canGoBack,
   canGoNext,
-  controls,
-  hasControls,
-  aside,
-  reducedMotion = false,
+  onNextChapter,
+  hasNextChapter,
 }: {
   page: Page;
-  stop: PageStop;
-  beat: Beat;
-  beatNumber: number;
-  beatTotal: number;
+  positions: readonly Position[];
+  activeIndex: number;
+  onSelect: (index: number) => void;
   onBack: () => void;
   onNext: () => void;
   canGoBack: boolean;
   canGoNext: boolean;
-  controls?: ReactNode;
-  hasControls?: boolean;
-  aside?: ReactNode;
-  reducedMotion?: boolean;
+  onNextChapter: () => void;
+  hasNextChapter: boolean;
 }) {
-  const guide = guideFor(stop.sourceStopId, beat.sourceIds[0]);
-  const [settled, setSettled] = useState(reducedMotion);
-  const [controlsOpen, setControlsOpen] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const itemRefs = useRef<Record<string, HTMLElement | null>>({});
+  const lastSelected = useRef(activeIndex);
 
   useEffect(() => {
-    setControlsOpen(false);
-    if (reducedMotion) {
-      setSettled(true);
-      return undefined;
-    }
-    setSettled(false);
-    const timer = window.setTimeout(() => setSettled(true), DEMO_DURATION_MS);
-    return () => window.clearTimeout(timer);
-  }, [beat.id, reducedMotion]);
+    const root = scrollRef.current;
+    if (!root) return undefined;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (!visible) return;
+        const index = Number((visible.target as HTMLElement).dataset.index);
+        if (Number.isFinite(index) && index !== lastSelected.current) {
+          lastSelected.current = index;
+          onSelect(index);
+        }
+      },
+      { root, threshold: [0.55, 0.8] },
+    );
+    Object.values(itemRefs.current).forEach((node) => node && observer.observe(node));
+    return () => observer.disconnect();
+  }, [onSelect, positions]);
+
+  useEffect(() => {
+    lastSelected.current = activeIndex;
+    const node = itemRefs.current[positions[activeIndex]?.beat.id ?? ""];
+    if (node) node.scrollIntoView({ block: activeIndex === 0 ? "start" : "nearest" });
+  }, [activeIndex, positions]);
 
   return (
-    <aside className="beat-card beat-card--left" aria-label={stop.title} data-page={page.id}>
-      <div className="beat-card__scroll">
-      <header className="beat-card__header">
-        <div className="beat-card__eyebrow-row">
-          <span className="beat-card__view-tag">{SECTION_CONTEXT[stop.sourceStopId] ?? stop.title}</span>
-          <span className="beat-card__counter">
-            {String(beatNumber).padStart(2, "0")} / {String(beatTotal).padStart(2, "0")}
-          </span>
-        </div>
-        <h2 className="beat-card__question">{stop.question}</h2>
-        <h3 className="beat-card__title">{beat.label}</h3>
-      </header>
-
-      <div className="beat-card__body">
-        {beat.lines.map((line) => <p key={line}>{line}</p>)}
-      </div>
-
-      <div className={`beat-card__guide ${settled ? "is-settled" : "is-watching"}`}>
-        {settled ? (
-          <div className="beat-card__takeaway">
-            <span className="beat-card__guide-label">Takeaway</span>
-            <p>{guide.takeaway}</p>
-          </div>
-        ) : (
-          <div className="beat-card__watch">
-            <span className="beat-card__guide-label">Watch</span>
-            <p>{guide.lookFor}</p>
-            <span className="beat-card__watch-line" aria-hidden="true"><span /></span>
-          </div>
-        )}
-      </div>
-
-      {aside ? <aside className="beat-card__aside">{aside}</aside> : null}
-
-      {hasControls && controls ? (
-        <div className="beat-card__controls">
-          <button
-            type="button"
-            className="beat-card__controls-toggle"
-            aria-expanded={controlsOpen}
-            onClick={() => setControlsOpen((open) => !open)}
-          >
-            {controlsOpen ? "Hide controls" : "Try it yourself"}
+    <aside className="beat-card beat-card--left" aria-label={page.title} data-page={page.id}>
+      <div className="beat-card__scroll" ref={scrollRef}>
+        {positions.map((position, index) => {
+          const guide = guideFor(position.stop.sourceStopId, position.beat.sourceIds[0]);
+          const isActive = index === activeIndex;
+          return (
+            <article
+              className={`chapter-bite ${isActive ? "is-active" : ""}`}
+              data-index={index}
+              data-beat={position.beat.id}
+              key={position.beat.id}
+              ref={(node) => { itemRefs.current[position.beat.id] = node; }}
+              onFocus={() => onSelect(index)}
+            >
+              <header className="beat-card__header">
+                <h2 className="beat-card__question">{position.stop.question}</h2>
+                <h3 className="beat-card__title">{position.beat.label}</h3>
+              </header>
+              <div className="beat-card__body">
+                {position.beat.lines.map((line) => <p key={line}>{line}</p>)}
+              </div>
+              <div className="beat-card__takeaway">
+                <span className="beat-card__guide-label">Takeaway</span>
+                <p>{guide.takeaway}</p>
+              </div>
+            </article>
+          );
+        })}
+        <div className="beat-card__chapter-end">
+          <p className="beat-card__chapter-end-label">Chapter {page.number} complete</p>
+          <button type="button" className="beat-card__chapter-next" onClick={onNextChapter}>
+            {hasNextChapter ? "Next chapter" : "Finish the walkthrough"}
+            <ArrowRight size={15} weight="bold" />
           </button>
-          {controlsOpen ? <div className="beat-card__controls-panel">{controls}</div> : null}
         </div>
-      ) : null}
-
       </div>
+
       <div className="beat-card__edge-nav" aria-label="Beat navigation">
         <button type="button" className="beat-card__edge beat-card__edge--prev" onClick={onBack} disabled={!canGoBack} aria-label="Previous beat">
           <ArrowLeft size={16} weight="bold" />

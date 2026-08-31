@@ -3,34 +3,61 @@ import { TakshashilaLogo } from "../components/TakshashilaLogo";
 import { AUTHORS, DASHBOARD_URL, MINERALPOLITIK_URL } from "../meta";
 import "./Landing.css";
 
-const GROUP_TWO_ROWS = [
-  { label: "Mining", value: 60 },
-  { label: "Refining", value: 92 },
-  { label: "NdFeB traction magnets", value: 94 },
+const GROUP_TWO_MEMBERS = [
+  "Tellurium",
+  "Terbium",
+  "Yttrium",
+  "Dysprosium",
+  "Erbium",
+  "Holmium",
+  "Ytterbium",
+  "Lutetium",
+  "Thulium",
+] as const;
+
+const GROUP_TWO_VECTORS = [
+  ["Refining concentration", "Near maximum"],
+  ["Reserve concentration", "Near maximum"],
+  ["Extraction complexity", "Near maximum"],
 ] as const;
 
 function GroupTwoDashboard() {
   return (
-    <div className="group-two-dashboard" role="img" aria-label="Group 2 supply concentration: 60 percent mining, 92 percent refining, and 94 percent NdFeB traction magnets">
+    <div className="group-two-dashboard" aria-labelledby="group-two-title">
       <div className="group-two-dashboard__header">
         <span>India critical minerals dashboard</span>
-        <span>Group 2</span>
+        <span>Group 2 · 9 minerals</span>
       </div>
-      <p className="group-two-dashboard__axis">Share of global output, by stage</p>
-      <div className="group-two-dashboard__rows">
-        {GROUP_TWO_ROWS.map((row) => (
-          <div className="group-two-dashboard__row" key={row.label}>
-            <div className="group-two-dashboard__row-meta">
-              <span>{row.label}</span>
-              <span className="group-two-dashboard__value">{row.value}%</span>
-            </div>
-            <div className="group-two-dashboard__track" aria-hidden="true">
-              <span className="group-two-dashboard__fill" style={{ width: `${row.value}%` }} />
-            </div>
+      <div className="group-two-dashboard__intro">
+        <p className="group-two-dashboard__kicker">Heavy rare earths + Tellurium</p>
+        <h2 id="group-two-title">One shared bottleneck</h2>
+        <p>
+          These minerals sit together because refining, reserves and extraction are concentrated at the same time. Tellurium is not a rare earth, but it faces the same tight refining and substitution problem.
+        </p>
+      </div>
+      <ul className="group-two-dashboard__members" aria-label="Minerals in Group 2">
+        {GROUP_TWO_MEMBERS.map((member) => <li key={member}>{member}</li>)}
+      </ul>
+      <div className="group-two-dashboard__vectors" aria-label="Shared risk characteristics">
+        {GROUP_TWO_VECTORS.map(([label, value]) => (
+          <div className="group-two-dashboard__vector" key={label}>
+            <span>{label}</span>
+            <strong>{value}</strong>
           </div>
         ))}
       </div>
-      <p className="group-two-dashboard__note">The remaining share is spread across every other producer combined.</p>
+      <p className="group-two-dashboard__detail">
+        Reserves sit in ion-adsorption clay deposits in southern China and Myanmar. Separating near-identical elements needs capability no Western or Indian facility has at commercial scale. China’s April 2025 export controls caused Western prices to triple within weeks; Tellurium is included here because its refining is monopolised, recycling negligible and substitution limited.
+      </p>
+      <p className="group-two-dashboard__note">Source: <a href={DASHBOARD_URL} target="_blank" rel="noreferrer">India Critical Minerals Dashboard</a>, Group 2.</p>
+      <details className="group-two-dashboard__embed">
+        <summary>Open embedded dashboard</summary>
+        <iframe
+          title="India Critical Minerals Dashboard"
+          src={`${DASHBOARD_URL}#groups`}
+          loading="lazy"
+        />
+      </details>
     </div>
   );
 }
@@ -40,11 +67,14 @@ export function Landing({ onEnter }: { onEnter: () => void }) {
     <main className="landing">
       <header className="landing__masthead">
         <a className="landing__logo" href="https://takshashila.org.in/" target="_blank" rel="noreferrer">
-          <TakshashilaLogo height={48} />
+          <TakshashilaLogo height={65} />
         </a>
-        <a className="landing__research-link" href={MINERALPOLITIK_URL} target="_blank" rel="noreferrer">
-          Critical minerals research <ArrowUpRight size={13} weight="bold" />
-        </a>
+        <div className="landing__masthead-actions">
+          <a className="landing__research-link" href={MINERALPOLITIK_URL} target="_blank" rel="noreferrer">
+            Critical minerals research <ArrowUpRight size={13} weight="bold" />
+          </a>
+          <button type="button" className="landing__masthead-cta" onClick={onEnter}>Open the motor <ArrowRight size={14} weight="bold" /></button>
+        </div>
       </header>
 
       <div className="landing__grid">
@@ -55,7 +85,7 @@ export function Landing({ onEnter }: { onEnter: () => void }) {
             One of the things that makes EVs such a critical technology is the motor. Most EV traction motors use permanent magnets that contain rare earths, especially the heavy rare earths dysprosium and terbium. Their presence creates a supply-chain vulnerability inside the drive unit.
           </p>
           <p className="landing__paragraph">
-            We will look at which rare earths a motor uses, what a permanent magnet is, and why 70–80% of EV traction motors are reported to use permanent-magnet machines. The refining bottleneck is concentrated in the same minerals we grouped in Group 2 of the <a href={DASHBOARD_URL} target="_blank" rel="noreferrer">India Critical Minerals Dashboard</a>; China’s April 2025 export controls showed that this is not a problem of the future. We will then see how the motor works and what can lessen the dependency.
+            We will look at which rare earths a motor uses, what a permanent magnet is—a material that holds its field without a continuous electrical input—and why 70–80% of EV traction motors are reported to use permanent-magnet machines. The refining bottleneck is concentrated in the same minerals we grouped in Group 2 of the <a href={DASHBOARD_URL} target="_blank" rel="noreferrer">India Critical Minerals Dashboard</a>.
           </p>
           <p className="landing__authors" aria-label="Authors">
             <span>By </span>
@@ -66,9 +96,6 @@ export function Landing({ onEnter }: { onEnter: () => void }) {
               </span>
             ))}
           </p>
-          <button type="button" className="landing__cta" onClick={onEnter}>
-            Open the motor <ArrowRight size={15} weight="bold" />
-          </button>
         </section>
 
         <figure className="landing__dashboard" aria-labelledby="dashboard-caption">
@@ -76,7 +103,7 @@ export function Landing({ onEnter }: { onEnter: () => void }) {
             <GroupTwoDashboard />
           </div>
           <figcaption id="dashboard-caption">
-            Group 2 is the tightest group in the dashboard: refining concentration, reserve concentration and extraction complexity all sit near the maximum.
+            Group 2 is the tightest group in the dashboard. The preview above is rendered in code; <a href={`${DASHBOARD_URL}#groups`} target="_blank" rel="noreferrer">open the source dashboard</a> for the full group view.
           </figcaption>
         </figure>
       </div>

@@ -15,7 +15,6 @@ export const AUTHORS = [
   },
 ] as const;
 export const BYLINE = "Tannmay Kumarr Baid, Shobhankita Reddy, and Pranay Kotasthane";
-export const PUBLISHED = "August 2026";
 export const DASHBOARD_URL = "https://indiacriticalminerals.com/";
 export const MINERALPOLITIK_URL =
   "https://takshashila.org.in/pages/research-areas/focus-areas/mineralpolitik.html";

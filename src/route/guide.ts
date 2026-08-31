@@ -51,13 +51,13 @@ export const stateGuides: Record<string, StateGuide> = {
   },
   "where-the-motor-lives/drive-unit": {
     lookFor: "Use the callouts to separate inverter, motor barrel and reduction gear from the wheel shaft.",
-    takeaway: "A traction motor is designed inside a thermal, electrical and mechanical package, not as a standalone component.",
+    takeaway: "A traction motor is part of one thermal, electrical and mechanical package.",
     next: "Open the machine to find its stationary and rotating members.",
   },
 
   "open-the-machine/explode": {
     lookFor: "Drag the Explode slider to separate the outer aluminum housing, stationary stator, spinning rotor, output shaft, and bearings.",
-    takeaway: "The motor splits into a stationary electromagnetic system (stator) and a spinning permanent magnet assembly (rotor).",
+    takeaway: "The motor has a stationary stator and a spinning rotor with permanent magnets.",
     next: "Inspect the stationary stator ring first.",
   },
   "open-the-machine/housing": {
@@ -67,12 +67,12 @@ export const stateGuides: Record<string, StateGuide> = {
   },
   "open-the-machine/stator": {
     lookFor: "Follow the copper winding coils distributed inside the slots of the laminated silicon steel ring.",
-    takeaway: "The stator is the stationary electromagnet: steel laminations channel magnetic flux, and 3-phase copper coils carry AC current.",
+    takeaway: "The stator stays still: steel sheets guide the flux and three copper phases carry AC current.",
     next: "Compare it with the rotating magnet assembly.",
   },
   "open-the-machine/rotor": {
     lookFor: "Find the V-shaped pockets inside the spinning rotor steel where NdFeB permanent magnets are buried.",
-    takeaway: "Burying magnets inside the rotor steel (IPM) keeps them structurally secure at 18,000 RPM and produces reluctance torque.",
+    takeaway: "Buried magnets stay secure at high speed and let the rotor gain extra torque from steel alignment.",
     next: "Inspect the narrow air gap where the two magnetic systems interact.",
   },
   "open-the-machine/shaft": {
@@ -82,13 +82,13 @@ export const stateGuides: Record<string, StateGuide> = {
   },
   "open-the-machine/air-gap": {
     lookFor: "Look down the bore at the tiny sub-millimetre clearance between the stationary stator teeth and the spinning rotor surface.",
-    takeaway: "There is zero mechanical contact: 100% of the vehicle's driving torque crosses this sub-millimetre gap purely through magnetic flux lines.",
+    takeaway: "The parts never touch; magnetic forces carry torque across the tiny air gap.",
     next: "See how three still coils create a rotating magnetic field.",
   },
 
   "three-coils-one-field/electromagnet-rule": {
     lookFor: "Toggle current direction and observe the magnetic field vector point along the coil axis toward North.",
-    takeaway: "Curling your right-hand fingers with coil current gives its North direction; one fixed coil makes one stationary pole.",
+    takeaway: "Current sets a coil's North direction, but one coil still makes only a fixed pole.",
     next: "Inspect this single coil group inside the physical stator.",
   },
   "three-coils-one-field/one-phase": {
@@ -98,17 +98,17 @@ export const stateGuides: Record<string, StateGuide> = {
   },
   "three-coils-one-field/three-phase-math": {
     lookFor: "Scrub electrical angle and follow the three AC current waveforms summing into one rotating resultant field vector.",
-    takeaway: "Currents offset by one third of a cycle sum into a constant-magnitude field vector that sweeps around the bore.",
+    takeaway: "Three offset currents add up to one field that sweeps around the bore.",
     next: "Look at the rotating magnetic field inside the 3D motor bore.",
   },
   "three-coils-one-field/no-part-moves": {
     lookFor: "Observe the field vector rotating continuously while every copper coil remains stationary in its slot.",
-    takeaway: "The inverter creates rotational motion through electronic AC phase frequency without moving a single wire.",
+    takeaway: "The inverter creates rotation by changing the AC timing; the coils stay still.",
     next: "Put a permanent magnet rotor into that rotating magnetic field.",
   },
   "three-coils-one-field/rotor-locks": {
     lookFor: "Watch the rotor's permanent magnets lock onto the sweeping stator field and trail at a fixed load angle.",
-    takeaway: "The rotor synchronises with the rotating stator field, maintaining exact speed matching at the inverter frequency.",
+    takeaway: "The rotor locks to the rotating stator field and follows its speed.",
     next: "Examine why magnets are buried in V-slots and how steel geometry adds reluctance torque.",
   },
 
@@ -119,12 +119,12 @@ export const stateGuides: Record<string, StateGuide> = {
   },
   "two-pulls-one-shaft/reluctance-split": {
     lookFor: "Compare the magnet-pull contribution with the steel-alignment reluctance torque on the decomposition graph.",
-    takeaway: "Interior magnet placement forces flux through steel paths, generating 30–40% reluctance torque alongside magnet pull.",
+    takeaway: "Buried magnets add steel-alignment torque, which can supply 30–40% of the total.",
     next: "Inspect the complete production IPM-SynRM machine in 3D.",
   },
   "two-pulls-one-shaft/already-both": {
     lookFor: "Read IPM-SynRM as one rotor using both buried permanent magnets and reluctance flux paths.",
-    takeaway: "Production machines already harvest steel reluctance torque to reduce expensive rare-earth magnet content.",
+    takeaway: "Production machines already use steel alignment to need less rare-earth magnet.",
     next: "Examine the magnet properties those buried magnets must supply.",
   },
 
@@ -198,12 +198,12 @@ export const stateGuides: Record<string, StateGuide> = {
 
   "the-weakness/always-on": {
     lookFor: "Try to reduce the permanent field and observe that no excitation control exists.",
-    takeaway: "A permanent rotor field is always present whenever the rotor turns, including fault and high-speed cases.",
+    takeaway: "A permanent rotor field stays present at speed and during faults.",
     next: "Follow that field into the stator electrical circuit.",
   },
   "the-weakness/back-emf": {
     lookFor: "Sweep speed and watch induced voltage climb along the curve toward the bus line.",
-    takeaway: "Rotor motion induces a back voltage proportional to flux and speed, opposing the inverter's ability to push current.",
+    takeaway: "Rotor motion creates a back voltage that rises with speed and pushes against the inverter.",
     next: "Identify the voltage ceiling created by the DC bus.",
   },
   "the-weakness/ceiling": {
@@ -213,7 +213,7 @@ export const stateGuides: Record<string, StateGuide> = {
   },
   "the-weakness/field-weakening": {
     lookFor: "Increase counter-current and compare the shrinking net-flux marker with the growing non-torque burden.",
-    takeaway: "Field weakening buys speed range by spending current to cancel part of the magnet's own flux.",
+    takeaway: "Field weakening spends current to cancel some of the magnet's flux and gain speed range.",
     next: "Gate the inverter and ask what remains.",
   },
   "the-weakness/fault": {
@@ -229,7 +229,7 @@ export const stateGuides: Record<string, StateGuide> = {
 
   "swap-the-rotor/family-tree": {
     lookFor: "Select PM, induction, wound, SynRM and SRM; compare exposure, rotor loss, control burden, change burden and cost pressure.",
-    takeaway: "No alternative wins every metric; each relocates cost and complexity to a different subsystem.",
+    takeaway: "No alternative wins every measure; each moves cost and complexity somewhere else.",
     next: "Open the induction cage to see how a rotor field can be induced.",
   },
   "swap-the-rotor/induction-principle": {

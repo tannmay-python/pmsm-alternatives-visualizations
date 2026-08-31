@@ -2,7 +2,7 @@ import { ArrowLeft, ArrowUpRight } from "@phosphor-icons/react";
 import { Diagram } from "../diagrams/Diagrams";
 import { DEFAULT_CONTROLS } from "../stage/controls";
 import { closeStop } from "../route/structure";
-import { BYLINE, DASHBOARD_URL, PUBLISHED, PUBLISHER } from "../meta";
+import { BYLINE, DASHBOARD_URL, PUBLISHER } from "../meta";
 import { sources } from "../content/sources";
 import type { EvidenceSource } from "../content/schema";
 import "./Editorial.css";
@@ -68,7 +68,7 @@ export function Close({ onBack, onRestart }: { onBack: () => void; onRestart: ()
             />
             <figcaption>
               Change burden by architecture, on a teaching scale rather than a measured index.
-              Source: Takshashila due-diligence assessment, August 2026.
+              Source: Takshashila due-diligence assessment.
             </figcaption>
           </figure>
         </div>
@@ -120,8 +120,6 @@ export function Close({ onBack, onRestart }: { onBack: () => void; onRestart: ()
             <div>
               <p className="close__col-head">Authors</p>
               <p className="close__col-item">{BYLINE}</p>
-              <p className="close__col-head close__col-head--spaced">Published</p>
-              <p className="close__col-item">{PUBLISHED}</p>
             </div>
             <div className="close__sources">
               <p className="close__col-head">Selected sources</p>

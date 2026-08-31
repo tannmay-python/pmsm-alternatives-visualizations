@@ -1,9 +1,8 @@
-import { ArrowRight, X } from "@phosphor-icons/react";
+import { X } from "@phosphor-icons/react";
 import { Suspense, lazy, useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { Diagram } from "./diagrams/Diagrams";
 import { TakshashilaLogo } from "./components/TakshashilaLogo";
 import { BeatCard } from "./shell/BeatCard";
-import { Controls, hasControls } from "./shell/Controls";
 import { ProgressBar } from "./shell/ProgressBar";
 import { Landing } from "./pages/Landing";
 import { PUBLISHER } from "./meta";
@@ -45,29 +44,6 @@ const sourceOf = (index: number): { sourceStop: Stop; sourceState: StopState } =
   const sourceState = sourceStop.states.find((s) => s.id === pos.beat.sourceIds[0]) ?? sourceStop.states[0];
   return { sourceStop, sourceState };
 };
-
-function ChapterComplete({ pageIndex, onNext, onBack }: { pageIndex: number; onNext: () => void; onBack: () => void }) {
-  const page = PAGE_LIST[pageIndex];
-  const covered = page.stops.flatMap((stop) => stop.beats.map((beat) => beat.label));
-  const nextPage = PAGE_LIST[pageIndex + 1];
-  return (
-    <section className="chapter-screen" aria-labelledby="chapter-complete-title">
-      <div className="chapter-screen__content">
-        <p className="eyebrow">Chapter {pageIndex + 1} complete · {PAGE_LIST.length - pageIndex - 1} chapters left</p>
-        <h1 id="chapter-complete-title">{page.title}</h1>
-        <ol>
-          {covered.map((title, index) => <li key={`${title}-${index}`}><span>{String(index + 1).padStart(2, "0")}</span>{title}</li>)}
-        </ol>
-        <div className="chapter-screen__actions">
-          <button type="button" className="chapter-screen__next" onClick={onNext}>
-            {nextPage ? `Chapter ${pageIndex + 2} · ${nextPage.title}` : "Finish the walkthrough"} <ArrowRight size={14} weight="bold" />
-          </button>
-          <button type="button" className="chapter-screen__back" onClick={onBack}>← Back</button>
-        </div>
-      </div>
-    </section>
-  );
-}
 
 function TourEnd({ onRestart, onBack }: { onRestart: () => void; onBack: () => void }) {
   const finalState = STOPS.find((stop) => stop.id === "what-must-change")?.states.at(-1);
@@ -133,7 +109,6 @@ function ContentsOverlay({
 export default function App() {
   const initial = useMemo(initialFromHash, []);
   const [screen, setScreen] = useState<Screen>(initial.screen);
-  const [chapterEnd, setChapterEnd] = useState<number | null>(null);
   const [contentsOpen, setContentsOpen] = useState(false);
   const [cursor, move] = useReducer((state: number, action: Action) => {
     if (action.type === "next") return Math.min(BEATS.length - 1, state + 1);
@@ -155,6 +130,11 @@ export default function App() {
   const { sourceStop, sourceState } = useMemo(() => sourceOf(cursor), [cursor]);
   const chapterBeats = useMemo(() => BEATS.filter((item) => item.pageIndex === pageIndex), [pageIndex]);
   const chapterBeatIndex = Math.max(0, chapterBeats.findIndex((item) => item.beat.id === beat.id));
+  const selectChapterBeat = useCallback((index: number) => {
+    const target = chapterBeats[index];
+    const globalIndex = target ? BEATS.indexOf(target) : -1;
+    if (globalIndex >= 0 && globalIndex !== cursor) move({ type: "go", index: globalIndex });
+  }, [chapterBeats, cursor]);
 
   const setControls = useCallback((patch: Partial<StageControls>) => {
     autoplayToken.current += 1;
@@ -213,33 +193,24 @@ export default function App() {
   const goBack = useCallback(() => {
     if (contentsOpen) { setContentsOpen(false); return; }
     if (screen === "close") { setScreen("tour"); return; }
-    if (chapterEnd !== null) {
-      const last = BEATS.map((item, index) => ({ item, index })).filter(({ item }) => item.pageIndex === chapterEnd).at(-1);
-      if (last) move({ type: "go", index: last.index });
-      setChapterEnd(null);
-      return;
-    }
     if (cursor === 0) { setScreen("landing"); return; }
     move({ type: "prev" });
-  }, [chapterEnd, contentsOpen, cursor, screen]);
+  }, [contentsOpen, cursor, screen]);
 
   const goNext = useCallback(() => {
-    if (chapterEnd !== null) {
-      const next = BEATS.findIndex((item) => item.pageIndex === chapterEnd + 1);
-      setChapterEnd(null);
-      if (next >= 0) move({ type: "go", index: next });
-      return;
-    }
     if (cursor === BEATS.length - 1) { setScreen("close"); return; }
-    const upcoming = BEATS[cursor + 1];
-    if (upcoming.pageIndex > pageIndex) { setChapterEnd(pageIndex); return; }
     move({ type: "next" });
-  }, [chapterEnd, cursor, pageIndex]);
+  }, [cursor]);
+
+  const goNextChapter = useCallback(() => {
+    const next = BEATS.findIndex((item) => item.pageIndex === pageIndex + 1);
+    if (next >= 0) move({ type: "go", index: next });
+    else setScreen("close");
+  }, [pageIndex]);
 
   const goToPage = useCallback((targetPage: number) => {
     const index = BEATS.findIndex((item) => item.pageIndex === targetPage);
     if (index < 0) return;
-    setChapterEnd(null);
     setContentsOpen(false);
     setScreen("tour");
     move({ type: "go", index });
@@ -258,7 +229,7 @@ export default function App() {
   }, [goBack, goNext, screen]);
 
   if (screen === "landing") {
-    return <Landing onEnter={() => { setChapterEnd(null); move({ type: "go", index: 0 }); setScreen("tour"); }} />;
+    return <Landing onEnter={() => { move({ type: "go", index: 0 }); setScreen("tour"); }} />;
   }
 
   if (screen === "close") {
@@ -271,14 +242,14 @@ export default function App() {
       <a className="skip-link" href="#stage">Skip to the stage</a>
       <header className="topbar">
         <div className="topbar__brand">
-          <TakshashilaLogo className="topbar__logo" height={28} />
+          <TakshashilaLogo className="topbar__logo" height={42} />
           <div>
             <p className="topbar__publisher eyebrow">{PUBLISHER}</p>
             <div className="topbar__title">The rare-earth question, inside one motor</div>
           </div>
         </div>
         <div className="topbar__progress">
-          <ProgressBar pages={PAGE_LIST} pageIndex={pageIndex} beatIndex={chapterBeatIndex} beatTotal={page.beatCount} />
+          <ProgressBar pages={PAGE_LIST} pageIndex={pageIndex} />
           <button type="button" className="contents-button" onClick={() => setContentsOpen(true)}>Contents</button>
         </div>
       </header>
@@ -318,24 +289,18 @@ export default function App() {
         )}
       </section>
 
-      {chapterEnd !== null ? (
-        <ChapterComplete pageIndex={chapterEnd} onNext={goNext} onBack={goBack} />
-      ) : (
-        <BeatCard
-          page={page}
-          stop={stop}
-          beat={beat}
-          beatNumber={chapterBeatIndex + 1}
-          beatTotal={page.beatCount}
-          onBack={goBack}
-          onNext={goNext}
-          canGoBack
-          canGoNext
-          reducedMotion={reducedMotion}
-          hasControls={hasControls(sourceStop, sourceState)}
-          controls={<Controls stop={sourceStop} state={sourceState} controls={controls} setControls={setControls} />}
-        />
-      )}
+      <BeatCard
+        page={page}
+        positions={chapterBeats}
+        activeIndex={chapterBeatIndex}
+        onSelect={selectChapterBeat}
+        onBack={goBack}
+        onNext={goNext}
+        canGoBack={cursor > 0}
+        canGoNext={cursor < BEATS.length - 1}
+        onNextChapter={goNextChapter}
+        hasNextChapter={pageIndex < PAGE_LIST.length - 1}
+      />
     </div>
   );
 }

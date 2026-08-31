@@ -312,7 +312,7 @@
   min-width: 0;
 }
 
-.topbar__logo { flex: 0 0 auto; width: auto; }
+.topbar__logo { flex: 0 0 auto; width: auto; height: 42px !important; }
 .topbar__publisher { margin: 0 0 2px; }
 .topbar__title { font-size: var(--t-dense); }
 .topbar__progress { display: flex; align-items: center; gap: var(--gap-5); min-width: min(560px, 50vw); }
@@ -448,7 +448,7 @@
 }
 
 @media (max-width: 560px) {
-  .topbar__logo { height: 23px !important; }
+  .topbar__logo { height: 30px !important; }
   .topbar__title { font-size: var(--t-meta); }
   .topbar__progress { gap: var(--gap-3); }
   .contents-overlay { padding: 116px var(--pad-x) 24px; }
