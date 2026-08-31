@@ -1,9 +1,39 @@
 import { ArrowRight, ArrowUpRight } from "@phosphor-icons/react";
-import { Diagram } from "../diagrams/Diagrams";
-import { DEFAULT_CONTROLS } from "../stage/controls";
 import { TakshashilaLogo } from "../components/TakshashilaLogo";
 import { AUTHORS, DASHBOARD_URL, MINERALPOLITIK_URL } from "../meta";
 import "./Landing.css";
+
+const GROUP_TWO_ROWS = [
+  { label: "Mining", value: 60 },
+  { label: "Refining", value: 92 },
+  { label: "NdFeB traction magnets", value: 94 },
+] as const;
+
+function GroupTwoDashboard() {
+  return (
+    <div className="group-two-dashboard" role="img" aria-label="Group 2 supply concentration: 60 percent mining, 92 percent refining, and 94 percent NdFeB traction magnets">
+      <div className="group-two-dashboard__header">
+        <span>India critical minerals dashboard</span>
+        <span>Group 2</span>
+      </div>
+      <p className="group-two-dashboard__axis">Share of global output, by stage</p>
+      <div className="group-two-dashboard__rows">
+        {GROUP_TWO_ROWS.map((row) => (
+          <div className="group-two-dashboard__row" key={row.label}>
+            <div className="group-two-dashboard__row-meta">
+              <span>{row.label}</span>
+              <span className="group-two-dashboard__value">{row.value}%</span>
+            </div>
+            <div className="group-two-dashboard__track" aria-hidden="true">
+              <span className="group-two-dashboard__fill" style={{ width: `${row.value}%` }} />
+            </div>
+          </div>
+        ))}
+      </div>
+      <p className="group-two-dashboard__note">The remaining share is spread across every other producer combined.</p>
+    </div>
+  );
+}
 
 export function Landing({ onEnter }: { onEnter: () => void }) {
   return (
@@ -43,11 +73,7 @@ export function Landing({ onEnter }: { onEnter: () => void }) {
 
         <figure className="landing__dashboard" aria-labelledby="dashboard-caption">
           <div className="landing__dashboard-frame">
-            <div className="landing__dashboard-label">
-              <span>India Critical Minerals Dashboard</span>
-              <span>Group 2</span>
-            </div>
-            <Diagram id="supply-concentration" stateId="the-chokepoint" controls={DEFAULT_CONTROLS} architecture="reduced-hree" />
+            <GroupTwoDashboard />
           </div>
           <figcaption id="dashboard-caption">
             Group 2 is the tightest group in the dashboard: refining concentration, reserve concentration and extraction complexity all sit near the maximum.
