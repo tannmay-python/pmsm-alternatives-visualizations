@@ -227,7 +227,7 @@ export default function App() {
   useEffect(() => {
     if (screen !== "tour") return undefined;
     const onKey = (event: KeyboardEvent) => {
-      if (event.target instanceof HTMLInputElement) return;
+      if (event.target instanceof HTMLElement && event.target.closest("button, a, input, select, textarea, [contenteditable='true']")) return;
       if (event.key === "ArrowRight" || event.key === "Enter") { event.preventDefault(); goNext(); }
       if (event.key === "ArrowLeft") { event.preventDefault(); goBack(); }
       if (event.key === "Escape") setContentsOpen(false);
@@ -253,7 +253,7 @@ export default function App() {
           <TakshashilaLogo className="topbar__logo" height={65} />
         </a>
         <div className="topbar__progress">
-          <ProgressBar pages={PAGE_LIST} pageIndex={pageIndex} />
+          <ProgressBar pages={PAGE_LIST} pageIndex={pageIndex} onSelectPage={goToPage} />
           <button type="button" className="contents-button" onClick={() => setContentsOpen(true)}>Contents</button>
         </div>
       </header>

@@ -35,15 +35,29 @@
 }
 
 .progress-bar__mark {
+  position: relative;
   display: block;
   flex: 1 1 0;
-  height: 3px;
-  background: rgba(23, 20, 19, 0.14);
-  transition: width 260ms var(--ease), background 260ms ease;
+  min-width: 24px;
+  height: 22px;
+  padding: 9px 0 10px;
+  background: transparent;
+  transition: flex 260ms var(--ease);
 }
 
-.progress-bar__mark.is-done { background: rgba(23, 20, 19, 0.4); }
-.progress-bar__mark.is-current { flex: 2.3 1 0; background: var(--wine); }
+.progress-bar__mark::before {
+  content: "";
+  display: block;
+  height: 3px;
+  background: rgba(23, 20, 19, 0.14);
+  transition: background 260ms ease;
+}
+
+.progress-bar__mark.is-done::before { background: rgba(23, 20, 19, 0.4); }
+.progress-bar__mark.is-current { flex: 2.3 1 0; background: transparent; }
+.progress-bar__mark.is-current::before { background: var(--wine); }
+.progress-bar__mark:hover::before { background: var(--wine-dark); }
+.progress-bar__mark:focus-visible { outline: 2px solid var(--wine); outline-offset: 2px; }
 
 .progress-bar__readout {
   flex: 0 0 auto;
