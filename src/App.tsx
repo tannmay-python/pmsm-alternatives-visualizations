@@ -40,18 +40,21 @@ const initialFromHash = (): { screen: Screen; index: number } => {
 const sourceOf = (index: number): { sourceStop: Stop; sourceState: StopState } => {
   const pos = BEATS[index];
   const sourceStop = STOPS.find((s) => s.id === pos.stop.sourceStopId) ?? STOPS[0];
-  const sourceState = sourceStop.states.find((s) => s.id === pos.beat.sourceIds[0]) ?? sourceStop.states[0];
+  const sourceState = sourceStop.states.find((s) => s.id === pos.beat.frameStateId) ?? sourceStop.states[0];
   return { sourceStop, sourceState };
 };
 
 function TourEnd({ onRestart, onBack }: { onRestart: () => void; onBack: () => void }) {
-  const finalState = STOPS.find((stop) => stop.id === "what-must-change")?.states.at(-1);
   return (
     <main className="tour-end" aria-labelledby="tour-end-title">
       <div className="tour-end__content">
         <p className="eyebrow">End of the walkthrough · {PAGE_LIST.length} of {PAGE_LIST.length} chapters</p>
-        <h1 id="tour-end-title">You have seen the whole argument</h1>
-        <p>{finalState?.line}</p>
+        <h1 id="tour-end-title">Three things to carry forward</h1>
+        <ol className="tour-end__summary">
+          <li><strong>The motor.</strong> Timed stator current creates a rotating field. A permanent-magnet rotor follows it and turns the shaft.</li>
+          <li><strong>The alternatives.</strong> The rotor field can instead come from induced current, powered coils, shaped steel, or a lower-risk magnet.</li>
+          <li><strong>The decision.</strong> Supply resilience must be weighed against efficiency, size, cooling, controls and production validation.</li>
+        </ol>
         <div className="tour-end__actions">
           <button type="button" className="tour-end__restart" onClick={onRestart}>Start again</button>
           <button type="button" className="tour-end__back" onClick={onBack}>← Back</button>
@@ -122,8 +125,10 @@ export default function App() {
   const [rotor, setRotor] = useState<RotorId>("ipm-ndfeb");
   const [architecture, setArchitecture] = useState<ArchitectureId>("reduced-hree");
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [demoRunning, setDemoRunning] = useState(false);
+  const [scrollActivity, setScrollActivity] = useState(0);
   const autoplayToken = useRef(0);
-  const userInteracted = useRef(false);
+  const controlsRef = useRef<StageControls>(DEFAULT_CONTROLS);
 
   const position = BEATS[cursor];
   const { page, stop, beat, pageIndex } = position;
@@ -137,15 +142,20 @@ export default function App() {
   }, [chapterBeats, cursor]);
 
   const setControls = useCallback((patch: Partial<StageControls>) => {
-    userInteracted.current = true;
     autoplayToken.current += 1;
+    setDemoRunning(false);
     patchControls((current) => ({ ...current, ...patch }));
   }, []);
 
   const markUserScroll = useCallback(() => {
-    userInteracted.current = true;
     autoplayToken.current += 1;
+    setDemoRunning(false);
+    setScrollActivity((value) => value + 1);
   }, []);
+
+  useEffect(() => {
+    controlsRef.current = controls;
+  }, [controls]);
 
   useEffect(() => {
     document.title = "The rare-earth question, inside one motor";
@@ -161,34 +171,45 @@ export default function App() {
     autoplayToken.current += 1;
     const token = autoplayToken.current;
     const target = presetFor(sourceStop.id, sourceState.id);
-    if (reducedMotion || userInteracted.current) {
+    if (reducedMotion) {
       patchControls(target);
+      setDemoRunning(false);
       return undefined;
     }
-    // Discrete scene choices land immediately; numeric values then travel
-    // through the six-second demo so the frame starts on the right lesson.
-    patchControls({
-      ...DEFAULT_CONTROLS,
-      isolate: target.isolate,
-      activePhase: target.activePhase,
-      fieldLive: target.fieldLive,
-      extract: target.extract,
-    });
     const numericKeys: Array<keyof StageControls> = ["angle", "load", "heat", "dysprosium", "diffusion", "nucleation", "weakening", "explode"];
     let frame = 0;
-    const started = performance.now();
-    const tick = (now: number) => {
+    const kickoff = window.setTimeout(() => {
       if (autoplayToken.current !== token) return;
-      const t = Math.min(1, (now - started) / 6000);
-      const eased = 1 - Math.pow(1 - t, 3);
-      const patch = Object.fromEntries(numericKeys.map((key) => [key, Number(DEFAULT_CONTROLS[key] ?? 0) + (Number(target[key] ?? 0) - Number(DEFAULT_CONTROLS[key] ?? 0)) * eased])) as Partial<StageControls>;
-      patchControls(patch);
-      if (t < 1) frame = requestAnimationFrame(tick);
-      else patchControls(target);
+      const from = controlsRef.current;
+      // Discrete scene choices land immediately. Numeric values retarget from
+      // the current frame, so a scroll never snaps the model back to a default.
+      patchControls({
+        isolate: target.isolate,
+        activePhase: target.activePhase,
+        fieldLive: target.fieldLive,
+        extract: target.extract,
+      });
+      setDemoRunning(true);
+      const started = performance.now();
+      const tick = (now: number) => {
+        if (autoplayToken.current !== token) return;
+        const t = Math.min(1, (now - started) / 4800);
+        const eased = 1 - Math.pow(1 - t, 3);
+        const patch = Object.fromEntries(numericKeys.map((key) => [key, Number(from[key] ?? 0) + (Number(target[key] ?? 0) - Number(from[key] ?? 0)) * eased])) as Partial<StageControls>;
+        patchControls(patch);
+        if (t < 1) frame = requestAnimationFrame(tick);
+        else {
+          patchControls(target);
+          setDemoRunning(false);
+        }
+      };
+      frame = requestAnimationFrame(tick);
+    }, 220);
+    return () => {
+      window.clearTimeout(kickoff);
+      cancelAnimationFrame(frame);
     };
-    frame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame);
-  }, [screen, sourceStop.id, sourceState.id, reducedMotion]);
+  }, [screen, sourceStop.id, sourceState.id, reducedMotion, scrollActivity]);
 
   useEffect(() => {
     if (screen === "landing") window.history.replaceState(null, "", window.location.pathname);
@@ -209,7 +230,6 @@ export default function App() {
   }, [cursor]);
 
   const goNextChapter = useCallback(() => {
-    userInteracted.current = false;
     const next = BEATS.findIndex((item) => item.pageIndex === pageIndex + 1);
     if (next >= 0) move({ type: "go", index: next });
     else setScreen("close");
@@ -220,7 +240,6 @@ export default function App() {
     if (index < 0) return;
     setContentsOpen(false);
     setScreen("tour");
-    userInteracted.current = false;
     move({ type: "go", index });
   }, []);
 
@@ -237,7 +256,7 @@ export default function App() {
   }, [goBack, goNext, screen]);
 
   if (screen === "landing") {
-    return <Landing onEnter={() => { userInteracted.current = false; move({ type: "go", index: 0 }); setScreen("tour"); }} />;
+    return <Landing onEnter={() => { move({ type: "go", index: 0 }); setScreen("tour"); }} />;
   }
 
   if (screen === "close") {
@@ -268,7 +287,7 @@ export default function App() {
               state={sourceState}
               controls={controls}
               rotor={rotor}
-              paused={false}
+              paused={!demoRunning || reducedMotion}
               reducedMotion={reducedMotion}
               side="left"
             />

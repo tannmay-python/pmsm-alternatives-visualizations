@@ -2,47 +2,55 @@ import { describe, expect, it } from "vitest";
 import { STOPS } from "./route";
 import {
   BEATS,
-  LANDING_STOP_ID,
   PAGE_LIST,
   PAGES,
   buildPages,
 } from "./structure";
 import { frameKey } from "./presets";
 
-/**
- * The restructure's one promise: fewer beats, none of the words. These tests
- * are what make that checkable rather than asserted.
- */
-
-const tourStops = STOPS.filter((s) => s.id !== LANDING_STOP_ID);
+const requiredSpine = [
+  "where-the-motor-lives/power-path",
+  "open-the-machine/explode",
+  "open-the-machine/rotor",
+  "open-the-machine/air-gap",
+  "three-coils-one-field/electromagnet-rule",
+  "three-coils-one-field/three-phase-math",
+  "three-coils-one-field/rotor-locks",
+  "two-pulls-one-shaft/already-both",
+  "strength-and-stubbornness/division-of-labour",
+  "which-rare-earth/the-split",
+  "heat-and-the-patch/dysprosium-tradeoff",
+  "which-rare-earth/already-happened",
+  "swap-the-rotor/family-tree",
+  "swap-the-rotor/induction-principle",
+  "swap-the-rotor/wound-control",
+  "swap-the-rotor/reluctance-spectrum",
+  "swap-the-rotor/srm-aluminium",
+  "change-the-magnet/ferrite-limit",
+  "what-must-change/spectrum",
+  "what-must-change/validation",
+  "what-must-change/where-we-are",
+];
 
 describe("page structure", () => {
-  it("uses seven chapters for the guided spine", () => {
-    expect(PAGE_LIST).toHaveLength(7);
+  it("uses five chapters for the guided spine", () => {
+    expect(PAGE_LIST).toHaveLength(5);
   });
 
-  it("builds without dropping or repeating a state", () => {
+  it("builds without repeating a selected state", () => {
     expect(() => buildPages()).not.toThrow();
   });
 
-  it("keeps every line from every tour state", () => {
-    const before = tourStops.flatMap((stop) => stop.states.map((s) => s.line)).sort();
-    const after = BEATS.flatMap((p) => p.beat.lines).sort();
-    expect(after).toEqual(before);
-  });
-
-  it("keeps every tour state reachable through some beat", () => {
-    const before = tourStops.flatMap((stop) => stop.states.map((s) => `${stop.id}/${s.id}`)).sort();
-    const after = BEATS.flatMap((p) =>
+  it("keeps the complete 21-frame learning spine", () => {
+    const selected = BEATS.flatMap((p) =>
       p.beat.sourceIds.map((id) => `${p.stop.sourceStopId}/${id}`),
     ).sort();
-    expect(after).toEqual(before);
+    expect(selected).toEqual([...requiredSpine].sort());
   });
 
-  it("shortens the tour rather than lengthening it", () => {
-    const stateCount = tourStops.reduce((n, s) => n + s.states.length, 0);
-    expect(BEATS.length).toBeLessThanOrEqual(stateCount);
-    // Every merged beat has to earn its merge by carrying more than one line.
+  it("holds the public course to 20–22 frames", () => {
+    expect(BEATS.length).toBeGreaterThanOrEqual(20);
+    expect(BEATS.length).toBeLessThanOrEqual(22);
     for (const { beat } of BEATS) {
       expect(beat.lines.length).toBe(beat.sourceIds.length);
     }
@@ -51,7 +59,7 @@ describe("page structure", () => {
   it("gives every chapter a bounded number of stops and beats", () => {
     for (const page of PAGE_LIST) {
       expect(page.stops.length).toBeGreaterThanOrEqual(1);
-      expect(page.stops.length).toBeLessThanOrEqual(3);
+      expect(page.stops.length).toBeLessThanOrEqual(4);
       for (const stop of page.stops) {
         expect(stop.beats.length).toBeGreaterThan(0);
         expect(stop.beats.length).toBeLessThanOrEqual(6);

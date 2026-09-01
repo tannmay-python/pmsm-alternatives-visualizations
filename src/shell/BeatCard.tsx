@@ -1,7 +1,6 @@
 import { ArrowRight } from "@phosphor-icons/react";
 import { useEffect, useRef, useState } from "react";
 import type { Page, Position } from "../route/structure";
-import { guideFor } from "../route/guide";
 import "./BeatCard.css";
 
 export function BeatCard({
@@ -74,7 +73,6 @@ export function BeatCard({
     <aside className="beat-card beat-card--left" aria-label={page.title} data-page={page.id}>
       <div className="beat-card__scroll" ref={scrollRef} tabIndex={0} onScroll={handleScroll}>
         {positions.map((position, index) => {
-          const guide = guideFor(position.stop.sourceStopId, position.beat.sourceIds[0]);
           const isActive = index === activeIndex;
           return (
             <article
@@ -91,10 +89,6 @@ export function BeatCard({
               </header>
               <div className="beat-card__body">
                 {position.beat.lines.map((line) => <p key={line}>{line}</p>)}
-              </div>
-              <div className="beat-card__takeaway">
-                <span className="beat-card__guide-label">Takeaway</span>
-                <p>{guide.takeaway}</p>
               </div>
               <p className="beat-card__scroll-hint" aria-hidden="true">Scroll to continue <span>↓</span></p>
             </article>

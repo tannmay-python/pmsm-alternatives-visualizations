@@ -2,7 +2,6 @@ import { STOPS, type StageKind, type Stop, type StopState } from "./route";
 import { frameKey } from "./presets";
 import {
   EMPHASIS,
-  LANDING_STOP_ID,
   PAGES,
   type BeatGroup,
   type PageTransition,
@@ -10,8 +9,9 @@ import {
 } from "./pages";
 
 /**
- * Turns the page table in pages.ts into the beats the shell walks, and refuses
- * to do it if the table would drop a state or merge two different pictures.
+ * Turns the curated page table in pages.ts into the beats the shell walks, and
+ * refuses to do it if a selected state is repeated or a plain merge combines
+ * different pictures. Unselected route states remain research source material.
  */
 
 export { EMPHASIS, LANDING_STOP_ID, PAGES } from "./pages";
@@ -134,8 +134,8 @@ const buildStop = (spec: StopSpec, source: Stop): PageStop => {
   };
 };
 
-/** Every state of a stop must be placed exactly once across that stop's groups. */
-const assertComplete = () => {
+/** A selected source state may appear only once in the public walkthrough. */
+const assertNoDuplicates = () => {
   const placed = new Map<string, string[]>();
   for (const page of PAGES) {
     for (const spec of page.stops) {
@@ -144,23 +144,16 @@ const assertComplete = () => {
       placed.set(spec.from, list);
     }
   }
-  for (const stop of STOPS) {
-    if (stop.id === LANDING_STOP_ID) continue;
-    const seen = placed.get(stop.id) ?? [];
-    const expected = stop.states.map((s) => s.id);
-    const missing = expected.filter((id) => !seen.includes(id));
+  for (const [stopId, seen] of placed) {
     const duplicated = seen.filter((id, i) => seen.indexOf(id) !== i);
-    if (missing.length) {
-      throw new Error(`Stop "${stop.id}" drops states: ${missing.join(", ")}. No content is cut.`);
-    }
     if (duplicated.length) {
-      throw new Error(`Stop "${stop.id}" repeats states: ${duplicated.join(", ")}.`);
+      throw new Error(`Stop "${stopId}" repeats states: ${duplicated.join(", ")}.`);
     }
   }
 };
 
 export const buildPages = (): readonly Page[] => {
-  assertComplete();
+  assertNoDuplicates();
   return PAGES.map((spec, i) => {
     const stops = spec.stops.map((s) => buildStop(s, stopById(s.from)));
     return {

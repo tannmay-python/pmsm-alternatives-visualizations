@@ -156,7 +156,8 @@ function SceneContents({
     );
   }
 
-  const slip = rotor === "squirrel-cage" ? 0.02 + controls.load * 0.02 : 0;
+  const effectiveRotor = stage.rotor ?? rotor;
+  const slip = effectiveRotor === "squirrel-cage" ? 0.02 + controls.load * 0.02 : 0;
   const cutaway = CUTAWAY_STATES.has(state.id);
   const fieldLesson = fieldLessonFor(stop, state);
 
@@ -168,9 +169,9 @@ function SceneContents({
         dimStator={
           stop.id === "swap-the-rotor" &&
           state.id !== "family-tree" &&
-          !ROTORS[rotor].needsOwnStator
+          !ROTORS[effectiveRotor].needsOwnStator
         }
-        rotor={rotor}
+        rotor={effectiveRotor}
         explode={controls.explode}
         spinning={!paused && state.id !== "one-phase"}
         angle={controls.angle}
@@ -189,28 +190,16 @@ function SceneContents({
       {stop.id === "open-the-machine" && controls.isolate === "none" && controls.explode > 0.15 && (
         <>
           <Callout position={[0, MOTOR.housingOuter, explodeZ("housing", controls.explode)]} direction="top-left">
-            housing · outer aluminum casing
+            housing · cooling jacket
           </Callout>
           <Callout position={[0, MOTOR.statorOuter, explodeZ("statorCore", controls.explode)]} direction="top-right" accent>
-            stator · 48 copper coil slots
+            stator · copper coils
           </Callout>
           <Callout position={[0, MOTOR.rotorOuter, explodeZ("rotor", controls.explode)]} direction="top-left" accent>
             rotor · buried NdFeB magnets
           </Callout>
           <Callout position={[0, -MOTOR.shaftRadius, explodeZ("shaft", controls.explode) + 0.6]} direction="bottom-right">
-            shaft · power to gearbox
-          </Callout>
-          <Callout
-            position={[0, -MOTOR.housingOuter + 0.1, -MOTOR.housingLength / 2 + explodeZ("frontCap", controls.explode)]}
-            direction="bottom-left"
-          >
-            end cap · front housing seal
-          </Callout>
-          <Callout
-            position={[0, -MOTOR.shaftRadius - 0.05, MOTOR.housingLength / 2 + explodeZ("rearBearing", controls.explode)]}
-            direction="bottom-right"
-          >
-            bearing · precision rotary support
+            shaft · torque output
           </Callout>
         </>
       )}
@@ -305,7 +294,7 @@ function SceneContents({
             stator teeth · stationary electromagnets
           </Callout>
           <Callout position={[MOTOR.statorBore * 0.72, MOTOR.statorBore * 0.72, 0]} direction="top-right" accent>
-            &lt; 1 mm air gap · all torque crosses this empty space magnetically
+            &lt; 1 mm air gap · torque crosses here magnetically
           </Callout>
           <Callout position={[0, -MOTOR.rotorOuter - 0.05, 0]} direction="bottom">
             rotor pole · pulled by rotating stator field
@@ -347,71 +336,71 @@ function SceneContents({
 
       {(stop.id === "swap-the-rotor" || stop.id === "change-the-magnet") && (
         <>
-          {rotor === "squirrel-cage" && (
+          {effectiveRotor === "squirrel-cage" && (
             <>
               <Callout position={[-MOTOR.statorOuter * 0.65, MOTOR.statorOuter * 0.7, explodeZ("statorCore", controls.explode)]} direction="top-left">
-                3-phase stator · rotating field induces cage current
+                stator field induces current
               </Callout>
               <Callout position={[MOTOR.rotorOuter * 0.7, MOTOR.rotorOuter * 0.65, explodeZ("rotor", controls.explode)]} direction="top-right" accent>
-                squirrel cage · copper/aluminium bars (0% magnets)
+                shorted rotor cage · no magnets
               </Callout>
               <Callout position={[0, -MOTOR.rotorOuter * 0.75, explodeZ("rotor", controls.explode) + MOTOR.stackLength / 2 + 0.1]} direction="bottom-right">
-                end rings · complete electrical circuit for torque
+                end rings close the circuit
               </Callout>
             </>
           )}
 
-          {rotor === "wound" && (
+          {effectiveRotor === "wound" && (
             <>
               <Callout position={[-MOTOR.rotorOuter * 0.65, MOTOR.rotorOuter * 0.7, explodeZ("rotor", controls.explode)]} direction="top-left">
-                excitation control · turn off on highway for 0% drag
+                field can be switched down
               </Callout>
               <Callout position={[MOTOR.rotorOuter * 0.7, MOTOR.rotorOuter * 0.65, explodeZ("rotor", controls.explode)]} direction="top-right" accent>
-                rotor copper coils · controllable electromagnet (0% rare earths)
+                powered rotor coils · no permanent magnets
               </Callout>
               <Callout position={[0, -MOTOR.shaftRadius, explodeZ("shaft", controls.explode) + 0.6]} direction="bottom-right">
-                power feed · slip rings / brushless rotating transformer
+                rotor power feed
               </Callout>
             </>
           )}
 
-          {(rotor === "synrm" || rotor === "pm-assisted-synrm") && (
+          {(effectiveRotor === "synrm" || effectiveRotor === "pm-assisted-synrm") && (
             <>
               <Callout position={[-MOTOR.rotorOuter * 0.65, MOTOR.rotorOuter * 0.7, explodeZ("rotor", controls.explode)]} direction="top-left">
-                {rotor === "pm-assisted-synrm"
-                  ? "PM inserts · boosts power factor without high rare-earth cost"
-                  : "pure steel core · zero rotor windings, zero rotor heat"}
+                {effectiveRotor === "pm-assisted-synrm"
+                  ? "small magnet inserts assist the steel rotor"
+                  : "shaped steel rotor"}
               </Callout>
               <Callout position={[MOTOR.rotorOuter * 0.7, MOTOR.rotorOuter * 0.65, explodeZ("rotor", controls.explode)]} direction="top-right" accent>
-                flux barriers · sculpted air channels steer magnetic flux
+                air barriers steer magnetic flux
               </Callout>
               <Callout position={[0, -MOTOR.shaftRadius, explodeZ("shaft", controls.explode) + 0.6]} direction="bottom-right">
-                drive shaft · ultra-low manufacturing cost
+                no magnets or rotor windings
               </Callout>
             </>
           )}
 
-          {rotor === "srm" && (
+          {effectiveRotor === "srm" && (
             <>
               <Callout position={[-MOTOR.rotorOuter * 0.65, MOTOR.rotorOuter * 0.7, explodeZ("rotor", controls.explode)]} direction="top-left" accent>
-                toothed steel rotor · salient poles pulled into alignment
+                toothed steel rotor
               </Callout>
               <Callout position={[MOTOR.statorOuter * 0.7, MOTOR.statorOuter * 0.65, explodeZ("statorCore", controls.explode)]} direction="top-right">
-                concentrated coils · wound in lightweight compressed aluminium
+                switched stator poles
               </Callout>
               <Callout position={[0, -MOTOR.rotorOuter * 0.75, explodeZ("rotor", controls.explode)]} direction="bottom-right">
-                indestructible rotor · rated for extreme RPM
+                simple magnet-free rotor
               </Callout>
             </>
           )}
 
-          {(rotor === "ipm-ndfeb" || rotor === "ferrite-ipm") && (
+          {(effectiveRotor === "ipm-ndfeb" || effectiveRotor === "ferrite-ipm") && (
             <>
               <Callout position={[MOTOR.rotorOuter * 0.7, MOTOR.rotorOuter * 0.65, explodeZ("rotor", controls.explode)]} direction="top-right" accent>
-                {rotor === "ferrite-ipm" ? "ferrite magnets · enlarged pockets (0% rare earths)" : "NdFeB magnets · peak launch torque"}
+                {effectiveRotor === "ferrite-ipm" ? "ferrite magnets · no rare earths" : "NdFeB magnets · high torque density"}
               </Callout>
               <Callout position={[0, -MOTOR.shaftRadius, explodeZ("shaft", controls.explode) + 0.6]} direction="bottom-right">
-                drive shaft · keyed to laminated steel core
+                laminated steel rotor core
               </Callout>
             </>
           )}
@@ -513,8 +502,8 @@ export function Stage({
   }, [failed]);
 
   useEffect(() => {
-    setAutoRotate(!reducedMotion);
-  }, [stop.id, state.id, reducedMotion]);
+    setAutoRotate(!paused && !reducedMotion);
+  }, [stop.id, state.id, paused, reducedMotion]);
 
   if (failed) {
     return (

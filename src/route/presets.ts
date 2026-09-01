@@ -41,9 +41,13 @@ export const presetFor = (stopId: string, stateId: string): StageControls => ({
   nucleation: stateId === "reversal-start" ? 0.25 : 0,
   weakening: stateId === "field-weakening" ? 0.45 : stateId === "fault" ? 0.75 : 0,
   fieldLive: true,
-  angle: stateId === "anisotropy" ? (Math.PI / 2) * 0.35 : 0,
+  angle:
+    stateId === "electromagnet-rule" ? Math.PI
+    : stateId === "three-phase-math" ? Math.PI * 2
+    : stateId === "anisotropy" ? (Math.PI / 2) * 0.35
+    : 0,
   load:
-    stateId === "load-angle" || stateId === "induction-principle" || stateId === "induction-duty" ? 0.6
+    stateId === "load-angle" || stateId === "rotor-locks" || stateId === "induction-principle" || stateId === "induction-duty" ? 0.6
     : stateId === "hot-margin" ? 0.3
     : stateId === "ceiling" || stateId === "field-weakening" ? 0.85
     : stateId === "coercivity" || stateId === "anisotropy" ? 0.5

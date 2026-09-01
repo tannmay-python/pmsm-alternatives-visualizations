@@ -212,6 +212,22 @@
 .tour-end__content { max-width: 760px; margin: 0; }
 .tour-end h1 { margin-bottom: 18px; }
 .tour-end p { max-width: 58ch; margin: 0 0 34px; color: var(--ink-70); font-size: var(--t-lede); font-weight: 300; line-height: 1.45; }
+.tour-end__summary {
+  max-width: 760px;
+  margin: 0 0 38px;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line);
+}
+.tour-end__summary li {
+  padding: 18px 0;
+  color: var(--ink-70);
+  font-size: 18px;
+  font-weight: 300;
+  line-height: 1.5;
+  border-bottom: 1px solid var(--line);
+}
+.tour-end__summary strong { color: var(--ink); font-weight: 600; }
 
 .contents-overlay {
   position: fixed;

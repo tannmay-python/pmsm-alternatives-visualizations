@@ -9,6 +9,19 @@ import { burdenRoutes, architectureOptions, architectureStates, type Architectur
 import type { DiagramId } from "../route/route";
 import type { StageControls } from "../stage/controls";
 import { Axes } from "./parts";
+import {
+  AlternativesMapDiagram,
+  ChangeBurdenDiagram,
+  DecisionSummaryDiagram,
+  GripRuleDiagram,
+  HeatProtectionDiagram,
+  MagnetJobsDiagram,
+  MitigationOptionsDiagram,
+  RareEarthSplitDiagram,
+  ReadinessMapDiagram,
+  RotatingFieldDiagram,
+  TorqueCombinationDiagram,
+} from "./CleanDiagrams";
 import "./Diagrams.css";
 
 const W = 820;
@@ -2669,6 +2682,19 @@ export function Diagram({
       {id === "family-tree" && <FamilyTree rotor={rotor} onPick={onPickFamily} />}
       {id === "property-board" && <MaterialLab state={stateId} />}
       {id === "swap-burden" && <SwapBurden architecture={architecture} onPick={onPickArchitecture} />}
+      {id === "grip-rule-clean" && (
+        <GripRuleDiagram controls={controls} onPatchControls={onPatchControls} />
+      )}
+      {id === "rotating-field-clean" && <RotatingFieldDiagram controls={controls} />}
+      {id === "torque-combination-clean" && <TorqueCombinationDiagram />}
+      {id === "magnet-jobs-clean" && <MagnetJobsDiagram />}
+      {id === "rare-earth-split-clean" && <RareEarthSplitDiagram />}
+      {id === "heat-protection-clean" && <HeatProtectionDiagram controls={controls} />}
+      {id === "mitigation-options-clean" && <MitigationOptionsDiagram />}
+      {id === "alternatives-map-clean" && <AlternativesMapDiagram />}
+      {id === "change-burden-clean" && <ChangeBurdenDiagram />}
+      {id === "readiness-map-clean" && <ReadinessMapDiagram />}
+      {id === "decision-summary-clean" && <DecisionSummaryDiagram />}
     </div>
   );
 }
