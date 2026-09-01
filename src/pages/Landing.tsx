@@ -50,14 +50,6 @@ function GroupTwoDashboard() {
         Reserves sit in ion-adsorption clay deposits in southern China and Myanmar. Separating near-identical elements needs capability no Western or Indian facility has at commercial scale. China’s April 2025 export controls caused Western prices to triple within weeks; Tellurium is included here because its refining is monopolised, recycling negligible and substitution limited.
       </p>
       <p className="group-two-dashboard__note">Source: <a href={DASHBOARD_URL} target="_blank" rel="noreferrer">India Critical Minerals Dashboard</a>, Group 2.</p>
-      <details className="group-two-dashboard__embed">
-        <summary>Open embedded dashboard</summary>
-        <iframe
-          title="India Critical Minerals Dashboard"
-          src={`${DASHBOARD_URL}#groups`}
-          loading="lazy"
-        />
-      </details>
     </div>
   );
 }

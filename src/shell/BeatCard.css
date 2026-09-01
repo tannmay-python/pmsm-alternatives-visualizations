@@ -111,34 +111,6 @@
 }
 .beat-card__chapter-next:hover { background: var(--wine-dark); }
 
-.beat-card__edge-nav {
-  position: absolute;
-  top: 50%;
-  right: -17px;
-  left: -17px;
-  display: flex;
-  justify-content: space-between;
-  pointer-events: none;
-  transform: translateY(-50%);
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 180ms ease, visibility 180ms ease;
-}
-.beat-card__edge-nav.is-visible { opacity: 1; visibility: visible; }
-.beat-card__edge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  background: var(--wine);
-  color: #fff;
-  border: 1px solid var(--paper);
-  pointer-events: auto;
-}
-.beat-card__edge:hover:not(:disabled) { background: var(--wine-dark); }
-.beat-card__edge:disabled { opacity: 0.3; }
-
 @media (max-width: 1080px) {
   .beat-card {
     top: auto;
@@ -152,5 +124,4 @@
   }
   .beat-card__scroll { max-height: 50dvh; padding: 0 22px 18px; }
   .chapter-bite { min-height: calc(100dvh - 180px); padding: 22px 0 28px; }
-  .beat-card__edge-nav { right: -14px; left: -14px; }
 }

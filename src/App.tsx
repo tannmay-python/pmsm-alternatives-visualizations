@@ -294,15 +294,12 @@ export default function App() {
       </section>
 
       <BeatCard
+        key={page.id}
         page={page}
         positions={chapterBeats}
         activeIndex={chapterBeatIndex}
         onSelect={selectChapterBeat}
         onUserScroll={markUserScroll}
-        onBack={goBack}
-        onNext={goNext}
-        canGoBack={cursor > 0}
-        canGoNext={cursor < BEATS.length - 1}
         onNextChapter={goNextChapter}
         hasNextChapter={pageIndex < PAGE_LIST.length - 1}
       />

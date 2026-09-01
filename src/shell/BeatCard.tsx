@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight } from "@phosphor-icons/react";
+import { ArrowRight } from "@phosphor-icons/react";
 import { useEffect, useRef, useState } from "react";
 import type { Page, Position } from "../route/structure";
 import { guideFor } from "../route/guide";
@@ -10,10 +10,6 @@ export function BeatCard({
   activeIndex,
   onSelect,
   onUserScroll,
-  onBack,
-  onNext,
-  canGoBack,
-  canGoNext,
   onNextChapter,
   hasNextChapter,
 }: {
@@ -22,10 +18,6 @@ export function BeatCard({
   activeIndex: number;
   onSelect: (index: number) => void;
   onUserScroll: () => void;
-  onBack: () => void;
-  onNext: () => void;
-  canGoBack: boolean;
-  canGoNext: boolean;
   onNextChapter: () => void;
   hasNextChapter: boolean;
 }) {
@@ -64,6 +56,8 @@ export function BeatCard({
 
   useEffect(() => {
     setHasScrolled(false);
+    const root = scrollRef.current;
+    if (root) root.scrollTo({ top: 0, left: 0, behavior: "auto" });
   }, [positions]);
 
   useEffect(() => {
@@ -115,14 +109,6 @@ export function BeatCard({
         </div>
       </div>
 
-      <div className={`beat-card__edge-nav ${hasScrolled ? "is-visible" : ""}`} aria-label="Beat navigation">
-        <button type="button" className="beat-card__edge beat-card__edge--prev" onClick={onBack} disabled={!canGoBack} aria-label="Previous beat">
-          <ArrowLeft size={16} weight="bold" />
-        </button>
-        <button type="button" className="beat-card__edge beat-card__edge--next" onClick={onNext} disabled={!canGoNext} aria-label="Next beat">
-          <ArrowRight size={16} weight="bold" />
-        </button>
-      </div>
     </aside>
   );
 }
