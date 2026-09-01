@@ -74,22 +74,3 @@ export const makeMaterials = () => ({
 });
 
 export type MotorMaterials = ReturnType<typeof makeMaterials>;
-
-/** The accent material, used for exactly one part at a time. */
-export const highlightMaterial = () =>
-  new THREE.MeshStandardMaterial({
-    color: PALETTE.accent,
-    roughness: 0.42,
-    metalness: 0.3,
-    emissive: PALETTE.accentDim,
-    emissiveIntensity: 0.28,
-  });
-
-export const thermalMaterial = () =>
-  new THREE.MeshStandardMaterial({
-    color: PALETTE.warn,
-    roughness: 0.5,
-    metalness: 0.2,
-    emissive: PALETTE.warn,
-    emissiveIntensity: 0.3,
-  });

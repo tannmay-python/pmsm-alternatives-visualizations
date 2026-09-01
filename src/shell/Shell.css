@@ -43,59 +43,6 @@
   border-bottom: var(--rule);
 }
 
-.topbar__publisher { margin-bottom: 3px; }
-
-.topbar__title {
-  padding: 0;
-  color: var(--ink);
-  font-size: var(--t-dense);
-  text-align: left;
-}
-.topbar__title:hover { color: var(--wine); }
-
-/* Page names are destinations, so Inter and Title Case — never mono. */
-.topbar__pages { display: flex; flex-wrap: wrap; gap: 2px; }
-
-.page-tab {
-  padding: 6px 12px;
-  color: var(--ink-50);
-  transition: background var(--dur-hover) ease, color var(--dur-hover) ease;
-}
-.page-tab:hover { background: var(--paper); color: var(--ink); }
-.page-tab.is-current { color: var(--wine); border-bottom: 1px solid var(--wine); }
-
-/* Progress ---------------------------------------------------------------- */
-
-.progress-strip {
-  position: relative;
-  z-index: 5;
-  display: flex;
-  align-items: end;
-  gap: var(--gap-5);
-  padding: 14px var(--pad-x) 14px;
-  background: rgba(247, 245, 242, 0.88);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border-bottom: var(--rule);
-}
-.progress-strip > :first-child { flex: 1; min-width: 0; }
-
-.progress-strip__skip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  flex: 0 0 auto;
-  padding: 7px 12px;
-  border: var(--rule);
-  color: var(--ink-70);
-  font-family: var(--mono);
-  font-size: var(--t-meta);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  transition: background var(--dur-hover) ease;
-}
-.progress-strip__skip:hover { background: var(--paper); color: var(--ink); }
-
 /* Stage ------------------------------------------------------------------- */
 
 .stage-layer {
@@ -124,48 +71,10 @@
 .stage-diagram--left { padding-left: calc(min(410px, 34vw) + var(--pad-x) * 2); }
 .stage-diagram--right { padding-right: calc(min(410px, 34vw) + var(--pad-x) * 2); }
 
-/* Placed on whichever side the reading card is not using, so the two never
-   overlap. --side is set from the page. */
-.stage-tools {
-  position: fixed;
-  z-index: 6;
-  bottom: var(--pad-x);
-  display: flex;
-  gap: var(--gap-2);
-}
-.app[data-side="right"] .stage-tools { left: var(--pad-x); }
-.app[data-side="left"] .stage-tools { right: var(--pad-x); }
-
-.stage-tool {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 9px 14px;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: var(--rule);
-  color: var(--ink-70);
-  font-family: var(--mono);
-  font-size: var(--t-meta);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  transition: background var(--dur-hover) ease, color var(--dur-hover) ease;
-}
-.stage-tool:hover:not(:disabled) { background: var(--deep); color: var(--ink); }
-.stage-tool.is-on { background: var(--wine); border-color: var(--wine); color: #fff; }
-
 @media (max-width: 1080px) {
   .stage-diagram { inset: 116px 0 52dvh; padding: var(--gap-4) var(--pad-x); }
   .stage-diagram--left,
   .stage-diagram--right { padding-left: var(--pad-x); padding-right: var(--pad-x); }
-  .stage-tools { bottom: auto; top: 128px; }
-}
-
-@media (max-width: 720px) {
-  .topbar { flex-direction: column; align-items: flex-start; gap: var(--gap-3); }
-  .topbar__pages { gap: 0; overflow-x: auto; width: 100%; }
-  .page-tab { white-space: nowrap; padding: 6px 10px; }
 }
 
 /* Controls ---------------------------------------------------------------
@@ -219,82 +128,6 @@
 .seg button:hover { background: var(--deep); color: var(--ink); }
 .seg button.is-on { border-color: var(--wine); background: var(--wine-soft); color: var(--wine); }
 
-/* The rotor rack — the tour's central control. */
-.rack { display: grid; gap: 3px; }
-.rack button {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: var(--gap-2);
-  padding: 9px 11px;
-  border: var(--rule);
-  text-align: left;
-  transition: background var(--dur-hover) ease;
-}
-.rack button:hover { background: var(--deep); }
-.rack button.is-on { border-color: var(--wine); background: var(--wine-soft); }
-.rack__name { color: var(--ink); font-size: var(--t-dense); }
-.rack button.is-on .rack__name { color: var(--wine); }
-.rack__note { color: var(--ink-50); font-size: var(--t-meta); }
-.rack__tag {
-  color: var(--ink-50);
-  font-family: var(--mono);
-  font-size: var(--t-meta);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-/* Aside — a wine rule and padding, no fill. */
-.control-note {
-  margin: var(--gap-3) 0 0;
-  padding-left: 12px;
-  border-left: 2px solid var(--wine);
-  color: var(--ink-50);
-  font-size: var(--t-meta);
-  line-height: 1.55;
-}
-
-.rotor-facts { margin-top: var(--gap-3); display: grid; gap: var(--gap-2); }
-.rotor-fact { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: var(--gap-2); }
-.rotor-fact dt {
-  color: var(--ink-50);
-  font-family: var(--mono);
-  font-size: var(--t-meta);
-  letter-spacing: 0.04em;
-}
-.rotor-fact dd { margin: 0; color: var(--ink-70); font-size: var(--t-meta); line-height: 1.55; }
-
-/* Evidence ---------------------------------------------------------------- */
-
-.evidence { padding: 0; }
-.evidence summary {
-  color: var(--ink-50);
-  font-family: var(--mono);
-  font-size: var(--t-meta);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  cursor: pointer;
-  list-style: none;
-}
-.evidence summary::-webkit-details-marker { display: none; }
-.evidence summary::before { content: "› "; }
-.evidence[open] summary::before { content: "⌄ "; }
-.evidence ul { margin: var(--gap-3) 0 0; padding: 0; list-style: none; display: grid; gap: var(--gap-3); }
-.evidence li { color: var(--ink-50); font-size: var(--t-meta); line-height: 1.55; }
-.evidence .tag {
-  display: inline-block;
-  margin-right: 6px;
-  padding: 1px 5px;
-  border: var(--rule);
-  font-family: var(--mono);
-  font-size: 9.5px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-.evidence .tag--verified { border-color: var(--accent-line); color: var(--wine); }
-.evidence .tag--qualified { color: var(--ink-70); }
-.evidence .tag--unverified { border-color: rgba(163, 40, 45, 0.5); color: var(--negative); }
-
 /* --------------------------------------------------------------------------
  * Guided spine overrides
  * ----------------------------------------------------------------------- */
@@ -313,8 +146,6 @@
 }
 
 .topbar__logo { flex: 0 0 auto; width: auto; height: 65px !important; }
-.topbar__publisher { margin: 0 0 2px; }
-.topbar__title { font-size: var(--t-dense); }
 .topbar__progress { display: flex; align-items: center; gap: var(--gap-5); min-width: min(560px, 50vw); }
 .contents-button {
   flex: 0 0 auto;
@@ -328,16 +159,12 @@
 }
 .contents-button:hover { background: var(--deep); color: var(--ink); }
 
-.progress-strip { display: none; }
 .topbar__progress .progress-bar { width: min(440px, 38vw); }
 .progress-bar__hairline { top: -13px; }
 
 .stage-diagram { inset: 92px 0 0; }
 .stage-diagram--left,
 .stage-diagram--right { padding-left: calc(min(450px, 40vw) + var(--pad-x) * 2); padding-right: var(--pad-x); }
-.stage-tools { display: none; }
-
-.chapter-screen,
 .tour-end {
   position: fixed;
   inset: 92px 0 0;
@@ -349,9 +176,7 @@
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
 }
-.chapter-screen__content,
 .tour-end__content { width: 100%; max-width: var(--max); margin: 0 auto; }
-.chapter-screen h1,
 .tour-end h1 {
   max-width: 20ch;
   margin: 16px 0 28px;
@@ -361,26 +186,7 @@
   line-height: 1.06;
   letter-spacing: var(--track-section);
 }
-.chapter-screen ol {
-  max-width: 64ch;
-  margin: 0 0 36px;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  gap: 9px;
-}
-.chapter-screen li {
-  display: grid;
-  grid-template-columns: 28px minmax(0, 1fr);
-  gap: 10px;
-  align-items: baseline;
-  color: var(--ink-70);
-  font-size: var(--t-body);
-}
-.chapter-screen li span { color: var(--wine); font-family: var(--mono); font-size: var(--t-meta); }
-.chapter-screen__actions,
 .tour-end__actions { display: flex; align-items: center; gap: 18px; }
-.chapter-screen__next,
 .tour-end__restart {
   display: inline-flex;
   align-items: center;
@@ -393,9 +199,7 @@
   letter-spacing: var(--track-button);
   text-transform: uppercase;
 }
-.chapter-screen__next:hover,
 .tour-end__restart:hover { background: var(--wine-dark); }
-.chapter-screen__back,
 .tour-end__back {
   padding: 0;
   color: var(--ink-50);
@@ -404,7 +208,6 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
-.chapter-screen__back:hover,
 .tour-end__back:hover { color: var(--wine); }
 .tour-end__content { max-width: 760px; margin: 0; }
 .tour-end h1 { margin-bottom: 18px; }
@@ -443,19 +246,15 @@
   .stage-diagram--left,
   .stage-diagram--right { padding-left: var(--pad-x); padding-right: var(--pad-x); }
   .beat-card { max-height: 52dvh; }
-  .chapter-screen,
   .tour-end { inset: 128px 0 0; align-items: flex-start; padding-top: 48px; overflow: auto; }
 }
 
 @media (max-width: 560px) {
   .topbar__logo { height: 38px !important; }
-  .topbar__title { font-size: var(--t-meta); }
   .topbar__progress { gap: var(--gap-3); }
   .contents-overlay { padding: 116px var(--pad-x) 24px; }
   .contents-overlay__chapter { grid-template-columns: 28px minmax(0, 1fr); gap: 10px; }
   .contents-overlay__status { grid-column: 2; }
-  .chapter-screen,
   .tour-end { inset: 128px 0 0; padding: 32px var(--pad-x); }
-  .chapter-screen__actions,
   .tour-end__actions { align-items: flex-start; flex-direction: column; gap: 14px; }
 }

@@ -27,7 +27,6 @@
  */
 
 export const LANDING_STOP_ID = "the-problem";
-export const CLOSE_STOP_ID = "what-must-change";
 
 /**
  * The interstitial shown on the way into a chapter.

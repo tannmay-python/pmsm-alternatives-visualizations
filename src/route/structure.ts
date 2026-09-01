@@ -1,7 +1,6 @@
 import { STOPS, type StageKind, type Stop, type StopState } from "./route";
 import { frameKey } from "./presets";
 import {
-  CLOSE_STOP_ID,
   EMPHASIS,
   LANDING_STOP_ID,
   PAGES,
@@ -15,7 +14,7 @@ import {
  * to do it if the table would drop a state or merge two different pictures.
  */
 
-export { CLOSE_STOP_ID, EMPHASIS, LANDING_STOP_ID, PAGES } from "./pages";
+export { EMPHASIS, LANDING_STOP_ID, PAGES } from "./pages";
 export type { BeatGroup, DeliberateMerge, PageSpec, PageTransition, StopSpec } from "./pages";
 
 /* ------------------------------------------------------------------------ */
@@ -194,6 +193,3 @@ export const BEATS = PAGE_LIST.flatMap((page, pageIndex) =>
 );
 
 export type Position = (typeof BEATS)[number];
-
-export const landingStop = () => stopById(LANDING_STOP_ID);
-export const closeStop = () => stopById(CLOSE_STOP_ID);

@@ -1,5 +1,4 @@
-/** Publication metadata, in one place so the masthead, close and document title cannot drift apart. */
-export const PUBLISHER = "The Takshashila Institution";
+/** Publication metadata, in one place so the masthead and document title cannot drift apart. */
 export const AUTHORS = [
   {
     name: "Tannmay Kumarr Baid",
@@ -14,7 +13,6 @@ export const AUTHORS = [
     url: "https://takshashila.org.in/content/team/pranay-kotasthane.html",
   },
 ] as const;
-export const BYLINE = "Tannmay Kumarr Baid, Shobhankita Reddy, and Pranay Kotasthane";
 export const DASHBOARD_URL = "https://indiacriticalminerals.com/";
 export const MINERALPOLITIK_URL =
   "https://takshashila.org.in/pages/research-areas/focus-areas/mineralpolitik.html";

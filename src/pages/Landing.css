@@ -80,21 +80,6 @@
   line-height: 1.6;
 }
 .landing__authors > span:first-child { font-family: var(--mono); font-size: var(--t-meta); letter-spacing: 0.08em; text-transform: uppercase; }
-.landing__cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 20px;
-  padding: 14px 24px;
-  background: var(--wine);
-  color: #fff;
-  font-family: var(--mono);
-  font-size: var(--t-button);
-  letter-spacing: var(--track-button);
-  text-transform: uppercase;
-}
-.landing__cta:hover { background: var(--wine-dark); }
-
 .landing__dashboard { margin: 0; }
 .landing__dashboard-frame {
   padding: clamp(22px, 2.5vw, 34px);
@@ -117,7 +102,6 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
-.group-two-dashboard__axis,
 .group-two-dashboard__note {
   margin: 0;
   color: var(--ink-50);

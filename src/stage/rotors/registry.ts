@@ -128,5 +128,3 @@ export const ROTORS: Record<RotorId, RotorSpec> = {
     usesRareEarthMagnets: false,
   },
 };
-
-export const rotorList = rotorIds.map((id) => ROTORS[id]);

@@ -753,11 +753,5 @@ export const STOPS: readonly Stop[] = [
   },
 ];
 
-export const stopById = (id: string) => STOPS.find((stop) => stop.id === id);
-
-export const flatPositions = STOPS.flatMap((stop) =>
-  stop.states.map((state) => ({ stopId: stop.id, stateId: state.id })),
-);
-
 export const stageForState = (stop: Stop, state: StopState): StageKind =>
   state.stage ?? stop.stage;

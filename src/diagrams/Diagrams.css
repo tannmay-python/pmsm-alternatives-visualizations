@@ -13,17 +13,13 @@
 
 /* Ink ------------------------------------------------------------------- */
 .d-axis { stroke: var(--line-strong); stroke-width: 1; fill: none; }
-.d-grid { stroke: var(--line); stroke-width: 1; fill: none; }
 .d-rule { stroke: var(--leader); stroke-width: 1; fill: none; }
 .d-rule--dash { stroke-dasharray: 3 4; }
 .d-curve { fill: none; stroke: var(--steel-400); stroke-width: 1.75; stroke-linecap: round; }
-.d-curve--accent { stroke: var(--accent); }
 .d-curve--warn { stroke: var(--warn); }
-.d-curve--ghost { stroke: var(--steel-100); stroke-width: 1.25; stroke-dasharray: 4 4; }
 
 .d-fill { fill: var(--steel-100); }
 .d-fill--accent { fill: var(--accent); }
-.d-fill--accent-soft { fill: var(--accent-wash); }
 .d-fill--warn { fill: var(--warn); }
 .d-fill--warn-soft { fill: var(--warn-wash); }
 .d-fill--mute { fill: var(--paper-300); }
@@ -57,7 +53,6 @@
   transition: stroke var(--dur) var(--ease), fill var(--dur) var(--ease);
 }
 .d-node.is-on { fill: var(--accent-wash); stroke: var(--accent); }
-.d-node.is-off { opacity: 0.4; }
 
 .d-bar { transition: width var(--dur) var(--ease), height var(--dur) var(--ease), y var(--dur) var(--ease); }
 
@@ -364,200 +359,9 @@
   color: var(--ink);
 }
 
-/* Material and R&D laboratory -------------------------------------------- */
-
-.lab-tab-row {
-  display: flex;
-  gap: 4px;
-}
-
-.material-compare__row {
-  display: grid;
-  grid-template-columns: 180px repeat(3, minmax(0, 1fr));
-  gap: 4px;
-  align-items: center;
-}
-
-.material-compare__row > span {
-  color: var(--text-muted);
-  font-size: 10px;
-}
-
-.material-compare__row--head > span {
-  color: var(--text-faint);
-  font-weight: 600;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-}
-
-.material-compare__cell {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-}
-
-.material-compare__cell i {
-  width: 12px;
-  height: 4px;
-  background: var(--paper-300);
-}
-
-.material-compare__cell i.is-on { background: var(--accent-dim); }
-.material-compare__cell.is-active i.is-on { background: var(--accent); }
-.material-compare__cell small {
-  margin-left: 3px;
-  color: var(--text-faint);
-  font-size: 9px;
-  font-variant-numeric: tabular-nums;
-}
-
-.property-list dd {
-  display: grid;
-  grid-template-columns: 72px minmax(0, 1fr);
-  align-items: center;
-  gap: var(--gap-2);
-}
-
-.property-list .meter {
-  height: 5px;
-  background: var(--paper-300);
-}
-
-.property-list .meter i {
-  display: block;
-  height: 100%;
-  background: var(--accent);
-}
-
-.conductor-reference {
-  padding-top: var(--gap-3);
-  border-top: 1px solid var(--line);
-}
-
-.conductor-reference h4 {
-  margin: 0 0 var(--gap-2);
-  color: var(--text-faint);
-  font-size: var(--t-micro);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-
-.conductor-reference__grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--gap-3);
-}
-
-.conductor-reference__grid div {
-  display: grid;
-  gap: 3px;
-}
-
-.conductor-reference strong { color: var(--text); font-size: var(--t-small); }
-.conductor-reference span { color: var(--text-muted); font-size: var(--t-micro); line-height: 1.45; }
-.conductor-reference p {
-  margin: var(--gap-2) 0 0;
-  color: var(--text-faint);
-  font-size: var(--t-micro);
-  line-height: 1.45;
-}
-
-.diagram-note {
-  max-width: 62ch;
-  margin: var(--gap-4) auto 0;
-  color: var(--text-faint);
-  font-size: var(--t-micro);
-  line-height: 1.6;
-  text-align: center;
-}
-
 @media (max-width: 1080px) {
   /* On a stacked layout the diagram should sit at the top of its panel rather
      than floating in the middle of a tall, mostly empty box. */
   .diagram { place-items: start center; padding: var(--gap-4); }
-  .alt-lab__head,
-  .alt-lab__grid { grid-template-columns: minmax(0, 1fr); }
-  .conductor-reference__grid { grid-template-columns: minmax(0, 1fr); }
-  .alt-compare { overflow-x: auto; }
-  .alt-compare__row { min-width: 520px; }
-  .material-compare,
   .material-lab { overflow-x: auto; }
-  .material-compare__row { min-width: 420px; }
-}
-
-/* Annotation ------------------------------------------------------------- */
-
-.d-note__leader { fill: none; stroke: var(--wine); stroke-width: 1; }
-.d-note__head { fill: var(--wine); stroke: none; }
-.d-note__dot { fill: none; stroke: var(--wine); stroke-width: 1.5; }
-.d-note--mute .d-note__leader,
-.d-note--mute .d-note__dot { stroke: var(--ink-50); }
-.d-note--mute .d-note__head { fill: var(--ink-50); }
-
-.d-note__box {
-  display: inline-flex;
-  flex-direction: column;
-  gap: 3px;
-  padding: 7px 10px 8px;
-  background: rgba(255, 255, 255, 0.94);
-  border: var(--rule);
-  /* Zero radius, no shadow — structure is drawn with rules. */
-}
-.d-note__box.is-flipped { align-items: flex-end; text-align: right; }
-
-.d-note__eyebrow {
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--wine);
-}
-
-.d-note__text {
-  font-family: var(--sans);
-  font-size: 12px;
-  line-height: 1.4;
-  color: var(--ink-70);
-}
-
-/* Why each column scores what it does. Definition table: mono uppercase label
-   on the left, plain Inter value on the right, no borders. */
-.alt-compare__notes {
-  margin: var(--gap-4) 0 0;
-  display: grid;
-  gap: var(--gap-3);
-  width: min(920px, 100%);
-}
-.alt-compare__notes > div {
-  display: grid;
-  grid-template-columns: 200px minmax(0, 1fr);
-  gap: var(--gap-4);
-  align-items: baseline;
-}
-.alt-compare__notes-head {
-  padding-bottom: var(--gap-3);
-  border-bottom: var(--rule);
-}
-.alt-compare__notes dt {
-  font-family: var(--mono);
-  font-size: var(--t-meta);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ink-50);
-}
-.alt-compare__notes-head dt { color: var(--wine); }
-.alt-compare__notes dd {
-  margin: 0;
-  font-size: var(--t-dense);
-  line-height: 1.5;
-  color: var(--ink-70);
-}
-.alt-compare__notes-head dd { color: var(--ink); }
-
-/* A scored zero reads as a value, not as an unrendered row. */
-.alt-compare__cell small.is-zero,
-.material-compare__cell small.is-zero { color: var(--ink-50); }
-
-@media (max-width: 720px) {
-  .alt-compare__notes > div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
 }

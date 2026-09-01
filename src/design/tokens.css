@@ -184,7 +184,7 @@ button:disabled { cursor: not-allowed; opacity: 0.3; }
 }
 
 /* Zero border-radius, zero box-shadow. No exceptions in the interface. */
-a, button, input, select, textarea, .card, .panel, .chip { border-radius: 0; }
+a, button, input, select, textarea { border-radius: 0; }
 
 /* Shared primitives ------------------------------------------------------ */
 
@@ -204,45 +204,6 @@ a, button, input, select, textarea, .card, .panel, .chip { border-radius: 0; }
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
 }
-
-/* Navigation is Inter, Title Case. Not mono, not uppercase, not letter-spaced.
-   Only metadata gets mono — this is the most common mistake from the spec. */
-.nav-link {
-  font-family: var(--sans);
-  font-size: var(--t-body);
-  font-weight: 400;
-  line-height: 1.3;
-  letter-spacing: 0.3px;
-  text-transform: none;
-  text-decoration: none;
-}
-
-/* Buttons — hard-edged, mono, uppercase. The one deliberate crossover, because
-   a CTA reads as a label rather than a destination. */
-.btn {
-  font-family: var(--mono);
-  font-size: var(--t-button);
-  letter-spacing: var(--track-button);
-  text-transform: uppercase;
-  padding: 14px 28px;
-  border: 0;
-  background: var(--wine);
-  color: #fff;
-  transition: background var(--dur-hover) ease;
-}
-.btn:hover:not(:disabled) { background: var(--wine-dark); }
-.btn--accent { background: var(--gold); color: var(--ink); font-weight: 600; }
-.btn--ghost { background: transparent; border: var(--rule); color: var(--ink); }
-.btn--ghost:hover:not(:disabled) { background: var(--deep); }
-
-/* A value that must never be shown without its condition. */
-.figure { display: inline-flex; align-items: baseline; gap: 0.3em; }
-.figure__value {
-  color: var(--ink);
-  font-size: 1.05em;
-  font-variant-numeric: tabular-nums;
-}
-.figure__condition { color: var(--ink-50); font-size: 0.85em; }
 
 /* All figures use tabular lining numerals so columns align. */
 table { border-collapse: collapse; font-variant-numeric: tabular-nums; }

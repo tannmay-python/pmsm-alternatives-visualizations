@@ -1,4 +1,3 @@
-import { ROTORS, rotorList, type RotorId } from "../stage/rotors/registry";
 import type { StageControls } from "../stage/controls";
 import type { Stop, StopState } from "../route/route";
 
@@ -78,79 +77,8 @@ function Segmented<T extends string>({
   );
 }
 
-export function RotorRack({
-  rotor,
-  onChange,
-}: {
-  rotor: RotorId;
-  onChange: (id: RotorId) => void;
-}) {
-  const spec = ROTORS[rotor];
-  return (
-    <div className="control">
-      <p className="control__label">
-        <span>Fitted rotor</span>
-        <span className="control__value">
-          {spec.needsOwnStator ? "same housing, new stator" : "same housing, same stator"}
-        </span>
-      </p>
-      <div className="rack" role="group" aria-label="Fitted rotor">
-        {rotorList.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            className={item.id === rotor ? "is-on" : ""}
-            aria-pressed={item.id === rotor}
-            onClick={() => onChange(item.id)}
-          >
-            <span className="rack__name">
-              {item.label}
-              {item.needsOwnStator && <span className="rack__note"> · own stator</span>}
-            </span>
-            <span className="rack__tag">
-              {item.usesRareEarthMagnets ? "rare earth" : "none"}
-            </span>
-          </button>
-        ))}
-      </div>
-      {ROTORS[rotor].needsOwnStator && (
-        <p className="control-note">
-          This one is not a drop-in. Switched reluctance needs concentrated coils on salient
-          poles, so the stator changes with the rotor.
-        </p>
-      )}
-      <dl className="rotor-facts">
-        <div className="rotor-fact">
-          <dt>Field</dt>
-          <dd>{spec.howFieldIsMade}</dd>
-        </div>
-        <div className="rotor-fact">
-          <dt>Power cut</dt>
-          <dd>{spec.onPowerCut}</dd>
-        </div>
-        <div className="rotor-fact">
-          <dt>Costs</dt>
-          <dd>{spec.cost}</dd>
-        </div>
-      </dl>
-    </div>
-  );
-}
-
 import { MotorInspector } from "./MotorInspector";
 import type { MotorComponentId } from "./MotorInspector";
-
-/** Whether this stop has a control drawer worth revealing. */
-export function hasControls(stop: Stop, state: StopState): boolean {
-  if (stop.id === "open-the-machine") return true;
-  if (stop.id === "three-coils-one-field") return ["one-phase", "no-part-moves", "rotor-locks"].includes(state.id);
-  if (stop.id === "two-pulls-one-shaft") return ["why-buried", "already-both"].includes(state.id);
-  if (stop.id === "strength-and-stubbornness") return ["remanence", "coercivity", "anisotropy"].includes(state.id);
-  if (stop.id === "heat-and-the-patch") return ["hot-margin", "dysprosium-tradeoff", "reversal-start", "diffusion-evolution"].includes(state.id);
-  if (stop.id === "which-rare-earth" || stop.id === "the-weakness") return true;
-  if (stop.id === "change-the-magnet") return ["ferrite-limit", "compensate-geometry", "independent-geometry"].includes(state.id);
-  return stop.id === "swap-the-rotor" && state.id !== "family-tree";
-}
 
 export function Controls({
   stop,

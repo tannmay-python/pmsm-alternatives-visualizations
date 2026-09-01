@@ -44,7 +44,7 @@ export type MotorProps = {
   cutaway?: boolean;
   /**
    * Fades the stator back so the fitted rotor is visible. The stator stays on
-   * screen because the whole point of the rotor rack is that it does not change.
+   * screen because the whole point of the rotor assembly is that it does not change.
    */
   dimStator?: boolean;
   /** How field power reaches a wound rotor: brushes, or a rotating transformer. */
