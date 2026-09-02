@@ -123,6 +123,75 @@ export function RotatingFieldDiagram({ controls }: ControlProps) {
   );
 }
 
+export function RotorFollowsFieldDiagram({ controls }: ControlProps) {
+  const cx = 244;
+  const cy = 218;
+  const fieldDegrees = (controls.angle * 180) / Math.PI;
+  const loadAngle = 26;
+  const rotorDegrees = fieldDegrees - loadAngle;
+
+  return (
+    <div className="clean-diagram clean-diagram--mechanism" role="img" aria-label="A permanent-magnet rotor following a rotating stator field at a small constant angle">
+      <svg viewBox={`0 0 ${W} ${H}`}>
+        <defs>
+          <marker id="clean-stator-field-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0,1 L10,5 L0,9 z" fill="var(--wine)" />
+          </marker>
+          <marker id="clean-rotor-axis-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0,1 L10,5 L0,9 z" fill="var(--gold)" />
+          </marker>
+        </defs>
+        <text className="clean-kicker" x="34" y="34">THE FIELD LEADS · THE ROTOR FOLLOWS</text>
+        <circle cx={cx} cy={cy} r="154" fill="none" stroke="var(--ink-10)" strokeWidth="28" />
+        {[0, 60, 120, 180, 240, 300].map((degree) => (
+          <rect
+            key={degree}
+            x={cx - 18}
+            y={cy - 164}
+            width="36"
+            height="34"
+            fill="var(--cat-6)"
+            opacity="0.72"
+            transform={`rotate(${degree} ${cx} ${cy})`}
+          />
+        ))}
+        <g transform={`rotate(${rotorDegrees} ${cx} ${cy})`}>
+          <circle cx={cx} cy={cy} r="92" fill="var(--deep)" stroke="var(--ink-20)" strokeWidth="2" />
+          <rect x={cx - 62} y={cy - 17} width="124" height="34" fill="var(--gold)" />
+          <rect x={cx - 62} y={cy - 17} width="62" height="34" fill="var(--wine)" />
+          <text x={cx - 38} y={cy + 6} textAnchor="middle" fill="white" fontFamily="var(--mono)" fontWeight="700" fontSize="14">S</text>
+          <text x={cx + 38} y={cy + 6} textAnchor="middle" fill="var(--ink)" fontFamily="var(--mono)" fontWeight="700" fontSize="14">N</text>
+          <line x1={cx} y1={cy} x2={cx + 122} y2={cy} stroke="var(--gold)" strokeWidth="5" markerEnd="url(#clean-rotor-axis-arrow)" />
+        </g>
+        <g transform={`rotate(${fieldDegrees} ${cx} ${cy})`}>
+          <line x1={cx} y1={cy} x2={cx + 142} y2={cy} stroke="var(--wine)" strokeWidth="7" markerEnd="url(#clean-stator-field-arrow)" />
+        </g>
+        <circle cx={cx} cy={cy} r="8" fill="var(--ink)" />
+        <path
+          d={`M ${cx + 116 * Math.cos((rotorDegrees * Math.PI) / 180)} ${cy + 116 * Math.sin((rotorDegrees * Math.PI) / 180)} A 116 116 0 0 1 ${cx + 116 * Math.cos((fieldDegrees * Math.PI) / 180)} ${cy + 116 * Math.sin((fieldDegrees * Math.PI) / 180)}`}
+          fill="none"
+          stroke="var(--ink-50)"
+          strokeWidth="2"
+          strokeDasharray="4 4"
+        />
+
+        <g transform="translate(468 100)">
+          <text className="clean-title" x="0" y="0">Stator field</text>
+          <line x1="0" y1="18" x2="54" y2="18" stroke="var(--wine)" strokeWidth="6" />
+          <text className="clean-copy" x="72" y="23">moves slightly ahead</text>
+          <text className="clean-title" x="0" y="86">Rotor magnetic axis</text>
+          <line x1="0" y1="104" x2="54" y2="104" stroke="var(--gold)" strokeWidth="6" />
+          <text className="clean-copy" x="72" y="109">follows at the same speed</text>
+          <line x1="0" y1="148" x2="298" y2="148" stroke="var(--ink-10)" />
+          <text className="clean-title" x="0" y="190">A small angle stays between them.</text>
+          <text className="clean-copy" x="0" y="226">That steady offset keeps pulling the rotor</text>
+          <text className="clean-copy" x="0" y="250">forward and produces shaft torque.</text>
+        </g>
+      </svg>
+    </div>
+  );
+}
+
 export function TorqueCombinationDiagram() {
   return (
     <div className="clean-diagram" role="img" aria-label="Magnet pull and shaped steel alignment turning one shaft">
@@ -158,22 +227,24 @@ export function MagnetJobsDiagram() {
   return (
     <div className="clean-diagram" role="img" aria-label="Iron provides magnetic strength while neodymium helps lock the field direction">
       <svg viewBox={`0 0 ${W} ${H}`}>
-        <text className="clean-kicker" x="34" y="34">WHY NdFeB WORKS IN A TRACTION MOTOR</text>
+        <text className="clean-kicker" x="34" y="34">NEODYMIUM–IRON–BORON · Nd₂Fe₁₄B</text>
         <g transform="translate(54 92)">
-          <rect x="0" y="0" width="274" height="214" fill="var(--deep)" stroke="var(--ink-10)" />
+          <rect x="0" y="0" width="214" height="214" fill="var(--deep)" stroke="var(--ink-10)" />
           <text className="clean-symbol" x="28" y="62">Fe</text>
           <text className="clean-title" x="28" y="108">Strength</text>
           <text className="clean-copy" x="28" y="144">Iron provides most of the</text>
           <text className="clean-copy" x="28" y="168">magnetic pulling power.</text>
-          <rect x="328" y="0" width="274" height="214" fill="var(--deep)" stroke="var(--ink-10)" />
-          <text className="clean-symbol clean-symbol--wine" x="356" y="62">Nd/Pr</text>
-          <text className="clean-title" x="356" y="108">Direction</text>
-          <text className="clean-copy" x="356" y="144">Rare-earth chemistry helps the</text>
-          <text className="clean-copy" x="356" y="168">field resist being reversed.</text>
-          <path d="M278 106 H324" stroke="var(--wine)" strokeWidth="2" />
-          <circle cx="301" cy="106" r="18" fill="var(--wine)" />
-          <text x="301" y="111" textAnchor="middle" fill="white" fontFamily="var(--mono)" fontSize="14">+</text>
-          <text className="clean-title" x="301" y="276" textAnchor="middle">Together: a strong, compact permanent magnet.</text>
+          <rect x="242" y="0" width="214" height="214" fill="var(--deep)" stroke="var(--ink-10)" />
+          <text className="clean-symbol clean-symbol--wine" x="270" y="62">Nd/Pr</text>
+          <text className="clean-title" x="270" y="108">Direction</text>
+          <text className="clean-copy" x="270" y="144">Rare-earth chemistry helps the</text>
+          <text className="clean-copy" x="270" y="168">field resist being reversed.</text>
+          <rect x="484" y="0" width="214" height="214" fill="var(--deep)" stroke="var(--ink-10)" />
+          <text className="clean-symbol" x="512" y="62">B</text>
+          <text className="clean-title" x="512" y="108">Structure</text>
+          <text className="clean-copy" x="512" y="144">Boron stabilises the crystal</text>
+          <text className="clean-copy" x="512" y="168">structure of the alloy.</text>
+          <text className="clean-title" x="349" y="276" textAnchor="middle">Together they make a strong, compact permanent magnet.</text>
         </g>
       </svg>
     </div>
@@ -187,11 +258,11 @@ export function RareEarthSplitDiagram() {
         <text className="clean-kicker" x="34" y="34">THE MAGNET CONTAINS TWO DIFFERENT SUPPLY PROBLEMS</text>
         <g transform="translate(54 88)">
           <rect x="0" y="0" width="500" height="66" fill="var(--cat-5)" />
-          <rect x="506" y="0" width="184" height="66" fill="var(--wine)" />
-          <rect x="696" y="0" width="34" height="66" fill="var(--gold)" />
+          <rect x="506" y="0" width="168" height="66" fill="var(--wine)" />
+          <rect x="680" y="0" width="50" height="66" fill="var(--gold)" />
           <text x="250" y="40" textAnchor="middle" fill="white" fontFamily="var(--mono)" fontSize="13">IRON · MAIN BODY</text>
-          <text x="598" y="40" textAnchor="middle" fill="white" fontFamily="var(--mono)" fontSize="12">Nd / Pr</text>
-          <text x="713" y="40" textAnchor="middle" fill="var(--ink)" fontFamily="var(--mono)" fontSize="11">Dy/Tb</text>
+          <text x="590" y="40" textAnchor="middle" fill="white" fontFamily="var(--mono)" fontSize="12">Nd / Pr</text>
+          <text x="705" y="40" textAnchor="middle" fill="var(--ink)" fontFamily="var(--mono)" fontSize="12" fontWeight="700">Dy/Tb</text>
           <rect x="0" y="116" width="350" height="168" fill="var(--deep)" stroke="var(--ink-10)" />
           <text className="clean-title" x="24" y="154">Light rare earths</text>
           <text className="clean-copy" x="24" y="194">Neodymium and praseodymium make up</text>
@@ -202,6 +273,7 @@ export function RareEarthSplitDiagram() {
           <text className="clean-copy" x="404" y="194">A small Dy/Tb addition protects the magnet</text>
           <text className="clean-copy" x="404" y="218">when the rotor is hot.</text>
           <text className="clean-hint clean-hint--wine" x="404" y="260">SUBJECT TO THE APRIL 2025 LICENCE GATE</text>
+          <text className="clean-hint" x="0" y="316">SCHEMATIC COMPOSITION · NOT TO SCALE</text>
         </g>
       </svg>
     </div>
@@ -228,7 +300,7 @@ export function HeatProtectionDiagram({ controls }: ControlProps) {
           <rect x="0" y="192" width={660 * (protectedMargin / 100)} height="34" fill="var(--wine)" />
           <text className="clean-hint clean-hint--wine" x="0" y="248">HIGH-TEMPERATURE PROTECTION · GREATER SUPPLY EXPOSURE</text>
           <line x1="0" y1="292" x2="660" y2="292" stroke="var(--ink-10)" />
-          <text className="clean-copy" x="0" y="326">The engineering value is thermal protection—not extra torque.</text>
+          <text className="clean-copy" x="0" y="326">Dy/Tb protects the magnet against reversal at high temperature.</text>
         </g>
       </svg>
     </div>
@@ -237,20 +309,20 @@ export function HeatProtectionDiagram({ controls }: ControlProps) {
 
 export function MitigationOptionsDiagram() {
   const rows = [
-    ["1", "Cool the rotor", "Lower the temperature the magnet must survive"],
-    ["2", "Protect only the grain edge", "Use Dy/Tb where reversal begins, not through the whole magnet"],
-    ["3", "Qualify HREE-free NdFeB", "Keep the proven PMSM architecture and remove heavy rare earths"],
+    ["1", "Cool the rotor", "Lower the temperature the magnet must survive", "adds cooling hardware"],
+    ["2", "Protect only the grain edge", "Use Dy/Tb where reversal begins instead of through the whole magnet", "new magnet process"],
+    ["3", "Qualify HREE-free NdFeB", "Keep the PMSM architecture and remove heavy rare earths", "long qualification"],
   ];
   return (
     <div className="clean-diagram clean-list-board" role="img" aria-label="Three low-disruption ways to reduce heavy rare earths">
       <p className="clean-kicker-html">THREE WAYS TO KEEP THE MOTOR AND REDUCE THE EXPOSURE</p>
       <div className="clean-list-board__rows">
-        {rows.map(([n, title, copy]) => (
+        {rows.map(([n, title, copy, burden]) => (
           <div className="clean-list-row" key={n}>
             <span className="clean-list-row__number">{n}</span>
             <strong>{title}</strong>
             <span>{copy}</span>
-            <em>same PMSM</em>
+            <em>{burden}</em>
           </div>
         ))}
       </div>
@@ -260,18 +332,18 @@ export function MitigationOptionsDiagram() {
 
 export function AlternativesMapDiagram() {
   const families = [
-    ["PM", "Permanent field", "Rare-earth exposure"],
-    ["INDUCTION", "Induced cage current", "Rotor heat / slip"],
-    ["WOUND", "Powered rotor coil", "Excitation hardware"],
-    ["SynRM", "Shaped steel", "Inverter / size"],
-    ["SRM", "Toothed steel", "Noise / ripple"],
+    ["PM MOTOR", "Permanent magnet follows the stator field", "Rare-earth magnet supply"],
+    ["INDUCTION", "Current induced in a rotor cage", "Slip creates rotor heat"],
+    ["WOUND FIELD", "A powered rotor electromagnet", "Power feed and cooling"],
+    ["SynRM", "Shaped steel aligns with the field", "Larger motor or inverter"],
+    ["SRM", "Stator pulls one rotor tooth at a time", "Uneven torque and noise"],
   ];
   return (
     <div className="clean-diagram clean-family-map" role="img" aria-label="Five traction motor families and how each creates rotor torque">
-      <p className="clean-kicker-html">THE ROTOR FIELD CAN COME FROM FIVE DIFFERENT PLACES</p>
+      <p className="clean-kicker-html">FIVE WAYS TO MAKE THE ROTOR TURN</p>
       <div className="clean-family-map__grid">
         {families.map(([name, principle, trade]) => (
-          <div className={`clean-family ${name === "PM" ? "is-reference" : ""}`} key={name}>
+          <div className={`clean-family ${name === "PM MOTOR" ? "is-reference" : ""}`} key={name}>
             <span className="clean-family__mark" aria-hidden="true" />
             <strong>{name}</strong>
             <span>{principle}</span>
@@ -279,28 +351,156 @@ export function AlternativesMapDiagram() {
           </div>
         ))}
       </div>
-      <p className="clean-board-note">No alternative wins every measure. Each removes one burden and creates another.</p>
+      <p className="clean-board-note">The next frames show the mechanism first, then the rare-earth exposure and the engineering cost.</p>
+    </div>
+  );
+}
+
+export function SynRMMechanismDiagram({ controls }: ControlProps) {
+  const cx = 246;
+  const cy = 220;
+  const fieldDegrees = (controls.angle * 180) / Math.PI;
+  const rotorDegrees = fieldDegrees - 32;
+
+  return (
+    <div className="clean-diagram clean-diagram--mechanism" role="img" aria-label="A synchronous reluctance rotor turning to align its easy magnetic path with the stator field">
+      <svg viewBox={`0 0 ${W} ${H}`}>
+        <defs>
+          <marker id="synrm-field-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0,1 L10,5 L0,9 z" fill="var(--wine)" />
+          </marker>
+        </defs>
+        <text className="clean-kicker" x="34" y="34">SYNCHRONOUS RELUCTANCE MOTOR · SynRM</text>
+        <circle cx={cx} cy={cy} r="156" fill="none" stroke="var(--ink-10)" strokeWidth="28" />
+        <g transform={`rotate(${rotorDegrees} ${cx} ${cy})`}>
+          <circle cx={cx} cy={cy} r="100" fill="var(--cat-5)" stroke="var(--ink-20)" strokeWidth="2" />
+          {[-42, -14, 14, 42].map((offset) => (
+            <path key={offset} d={`M ${cx - 74} ${cy + offset} Q ${cx} ${cy + offset * 0.35} ${cx + 74} ${cy + offset}`} fill="none" stroke="var(--deep)" strokeWidth="11" strokeLinecap="round" />
+          ))}
+          <line x1={cx - 116} y1={cy} x2={cx + 116} y2={cy} stroke="var(--gold)" strokeWidth="4" strokeDasharray="7 5" />
+        </g>
+        <g transform={`rotate(${fieldDegrees} ${cx} ${cy})`}>
+          <line x1={cx} y1={cy} x2={cx + 146} y2={cy} stroke="var(--wine)" strokeWidth="7" markerEnd="url(#synrm-field-arrow)" />
+        </g>
+        <circle cx={cx} cy={cy} r="8" fill="var(--ink)" />
+
+        <g transform="translate(468 94)">
+          <text className="clean-title" x="0" y="0">What turns the rotor</text>
+          <text className="clean-copy" x="0" y="34">Air barriers shape an easy path for flux.</text>
+          <text className="clean-copy" x="0" y="58">The stator field pulls that path into line.</text>
+          <line x1="0" y1="88" x2="300" y2="88" stroke="var(--ink-10)" />
+          <text className="clean-title" x="0" y="128">Rare-earth exposure</text>
+          <text className="clean-copy" x="0" y="162">None in the rotor.</text>
+          <line x1="0" y1="192" x2="300" y2="192" stroke="var(--ink-10)" />
+          <text className="clean-title" x="0" y="232">Engineering cost</text>
+          <text className="clean-copy" x="0" y="266">More inverter capability or a larger motor</text>
+          <text className="clean-copy" x="0" y="290">may be needed for the same vehicle duty.</text>
+        </g>
+      </svg>
+    </div>
+  );
+}
+
+export function SRMMechanismDiagram({ controls }: ControlProps) {
+  const cx = 246;
+  const cy = 220;
+  const normalized = ((controls.angle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+  const active = Math.floor(normalized / (Math.PI / 3)) % 6;
+  const fieldDegrees = active * 60 - 90;
+  const rotorDegrees = fieldDegrees - 22;
+
+  return (
+    <div className="clean-diagram clean-diagram--mechanism" role="img" aria-label="A switched reluctance motor energising stator poles in sequence to pull rotor teeth into alignment">
+      <svg viewBox={`0 0 ${W} ${H}`}>
+        <text className="clean-kicker" x="34" y="34">SWITCHED RELUCTANCE MOTOR · SRM</text>
+        <circle cx={cx} cy={cy} r="158" fill="none" stroke="var(--ink-10)" strokeWidth="20" />
+        {[0, 1, 2, 3, 4, 5].map((index) => {
+          const isActive = index === active || index === (active + 3) % 6;
+          return (
+            <g key={index} transform={`rotate(${index * 60} ${cx} ${cy})`}>
+              <rect x={cx - 24} y={cy - 166} width="48" height="54" fill={isActive ? "var(--wine)" : "var(--cat-6)"} opacity={isActive ? 1 : 0.28} />
+            </g>
+          );
+        })}
+        <g transform={`rotate(${rotorDegrees} ${cx} ${cy})`}>
+          <circle cx={cx} cy={cy} r="62" fill="var(--cat-5)" />
+          {[0, 90, 180, 270].map((degree) => (
+            <rect key={degree} x={cx - 25} y={cy - 108} width="50" height="66" fill="var(--cat-5)" transform={`rotate(${degree} ${cx} ${cy})`} />
+          ))}
+          <circle cx={cx} cy={cy} r="16" fill="var(--ink)" />
+        </g>
+        <path d={`M ${cx + 116 * Math.cos(((fieldDegrees - 22) * Math.PI) / 180)} ${cy + 116 * Math.sin(((fieldDegrees - 22) * Math.PI) / 180)} A 116 116 0 0 1 ${cx + 116 * Math.cos((fieldDegrees * Math.PI) / 180)} ${cy + 116 * Math.sin((fieldDegrees * Math.PI) / 180)}`} fill="none" stroke="var(--gold)" strokeWidth="5" />
+
+        <g transform="translate(468 94)">
+          <text className="clean-title" x="0" y="0">What turns the rotor</text>
+          <text className="clean-copy" x="0" y="34">The active stator poles pull the nearest</text>
+          <text className="clean-copy" x="0" y="58">steel tooth into line, then the next pair fires.</text>
+          <line x1="0" y1="88" x2="300" y2="88" stroke="var(--ink-10)" />
+          <text className="clean-title" x="0" y="128">Rare-earth exposure</text>
+          <text className="clean-copy" x="0" y="162">None in the rotor.</text>
+          <line x1="0" y1="192" x2="300" y2="192" stroke="var(--ink-10)" />
+          <text className="clean-title" x="0" y="232">Engineering cost</text>
+          <text className="clean-copy" x="0" y="266">The separate pulls make torque less even.</text>
+          <text className="clean-copy" x="0" y="290">Control and acoustic work become important.</text>
+        </g>
+      </svg>
+    </div>
+  );
+}
+
+export function FerriteComparisonDiagram() {
+  const motors = [
+    { cx: 210, r: 98, magnet: "var(--wine)", label: "NdFeB PMSM", note: "strong field · compact rotor", slots: 4 },
+    { cx: 600, r: 128, magnet: "var(--gold)", label: "Ferrite PMSM", note: "weaker field · more material and space", slots: 8 },
+  ];
+
+  return (
+    <div className="clean-diagram clean-diagram--mechanism" role="img" aria-label="Side-by-side comparison of a compact NdFeB permanent-magnet motor and a larger ferrite permanent-magnet motor">
+      <svg viewBox={`0 0 ${W} ${H}`}>
+        <text className="clean-kicker" x="34" y="34">SAME MOTOR PRINCIPLE · DIFFERENT MAGNET STRENGTH</text>
+        {motors.map((motor) => (
+          <g key={motor.label}>
+            <circle cx={motor.cx} cy="208" r={motor.r + 28} fill="none" stroke="var(--ink-10)" strokeWidth="22" />
+            <circle cx={motor.cx} cy="208" r={motor.r} fill="var(--cat-5)" stroke="var(--ink-20)" strokeWidth="2" />
+            {Array.from({ length: motor.slots }, (_, index) => (
+              <rect
+                key={index}
+                x={motor.cx - 9}
+                y={208 - motor.r + 18}
+                width="18"
+                height={motor.slots === 4 ? 38 : 56}
+                fill={motor.magnet}
+                transform={`rotate(${(360 / motor.slots) * index} ${motor.cx} 208)`}
+              />
+            ))}
+            <circle cx={motor.cx} cy="208" r="20" fill="var(--ink)" />
+            <text className="clean-title" x={motor.cx} y="370" textAnchor="middle">{motor.label}</text>
+            <text className="clean-copy" x={motor.cx} y="396" textAnchor="middle">{motor.note}</text>
+          </g>
+        ))}
+      </svg>
     </div>
   );
 }
 
 export function ChangeBurdenDiagram() {
   const routes = [
-    ["LOWEST CHANGE", "Reduce Dy/Tb", "Magnet supply and qualification"],
-    ["MOTOR REDESIGN", "Ferrite", "Larger or faster machine"],
-    ["PLATFORM WORK", "Induction · Wound field · Reluctance", "Motor, inverter, cooling and controls"],
+    ["KEEP THE MOTOR", "Reduce Dy/Tb", "Gain: lower heavy-rare-earth exposure", "Work: cooling or magnet qualification"],
+    ["REDESIGN THE MOTOR", "Ferrite PMSM", "Gain: no rare earths in the magnet", "Work: more size, speed or new geometry"],
+    ["REDESIGN THE DRIVE UNIT", "Induction · wound field · reluctance", "Gain: no permanent magnet", "Work: motor, inverter, cooling and controls"],
   ];
   return (
     <div className="clean-diagram clean-burden" role="img" aria-label="Implementation burden from material change to new motor architecture">
-      <p className="clean-kicker-html">NOT ALL SUBSTITUTIONS ARE THE SAME SIZE</p>
+      <p className="clean-kicker-html">IMPLEMENTATION BURDEN GROWS FROM MAGNET TO DRIVE UNIT</p>
       <div className="clean-burden__axis" aria-hidden="true" />
       <div className="clean-burden__routes">
-        {routes.map(([level, title, copy], index) => (
+        {routes.map(([level, title, gain, burden], index) => (
           <div className="clean-burden__route" key={level}>
             <span className="clean-burden__dot" style={{ left: `${index * 50}%` }} />
             <small>{level}</small>
             <strong>{title}</strong>
-            <span>{copy}</span>
+            <span>{gain}</span>
+            <span>{burden}</span>
           </div>
         ))}
       </div>
@@ -309,37 +509,40 @@ export function ChangeBurdenDiagram() {
 }
 
 export function ReadinessMapDiagram() {
-  const lanes = [
-    ["LOW-DISRUPTION QUALIFICATION", "Cooling · grain-boundary diffusion · HREE-free NdFeB", "Keep the PMSM architecture"],
-    ["PRODUCTION-CAPABLE ARCHITECTURES", "Induction · externally excited wound field", "Proven motor types; new vehicle integration"],
-    ["PILOT OR MATERIALS DEVELOPMENT", "Ferrite traction · contactless wound field · SRM · iron nitride", "Evidence and maturity differ by programme"],
+  const routes = [
+    ["Reduced-Dy/Tb NdFeB", "Permanent magnet", "Lower HREE", "Cooling and qualification", "In production"],
+    ["Ferrite PMSM", "Permanent magnet", "No rare earths", "More size or speed", "Vehicle prototypes"],
+    ["Induction", "Induced cage current", "No rotor rare earths", "Slip loss and rotor heat", "In production"],
+    ["Wound field", "Powered rotor coil", "No rotor rare earths", "Power feed and cooling", "In production"],
+    ["SynRM", "Shaped steel alignment", "No rotor rare earths", "Inverter or motor size", "Limited passenger-EV use"],
+    ["SRM", "Sequential tooth pull", "No rotor rare earths", "Noise and uneven torque", "Limited passenger-EV use"],
   ];
   return (
     <div className="clean-diagram clean-readiness" role="img" aria-label="Readiness categories for rare-earth reduction and alternative motor routes">
-      <p className="clean-kicker-html">TECHNOLOGY READINESS IS NOT THE SAME AS SUBSTITUTION EASE</p>
-      {lanes.map(([label, names, note], index) => (
-        <div className="clean-readiness__lane" key={label}>
-          <span className="clean-readiness__index">0{index + 1}</span>
-          <div>
-            <small>{label}</small>
-            <strong>{names}</strong>
-            <span>{note}</span>
-          </div>
+      <p className="clean-kicker-html">THE SAME FOUR QUESTIONS FOR EVERY ROUTE</p>
+      <div className="clean-readiness__table">
+        <div className="clean-readiness__head" aria-hidden="true">
+          <span>Route</span><span>What turns the rotor</span><span>REE exposure</span><span>Main penalty</span><span>Automotive state</span>
         </div>
-      ))}
+        {routes.map(([name, mechanism, exposure, penalty, state]) => (
+          <div className="clean-readiness__row" key={name}>
+            <strong>{name}</strong><span>{mechanism}</span><span>{exposure}</span><span>{penalty}</span><em>{state}</em>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
 
 export function DecisionSummaryDiagram() {
   const points = [
-    ["UNDERSTAND", "A PMSM uses a rotating stator field to pull a permanent-magnet rotor."],
-    ["COMPARE", "Alternative rotors use induced current, powered coils or shaped steel."],
-    ["DECIDE", "Judge supply exposure together with efficiency, size, controls and integration burden."],
+    ["NOW", "Use better rotor cooling, grain-boundary diffusion and lower-HREE magnets in current PMSM programmes."],
+    ["NEXT VEHICLE PLATFORM", "Consider ferrite, induction or wound field when the vehicle can absorb a redesigned drive unit."],
+    ["TARGETED R&D", "Develop SynRM and SRM where their inverter, size, noise and control penalties fit the vehicle duty."],
   ];
   return (
     <div className="clean-diagram clean-summary" role="img" aria-label="Three conclusions from the permanent magnet motor alternatives walkthrough">
-      <p className="clean-kicker-html">THE WHOLE ARGUMENT</p>
+      <p className="clean-kicker-html">THREE IMPLEMENTATION HORIZONS</p>
       <div className="clean-summary__grid">
         {points.map(([label, copy], index) => (
           <div className="clean-summary__point" key={label}>

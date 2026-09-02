@@ -75,6 +75,7 @@ export function fieldLessonFor(
   if (stop.id === "three-coils-one-field") {
     if (state.id === "one-phase") return "fixed";
     if (state.id === "three-phases" || state.id === "no-part-moves") return "sweep";
+    if (state.id === "rotor-locks") return "lock";
   }
   if (stop.id === "rotor-locks-to-field") {
     return "lock";

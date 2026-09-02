@@ -266,7 +266,7 @@
 }
 
 @media (max-width: 560px) {
-  .topbar__logo { height: 38px !important; }
+  .topbar__logo { height: 54px !important; }
   .topbar__progress { gap: var(--gap-3); }
   .contents-overlay { padding: 116px var(--pad-x) 24px; }
   .contents-overlay__chapter { grid-template-columns: 28px minmax(0, 1fr); gap: 10px; }

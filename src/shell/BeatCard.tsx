@@ -1,5 +1,5 @@
 import { ArrowRight } from "@phosphor-icons/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import type { Page, Position } from "../route/structure";
 import "./BeatCard.css";
 
@@ -24,11 +24,8 @@ export function BeatCard({
   const itemRefs = useRef<Record<string, HTMLElement | null>>({});
   const lastSelected = useRef(activeIndex);
   const suppressScroll = useRef(false);
-  const [hasScrolled, setHasScrolled] = useState(false);
-
   const handleScroll = () => {
     if (suppressScroll.current) return;
-    if (!hasScrolled) setHasScrolled(true);
     onUserScroll();
   };
 
@@ -54,7 +51,6 @@ export function BeatCard({
   }, [onSelect, positions]);
 
   useEffect(() => {
-    setHasScrolled(false);
     const root = scrollRef.current;
     if (root) root.scrollTo({ top: 0, left: 0, behavior: "auto" });
   }, [positions]);

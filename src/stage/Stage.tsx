@@ -30,14 +30,16 @@ function ApplyCamera({
   target,
   controlsRef,
   animate,
+  resetKey,
 }: {
   position: readonly [number, number, number];
   target: readonly [number, number, number];
   controlsRef: React.RefObject<OrbitControlsImpl | null>;
   animate: boolean;
+  resetKey: string;
 }) {
   const camera = useThree((s) => s.camera);
-  const key = `${position.join()}|${target.join()}`;
+  const key = `${resetKey}|${position.join()}|${target.join()}`;
 
   useEffect(() => {
     const controls = controlsRef.current;
@@ -57,7 +59,7 @@ function ApplyCamera({
     const from = camera.position.clone();
     const fromTarget = controls.target.clone();
     const start = performance.now();
-    const duration = 620;
+    const duration = 420;
 
     const tick = (now: number) => {
       const t = Math.min(1, (now - start) / duration);
@@ -198,7 +200,7 @@ function SceneContents({
           <Callout position={[0, MOTOR.rotorOuter, explodeZ("rotor", controls.explode)]} direction="top-left" accent>
             rotor · buried NdFeB magnets
           </Callout>
-          <Callout position={[0, -MOTOR.shaftRadius, explodeZ("shaft", controls.explode) + 0.6]} direction="bottom-right">
+          <Callout position={[0, -MOTOR.shaftRadius, explodeZ("shaft", controls.explode) + 0.6]} direction="bottom-left">
             shaft · torque output
           </Callout>
         </>
@@ -556,6 +558,7 @@ export function Stage({
             target={view.target}
             controlsRef={controlsRef}
             animate={!reducedMotion}
+            resetKey={`${stop.id}/${state.id}`}
           />
           <SceneContents
             stop={stop}

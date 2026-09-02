@@ -118,8 +118,8 @@ export const PAGES: readonly PageSpec[] = [
     side: "right",
     transition: {
       act: "The alternatives",
-      title: "Change where the rotor field comes from",
-      lede: "A rotor can get its field from induced current, powered coils, shaped steel, or a different magnet. Each route removes some rare-earth exposure and adds a different engineering burden.",
+      title: "Change what turns the rotor",
+      lede: "Induced current, a powered coil, shaped steel or a different magnet can all turn the rotor. Each route changes the rare-earth exposure and moves the engineering work somewhere else.",
       nextLabel: "Compare the machines",
     },
     stops: [
@@ -146,8 +146,8 @@ export const PAGES: readonly PageSpec[] = [
     side: "left",
     transition: {
       act: "The decision",
-      title: "Technology readiness is not substitution ease",
-      lede: "Several alternatives already work in vehicles. The hard question is how much efficiency, size, cooling, control complexity and production revalidation a manufacturer must accept.",
+      title: "How much of the car must change?",
+      lede: "Several alternatives already work in vehicles. A manufacturer still has to decide how much efficiency, size, cooling, control work and production revalidation the vehicle can absorb.",
       nextLabel: "Compare the trade-offs",
     },
     stops: [

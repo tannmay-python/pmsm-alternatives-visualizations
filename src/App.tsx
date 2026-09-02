@@ -51,8 +51,8 @@ function TourEnd({ onRestart, onBack }: { onRestart: () => void; onBack: () => v
         <p className="eyebrow">End of the walkthrough · {PAGE_LIST.length} of {PAGE_LIST.length} chapters</p>
         <h1 id="tour-end-title">Three things to carry forward</h1>
         <ol className="tour-end__summary">
-          <li><strong>The motor.</strong> Timed stator current creates a rotating field. A permanent-magnet rotor follows it and turns the shaft.</li>
-          <li><strong>The alternatives.</strong> The rotor field can instead come from induced current, powered coils, shaped steel, or a lower-risk magnet.</li>
+          <li><strong>The motor.</strong> In a permanent-magnet synchronous motor (PMSM), timed stator current creates a rotating field. A permanent-magnet rotor follows it and turns the shaft.</li>
+          <li><strong>The alternatives.</strong> Induced current, a powered rotor coil, shaped steel alignment, or a lower-risk magnet can turn the rotor instead.</li>
           <li><strong>The decision.</strong> Supply resilience must be weighed against efficiency, size, cooling, controls and production validation.</li>
         </ol>
         <div className="tour-end__actions">
@@ -126,8 +126,9 @@ export default function App() {
   const [architecture, setArchitecture] = useState<ArchitectureId>("reduced-hree");
   const [reducedMotion, setReducedMotion] = useState(false);
   const [demoRunning, setDemoRunning] = useState(false);
-  const [scrollActivity, setScrollActivity] = useState(0);
+  const [scrollIdle, setScrollIdle] = useState(0);
   const autoplayToken = useRef(0);
+  const scrollIdleTimer = useRef(0);
   const controlsRef = useRef<StageControls>(DEFAULT_CONTROLS);
 
   const position = BEATS[cursor];
@@ -150,8 +151,13 @@ export default function App() {
   const markUserScroll = useCallback(() => {
     autoplayToken.current += 1;
     setDemoRunning(false);
-    setScrollActivity((value) => value + 1);
+    window.clearTimeout(scrollIdleTimer.current);
+    scrollIdleTimer.current = window.setTimeout(() => {
+      setScrollIdle((value) => value + 1);
+    }, 160);
   }, []);
+
+  useEffect(() => () => window.clearTimeout(scrollIdleTimer.current), []);
 
   useEffect(() => {
     controlsRef.current = controls;
@@ -171,6 +177,15 @@ export default function App() {
     autoplayToken.current += 1;
     const token = autoplayToken.current;
     const target = presetFor(sourceStop.id, sourceState.id);
+    // The new frame's semantic state lands at once. This keeps the picture and
+    // the text together even when someone scrolls through several frames in a
+    // row. Only the explanatory movement is delayed and animated.
+    patchControls({
+      isolate: target.isolate,
+      activePhase: target.activePhase,
+      fieldLive: target.fieldLive,
+      extract: target.extract,
+    });
     if (reducedMotion) {
       patchControls(target);
       setDemoRunning(false);
@@ -181,14 +196,6 @@ export default function App() {
     const kickoff = window.setTimeout(() => {
       if (autoplayToken.current !== token) return;
       const from = controlsRef.current;
-      // Discrete scene choices land immediately. Numeric values retarget from
-      // the current frame, so a scroll never snaps the model back to a default.
-      patchControls({
-        isolate: target.isolate,
-        activePhase: target.activePhase,
-        fieldLive: target.fieldLive,
-        extract: target.extract,
-      });
       setDemoRunning(true);
       const started = performance.now();
       const tick = (now: number) => {
@@ -204,12 +211,12 @@ export default function App() {
         }
       };
       frame = requestAnimationFrame(tick);
-    }, 220);
+    }, 120);
     return () => {
       window.clearTimeout(kickoff);
       cancelAnimationFrame(frame);
     };
-  }, [screen, sourceStop.id, sourceState.id, reducedMotion, scrollActivity]);
+  }, [screen, sourceStop.id, sourceState.id, reducedMotion, scrollIdle]);
 
   useEffect(() => {
     if (screen === "landing") window.history.replaceState(null, "", window.location.pathname);

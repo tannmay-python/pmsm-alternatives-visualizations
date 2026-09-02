@@ -44,6 +44,9 @@ export const presetFor = (stopId: string, stateId: string): StageControls => ({
   angle:
     stateId === "electromagnet-rule" ? Math.PI
     : stateId === "three-phase-math" ? Math.PI * 2
+    : stateId === "rotor-locks" ? Math.PI * 4
+    : stateId === "reluctance-spectrum" ? Math.PI * 2
+    : stateId === "srm-aluminium" ? Math.PI * 4
     : stateId === "anisotropy" ? (Math.PI / 2) * 0.35
     : 0,
   load:

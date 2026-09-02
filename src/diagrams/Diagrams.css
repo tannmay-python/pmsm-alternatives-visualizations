@@ -11,6 +11,18 @@
 
 .diagram svg { width: 100%; max-width: 880px; height: auto; overflow: visible; }
 
+@media (max-width: 1080px) {
+  .diagram { padding: 0; }
+  .stage-diagram .diagram > svg,
+  .stage-diagram .diagram .clean-diagram svg {
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    max-height: 100%;
+    margin: auto;
+  }
+}
+
 /* Ink ------------------------------------------------------------------- */
 .d-axis { stroke: var(--line-strong); stroke-width: 1; fill: none; }
 .d-rule { stroke: var(--leader); stroke-width: 1; fill: none; }

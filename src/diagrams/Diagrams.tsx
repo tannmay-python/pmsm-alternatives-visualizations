@@ -13,13 +13,17 @@ import {
   AlternativesMapDiagram,
   ChangeBurdenDiagram,
   DecisionSummaryDiagram,
+  FerriteComparisonDiagram,
   GripRuleDiagram,
   HeatProtectionDiagram,
   MagnetJobsDiagram,
   MitigationOptionsDiagram,
   RareEarthSplitDiagram,
   ReadinessMapDiagram,
+  RotorFollowsFieldDiagram,
   RotatingFieldDiagram,
+  SRMMechanismDiagram,
+  SynRMMechanismDiagram,
   TorqueCombinationDiagram,
 } from "./CleanDiagrams";
 import "./Diagrams.css";
@@ -2686,12 +2690,16 @@ export function Diagram({
         <GripRuleDiagram controls={controls} onPatchControls={onPatchControls} />
       )}
       {id === "rotating-field-clean" && <RotatingFieldDiagram controls={controls} />}
+      {id === "rotor-follows-field-clean" && <RotorFollowsFieldDiagram controls={controls} />}
       {id === "torque-combination-clean" && <TorqueCombinationDiagram />}
       {id === "magnet-jobs-clean" && <MagnetJobsDiagram />}
       {id === "rare-earth-split-clean" && <RareEarthSplitDiagram />}
       {id === "heat-protection-clean" && <HeatProtectionDiagram controls={controls} />}
       {id === "mitigation-options-clean" && <MitigationOptionsDiagram />}
       {id === "alternatives-map-clean" && <AlternativesMapDiagram />}
+      {id === "synrm-mechanism-clean" && <SynRMMechanismDiagram controls={controls} />}
+      {id === "srm-mechanism-clean" && <SRMMechanismDiagram controls={controls} />}
+      {id === "ferrite-comparison-clean" && <FerriteComparisonDiagram />}
       {id === "change-burden-clean" && <ChangeBurdenDiagram />}
       {id === "readiness-map-clean" && <ReadinessMapDiagram />}
       {id === "decision-summary-clean" && <DecisionSummaryDiagram />}
