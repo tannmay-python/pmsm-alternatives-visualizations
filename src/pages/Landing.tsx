@@ -26,7 +26,7 @@ function GroupTwoDashboard() {
         <p className="group-two-dashboard__kicker">Group 2 · Heavy rare earths + tellurium</p>
         <h2 id="group-two-title">Substitution sometime away</h2>
         <p>
-          The tightest of the dashboard's six groups. Every member scores at or near the maximum on refining concentration, reserve concentration and extraction complexity at once, and Indian EV makers were among the first firms denied licences in April 2025. The group's last recommendation is to make these minerals obsolete, through motors that need no rare-earth magnet. That is where this walkthrough goes.
+          This is the tightest group in the dataset, and the one where India's exposure is most acute and its options fewest. Every member scores at or near the maximum on three vectors simultaneously: refining concentration, reserve concentration, and extraction complexity. The April 2025 export controls caused Western market prices to triple within weeks, and Indian automotive and EV manufacturers were among the first firms denied licences. The dashboard's third recommendation for this group is to make these minerals obsolete through motors that do not use rare-earth permanent magnets, and this walkthrough works through that recommendation.
         </p>
       </div>
       <ul className="group-two-dashboard__members" aria-label="Minerals in Group 2">
@@ -55,10 +55,10 @@ export function Landing({ onEnter }: { onEnter: () => void }) {
         <section className="landing__copy" aria-labelledby="landing-title">
           <h1 id="landing-title">The EV motor’s <span className="landing__highlight">rare-earth</span> problem</h1>
           <p className="landing__paragraph">
-            On 4 April 2025, China placed seven medium and heavy rare earths, and the magnets made from them, under export licence. Within weeks, carmakers holding no second source were pausing assembly while the paperwork caught up. The exposure sits in one component: the permanent magnet inside the traction motor, one to two kilograms of it per car, of which 1 to 4 per cent by mass is the dysprosium and terbium the notice actually covered.
+            China placed seven medium and heavy rare earths, and the magnets made from them, under export licence on 4 April 2025. Carmakers in Europe and India that had no second source paused assembly lines within weeks while licence applications worked through the Ministry of Commerce in Beijing. The part that stopped those lines is a set of permanent magnets inside the traction motor, roughly one to two kilograms per car. Dysprosium and terbium, the elements the notice covered, are 1 to 4 per cent of that mass.
           </p>
           <p className="landing__paragraph">
-            This walkthrough is an explainer of that component. It answers three questions in order: what a permanent-magnet motor is and where it sits in the car; what can turn a rotor instead of a magnet; and what each alternative costs in efficiency, size, cooling and engineering time, and how close it is to a showroom.
+            We wrote this walkthrough for colleagues in government who need to hold the motor question correctly before a procurement or industrial-policy decision. It explains what a permanent-magnet motor is and where it sits in the car, what else can turn a rotor, and what each alternative costs a manufacturer in efficiency, size, cooling and engineering time. The minerals involved are the dashboard's Group 2, shown alongside.
           </p>
           <p className="landing__authors" aria-label="Authors">
             <span>By </span>

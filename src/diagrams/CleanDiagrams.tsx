@@ -252,7 +252,7 @@ export function GripRuleDiagram({ controls, onPatchControls }: ControlProps) {
         <p className="clean-aside__copy">Curl the right hand in the direction the current flows around the coil.</p>
         <hr className="clean-aside__rule" />
         <h4 className="clean-aside__title">The thumb points north.</h4>
-        <p className="clean-aside__copy">Reverse the current and the poles swap. A coil is a magnet whose direction is set electrically.</p>
+        <p className="clean-aside__copy">Reverse the current and the poles swap, so the coil is a magnet whose direction is set electrically.</p>
       </Aside>
     </button>
   );
@@ -327,8 +327,8 @@ export function RotorFollowsFieldDiagram({ controls }: ControlProps) {
         <h4 className="clean-aside__title"><i className="clean-swatch clean-swatch--gold" />Rotor magnetic axis</h4>
         <p className="clean-aside__copy">follows at exactly the same speed</p>
         <hr className="clean-aside__rule" />
-        <h4 className="clean-aside__title">The angle is the torque.</h4>
-        <p className="clean-aside__copy">The lag between field and rotor is what pulls the shaft round. Heavier load, larger lag.</p>
+        <h4 className="clean-aside__title">The lag sets the torque.</h4>
+        <p className="clean-aside__copy">A heavier load pulls the rotor further behind the field, and the pull across that gap is what turns the shaft.</p>
       </Aside>
     </div>
   );
@@ -725,7 +725,7 @@ export function DecisionSummaryDiagram() {
   const points = [
     ["NOW", "Specify low-dysprosium grades and oil-cooled rotors. Nothing else in the vehicle changes."],
     ["NEXT PLATFORM", "A wound-field or induction drive unit. Proven abroad; a multi-year programme here."],
-    ["TARGETED R&D", "Ferrite, SynRM, SRM. Test fleets and funded research, not procurement."],
+    ["TARGETED R&D", "Ferrite, SynRM, SRM. Test fleets and funded research at this stage."],
   ];
   return (
     <div className="clean-diagram clean-summary" role="img" aria-label="Three conclusions from the permanent magnet motor alternatives walkthrough">

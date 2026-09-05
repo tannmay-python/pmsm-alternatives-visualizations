@@ -130,11 +130,11 @@ export function lintCopyLine(text: string, path: string): CopyIssue[] {
 
   issues.push(...lintNumbers(text, path));
 
-  if (text.length > 420) {
+  if (text.length > 520) {
     issues.push({
       code: "too-long",
       path,
-      message: `On-stage line is ${text.length} characters. Keep it under 420 so the card stays a paragraph beside the visual.`,
+      message: `On-stage line is ${text.length} characters. Keep it under 520 so the card stays one paragraph beside the visual.`,
     });
   }
 

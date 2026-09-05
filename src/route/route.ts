@@ -173,8 +173,8 @@ export const STOPS: readonly Stop[] = [
     states: [
       {
         id: "power-path",
-        label: "The power path",
-        line: "An electric drivetrain has four parts. The battery pack under the floor stores direct current. The inverter converts it into three-phase alternating current, timed by software. The motor turns that current into rotation, and a reduction gear brings motor speed down to wheel speed. All but the battery share one housing on the driven axle: the drive unit.",
+        label: "Battery, inverter, motor, gear",
+        line: "A battery-electric drivetrain has four parts. The battery pack under the floor stores electricity as direct current. The inverter converts it to three-phase alternating current, and software decides the timing. The motor converts that current into rotation, and a single-speed reduction gear brings the motor's speed down to the wheels'. In most cars the inverter, motor and gear share one housing on the driven axle, which the industry calls the drive unit.",
         action: "Follow the path from stored electricity to wheel torque.",
       },
       {
@@ -198,8 +198,8 @@ export const STOPS: readonly Stop[] = [
     states: [
       {
         id: "explode",
-        label: "Open the motor",
-        line: "Two parts do the work. The stator is a ring of laminated steel carrying copper windings; it is bolted to the housing and never moves. The rotor is a steel cylinder on the output shaft; it turns inside the stator. The permanent magnets are embedded in the rotor, which is why an assembled motor shows no magnet at all.",
+        label: "Stator and rotor",
+        line: "Two parts do most of the work. The stator is a ring of stacked steel sheets with copper windings in its slots; it is bolted to the housing and does not move. The rotor is a steel cylinder fixed to the output shaft, and it turns inside the stator. The permanent magnets are set into the rotor's steel, so an assembled motor, or even an opened one, shows no magnet from the outside.",
         action: "Watch the assembly separate into its stationary and rotating parts.",
       },
       {
@@ -216,8 +216,8 @@ export const STOPS: readonly Stop[] = [
       },
       {
         id: "rotor",
-        label: "The component in question",
-        line: "Sixteen magnet strips sit in V-shaped pockets inside the rotor, held by steel bridges against the forces at 15,000 rpm. They are neodymium-iron-boron, NdFeB, and they hold their magnetism with no electrical input. That is what permanent means. The machine built around them is a permanent-magnet synchronous motor, or PMSM.",
+        label: "The magnets",
+        line: "This rotor carries sixteen strips of magnet in V-shaped pockets, and steel bridges over each pocket hold them in against the forces at 15,000 rpm. The material is neodymium-iron-boron, written NdFeB. It stays magnetised with no electrical input, which is what a permanent magnet is, and the machine built around it is a permanent-magnet synchronous motor, PMSM in the industry's shorthand.",
         action: "Locate the permanent magnets inside the spinning rotor.",
       },
       {
@@ -229,7 +229,7 @@ export const STOPS: readonly Stop[] = [
       {
         id: "air-gap",
         label: "The air gap",
-        line: "Stator and rotor never touch. An air gap of under a millimetre separates them, and torque crosses it magnetically. Everything the motor does is a question of what magnetic field exists in that gap, and what creates it. A permanent magnet is one answer. The rest of this walkthrough is about the others.",
+        line: "The stator and the rotor do not touch. An air gap of under a millimetre separates them, and the torque that turns the wheels crosses it as magnetic force. The question for the rest of this walkthrough is what produces the magnetic field on the rotor side of that gap, since a permanent magnet is only one of the ways to do it.",
         action: "Look down the bore at the gap where the magnetic fields meet.",
       },
     ],
@@ -248,7 +248,7 @@ export const STOPS: readonly Stop[] = [
       {
         id: "electromagnet-rule",
         label: "The right-hand grip rule",
-        line: "A coil carrying current is an electromagnet. The rule for its polarity: curl the fingers of the right hand in the direction of the current, and the thumb points north. Reverse the current and the poles swap. Everything that follows rests on this: a magnet whose direction can be set electrically, at any instant.",
+        line: "A coil with current flowing through it is an electromagnet. To find its north pole, curl the fingers of the right hand in the direction the current travels around the coil; the thumb then points north. Reversing the current reverses the poles. The motor relies on this because it means a magnet's direction can be set electrically, and changed as often as the electronics can switch.",
         action: "Reverse the current and watch North and South exchange places.",
         stage: { kind: "svg", diagram: "grip-rule-clean" },
       },
@@ -261,8 +261,8 @@ export const STOPS: readonly Stop[] = [
       },
       {
         id: "three-phase-math",
-        label: "Three phases, one moving pole",
-        line: "Place three coil groups around the stator and feed them alternating currents a third of a cycle apart. At any instant one group is strongest, and the combined north pole sits there. As the currents rise and fall, that pole moves around the bore. No copper moves. The inverter sets the speed of the field by setting the frequency.",
+        label: "Three coil groups",
+        line: "The stator carries three groups of coils, spaced evenly around the ring, and the inverter feeds them alternating currents a third of a cycle apart. At any instant one group carries the most current, and the combined north pole sits there. As the currents rise and fall in turn, that pole moves around the bore while every coil stays in its slot. The inverter sets how fast the field turns by setting the frequency.",
         action: "Watch the strongest coil and the combined field move around the bore.",
         stage: { kind: "svg", diagram: "rotating-field-clean" },
       },
@@ -276,7 +276,7 @@ export const STOPS: readonly Stop[] = [
       {
         id: "rotor-locks",
         label: "Synchronous",
-        line: "A permanent-magnet rotor in that field turns with it, at the same speed, which is what synchronous means. It trails the field by a small, steady angle, and that angle is the torque: the heavier the load, the larger the lag. Press the accelerator and the inverter raises the frequency; the rotor follows.",
+        line: "Put a permanent-magnet rotor inside that turning field and it turns with it at the same speed, which is why the motor is called synchronous. The rotor trails the field by a small, steady angle, and the size of that angle sets the torque: a heavier load pulls the rotor further behind. When the driver presses the accelerator, the inverter raises the frequency and the rotor keeps pace.",
         action: "Watch the stator field pull the rotor around the air gap.",
         stage: { kind: "svg", diagram: "rotor-follows-field-clean" },
       },
@@ -288,7 +288,7 @@ export const STOPS: readonly Stop[] = [
     actLabel: "The machine",
     number: 5,
     title: "Two pulls, one shaft",
-    question: "Does the magnet do all the work?",
+    question: "Where does the rest of the torque come from?",
     stage: { kind: "three", scene: "motor", rotor: "ipm-ndfeb" },
     claimIds: ["ipm-magnets-buried", "ipm-reluctance-torque", "pm-assisted-synrm-stack"],
     coversStepIds: ["ipm-rotor-cutaway", "ipm-reluctance-overlay"],
@@ -310,7 +310,7 @@ export const STOPS: readonly Stop[] = [
       {
         id: "already-both",
         label: "Reluctance torque",
-        line: "Not all of it. Steel is pulled toward the position where magnetic flux passes most easily, the way a nail turns toward a magnet. Rotor designers shape the steel around the pockets so this pull adds to the magnet's, typically a third of the total. That is why the magnets are buried, and why a production rotor needs less magnet than the pull alone implies.",
+        line: "Steel on its own is pulled toward the position where magnetic flux passes through it most easily, in the same way a nail turns toward a magnet. Rotor designers shape the steel around the magnet pockets so that this pull adds to the magnets', and in a typical traction rotor it contributes something like a third of the total torque. This is also why the magnets are buried rather than glued to the surface: the steel around them is doing work.",
         action: "Compare magnet pull with steel alignment.",
         stage: { kind: "svg", diagram: "torque-combination-clean" },
       },
@@ -335,8 +335,8 @@ export const STOPS: readonly Stop[] = [
     states: [
       {
         id: "division-of-labour",
-        label: "Three elements, three jobs",
-        line: "NdFeB is neodymium, iron and boron, with praseodymium usually alongside the neodymium. Iron supplies most of the magnetic strength. Neodymium and praseodymium supply coercivity: resistance to demagnetisation when the stator pushes back. Boron stabilises the crystal that lets the other two coexist. No other material packs as much field into as little volume.",
+        label: "Neodymium, iron, boron",
+        line: "NdFeB is neodymium, iron and boron, and in practice praseodymium is used alongside the neodymium. Iron supplies most of the magnetic strength. Neodymium and praseodymium supply the coercivity, the resistance to being demagnetised when the stator's field pushes against the magnet. Boron stabilises the crystal structure that lets iron and neodymium coexist. No other commercial material gives as much field from as small a block, and that is why it is in the car.",
         action: "Compare the two jobs inside one magnet.",
         stage: { kind: "svg", diagram: "magnet-jobs-clean" },
       },
@@ -398,8 +398,8 @@ export const STOPS: readonly Stop[] = [
       },
       {
         id: "dysprosium-tradeoff",
-        label: "Heat spends the margin",
-        line: "A magnet can be demagnetised. A strong enough opposing field flips part of it, and the loss is permanent. Heat lowers the field needed, and a traction rotor runs at 150–180 °C under full load, exactly when the stator pushes hardest. Dysprosium and terbium raise the temperature at which the magnet holds. Remove them and the motor runs cooler, or derated.",
+        label: "Why the heavy pair is there",
+        line: "A magnet can be demagnetised. A strong enough opposing field flips part of it, and the loss is permanent. Heat reduces the field needed to do that, and a traction rotor runs at 150–180 °C under full load, which is also when the stator pushes hardest. Dysprosium and terbium raise the temperature at which the magnet holds. A motor without them either has to run cooler or has to be rated for less.",
         action: "Watch protection return to a hot magnet.",
         stage: { kind: "svg", diagram: "heat-protection-clean" },
       },
@@ -430,8 +430,8 @@ export const STOPS: readonly Stop[] = [
     states: [
       {
         id: "the-split",
-        label: "Light and heavy are different problems",
-        line: "By mass the magnet is roughly 69 per cent iron, 30 per cent neodymium and praseodymium, and 1 to 4 per cent dysprosium and terbium. The first pair are light rare earths, mined in several countries. The second pair are heavy rare earths, added for heat, and almost entirely refined in China. The April 2025 notice covered the heavy pair, not neodymium.",
+        label: "What the notice covered",
+        line: "By mass a traction magnet is roughly 69 per cent iron, 30 per cent neodymium and praseodymium, and 1 to 4 per cent dysprosium and terbium. Neodymium and praseodymium are light rare earths, mined in several countries. Dysprosium and terbium are heavy rare earths, added for heat resistance, and almost all of the world's supply is refined in China. The April 2025 notice covered dysprosium and terbium. It did not cover neodymium.",
         action: "Separate the magnet by material role and control exposure.",
         stage: { kind: "svg", diagram: "rare-earth-split-clean" },
       },
@@ -457,8 +457,8 @@ export const STOPS: readonly Stop[] = [
       },
       {
         id: "already-happened",
-        label: "Reduce before replacing",
-        line: "Three measures cut heavy-rare-earth content without changing the motor. Direct oil cooling of the rotor lowers the temperature the magnet must survive; Audi's Q6 e-tron does this. Grain-boundary diffusion places dysprosium only at the crystal edges where demagnetisation starts. Dysprosium-free NdFeB grades exist and are being qualified. None is a drop-in; each needs years of validation.",
+        label: "Three ways to use less",
+        line: "Three measures reduce heavy-rare-earth content without changing the motor. Cooling the rotor directly with oil lowers the temperature the magnet has to survive; Audi does this on the Q6 e-tron. Grain-boundary diffusion places dysprosium only at the crystal edges, where demagnetisation starts, instead of through the whole block. Dysprosium-free NdFeB grades exist and are going through qualification. None of the three is a drop-in, and each takes years of validation before a carmaker will fit it.",
         action: "Compare three low-disruption mitigation routes.",
         stage: { kind: "svg", diagram: "mitigation-options-clean" },
       },
@@ -560,15 +560,15 @@ export const STOPS: readonly Stop[] = [
     states: [
       {
         id: "family-tree",
-        label: "Five sources of torque",
-        line: "Every traction motor answers one question: what makes the rotor follow the field? A permanent magnet is one answer. The others are a current induced in a cage of bars, a rotor coil fed with its own current, and steel shaped to align with the field, continuously or one pole at a time. Each removes some rare-earth exposure and adds an engineering cost elsewhere.",
+        label: "Five kinds of rotor",
+        line: "Every traction motor needs something on the rotor for the stator's field to pull on. A permanent magnet is one option. A cage of conducting bars, in which the field induces its own current, is a second. A coil on the rotor fed with current from outside is a third. Steel shaped so that the field pulls it into alignment is the fourth, and steel pulled by one stator pole at a time is the fifth. Each removes some rare-earth exposure and adds an engineering cost somewhere else.",
         action: "Compare where each motor family gets its rotor field.",
         stage: { kind: "svg", diagram: "alternatives-map-clean" },
       },
       {
         id: "induction-principle",
         label: "Induction",
-        line: "Replace the magnets with a cage of aluminium or copper bars. Run the stator field slightly faster than the rotor; the difference, called slip, induces current in the bars, and that current makes the rotor a magnet for as long as the slip lasts. No rare earths. The cost: current in the rotor means heat in the rotor and lower part-load efficiency. Audi uses it on the Q6 e-tron's front axle.",
+        line: "An induction motor replaces the magnets with a cage of aluminium or copper bars. The stator field runs slightly faster than the rotor, and the difference, called slip, induces current in the bars, which makes the rotor magnetic for as long as the slip continues. There are no rare earths in it. Because current flows in the rotor, heat is generated in the rotor, and efficiency at part load is a few points lower than a magnet machine's. Audi uses one on the front axle of the Q6 e-tron.",
         action: "Watch the stator field induce current in the rotor cage.",
         stage: { kind: "three", scene: "motor", rotor: "squirrel-cage" },
       },
@@ -582,7 +582,7 @@ export const STOPS: readonly Stop[] = [
       {
         id: "wound-control",
         label: "Wound field",
-        line: "Replace the magnets with copper windings and feed them current through slip rings and brushes, or a rotating transformer. The rotor becomes an electromagnet the inverter can turn down at speed, which a permanent magnet cannot. The cost: a second power supply, a rotor that now needs cooling, and a brush assembly to maintain. BMW, Renault and Nissan sell cars with it.",
+        line: "A wound-field motor replaces the magnets with copper windings on the rotor and feeds them current through slip rings and brushes, or through a rotating transformer. The rotor becomes an electromagnet that the inverter can turn down at motorway speed, which a permanent magnet cannot do. It needs a second power supply, its own cooling, and a brush assembly that has to be maintained. BMW, Renault and Nissan all sell cars with wound-field motors.",
         action: "Trace the electrical supply into the rotor winding.",
         stage: { kind: "three", scene: "motor", rotor: "wound" },
       },
@@ -603,14 +603,14 @@ export const STOPS: readonly Stop[] = [
       {
         id: "reluctance-spectrum",
         label: "Synchronous reluctance",
-        line: "Remove magnets and windings both. Cut air barriers into the rotor steel so flux passes easily along one axis and poorly along the other; the rotating field pulls the easy axis into line. The cheapest rotor of the five. The cost: a poor power factor, so the inverter carries more current for the same output, and a larger machine for the same torque. Common in industry; rare in cars.",
+        line: "A synchronous reluctance motor has neither magnets nor rotor windings. Air barriers are cut into the rotor steel so that flux passes easily along one axis and poorly along the other, and the rotating field pulls the easy axis into line. The rotor is the cheapest of the five to make. The drawback is a poor power factor, which means the inverter carries more current for the same output, and a larger machine for the same torque. ABB sells these for industrial drives; they are rare in cars.",
         action: "Inspect the shaped steel paths inside a pure reluctance rotor.",
         stage: { kind: "svg", diagram: "synrm-mechanism-clean" },
       },
       {
         id: "srm-aluminium",
         label: "Switched reluctance",
-        line: "Energise one pair of stator poles at a time and the nearest rotor tooth is pulled into alignment; then the next pair fires. No magnets, no rotor windings, a rotor that is a stamped steel star. The cost: the pulses produce torque ripple and noise, and the control electronics work harder. Advanced Electric Machines runs it in trucks with aluminium windings; passenger-car use is limited.",
+        line: "A switched reluctance motor energises one pair of stator poles at a time, and the nearest rotor tooth is pulled into line before the next pair fires. The rotor is a stamped steel star with no magnets and no windings. Because the torque arrives in pulses it is uneven and noisy, and the control electronics have more work to do. Advanced Electric Machines in the UK builds them for trucks, with aluminium windings; passenger-car use is limited so far.",
         action: "Watch the stator poles pull the toothed rotor into alignment.",
         stage: { kind: "svg", diagram: "srm-mechanism-clean" },
       },
@@ -656,7 +656,7 @@ export const STOPS: readonly Stop[] = [
       {
         id: "ferrite-limit",
         label: "Ferrite",
-        line: "Ferrite is iron oxide: cheap, abundant, no rare earths, and about a third of NdFeB's remanence. In the same PMSM it works, at a third of the field. Recovering the output means more magnet, a larger rotor, higher speed or a different geometry. Proterial's prototype makes 102 kW at 15,000 rpm against a 110 kW NdFeB baseline at 10,000 rpm. No production car uses one.",
+        line: "Ferrite is iron oxide. It is cheap, mined everywhere, and contains no rare earths, and its remanence is about a third of NdFeB's. Put it in the same PMSM and the motor works at a third of the field, so recovering the output means more magnet, a larger rotor, a higher speed or a different geometry. Proterial's prototype makes 102 kW at 15,000 rpm against a 110 kW NdFeB baseline at 10,000 rpm. No production car uses a ferrite traction motor yet.",
         action: "Compare enlarged ferrite pockets with the NdFeB rotor.",
         stage: { kind: "svg", diagram: "ferrite-comparison-clean" },
       },
@@ -745,14 +745,14 @@ export const STOPS: readonly Stop[] = [
       {
         id: "spectrum",
         label: "Three sizes of change",
-        line: "A low-dysprosium magnet changes a supplier and a qualification file; the car does not change. Ferrite changes the motor. Induction, wound field and reluctance change the drive unit: motor, inverter, cooling and control software together. Each step down the list removes more rare-earth exposure and costs more engineering. The order matters more than the winner.",
+        line: "A low-dysprosium magnet changes a supplier and a qualification file, and nothing else in the car. Ferrite changes the motor. Induction, wound field and reluctance change the whole drive unit: the motor, the inverter, the cooling circuit and the control software have to be redesigned together. Each step down that list removes more rare-earth exposure and costs more engineering, and the second fact is the one procurement decisions usually underweight.",
         action: "Order the routes from supplier qualification to platform work.",
         stage: { kind: "svg", diagram: "change-burden-clean" },
       },
       {
         id: "validation",
         label: "What is on the road",
-        line: "Four of the six routes are in production somewhere. Low-dysprosium NdFeB is standard practice. Wound-field motors drive BMW, Renault and Nissan cars. Induction drives most industrial motors and the front axle of the Audi Q6 e-tron. Ferrite has prototypes. The reluctance machines run factories and trucks. In production is not drop-in: fitting any of them to a given car is a drive-unit programme, measured in years.",
+        line: "Four of the six routes are in production somewhere. Low-dysprosium NdFeB is standard practice across the industry. Wound-field motors are in BMW, Renault and Nissan cars today. Induction motors run most industrial machinery and the front axle of the Audi Q6 e-tron. Ferrite has driven prototypes. The two reluctance machines run factories and trucks. Fitting any of them to a particular car is still a new drive-unit programme, and those run for years whether or not the motor type is proven elsewhere.",
         action: "Compare mechanism, rare-earth exposure, penalty and automotive state.",
         stage: { kind: "svg", diagram: "readiness-map-clean" },
       },
@@ -764,8 +764,8 @@ export const STOPS: readonly Stop[] = [
       },
       {
         id: "where-we-are",
-        label: "Three horizons",
-        line: "For vehicles in production now, specify low-dysprosium grades and oil-cooled rotors; nothing else in the car moves. For the next platform, a wound-field or induction drive unit is proven abroad and a multi-year programme here. Ferrite and the reluctance machines belong in test fleets and funded research, not procurement.",
+        label: "What to do, and when",
+        line: "For vehicles already in production, specify low-dysprosium grades and oil-cooled rotors. Nothing else in the car has to change. For the next platform, a wound-field or induction drive unit is proven abroad and would be a multi-year programme here. Ferrite and the two reluctance machines belong in test fleets and funded research at this stage, and we would not put them in a procurement specification yet.",
         action: "Review the three decisions the walkthrough has established.",
         stage: { kind: "svg", diagram: "decision-summary-clean" },
       },

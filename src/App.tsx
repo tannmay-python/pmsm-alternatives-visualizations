@@ -51,9 +51,9 @@ function TourEnd({ onRestart, onBack }: { onRestart: () => void; onBack: () => v
         <p className="eyebrow">End of the walkthrough · {PAGE_LIST.length} of {PAGE_LIST.length} chapters</p>
         <h1 id="tour-end-title">Three things to carry forward</h1>
         <ol className="tour-end__summary">
-          <li><strong>The motor.</strong> A PMSM turns because timed currents make a stationary stator's field rotate and a magnet rotor follows it. That magnet holds at temperature only because of a few per cent of dysprosium and terbium, and that fraction is the exposure.</li>
-          <li><strong>The alternatives.</strong> Induced current, a powered rotor coil, or shaped steel can produce torque without rare earths. Each moves the cost: rotor heat, power-transfer hardware, machine size, or noise and control burden.</li>
-          <li><strong>The decision.</strong> Low-dysprosium magnets now, with no vehicle change. A wound-field or induction drive unit on the next platform. Ferrite and reluctance in test fleets.</li>
+          <li><strong>The motor.</strong> A PMSM turns because the inverter makes the stator's field rotate and a magnet rotor follows it. The magnet keeps its strength at temperature only because of a few per cent of dysprosium and terbium, and those are the elements under licence.</li>
+          <li><strong>The alternatives.</strong> A cage of bars, a rotor coil fed from outside, or shaped steel can each produce torque without rare earths. Each moves the cost elsewhere, to rotor heat, power-transfer hardware, machine size, or noise and control effort.</li>
+          <li><strong>The decision.</strong> Low-dysprosium magnets now, with no change to the vehicle. A wound-field or induction drive unit on the next platform. Ferrite and reluctance in test fleets first.</li>
         </ol>
         <div className="tour-end__actions">
           <button type="button" className="tour-end__restart" onClick={onRestart}>Start again</button>

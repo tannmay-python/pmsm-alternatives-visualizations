@@ -65,7 +65,7 @@ export const PAGES: readonly PageSpec[] = [
     transition: {
       act: "The mechanism",
       title: "Make a magnetic field move",
-      lede: "The stator never moves. Timed currents in three coil groups make its field rotate, and the rotor follows.",
+      lede: "The stator does not move. The inverter times the currents in its three coil groups so that the magnetic field goes round, and the rotor turns with it.",
       nextLabel: "See how it turns",
     },
     stops: [
@@ -87,7 +87,7 @@ export const PAGES: readonly PageSpec[] = [
     transition: {
       act: "The material",
       title: "Why this magnet creates a supply risk",
-      lede: "Neodymium supplies the field. A small addition of dysprosium and terbium lets it survive a hot rotor. That addition is what was restricted.",
+      lede: "Neodymium provides the field. A small addition of dysprosium and terbium lets the magnet survive a hot rotor, and those two elements are what the April notice restricted.",
       nextLabel: "Inside the magnet",
     },
     stops: [
@@ -119,7 +119,7 @@ export const PAGES: readonly PageSpec[] = [
     transition: {
       act: "The alternatives",
       title: "Change what turns the rotor",
-      lede: "Induced current, a powered coil, or shaped steel can turn a rotor. Each removes some rare-earth exposure and adds a cost elsewhere.",
+      lede: "A current induced in a cage, a coil fed from outside, or steel shaped to align with the field can each turn a rotor. Each removes some rare-earth exposure and adds a cost elsewhere.",
       nextLabel: "The alternatives",
     },
     stops: [
@@ -147,7 +147,7 @@ export const PAGES: readonly PageSpec[] = [
     transition: {
       act: "The decision",
       title: "How much of the car must change?",
-      lede: "Several alternatives are in production. The question is how much of the vehicle changes to accommodate one, and over what timescale.",
+      lede: "Several of the alternatives are in production. What decides the choice is how much of the vehicle has to change to accommodate one, and how long that takes.",
       nextLabel: "The trade-offs",
     },
     stops: [
