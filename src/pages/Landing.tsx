@@ -73,10 +73,10 @@ export function Landing({ onEnter }: { onEnter: () => void }) {
         <section className="landing__copy" aria-labelledby="landing-title">
           <h1 id="landing-title">The EV motor’s <span className="landing__highlight">rare-earth</span> problem</h1>
           <p className="landing__paragraph">
-            Take an electric car apart and most of it is ordinary: steel, glass, a big battery. One part is not. The motor that turns the wheels is built around a fist-sized set of magnets, and those magnets need two elements, dysprosium and terbium, that almost all come from one country. In April 2025 China put them under export licence.
+            Most of an electric car is unremarkable: steel, glass, a big battery. The motor is the exception. Inside it sits a fist-sized set of magnets, and those magnets hold up in a hot motor only because of a pinch of two rare elements, dysprosium and terbium. Nearly all the world’s supply comes from China, which put both under export licence in April 2025.
           </p>
           <p className="landing__paragraph">
-            This walkthrough is about that magnet: what it does inside the motor, what could replace it, and what each replacement would cost. It takes about fifteen minutes. The elements involved are the ones we grouped as Group 2 of the <a href={DASHBOARD_URL} target="_blank" rel="noreferrer">India Critical Minerals Dashboard</a>.
+            This walkthrough follows that magnet: what it actually does inside the motor, what could take its place, and what each option would cost a carmaker. It takes about fifteen minutes, and it picks up where Group 2 of the <a href={DASHBOARD_URL} target="_blank" rel="noreferrer">India Critical Minerals Dashboard</a> leaves off.
           </p>
           <p className="landing__authors" aria-label="Authors">
             <span>By </span>
