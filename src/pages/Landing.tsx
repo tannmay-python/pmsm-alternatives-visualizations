@@ -15,12 +15,6 @@ const GROUP_TWO_MEMBERS = [
   "Thulium",
 ] as const;
 
-const GROUP_TWO_VECTORS = [
-  ["Refining concentration", "Near maximum"],
-  ["Reserve concentration", "Near maximum"],
-  ["Extraction complexity", "Near maximum"],
-] as const;
-
 function GroupTwoDashboard() {
   return (
     <div className="group-two-dashboard" aria-labelledby="group-two-title">
@@ -38,17 +32,6 @@ function GroupTwoDashboard() {
       <ul className="group-two-dashboard__members" aria-label="Minerals in Group 2">
         {GROUP_TWO_MEMBERS.map((member) => <li key={member}>{member}</li>)}
       </ul>
-      <div className="group-two-dashboard__vectors" aria-label="Shared risk characteristics">
-        {GROUP_TWO_VECTORS.map(([label, value]) => (
-          <div className="group-two-dashboard__vector" key={label}>
-            <span>{label}</span>
-            <strong>{value}</strong>
-          </div>
-        ))}
-      </div>
-      <p className="group-two-dashboard__detail">
-        Reserves sit in ion-adsorption clay deposits in southern China and Myanmar. Separating near-identical elements needs capability no Western or Indian facility has at commercial scale. China’s April 2025 export controls caused Western prices to triple within weeks; Tellurium is included here because its refining is monopolised, recycling negligible and substitution limited.
-      </p>
       <p className="group-two-dashboard__note">Source: <a href={DASHBOARD_URL} target="_blank" rel="noreferrer">India Critical Minerals Dashboard</a>, Group 2.</p>
     </div>
   );
@@ -65,7 +48,6 @@ export function Landing({ onEnter }: { onEnter: () => void }) {
           <a className="landing__research-link" href={MINERALPOLITIK_URL} target="_blank" rel="noreferrer">
             Critical minerals research <ArrowUpRight size={13} weight="bold" />
           </a>
-          <button type="button" className="landing__masthead-cta" onClick={onEnter}>Open the motor <ArrowRight size={14} weight="bold" /></button>
         </div>
       </header>
 
@@ -87,15 +69,13 @@ export function Landing({ onEnter }: { onEnter: () => void }) {
               </span>
             ))}
           </p>
+          <button type="button" className="landing__cta" onClick={onEnter}>Start the walkthrough <ArrowRight size={16} weight="bold" /></button>
         </section>
 
-        <figure className="landing__dashboard" aria-labelledby="dashboard-caption">
+        <figure className="landing__dashboard">
           <div className="landing__dashboard-frame">
             <GroupTwoDashboard />
           </div>
-          <figcaption id="dashboard-caption">
-            View more on the <a href={`${DASHBOARD_URL}#groups`} target="_blank" rel="noreferrer">dashboard</a>.
-          </figcaption>
         </figure>
       </div>
     </main>

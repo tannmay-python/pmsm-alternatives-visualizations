@@ -199,3 +199,20 @@
   .group-two-dashboard { gap: 22px; }
   .group-two-dashboard__members { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+/* Primary entry: one obvious button under the introduction. */
+.landing__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 30px;
+  padding: 16px 24px;
+  background: var(--wine);
+  color: #fff;
+  font-family: var(--mono);
+  font-size: var(--t-button);
+  letter-spacing: var(--track-button);
+  text-transform: uppercase;
+}
+.landing__cta:hover { background: var(--wine-dark); }
+.landing__dashboard-frame { padding: clamp(20px, 2.2vw, 28px); }
