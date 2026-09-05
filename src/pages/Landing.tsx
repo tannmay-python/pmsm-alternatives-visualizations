@@ -20,13 +20,13 @@ function GroupTwoDashboard() {
     <div className="group-two-dashboard" aria-labelledby="group-two-title">
       <div className="group-two-dashboard__header">
         <span>India critical minerals dashboard</span>
-        <span>Group 2 · 9 minerals</span>
+        <span>9 minerals</span>
       </div>
       <div className="group-two-dashboard__intro">
-        <p className="group-two-dashboard__kicker">Heavy rare earths + Tellurium</p>
-        <h2 id="group-two-title">One shared bottleneck</h2>
+        <p className="group-two-dashboard__kicker">Group 2 · Heavy rare earths + tellurium</p>
+        <h2 id="group-two-title">Substitution sometime away</h2>
         <p>
-          These minerals sit together because refining, reserves and extraction are concentrated at the same time.
+          The tightest of the dashboard's six groups. Every member scores at or near the maximum on refining concentration, reserve concentration and extraction complexity at once, and Indian EV makers were among the first firms denied licences in April 2025. The group's last recommendation is to make these minerals obsolete, through motors that need no rare-earth magnet. That is where this walkthrough goes.
         </p>
       </div>
       <ul className="group-two-dashboard__members" aria-label="Minerals in Group 2">
@@ -58,7 +58,7 @@ export function Landing({ onEnter }: { onEnter: () => void }) {
             On 4 April 2025, China placed seven medium and heavy rare earths, and the magnets made from them, under export licence. Within weeks, carmakers holding no second source were pausing assembly while the paperwork caught up. The exposure sits in one component: the permanent magnet inside the traction motor, one to two kilograms of it per car, of which 1 to 4 per cent by mass is the dysprosium and terbium the notice actually covered.
           </p>
           <p className="landing__paragraph">
-            This walkthrough is an explainer of that component. It answers three questions in order: what a permanent-magnet motor is and where it sits in the car; what can turn a rotor instead of a magnet; and what each alternative costs in efficiency, size, cooling and engineering time, and how close it is to a showroom. The elements involved are Group 2 of the <a href={DASHBOARD_URL} target="_blank" rel="noreferrer">India Critical Minerals Dashboard</a>.
+            This walkthrough is an explainer of that component. It answers three questions in order: what a permanent-magnet motor is and where it sits in the car; what can turn a rotor instead of a magnet; and what each alternative costs in efficiency, size, cooling and engineering time, and how close it is to a showroom.
           </p>
           <p className="landing__authors" aria-label="Authors">
             <span>By </span>
