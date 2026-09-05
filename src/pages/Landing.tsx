@@ -76,7 +76,7 @@ export function Landing({ onEnter }: { onEnter: () => void }) {
             Most of an electric car is unremarkable: steel, glass, a big battery. The motor is the exception. Inside it sits a fist-sized set of magnets, and those magnets hold up in a hot motor only because of a pinch of two rare elements, dysprosium and terbium. Nearly all the world’s supply comes from China, which put both under export licence in April 2025.
           </p>
           <p className="landing__paragraph">
-            This walkthrough follows that magnet: what it actually does inside the motor, what could take its place, and what each option would cost a carmaker. It takes about fifteen minutes, and it picks up where Group 2 of the <a href={DASHBOARD_URL} target="_blank" rel="noreferrer">India Critical Minerals Dashboard</a> leaves off.
+            This walkthrough follows that magnet: what it actually does inside the motor, what could take its place, and what each option would cost a carmaker. It picks up where Group 2 of the <a href={DASHBOARD_URL} target="_blank" rel="noreferrer">India Critical Minerals Dashboard</a> leaves off.
           </p>
           <p className="landing__authors" aria-label="Authors">
             <span>By </span>
