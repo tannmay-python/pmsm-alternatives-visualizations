@@ -234,7 +234,7 @@ function SceneContents({
               direction="top"
               accent
             >
-              magnet strips in V-shaped slots
+              NdFeB strips in V-shaped pockets
             </Callout>
           ) : undefined
         }
@@ -243,23 +243,23 @@ function SceneContents({
       {stop.id === "open-the-machine" && controls.isolate === "none" && controls.explode > 0.15 && (
         <>
           <Callout position={[0, MOTOR.housingOuter, explodeZ("housing", controls.explode)]} direction="top">
-            housing · keeps it cool
+            housing · cooling jacket
           </Callout>
           <Callout
             position={[0, -MOTOR.statorOuter, explodeZ("statorCore", controls.explode)]}
             direction="bottom-left"
             accent
           >
-            stator · coils, they stay still
+            stator · windings, stationary
           </Callout>
           <Callout position={[0, MOTOR.rotorOuter, explodeZ("rotor", controls.explode)]} direction="top-right" accent>
-            rotor · magnets buried in it
+            rotor · magnets embedded
           </Callout>
           <Callout
             position={[0, -MOTOR.shaftRadius, explodeZ("shaft", controls.explode) + 0.35]}
             direction="bottom"
           >
-            shaft · turns the wheels
+            output shaft
           </Callout>
         </>
       )}
@@ -267,10 +267,10 @@ function SceneContents({
       {controls.isolate === "none" && controls.explode <= 0.15 && stop.id === "open-the-machine" && (
         <>
           <Callout position={[0, MOTOR.housingOuter, 0]} direction="top">
-            housing · keeps it cool
+            housing · cooling jacket
           </Callout>
           <Callout position={[0, -MOTOR.shaftRadius, MOTOR.stackLength * 0.7]} direction="bottom-right">
-            shaft · turns the wheels
+            output shaft
           </Callout>
         </>
       )}
@@ -278,7 +278,7 @@ function SceneContents({
       {controls.isolate === "stator" && (
         <>
           <Callout position={[0, MOTOR.statorOuter, 0]} direction="top" accent>
-            stator · coils, they stay still
+            stator · windings, stationary
           </Callout>
           <Callout
             position={[0, MOTOR.statorBore + 0.14, MOTOR.stackLength / 2 + controls.explode * 0.8 + 0.08]}
@@ -288,7 +288,7 @@ function SceneContents({
             copper coils in three groups
           </Callout>
           <Callout position={[0, 0, MOTOR.stackLength / 2]} direction="bottom-right">
-            the hole the rotor spins in
+            bore · the rotor turns here
           </Callout>
         </>
       )}
@@ -296,13 +296,13 @@ function SceneContents({
       {controls.isolate === "rotor" && (
         <>
           <Callout position={[0, MOTOR.rotorOuter, 0]} direction="top" accent>
-            rotor · spins with the shaft
+            rotor · turns with the shaft
           </Callout>
           <Callout
             position={[0, -MOTOR.shaftRadius, ROTOR_SHAFT_LENGTH / 2 + controls.explode * 0.85 - 0.12]}
             direction="bottom"
           >
-            shaft · carries the spin out
+            output shaft
           </Callout>
         </>
       )}
@@ -310,7 +310,7 @@ function SceneContents({
       {controls.isolate === "housing" && (
         <>
           <Callout position={[0, MOTOR.housingOuter, 0]} direction="top" accent>
-            housing · keeps it cool
+            housing · cooling jacket
           </Callout>
           <Callout
             position={[0, -MOTOR.housingOuter + 0.1, -MOTOR.housingLength / 2 - controls.explode * 0.6]}
@@ -330,7 +330,7 @@ function SceneContents({
       {controls.isolate === "shaft" && (
         <>
           <Callout position={[0, MOTOR.shaftRadius, 0]} direction="top" accent>
-            shaft · turns the wheels
+            output shaft
           </Callout>
           <Callout
             position={[0, -MOTOR.shaftRadius - 0.05, MOTOR.housingLength / 2 + controls.explode * 0.65]}
@@ -344,7 +344,7 @@ function SceneContents({
       {airGap && (
         <>
           <Callout position={[0, MOTOR.statorBore + 0.1, MOTOR.stackLength / 2]} direction="top">
-            stator teeth · stay still
+            stator teeth · stationary
           </Callout>
           <Callout
             position={[
@@ -358,7 +358,7 @@ function SceneContents({
             air gap · they never touch
           </Callout>
           <Callout position={[0, -MOTOR.rotorOuter * 0.5, MOTOR.stackLength / 2]} direction="bottom">
-            rotor · spins inside
+            rotor · rotates inside
           </Callout>
         </>
       )}
@@ -404,13 +404,13 @@ function SceneContents({
                 direction="top"
                 accent
               >
-                cage of bars · no magnets
+                cage bars · no magnets
               </Callout>
               <Callout
                 position={[0, -MOTOR.rotorOuter + 0.07, explodeZ("rotor", controls.explode) + MOTOR.stackLength / 2 + 0.06]}
                 direction="bottom"
               >
-                end ring · joins the bars
+                end ring · shorts the bars
               </Callout>
             </>
           )}
@@ -422,13 +422,13 @@ function SceneContents({
                 direction="top"
                 accent
               >
-                coils fed with power
+                rotor windings · fed with current
               </Callout>
               <Callout
                 position={[0.06, SLIP_RING.radius + 0.2, explodeZ("rotor", controls.explode) + SLIP_RING.z[1] + 0.06]}
                 direction="bottom"
               >
-                brushes feed the spinning coil
+                slip rings and brushes · rotor supply
               </Callout>
             </>
           )}

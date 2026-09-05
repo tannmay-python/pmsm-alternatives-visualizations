@@ -49,11 +49,11 @@ function TourEnd({ onRestart, onBack }: { onRestart: () => void; onBack: () => v
     <main className="tour-end" aria-labelledby="tour-end-title">
       <div className="tour-end__content">
         <p className="eyebrow">End of the walkthrough · {PAGE_LIST.length} of {PAGE_LIST.length} chapters</p>
-        <h1 id="tour-end-title">Three things to take with you</h1>
+        <h1 id="tour-end-title">Three things to carry forward</h1>
         <ol className="tour-end__summary">
-          <li><strong>The motor.</strong> Coils that never move make a magnetic field go round. A magnet in the middle chases it and turns the wheels. That magnet needs a pinch of dysprosium to survive heat, and the pinch is the supply problem.</li>
-          <li><strong>The alternatives.</strong> A cage of bars, a coil you power, or steel shaped to line up with the field can all replace the magnet. Each moves the cost somewhere else: heat, hardware, size or noise.</li>
-          <li><strong>The decision.</strong> Low-dysprosium magnets now, with no change to the car. A wound-field or induction drive unit on the next platform. Ferrite and reluctance motors in test fleets first.</li>
+          <li><strong>The motor.</strong> A PMSM turns because timed currents make a stationary stator's field rotate and a magnet rotor follows it. That magnet holds at temperature only because of a few per cent of dysprosium and terbium, and that fraction is the exposure.</li>
+          <li><strong>The alternatives.</strong> Induced current, a powered rotor coil, or shaped steel can produce torque without rare earths. Each moves the cost: rotor heat, power-transfer hardware, machine size, or noise and control burden.</li>
+          <li><strong>The decision.</strong> Low-dysprosium magnets now, with no vehicle change. A wound-field or induction drive unit on the next platform. Ferrite and reluctance in test fleets. The magnet is the exposure; the drive unit is the decision.</li>
         </ol>
         <div className="tour-end__actions">
           <button type="button" className="tour-end__restart" onClick={onRestart}>Start again</button>

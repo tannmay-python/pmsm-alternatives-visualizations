@@ -248,11 +248,11 @@ export function GripRuleDiagram({ controls, onPatchControls }: ControlProps) {
         <p className="clean-hint-html">Tap the coil to reverse the current</p>
       </div>
       <Aside>
-        <h4 className="clean-aside__title">Curl your fingers with the current.</h4>
-        <p className="clean-aside__copy">Your right-hand fingers follow the current around the coil.</p>
+        <h4 className="clean-aside__title">Fingers follow the current.</h4>
+        <p className="clean-aside__copy">Curl the right hand in the direction the current flows around the coil.</p>
         <hr className="clean-aside__rule" />
-        <h4 className="clean-aside__title">Your thumb points to North.</h4>
-        <p className="clean-aside__copy">Reverse the current and the magnetic poles reverse with it.</p>
+        <h4 className="clean-aside__title">The thumb points north.</h4>
+        <p className="clean-aside__copy">Reverse the current and the poles swap. A coil is a magnet whose direction is set electrically.</p>
       </Aside>
     </button>
   );
@@ -290,7 +290,7 @@ export function RotatingFieldDiagram({ controls }: ControlProps) {
       </div>
       <Aside>
         <h4 className="clean-aside__title">The coils do not move.</h4>
-        <p className="clean-aside__copy">The inverter changes which coil is strongest, so the combined field sweeps around the bore.</p>
+        <p className="clean-aside__copy">The inverter decides which coil group is strongest at each instant, so the combined pole sweeps around the bore at the frequency it sets.</p>
       </Aside>
     </div>
   );
@@ -323,12 +323,12 @@ export function RotorFollowsFieldDiagram({ controls }: ControlProps) {
       </div>
       <Aside>
         <h4 className="clean-aside__title"><i className="clean-swatch clean-swatch--wine" />Stator field</h4>
-        <p className="clean-aside__copy">moves slightly ahead</p>
+        <p className="clean-aside__copy">leads by a small angle</p>
         <h4 className="clean-aside__title"><i className="clean-swatch clean-swatch--gold" />Rotor magnetic axis</h4>
-        <p className="clean-aside__copy">follows at the same speed</p>
+        <p className="clean-aside__copy">follows at exactly the same speed</p>
         <hr className="clean-aside__rule" />
-        <h4 className="clean-aside__title">A small angle stays between them.</h4>
-        <p className="clean-aside__copy">That steady offset keeps pulling the rotor forward and produces shaft torque.</p>
+        <h4 className="clean-aside__title">The angle is the torque.</h4>
+        <p className="clean-aside__copy">The lag between field and rotor is what pulls the shaft round. Heavier load, larger lag.</p>
       </Aside>
     </div>
   );
@@ -366,14 +366,14 @@ export function TorqueCombinationDiagram({ controls }: ControlProps) {
       </div>
       <Aside>
         <div className="clean-pull">
-          <h4 className="clean-aside__title">Magnet pull</h4>
+          <h4 className="clean-aside__title">Magnet torque</h4>
           <span className="clean-pull__bar"><i style={{ width: "100%", background: "var(--wine)" }} /></span>
-          <p className="clean-aside__copy">Buried magnets follow the stator field.</p>
+          <p className="clean-aside__copy">Embedded magnets follow the stator field.</p>
         </div>
         <div className="clean-pull">
-          <h4 className="clean-aside__title">Steel alignment</h4>
+          <h4 className="clean-aside__title">Reluctance torque</h4>
           <span className="clean-pull__bar"><i style={{ width: "50%", background: "var(--cat-5)" }} /></span>
-          <p className="clean-aside__copy">Shaped steel turns toward the easiest magnetic path.</p>
+          <p className="clean-aside__copy">Shaped steel turns toward the path of least magnetic resistance. Roughly a third of the total.</p>
         </div>
       </Aside>
     </div>
@@ -425,11 +425,11 @@ export function RareEarthSplitDiagram() {
       <div className="clean-split__notes">
         <div className="clean-split__note">
           <h4 className="clean-aside__title">Light rare earths</h4>
-          <p className="clean-aside__copy">Neodymium and praseodymium make up most of the rare-earth content.</p>
+          <p className="clean-aside__copy">Neodymium and praseodymium, about 30 per cent by mass, mined in several countries. Not covered by the notice.</p>
         </div>
         <div className="clean-split__note clean-split__note--heavy">
           <h4 className="clean-aside__title">Heavy rare earths</h4>
-          <p className="clean-aside__copy">A small Dy/Tb addition protects the magnet when the rotor is hot.</p>
+          <p className="clean-aside__copy">Dysprosium and terbium, 1 to 4 per cent by mass, added for heat. Almost entirely refined in China. Covered by the notice.</p>
         </div>
       </div>
     </div>
@@ -469,8 +469,8 @@ export function HeatProtectionDiagram({ controls }: ControlProps) {
         </div>
       </div>
       <div className="clean-heat__copy">
-        <p className="clean-aside__copy">Heat lowers the temperature a magnet can survive.</p>
-        <p className="clean-aside__copy">A little Dy/Tb raises it again.</p>
+        <p className="clean-aside__copy">Heat lowers the field needed to demagnetise the magnet.</p>
+        <p className="clean-aside__copy">Dysprosium and terbium raise the temperature at which it holds.</p>
       </div>
     </div>
   );
@@ -480,9 +480,9 @@ export function HeatProtectionDiagram({ controls }: ControlProps) {
 
 export function MitigationOptionsDiagram() {
   const rows = [
-    ["1", "Cool the rotor", "Keep the magnet cooler so it needs less protection", "adds oil cooling"],
-    ["2", "Put Dy/Tb only where damage starts", "Coat the grain edges instead of doping the whole magnet", "new magnet process"],
-    ["3", "Prove a Dy-free magnet survives", "Same motor, no heavy rare earths, years of testing", "long testing"],
+    ["1", "Cool the rotor", "Direct oil cooling lowers the temperature the magnet must survive", "adds cooling hardware"],
+    ["2", "Diffuse dysprosium to the grain edges", "Protect where demagnetisation starts rather than the whole block", "new magnet process"],
+    ["3", "Qualify dysprosium-free NdFeB", "Same motor, no heavy rare earths, years of validation", "long qualification"],
   ];
   return (
     <div className="clean-diagram clean-list-board" role="img" aria-label="Three low-disruption ways to reduce heavy rare earths">
@@ -504,11 +504,11 @@ export function MitigationOptionsDiagram() {
 
 export function AlternativesMapDiagram() {
   const families = [
-    ["PM MOTOR", "Permanent magnet follows the stator field", "Rare-earth magnet supply"],
-    ["INDUCTION", "Current induced in a rotor cage", "Slip creates rotor heat"],
-    ["WOUND FIELD", "A powered rotor electromagnet", "Power feed and cooling"],
-    ["SynRM", "Shaped steel aligns with the field", "Larger motor or inverter"],
-    ["SRM", "Stator pulls one rotor tooth at a time", "Uneven torque and noise"],
+    ["PM MOTOR", "Permanent magnet follows the stator field", "Rare-earth supply exposure"],
+    ["INDUCTION", "Current induced in a rotor cage", "Rotor heat, part-load efficiency"],
+    ["WOUND FIELD", "Rotor coil fed with current", "Second supply, rotor cooling"],
+    ["SynRM", "Shaped steel aligns with the field", "Larger inverter or machine"],
+    ["SRM", "Poles pull one tooth at a time", "Torque ripple, noise, control"],
   ];
   return (
     <div className="clean-diagram clean-family-map" role="img" aria-label="Five traction motor families and how each creates rotor torque">
@@ -553,13 +553,13 @@ export function SynRMMechanismDiagram({ controls }: ControlProps) {
       </div>
       <Aside>
         <h4 className="clean-aside__title">What turns the rotor</h4>
-        <p className="clean-aside__copy">Air barriers shape an easy path for flux. The stator field pulls that path into line.</p>
+        <p className="clean-aside__copy">Air barriers give flux an easy axis. The rotating stator field pulls that axis into line.</p>
         <hr className="clean-aside__rule" />
         <h4 className="clean-aside__title">Rare-earth exposure</h4>
         <p className="clean-aside__copy">None in the rotor.</p>
         <hr className="clean-aside__rule" />
         <h4 className="clean-aside__title">Engineering cost</h4>
-        <p className="clean-aside__copy">More inverter capability or a larger motor may be needed for the same vehicle duty.</p>
+        <p className="clean-aside__copy">Poor power factor: more inverter current, or a larger machine, for the same output.</p>
       </Aside>
     </div>
   );
@@ -611,13 +611,13 @@ export function SRMMechanismDiagram({ controls }: ControlProps) {
       </div>
       <Aside>
         <h4 className="clean-aside__title">What turns the rotor</h4>
-        <p className="clean-aside__copy">The active stator poles pull the nearest steel tooth into line, then the next pair fires.</p>
+        <p className="clean-aside__copy">Energised poles pull the nearest tooth into alignment; the next pair fires in sequence.</p>
         <hr className="clean-aside__rule" />
         <h4 className="clean-aside__title">Rare-earth exposure</h4>
         <p className="clean-aside__copy">None in the rotor.</p>
         <hr className="clean-aside__rule" />
         <h4 className="clean-aside__title">Engineering cost</h4>
-        <p className="clean-aside__copy">The separate pulls make torque less even. Control and acoustic work become important.</p>
+        <p className="clean-aside__copy">Sequential pulses produce torque ripple and noise, and a heavier control burden.</p>
       </Aside>
     </div>
   );
@@ -664,9 +664,9 @@ export function FerriteComparisonDiagram() {
 
 export function ChangeBurdenDiagram() {
   const routes = [
-    ["KEEP THE MOTOR", "Reduce Dy/Tb", "Gain: lower heavy-rare-earth exposure", "Work: cooling or magnet qualification"],
-    ["REDESIGN THE MOTOR", "Ferrite PMSM", "Gain: no rare earths in the magnet", "Work: more size, speed or new geometry"],
-    ["REDESIGN THE DRIVE UNIT", "Induction · wound field · reluctance", "Gain: no permanent magnet", "Work: motor, inverter, cooling and controls"],
+    ["KEEP THE MOTOR", "Low-dysprosium NdFeB", "Gain: lower heavy-rare-earth exposure", "Work: supplier qualification, rotor cooling"],
+    ["REDESIGN THE MOTOR", "Ferrite PMSM", "Gain: no rare earths in the magnet", "Work: larger rotor, higher speed or new geometry"],
+    ["REDESIGN THE DRIVE UNIT", "Induction · wound field · reluctance", "Gain: no permanent magnet", "Work: motor, inverter, cooling and control software"],
   ];
   return (
     <div className="clean-diagram clean-burden" role="img" aria-label="Implementation burden from material change to new motor architecture">
@@ -688,16 +688,16 @@ export function ChangeBurdenDiagram() {
 
 /* ── 20 · Readiness map ─────────────────────────────────────────────────── */
 
-const READINESS_HEAD = ["Route", "What turns the rotor", "Who ships it", "What it costs you", "When it matters"];
+const READINESS_HEAD = ["Route", "What turns the rotor", "Who ships it", "Engineering cost", "Horizon"];
 
 export function ReadinessMapDiagram() {
   const routes = [
-    ["Reduced-Dy/Tb NdFeB", "Permanent magnet", "Most carmakers, in production", "Needs rotor cooling and a re-qualified magnet supplier", "Now, this platform"],
-    ["Ferrite PMSM", "Permanent magnet", "Proterial prototype; no showroom car yet", "Bigger or faster-spinning motor for the same power", "Next platform"],
-    ["Induction", "Current induced in a cage", "Audi Q6 e-tron front axle; most factory motors", "A few percent less range; heat in the rotor", "Now, on a second axle"],
-    ["Wound field", "Powered rotor coil", "BMW, Renault, Nissan, in production", "Brushes or a transformer to feed the rotor; oil through the shaft", "Next platform"],
-    ["SynRM", "Shaped steel", "ABB factory drives; rare in cars", "Bigger inverter or motor", "Targeted R&D"],
-    ["SRM", "Poles pull one tooth at a time", "Advanced Electric Machines pilots", "Noisier, less smooth", "Targeted R&D"],
+    ["Low-dysprosium NdFeB", "Permanent magnet", "Most carmakers, in production", "Rotor cooling; a re-qualified magnet supplier", "Now, current platform"],
+    ["Ferrite PMSM", "Permanent magnet", "Proterial prototype; no production car", "Larger or faster-spinning motor for the same power", "Next platform"],
+    ["Induction", "Current induced in a cage", "Audi Q6 e-tron front axle; most industrial motors", "Lower part-load efficiency; heat in the rotor", "Now, on a secondary axle"],
+    ["Wound field", "Rotor coil fed with current", "BMW, Renault, Nissan, in production", "Brushes or a rotating transformer; oil through the shaft", "Next platform"],
+    ["SynRM", "Shaped steel", "ABB industrial drives; rare in cars", "Larger inverter or machine", "Targeted R&D"],
+    ["SRM", "Poles pull one tooth at a time", "Advanced Electric Machines, trucks", "Torque ripple, noise, control burden", "Targeted R&D"],
   ];
   return (
     <div className="clean-diagram clean-readiness" role="img" aria-label="Who ships each motor route, what it costs, and when it matters">
@@ -723,9 +723,9 @@ export function ReadinessMapDiagram() {
 
 export function DecisionSummaryDiagram() {
   const points = [
-    ["NOW", "Ask suppliers for low-dysprosium magnets and oil-cooled rotors. The car does not change."],
-    ["NEXT PLATFORM", "A wound-field or induction drive unit. Proven abroad; a new drive-unit programme here."],
-    ["TARGETED R&D", "Ferrite, SynRM, SRM. Fund test fleets, not procurement."],
+    ["NOW", "Specify low-dysprosium grades and oil-cooled rotors. Nothing else in the vehicle changes."],
+    ["NEXT PLATFORM", "A wound-field or induction drive unit. Proven abroad; a multi-year programme here."],
+    ["TARGETED R&D", "Ferrite, SynRM, SRM. Test fleets and funded research, not procurement."],
   ];
   return (
     <div className="clean-diagram clean-summary" role="img" aria-label="Three conclusions from the permanent magnet motor alternatives walkthrough">

@@ -73,10 +73,10 @@ export function Landing({ onEnter }: { onEnter: () => void }) {
         <section className="landing__copy" aria-labelledby="landing-title">
           <h1 id="landing-title">The EV motor’s <span className="landing__highlight">rare-earth</span> problem</h1>
           <p className="landing__paragraph">
-            Most of an electric car is unremarkable: steel, glass, a big battery. The motor is the exception. Inside it sits a fist-sized set of magnets, and those magnets hold up in a hot motor only because of a pinch of two rare elements, dysprosium and terbium. Nearly all the world’s supply comes from China, which put both under export licence in April 2025.
+            On 4 April 2025, China placed seven medium and heavy rare earths, and the magnets made from them, under export licence. Within weeks, carmakers holding no second source were pausing assembly while the paperwork caught up. The exposure sits in one component: the permanent magnet inside the traction motor, one to two kilograms of it per car, of which 1 to 4 per cent by mass is the dysprosium and terbium the notice actually covered.
           </p>
           <p className="landing__paragraph">
-            This walkthrough follows that magnet: what it actually does inside the motor, what could take its place, and what each option would cost a carmaker. It picks up where Group 2 of the <a href={DASHBOARD_URL} target="_blank" rel="noreferrer">India Critical Minerals Dashboard</a> leaves off.
+            This walkthrough is an explainer of that component. It answers three questions in order: what a permanent-magnet motor is and where it sits in the car; what can turn a rotor instead of a magnet; and what each alternative costs in efficiency, size, cooling and engineering time, and how close it is to a showroom. The elements involved are Group 2 of the <a href={DASHBOARD_URL} target="_blank" rel="noreferrer">India Critical Minerals Dashboard</a>.
           </p>
           <p className="landing__authors" aria-label="Authors">
             <span>By </span>

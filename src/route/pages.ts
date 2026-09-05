@@ -65,7 +65,7 @@ export const PAGES: readonly PageSpec[] = [
     transition: {
       act: "The mechanism",
       title: "Make a magnetic field move",
-      lede: "Nothing in the outer ring moves. Switch its coils on in the right order and the magnetism goes round anyway, and the rotor chases it.",
+      lede: "The stator never moves. Timed currents in three coil groups make its field rotate, and the rotor follows.",
       nextLabel: "See how it turns",
     },
     stops: [
@@ -87,8 +87,8 @@ export const PAGES: readonly PageSpec[] = [
     transition: {
       act: "The material",
       title: "Why this magnet creates a supply risk",
-      lede: "Neodymium gives the magnet its pull. A pinch of dysprosium and terbium lets it survive a hot rotor. That pinch is the part that was restricted.",
-      nextLabel: "Look inside the magnet",
+      lede: "Neodymium supplies the field. A small addition of dysprosium and terbium lets it survive a hot rotor. That addition is what was restricted.",
+      nextLabel: "Inside the magnet",
     },
     stops: [
       {
@@ -119,8 +119,8 @@ export const PAGES: readonly PageSpec[] = [
     transition: {
       act: "The alternatives",
       title: "Change what turns the rotor",
-      lede: "A cage of bars, a coil you power, shaped steel or a cheaper magnet can all turn the rotor. Each one removes some rare earth and moves the cost somewhere else.",
-      nextLabel: "Meet the alternatives",
+      lede: "Induced current, a powered coil, or shaped steel can turn a rotor. Each removes some rare-earth exposure and adds a cost elsewhere.",
+      nextLabel: "The alternatives",
     },
     stops: [
       {
@@ -147,8 +147,8 @@ export const PAGES: readonly PageSpec[] = [
     transition: {
       act: "The decision",
       title: "How much of the car must change?",
-      lede: "Several of these already drive cars. The question is how much of the car has to change to fit one, and how long that takes.",
-      nextLabel: "Weigh them up",
+      lede: "Several alternatives are in production. The question is how much of the vehicle changes to accommodate one, and over what timescale.",
+      nextLabel: "The trade-offs",
     },
     stops: [
       {

@@ -254,16 +254,16 @@ export function Car({
       {focus === "battery" && (
         <>
           <Callout position={[-1.25, 0.73, 0.83]} direction="top" accent>
-            battery · stores the electricity
+            battery pack · direct current
           </Callout>
           <Callout position={[1.63, 1.02, 0.39]} direction="top">
-            inverter · turns it into pulses
+            inverter · three-phase AC
           </Callout>
           <Callout position={[2.38, 0.98, 0.12]} direction="right" accent>
             motor
           </Callout>
           <Callout position={[2.56, 0.46, 0.3]} direction="bottom-left">
-            gearbox · slows the spin down
+            reduction gear · to wheel speed
           </Callout>
         </>
       )}
@@ -271,16 +271,16 @@ export function Car({
       {focus === "drive-unit" && (
         <>
           <Callout position={[1.55, 1.05, 0.42]} direction="top-left" accent>
-            inverter · turns it into pulses
+            inverter · three-phase AC
           </Callout>
           <Callout position={[2.05, 1.2, 0.45]} direction="top-right" accent>
-            motor · makes the turning force
+            motor · torque
           </Callout>
           <Callout position={[2.55, 0.72, -0.1]} direction="bottom-right">
-            gearbox · slows the spin down
+            reduction gear · to wheel speed
           </Callout>
           <Callout position={[2.06, 0.2, 0.88]} direction="bottom-left">
-            wheel · puts it on the road
+            driven wheel
           </Callout>
         </>
       )}

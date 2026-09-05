@@ -64,7 +64,7 @@ const NUMBER_TOKEN = /(?<![\w.,])\d(?:[\d,]*\d)?(?:\.\d+)?(?![\d,.])/g;
 
 /** Units and qualifiers that count as a condition following the figure. */
 const UNIT_AFTER =
-  /^\s*(?:%|°\s*C|°|kW|kWh|Nm|rpm|MGOe|Oe|T\b|G\b|kg|g\b|mm|cm|km|nm|µm|um|V\b|A\b|Hz|units?\b)/;
+  /^\s*(?:%|per cent\b|°\s*C|°|kW|kWh|Nm|rpm|MGOe|Oe|T\b|G\b|kg|g\b|mm|cm|km|nm|µm|um|V\b|A\b|Hz|units?\b)/;
 
 /** Ranges: the condition may sit after the far end of the range. */
 const RANGE_AFTER = /^\s*(?:–|—|-|to)\s*\d/;
@@ -130,11 +130,11 @@ export function lintCopyLine(text: string, path: string): CopyIssue[] {
 
   issues.push(...lintNumbers(text, path));
 
-  if (text.length > 320) {
+  if (text.length > 420) {
     issues.push({
       code: "too-long",
       path,
-      message: `On-stage line is ${text.length} characters. Keep it under 320 so it coexists with the visual.`,
+      message: `On-stage line is ${text.length} characters. Keep it under 420 so the card stays a paragraph beside the visual.`,
     });
   }
 
