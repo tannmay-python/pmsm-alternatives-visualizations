@@ -53,7 +53,7 @@ function TourEnd({ onRestart, onBack }: { onRestart: () => void; onBack: () => v
         <ol className="tour-end__summary">
           <li><strong>The motor.</strong> A PMSM turns because timed currents make a stationary stator's field rotate and a magnet rotor follows it. That magnet holds at temperature only because of a few per cent of dysprosium and terbium, and that fraction is the exposure.</li>
           <li><strong>The alternatives.</strong> Induced current, a powered rotor coil, or shaped steel can produce torque without rare earths. Each moves the cost: rotor heat, power-transfer hardware, machine size, or noise and control burden.</li>
-          <li><strong>The decision.</strong> Low-dysprosium magnets now, with no vehicle change. A wound-field or induction drive unit on the next platform. Ferrite and reluctance in test fleets. The magnet is the exposure; the drive unit is the decision.</li>
+          <li><strong>The decision.</strong> Low-dysprosium magnets now, with no vehicle change. A wound-field or induction drive unit on the next platform. Ferrite and reluctance in test fleets.</li>
         </ol>
         <div className="tour-end__actions">
           <button type="button" className="tour-end__restart" onClick={onRestart}>Start again</button>

@@ -119,7 +119,6 @@ technical issue the reader needs to hold correctly before a decision. So:
 - The heat frame carries the distinction that matters for policy: the notice
   restricted the 1–4 per cent additive, not the 30 per cent bulk.
 - Chapter 5 does the India-facing close across three horizons and names who
-  ships what. It ends on the aphorism the piece has earned: the magnet is the
-  exposure; the drive unit is the decision.
+  ships what.
 - The whole thing stays under 320 characters a frame, so every sentence has
   to carry a fact or a distinction. That constraint suits the voice.

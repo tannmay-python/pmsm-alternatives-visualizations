@@ -765,7 +765,7 @@ export const STOPS: readonly Stop[] = [
       {
         id: "where-we-are",
         label: "Three horizons",
-        line: "For vehicles in production now, specify low-dysprosium grades and oil-cooled rotors; nothing else in the car moves. For the next platform, a wound-field or induction drive unit is proven abroad and a multi-year programme here. Ferrite and the reluctance machines belong in test fleets and funded research, not procurement. The magnet is the exposure; the drive unit is the decision.",
+        line: "For vehicles in production now, specify low-dysprosium grades and oil-cooled rotors; nothing else in the car moves. For the next platform, a wound-field or induction drive unit is proven abroad and a multi-year programme here. Ferrite and the reluctance machines belong in test fleets and funded research, not procurement.",
         action: "Review the three decisions the walkthrough has established.",
         stage: { kind: "svg", diagram: "decision-summary-clean" },
       },
