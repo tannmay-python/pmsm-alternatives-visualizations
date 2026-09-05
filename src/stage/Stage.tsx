@@ -1,4 +1,4 @@
-import { Canvas, useThree } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { ContactShadows, Environment, Lightformer, OrbitControls } from "@react-three/drei";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 
@@ -10,12 +10,13 @@ import { Car } from "./Car";
 import { Motor } from "./Motor";
 import { AxialFlux } from "./AxialFlux";
 import { Callout } from "./Callout";
-import { AXIAL, MOTOR, explodeZ } from "./geometry";
+import { AXIAL, MOTOR, ROTOR_SHAFT_LENGTH, SHAFT_LENGTH, explodeZ, ipmMagnetPlacements } from "./geometry";
 import { getBalancedPhaseStrengths } from "../models/pmsmTurn";
 import { ROTORS, type RotorId } from "./rotors/registry";
+import { MAGNET_SLIDE, SLIP_RING } from "./rotors/Rotors";
 import type { Stop, StopState } from "../route/route";
 import { type StageControls } from "./controls";
-import { axialBounds, cameraFor, carBounds, motorBounds } from "./framing";
+import { axialBounds, boreBounds, cameraFor, carBounds, motorBounds, rotorBounds } from "./framing";
 import { stageForState } from "../route/route";
 import { CUTAWAY_STATES, fieldLessonFor, shotFor } from "./shots";
 import "./Stage.css";
@@ -77,6 +78,17 @@ function ApplyCamera({
   return null;
 }
 
+/** Reports the first rendered frame, so the text stand-in can leave. */
+function FirstFrame({ onReady }: { onReady: () => void }) {
+  const done = useRef(false);
+  useFrame(() => {
+    if (done.current) return;
+    done.current = true;
+    onReady();
+  });
+  return null;
+}
+
 function Lighting() {
   return (
     <>
@@ -102,18 +114,34 @@ function Lighting() {
   );
 }
 
+/**
+ * The alternative-rotor beats show the rotor with nothing around it. The card
+ * carries the fact that the stator did not change; the stage carries what the
+ * new rotor does, and a ghosted stator only ever got in the way of that.
+ */
+const statorOff = (stop: Stop, state: StopState, rotor: RotorId) =>
+  stop.id === "swap-the-rotor" && state.id !== "family-tree" && !ROTORS[rotor].needsOwnStator;
+
+const isAirGap = (state: StopState, isolate: StageControls["isolate"]) =>
+  isolate === "air-gap" || state.id === "air-gap";
+
+/** The one magnet a label is pinned to in the rotor frame: upper right of the end face. */
+const LABELLED_MAGNET = ipmMagnetPlacements(8, 0.05).find((m) => m.pole === 1 && m.side === -1)!;
+
 function SceneContents({
   stop,
   state,
   controls,
   rotor,
   paused,
+  reducedMotion,
 }: {
   stop: Stop;
   state: StopState;
   controls: StageControls;
   rotor: RotorId;
   paused: boolean;
+  reducedMotion: boolean;
 }) {
   const stage = stageForState(stop, state);
   const phaseStrengths = useMemo(
@@ -130,15 +158,13 @@ function SceneContents({
       <group>
         <AxialFlux spinning={!paused} exploded={controls.explode} chemistry={stage.chemistry} />
         <Callout position={[-AXIAL.outerRadius * 0.7, AXIAL.outerRadius * 0.7, 0]} direction="top-left" accent>
-          central stator disc · 3-phase coils (field runs along shaft)
+          coil disc in the middle · stays still
         </Callout>
         <Callout position={[AXIAL.outerRadius * 0.7, AXIAL.outerRadius * 0.65, discZ]} direction="top-right" accent>
-          {isFerrite
-            ? "ferrite rotor disc · thicker magnets recover working flux"
-            : "NdFeB rotor disc · peak power density in slim pancake"}
+          {isFerrite ? "ferrite magnet disc · thicker, cheaper" : "NdFeB magnet disc · thin and strong"}
         </Callout>
         <Callout position={[0, -AXIAL.outerRadius * 0.75, -discZ]} direction="bottom-left">
-          back-iron rotor disc · magnetic return path
+          steel back disc · closes the magnetic loop
         </Callout>
       </group>
     );
@@ -153,7 +179,11 @@ function SceneContents({
           : "none";
     return (
       <group>
-        <Car focus={focus} flowing={!paused && state.id === "power-path"} spinning={!paused && state.id !== "one-phase"} />
+        <Car
+          focus={focus}
+          flowing={!reducedMotion && state.id === "power-path"}
+          spinning={!paused && state.id !== "one-phase"}
+        />
       </group>
     );
   }
@@ -162,17 +192,19 @@ function SceneContents({
   const slip = effectiveRotor === "squirrel-cage" ? 0.02 + controls.load * 0.02 : 0;
   const cutaway = CUTAWAY_STATES.has(state.id);
   const fieldLesson = fieldLessonFor(stop, state);
+  const dimStator = statorOff(stop, state, effectiveRotor);
+  const airGap = isAirGap(state, controls.isolate);
+  const rotorAlone = controls.isolate === "rotor";
+  // The isolated rotor holds still so the label pinned to one magnet stays
+  // put; the wound rotor turns slowly so its arrow and coils can be watched.
+  const rate = rotorAlone ? 0 : effectiveRotor === "wound" && fieldLesson === "sweep" ? 0.2 : 1;
 
   return (
     <group>
       <Motor
         excitation={stage.excitation ?? "brushed"}
         cutaway={cutaway}
-        dimStator={
-          stop.id === "swap-the-rotor" &&
-          state.id !== "family-tree" &&
-          !ROTORS[effectiveRotor].needsOwnStator
-        }
+        dimStator={dimStator}
         rotor={effectiveRotor}
         explode={controls.explode}
         spinning={!paused && state.id !== "one-phase"}
@@ -186,22 +218,48 @@ function SceneContents({
         load={controls.load}
         fieldSpinning={state.id !== "one-phase"}
         fieldLesson={fieldLesson}
+        // The copper end turns sit right over the gap when it is looked at
+        // down the bore, so they come off for that one frame.
+        showWindings={!airGap}
+        shaftLength={airGap ? ROTOR_SHAFT_LENGTH : undefined}
+        rate={rate}
+        rotorChildren={
+          rotorAlone && (effectiveRotor === "ipm-ndfeb" || effectiveRotor === "ferrite-ipm") ? (
+            <Callout
+              position={[
+                LABELLED_MAGNET.centre[0],
+                LABELLED_MAGNET.centre[1],
+                MOTOR.stackLength / 2 + controls.explode * MAGNET_SLIDE,
+              ]}
+              direction="top"
+              accent
+            >
+              magnet strips in V-shaped slots
+            </Callout>
+          ) : undefined
+        }
       />
-
 
       {stop.id === "open-the-machine" && controls.isolate === "none" && controls.explode > 0.15 && (
         <>
-          <Callout position={[0, MOTOR.housingOuter, explodeZ("housing", controls.explode)]} direction="top-left">
-            housing · cooling jacket
+          <Callout position={[0, MOTOR.housingOuter, explodeZ("housing", controls.explode)]} direction="top">
+            housing · keeps it cool
           </Callout>
-          <Callout position={[0, MOTOR.statorOuter, explodeZ("statorCore", controls.explode)]} direction="top-right" accent>
-            stator · copper coils
+          <Callout
+            position={[0, -MOTOR.statorOuter, explodeZ("statorCore", controls.explode)]}
+            direction="bottom-left"
+            accent
+          >
+            stator · coils, they stay still
           </Callout>
-          <Callout position={[0, MOTOR.rotorOuter, explodeZ("rotor", controls.explode)]} direction="top-left" accent>
-            rotor · buried NdFeB magnets
+          <Callout position={[0, MOTOR.rotorOuter, explodeZ("rotor", controls.explode)]} direction="top-right" accent>
+            rotor · magnets buried in it
           </Callout>
-          <Callout position={[0, -MOTOR.shaftRadius, explodeZ("shaft", controls.explode) + 0.6]} direction="bottom-left">
-            shaft · torque output
+          <Callout
+            position={[0, -MOTOR.shaftRadius, explodeZ("shaft", controls.explode) + 0.35]}
+            direction="bottom"
+          >
+            shaft · turns the wheels
           </Callout>
         </>
       )}
@@ -209,10 +267,10 @@ function SceneContents({
       {controls.isolate === "none" && controls.explode <= 0.15 && stop.id === "open-the-machine" && (
         <>
           <Callout position={[0, MOTOR.housingOuter, 0]} direction="top">
-            sealed housing · aluminum cooling jacket
+            housing · keeps it cool
           </Callout>
           <Callout position={[0, -MOTOR.shaftRadius, MOTOR.stackLength * 0.7]} direction="bottom-right">
-            drive shaft · connects to reduction gear
+            shaft · turns the wheels
           </Callout>
         </>
       )}
@@ -220,17 +278,17 @@ function SceneContents({
       {controls.isolate === "stator" && (
         <>
           <Callout position={[0, MOTOR.statorOuter, 0]} direction="top" accent>
-            laminated core · thin silicon steel sheets prevent eddy currents
+            stator · coils, they stay still
           </Callout>
           <Callout
             position={[0, MOTOR.statorBore + 0.14, MOTOR.stackLength / 2 + controls.explode * 0.8 + 0.08]}
             direction="top-right"
             accent
           >
-            copper windings · 3-phase coils (Phase A, B, C)
+            copper coils in three groups
           </Callout>
           <Callout position={[0, 0, MOTOR.stackLength / 2]} direction="bottom-right">
-            stator bore · central tunnel where rotor spins
+            the hole the rotor spins in
           </Callout>
         </>
       )}
@@ -238,20 +296,13 @@ function SceneContents({
       {controls.isolate === "rotor" && (
         <>
           <Callout position={[0, MOTOR.rotorOuter, 0]} direction="top" accent>
-            laminated rotor · high-strength electrical steel core
+            rotor · spins with the shaft
           </Callout>
           <Callout
-            position={[0.3, 0.3, MOTOR.stackLength / 2 + controls.explode * 0.75 + 0.05]}
-            direction="top-right"
-            accent
+            position={[0, -MOTOR.shaftRadius, ROTOR_SHAFT_LENGTH / 2 + controls.explode * 0.85 - 0.12]}
+            direction="bottom"
           >
-            buried NdFeB magnets · permanent magnetic poles
-          </Callout>
-          <Callout
-            position={[0, -MOTOR.shaftRadius, MOTOR.stackLength * 0.7 + controls.explode * 0.85]}
-            direction="bottom-right"
-          >
-            drive shaft · keyed to rotor to transfer output torque
+            shaft · carries the spin out
           </Callout>
         </>
       )}
@@ -259,19 +310,19 @@ function SceneContents({
       {controls.isolate === "housing" && (
         <>
           <Callout position={[0, MOTOR.housingOuter, 0]} direction="top" accent>
-            aluminum housing · liquid cooling jacket
+            housing · keeps it cool
           </Callout>
           <Callout
             position={[0, -MOTOR.housingOuter + 0.1, -MOTOR.housingLength / 2 - controls.explode * 0.6]}
             direction="bottom-left"
           >
-            end cap · structural clamp &amp; seal
+            end cap · seals it shut
           </Callout>
           <Callout
             position={[0, -MOTOR.shaftRadius - 0.05, MOTOR.housingLength / 2 + controls.explode * 0.65]}
             direction="bottom-right"
           >
-            bearing · low-friction rotary support
+            bearing · lets the shaft spin
           </Callout>
         </>
       )}
@@ -279,27 +330,35 @@ function SceneContents({
       {controls.isolate === "shaft" && (
         <>
           <Callout position={[0, MOTOR.shaftRadius, 0]} direction="top" accent>
-            drive shaft · forged alloy steel
+            shaft · turns the wheels
           </Callout>
           <Callout
             position={[0, -MOTOR.shaftRadius - 0.05, MOTOR.housingLength / 2 + controls.explode * 0.65]}
             direction="bottom-right"
           >
-            bearing · low-friction shaft support
+            bearing · lets the shaft spin
           </Callout>
         </>
       )}
 
-      {(controls.isolate === "air-gap" || state.id === "air-gap") && (
+      {airGap && (
         <>
-          <Callout position={[0, MOTOR.statorBore + 0.2, 0]} direction="top" accent>
-            stator teeth · stationary electromagnets
+          <Callout position={[0, MOTOR.statorBore + 0.1, MOTOR.stackLength / 2]} direction="top">
+            stator teeth · stay still
           </Callout>
-          <Callout position={[MOTOR.statorBore * 0.72, MOTOR.statorBore * 0.72, 0]} direction="top-right" accent>
-            &lt; 1 mm air gap · torque crosses here magnetically
+          <Callout
+            position={[
+              Math.cos(Math.PI / 4) * (MOTOR.statorBore + MOTOR.rotorOuter * 0.94) * 0.5,
+              Math.sin(Math.PI / 4) * (MOTOR.statorBore + MOTOR.rotorOuter * 0.94) * 0.5,
+              MOTOR.stackLength / 2,
+            ]}
+            direction="top"
+            accent
+          >
+            air gap · they never touch
           </Callout>
-          <Callout position={[0, -MOTOR.rotorOuter - 0.05, 0]} direction="bottom">
-            rotor pole · pulled by rotating stator field
+          <Callout position={[0, -MOTOR.rotorOuter * 0.5, MOTOR.stackLength / 2]} direction="bottom">
+            rotor · spins inside
           </Callout>
         </>
       )}
@@ -310,16 +369,16 @@ function SceneContents({
           accent
           position={[MOTOR.statorOuter + 0.08, 0, MOTOR.stackLength / 2]}
         >
-          group A · active electromagnet pole
+          group A · the coils switched on
         </Callout>
       )}
 
       {state.id === "three-phases" && (
         <>
           {[
-            { label: "phase A (0°)", angle: 0, dir: "top-right" as const },
-            { label: "phase B (120°)", angle: (Math.PI * 2) / 3, dir: "top-left" as const },
-            { label: "phase C (240°)", angle: (Math.PI * 4) / 3, dir: "bottom-left" as const },
+            { label: "group A", angle: 0, dir: "top-right" as const },
+            { label: "group B", angle: (Math.PI * 2) / 3, dir: "top-left" as const },
+            { label: "group C", angle: (Math.PI * 4) / 3, dir: "bottom-left" as const },
           ].map((phase) => (
             <Callout
               key={phase.label}
@@ -340,28 +399,36 @@ function SceneContents({
         <>
           {effectiveRotor === "squirrel-cage" && (
             <>
-              <Callout position={[-MOTOR.statorOuter * 0.65, MOTOR.statorOuter * 0.7, explodeZ("statorCore", controls.explode)]} direction="top-left">
-                stator field induces current
+              <Callout
+                position={[-MOTOR.rotorOuter * 0.6, MOTOR.rotorOuter * 0.82, explodeZ("rotor", controls.explode) - 0.1]}
+                direction="top"
+                accent
+              >
+                cage of bars · no magnets
               </Callout>
-              <Callout position={[MOTOR.rotorOuter * 0.7, MOTOR.rotorOuter * 0.65, explodeZ("rotor", controls.explode)]} direction="top-right" accent>
-                shorted rotor cage · no magnets
-              </Callout>
-              <Callout position={[0, -MOTOR.rotorOuter * 0.75, explodeZ("rotor", controls.explode) + MOTOR.stackLength / 2 + 0.1]} direction="bottom-right">
-                end rings close the circuit
+              <Callout
+                position={[0, -MOTOR.rotorOuter + 0.07, explodeZ("rotor", controls.explode) + MOTOR.stackLength / 2 + 0.06]}
+                direction="bottom"
+              >
+                end ring · joins the bars
               </Callout>
             </>
           )}
 
           {effectiveRotor === "wound" && (
             <>
-              <Callout position={[-MOTOR.rotorOuter * 0.65, MOTOR.rotorOuter * 0.7, explodeZ("rotor", controls.explode)]} direction="top-left">
-                field can be switched down
+              <Callout
+                position={[-MOTOR.rotorOuter * 0.62, MOTOR.rotorOuter * 0.8, explodeZ("rotor", controls.explode) - 0.15]}
+                direction="top"
+                accent
+              >
+                coils fed with power
               </Callout>
-              <Callout position={[MOTOR.rotorOuter * 0.7, MOTOR.rotorOuter * 0.65, explodeZ("rotor", controls.explode)]} direction="top-right" accent>
-                powered rotor coils · no permanent magnets
-              </Callout>
-              <Callout position={[0, -MOTOR.shaftRadius, explodeZ("shaft", controls.explode) + 0.6]} direction="bottom-right">
-                rotor power feed
+              <Callout
+                position={[0.06, SLIP_RING.radius + 0.2, explodeZ("rotor", controls.explode) + SLIP_RING.z[1] + 0.06]}
+                direction="bottom"
+              >
+                brushes feed the spinning coil
               </Callout>
             </>
           )}
@@ -370,14 +437,11 @@ function SceneContents({
             <>
               <Callout position={[-MOTOR.rotorOuter * 0.65, MOTOR.rotorOuter * 0.7, explodeZ("rotor", controls.explode)]} direction="top-left">
                 {effectiveRotor === "pm-assisted-synrm"
-                  ? "small magnet inserts assist the steel rotor"
-                  : "shaped steel rotor"}
+                  ? "small magnets help the steel"
+                  : "shaped steel · no magnets"}
               </Callout>
               <Callout position={[MOTOR.rotorOuter * 0.7, MOTOR.rotorOuter * 0.65, explodeZ("rotor", controls.explode)]} direction="top-right" accent>
-                air barriers steer magnetic flux
-              </Callout>
-              <Callout position={[0, -MOTOR.shaftRadius, explodeZ("shaft", controls.explode) + 0.6]} direction="bottom-right">
-                no magnets or rotor windings
+                air slots steer the magnetism
               </Callout>
             </>
           )}
@@ -385,13 +449,10 @@ function SceneContents({
           {effectiveRotor === "srm" && (
             <>
               <Callout position={[-MOTOR.rotorOuter * 0.65, MOTOR.rotorOuter * 0.7, explodeZ("rotor", controls.explode)]} direction="top-left" accent>
-                toothed steel rotor
+                toothed steel rotor · no magnets
               </Callout>
               <Callout position={[MOTOR.statorOuter * 0.7, MOTOR.statorOuter * 0.65, explodeZ("statorCore", controls.explode)]} direction="top-right">
-                switched stator poles
-              </Callout>
-              <Callout position={[0, -MOTOR.rotorOuter * 0.75, explodeZ("rotor", controls.explode)]} direction="bottom-right">
-                simple magnet-free rotor
+                coils switched on in turn
               </Callout>
             </>
           )}
@@ -399,10 +460,10 @@ function SceneContents({
           {(effectiveRotor === "ipm-ndfeb" || effectiveRotor === "ferrite-ipm") && (
             <>
               <Callout position={[MOTOR.rotorOuter * 0.7, MOTOR.rotorOuter * 0.65, explodeZ("rotor", controls.explode)]} direction="top-right" accent>
-                {effectiveRotor === "ferrite-ipm" ? "ferrite magnets · no rare earths" : "NdFeB magnets · high torque density"}
+                {effectiveRotor === "ferrite-ipm" ? "ferrite magnets · no rare earths" : "NdFeB magnets · the strongest"}
               </Callout>
               <Callout position={[0, -MOTOR.shaftRadius, explodeZ("shaft", controls.explode) + 0.6]} direction="bottom-right">
-                laminated steel rotor core
+                steel rotor
               </Callout>
             </>
           )}
@@ -432,6 +493,7 @@ export function Stage({
   hidden?: boolean;
 }) {
   const [failed, setFailed] = useState(false);
+  const [ready, setReady] = useState(false);
   const [autoRotate, setAutoRotate] = useState(!reducedMotion);
   const controlsRef = useRef<OrbitControlsImpl>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -451,19 +513,22 @@ export function Stage({
 
   const frame = useMemo(() => {
     const { width, height } = size;
-    const padX = width <= 560 ? 18 : width <= 960 ? 24 : 40;
-    const chromeY = 116;
+    const padX = width <= 560 ? 14 : width <= 960 ? 24 : 40;
+    // The masthead wraps to two rows on narrow screens.
+    const chromeY = width <= 1080 ? 128 : 116;
 
     if (width <= 1080) {
-      const usableHeight = Math.max(1, height - chromeY - height * 0.52);
+      // The card sits across the bottom half; the picture gets what is above it.
+      const usableHeight = Math.max(1, height - chromeY - height * 0.5 - 8);
+      const usableWidth = Math.max(1, width - padX * 2);
       return {
-        fit: [1, usableHeight / height] as const,
+        fit: [usableWidth / width, usableHeight / height] as const,
         shiftX: 0,
         shiftY: (chromeY + usableHeight / 2 - height / 2) / height,
       };
     }
 
-    const cardWidth = Math.min(410, width * 0.34);
+    const cardWidth = Math.min(430, width * 0.38);
     const usableWidth = Math.max(1, width - cardWidth - padX * 2);
     const usableHeight = Math.max(1, height - chromeY);
     const usableCentreX =
@@ -477,15 +542,32 @@ export function Stage({
   }, [size, side]);
 
   const shot = shotFor(stop, state, controls.explode, controls.isolate);
+  const stage = stageForState(stop, state);
+  const rotorOnly =
+    stage.kind === "three" &&
+    stage.scene === "motor" &&
+    (controls.isolate === "rotor" || statorOff(stop, state, stage.rotor ?? rotor));
+
   const view = useMemo(() => {
     const bounds =
       shot === "car" || shot === "car-close"
         ? carBounds(0)
         : shot === "axial"
           ? axialBounds(controls.explode)
-          : motorBounds(controls.explode);
+          : isAirGap(state, controls.isolate)
+            ? boreBounds(ROTOR_SHAFT_LENGTH)
+            : rotorOnly
+              ? rotorBounds(
+                  controls.isolate === "rotor" ? controls.explode : 0,
+                  ROTOR_SHAFT_LENGTH,
+                  // Brush gear hangs above and behind the wound rotor.
+                  stage.rotor === "wound" ? 0.22 : 0,
+                )
+              : controls.isolate === "shaft"
+                ? rotorBounds(0, SHAFT_LENGTH)
+                : motorBounds(controls.explode);
     return cameraFor(shot, bounds, size.width / Math.max(1, size.height), FOV, frame.fit);
-  }, [shot, controls.explode, size, frame.fit]);
+  }, [shot, state, stage, controls.explode, controls.isolate, rotorOnly, size, frame.fit]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -566,6 +648,7 @@ export function Stage({
             controls={controls}
             rotor={rotor}
             paused={paused || reducedMotion}
+            reducedMotion={reducedMotion}
           />
           <ContactShadows position={[0, -1.4, 0]} opacity={0.32} scale={12} blur={2.8} far={4} color="#2a3230" />
           <OrbitControls
@@ -573,6 +656,7 @@ export function Stage({
             makeDefault
             enabled={true}
             enablePan={false}
+            enableZoom={false}
             minDistance={1.5}
             maxDistance={60}
             enableDamping
@@ -584,8 +668,14 @@ export function Stage({
             minPolarAngle={Math.PI / 6}
             maxPolarAngle={Math.PI / 1.8}
           />
+          <FirstFrame onReady={() => setReady(true)} />
         </Suspense>
       </Canvas>
+      {!ready && (
+        <div className="stage-fallback stage-fallback--loading" aria-live="polite">
+          <strong>{state.label}</strong>
+        </div>
+      )}
     </div>
   );
 }

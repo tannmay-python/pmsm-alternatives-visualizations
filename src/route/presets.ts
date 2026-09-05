@@ -18,7 +18,9 @@ export const presetFor = (stopId: string, stateId: string): StageControls => ({
     stopId === "open-the-machine"
       ? stateId === "explode"
         ? 0.55
-        : 0
+        : stateId === "rotor"
+          ? 0.35
+          : 0
       : stateId === "compensate-geometry" || stateId === "independent-geometry"
         ? 0.6
         : 0,

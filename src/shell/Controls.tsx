@@ -121,11 +121,11 @@ export function Controls({
       {stop.id === "three-coils-one-field" && state.id === "no-part-moves" && (
         <Slider
           label="Inverter AC frequency (Speed)"
-          value={controls.angle / (Math.PI * 2)}
+          value={(((controls.angle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2)) / (Math.PI * 2)}
           onChange={(value) => set({ angle: value * Math.PI * 2 })}
           low="low RPM"
           high="high RPM"
-          readout={`${Math.round(50 + (controls.angle / (Math.PI * 2)) * 350)} Hz`}
+          readout={`${Math.round(50 + ((((controls.angle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2)) / (Math.PI * 2)) * 350)} Hz`}
         />
       )}
 

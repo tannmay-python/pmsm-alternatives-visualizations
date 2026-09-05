@@ -53,6 +53,7 @@
 }
 
 .landing__copy { max-width: 650px; }
+.landing__highlight { color: var(--wine); }
 .landing h1 {
   max-width: 17ch;
   margin: 12px 0 22px;

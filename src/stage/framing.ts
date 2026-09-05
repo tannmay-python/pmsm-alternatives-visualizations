@@ -1,4 +1,4 @@
-import { AXIAL, EXPLODE_OFFSETS, MOTOR } from "./geometry";
+import { AXIAL, EXPLODE_OFFSETS, MOTOR, SHAFT_LENGTH } from "./geometry";
 
 /**
  * Camera framing, solved analytically rather than by measuring the scene graph.
@@ -30,10 +30,15 @@ export const SHOTS = {
   "car-close": { dir: [0.74, 0.3, 0.78], margin: 0.86 },
   /** Near-perpendicular to the axis, so an exploded row reads left to right. */
   motor: { dir: [-0.86, 0.32, 0.4], margin: 1.02 },
-  "motor-exploded": { dir: [-0.95, 0.26, 0.2], margin: 0.94 },
+  /**
+   * Still side-on enough for the row to read left to right, but turned far
+   * enough toward the rotor's end face that the magnets sliding out of it show.
+   */
+  "motor-exploded": { dir: [-0.88, 0.3, 0.4], margin: 0.94 },
   /** Down the bore, for anything about the rotating field. */
-  "motor-face": { dir: [0.1, 0.2, 1], margin: 1.15 },
-  rotor: { dir: [-0.82, 0.32, 0.56], margin: 0.92 },
+  "motor-face": { dir: [0.1, 0.2, 1], margin: 1.0 },
+  /** Three-quarter end-on: the end face carries the V pockets, so it leads. */
+  rotor: { dir: [-0.5, 0.36, 0.85], margin: 0.86 },
   /** Axial machines are wide and shallow, so they are read from the front. */
   axial: { dir: [0.86, 0.34, 0.5], margin: 1.06 },
 } as const satisfies Record<string, Shot>;
@@ -47,7 +52,7 @@ export type ShotName = keyof typeof SHOTS;
  */
 export function motorBounds(explode: number): Bounds {
   const halfHousing = MOTOR.housingLength / 2;
-  const halfShaft = (MOTOR.housingLength * 1.85) / 2;
+  const halfShaft = SHAFT_LENGTH / 2;
 
   const frontZ = Math.min(
     -halfHousing + EXPLODE_OFFSETS.frontCap * explode - MOTOR.endCapLength,
@@ -66,6 +71,40 @@ export function motorBounds(explode: number): Bounds {
     half: [radius, radius, (backZ - frontZ) / 2],
     centre: [0, 0, (backZ + frontZ) / 2],
   };
+}
+
+/**
+ * The rotor on its own, with whatever shaft is drawn through it. Used whenever
+ * the stator is off screen: the isolated rotor, and the alternative rotors
+ * shown without their stator. Framing the housing there would leave the rotor
+ * a small object in a large empty frame.
+ */
+export function rotorBounds(
+  explode: number,
+  shaftLength = SHAFT_LENGTH,
+  /** Room for anything hung off the rotor — brush gear, for instance. */
+  pad = 0,
+): Bounds {
+  const halfStack = MOTOR.stackLength / 2;
+  const halfShaft = shaftLength / 2;
+  // The magnets slide out of the +z face, and the shaft slides the same way.
+  const frontZ = Math.min(-halfStack, -halfShaft + explode * 0.85);
+  const backZ = Math.max(halfStack + explode * 0.3, halfShaft + explode * 0.85) + pad;
+  const radius = MOTOR.rotorOuter + 0.04 + pad;
+  return {
+    half: [radius, radius, (backZ - frontZ) / 2],
+    centre: [0, 0, (backZ + frontZ) / 2],
+  };
+}
+
+/**
+ * Looking down the bore at the gap. The subject is the bore, not the whole
+ * lamination stack, so the outer ring is allowed to run to the frame edge.
+ */
+export function boreBounds(shaftLength = SHAFT_LENGTH): Bounds {
+  const radius = MOTOR.statorOuter * 0.92;
+  const halfDepth = Math.max(MOTOR.stackLength / 2 + 0.1, shaftLength / 2);
+  return { half: [radius, radius, halfDepth], centre: [0, 0, 0] };
 }
 
 /** The axial stack: wide and shallow, and it grows along the axis when opened. */
@@ -119,8 +158,9 @@ export function cameraFor(
    * The canvas is the whole viewport, but the reading card and the masthead
    * cover part of it, and the canvas is then translated into what is left.
    * Framing against the full frame and shifting afterwards is what pushed the
-   * shaft of the exploded motor off the right edge. Passing the usable
-   * fractions here pulls the camera back by the tighter of the two instead.
+   * shaft of the exploded motor off the right edge. Each axis is solved
+   * against its own budget: the subject only has to clear the one that binds,
+   * and the camera distance keeps the shot's proportions either way.
    */
   fit: readonly [number, number] = [1, 1],
 ): { position: [number, number, number]; target: [number, number, number] } {
@@ -152,12 +192,14 @@ export function cameraFor(
     halfDepth = Math.max(halfDepth, Math.abs(dot(corner, dir)));
   }
 
-  // The subject has to clear whichever budget is tighter, so the two are not
-  // solved independently: one scale keeps the proportions the shot intends.
-  const budget = Math.max(0.15, Math.min(fit[0], fit[1]));
+  const budgetX = Math.max(0.15, fit[0]);
+  const budgetY = Math.max(0.15, fit[1]);
 
   const distance =
-    (Math.max(halfWidth / Math.tan(hFov / 2), halfHeight / Math.tan(vFov / 2)) / budget +
+    (Math.max(
+      halfWidth / Math.tan(hFov / 2) / budgetX,
+      halfHeight / Math.tan(vFov / 2) / budgetY,
+    ) +
       halfDepth) *
     margin;
 

@@ -27,6 +27,15 @@ export const MOTOR = {
   phases: 3,
 } as const;
 
+/** The full drive shaft, as fitted: it runs out past both end caps. */
+export const SHAFT_LENGTH = MOTOR.housingLength * 1.85;
+/**
+ * The stub of shaft drawn when the rotor is shown on its own. The full shaft
+ * is two and a half times the rotor's length, and framing it would shrink the
+ * part the frame is actually about.
+ */
+export const ROTOR_SHAFT_LENGTH = MOTOR.stackLength * 1.5;
+
 const TAU = Math.PI * 2;
 
 /** A point on a circle of the given radius. */
@@ -142,12 +151,62 @@ export function hairpinCurve(slot: number, span: number): THREE.CatmullRomCurve3
  * are what make the steel magnetically lopsided, so this contour is the
  * geometric reason reluctance torque exists at all.
  */
+/**
+ * One leg of a V: the centreline of a magnet pocket, from its inner end near
+ * the shaft to its outer end near the rim. Both the lamination holes and the
+ * magnets that sit in them are built from this, so they cannot disagree.
+ */
+export function ipmMagnetPlacements(poles: number, thickness: number) {
+  const { rotorOuter, shaftRadius } = MOTOR;
+  const pitch = TAU / poles;
+  const inner = shaftRadius + (rotorOuter - shaftRadius) * 0.4;
+  const outer = rotorOuter * 0.84;
+  // The two inner ends of a V must clear each other by at least a pocket.
+  const nearAngle = Math.max(pitch * 0.14, Math.asin((thickness / 2 + 0.02) / inner));
+  const farAngle = pitch * 0.31;
+
+  const items: {
+    key: string;
+    pole: number;
+    side: -1 | 1;
+    centre: [number, number];
+    /** Rotation about z that lays the magnet's long side along the pocket. */
+    rotation: number;
+    length: number;
+    isNorth: boolean;
+    start: [number, number];
+    end: [number, number];
+  }[] = [];
+
+  for (let pole = 0; pole < poles; pole += 1) {
+    const centre = pole * pitch;
+    for (const side of [-1, 1] as const) {
+      const start = polar(inner, centre + side * nearAngle);
+      const end = polar(outer, centre + side * farAngle);
+      const dx = end[0] - start[0];
+      const dy = end[1] - start[1];
+      items.push({
+        key: `${pole}-${side}`,
+        pole,
+        side,
+        centre: [(start[0] + end[0]) / 2, (start[1] + end[1]) / 2],
+        rotation: Math.atan2(dy, dx),
+        length: Math.hypot(dx, dy),
+        isNorth: pole % 2 === 0,
+        start,
+        end,
+      });
+    }
+  }
+  return items;
+}
+
 export function rotorLaminationShape(
   poles: number,
-  options: { pocketWidth?: number; barrier?: boolean } = {},
+  options: { magnetThickness?: number; barrier?: boolean } = {},
 ): THREE.Shape {
   const { rotorOuter, shaftRadius } = MOTOR;
-  const { pocketWidth = 0.3, barrier = true } = options;
+  const { magnetThickness = 0.05, barrier = true } = options;
 
   const shape = new THREE.Shape();
   shape.absarc(0, 0, rotorOuter, 0, TAU, false);
@@ -156,30 +215,30 @@ export function rotorLaminationShape(
   bore.absarc(0, 0, shaftRadius, 0, TAU, true);
   shape.holes.push(bore);
 
-  const pitch = TAU / poles;
-  const vHalfAngle = pitch * 0.19;
-  const inner = rotorOuter * 0.5;
-  const outer = rotorOuter * 0.82;
-
-  for (let pole = 0; pole < poles; pole += 1) {
-    const centre = pole * pitch;
-    for (const side of [-1, 1] as const) {
-      const pocket = new THREE.Path();
-      const near = centre + side * vHalfAngle * 0.35;
-      const far = centre + side * vHalfAngle * 1.55;
-      const w = pocketWidth * 0.06;
-
-      pocket.moveTo(...polar(inner, near - side * w));
-      pocket.lineTo(...polar(outer, far - side * w));
-      if (barrier) {
-        // The air barrier that runs past the magnet toward the rim.
-        pocket.lineTo(...polar(outer + 0.055, far + side * w * 0.4));
-      }
-      pocket.lineTo(...polar(outer, far + side * w));
-      pocket.lineTo(...polar(inner, near + side * w));
-      pocket.closePath();
-      shape.holes.push(pocket);
+  // A pocket is a rectangle around the magnet, plus a short air barrier that
+  // carries on past its outer end toward the rim.
+  const half = magnetThickness / 2 + 0.008;
+  for (const { start, end, rotation, side } of ipmMagnetPlacements(poles, magnetThickness)) {
+    const nx = -Math.sin(rotation) * half;
+    const ny = Math.cos(rotation) * half;
+    const ex = Math.cos(rotation);
+    const ey = Math.sin(rotation);
+    const pocket = new THREE.Path();
+    pocket.moveTo(start[0] - nx, start[1] - ny);
+    pocket.lineTo(end[0] - nx, end[1] - ny);
+    if (barrier) {
+      const reach = 0.05;
+      // The barrier leans outward, following the V, so the bridge to the rim
+      // stays a bridge and the steel stays lopsided.
+      const bx = end[0] + ex * reach * 0.6 - side * ey * reach * 0.5;
+      const by = end[1] + ey * reach * 0.6 + side * ex * reach * 0.5;
+      pocket.lineTo(bx - nx * 0.5, by - ny * 0.5);
+      pocket.lineTo(bx + nx * 0.5, by + ny * 0.5);
     }
+    pocket.lineTo(end[0] + nx, end[1] + ny);
+    pocket.lineTo(start[0] + nx, start[1] + ny);
+    pocket.closePath();
+    shape.holes.push(pocket);
   }
 
   return shape;
@@ -218,36 +277,109 @@ export function reluctanceLaminationShape(poles = 4, layers = 3): THREE.Shape {
   return shape;
 }
 
-/** A squirrel-cage rotor lamination: closed steel with slots for the bars. */
-export function cageLaminationShape(bars = 34): THREE.Shape {
+/** Wound-field rotor proportions: a salient pole with a shoe, and a coil under it. */
+export const WOUND = {
+  poles: 4,
+  /** Radius of the round core the poles grow out of. */
+  coreRadius: 0.33,
+  /** Underside of the pole shoe: the coil sits between here and the core. */
+  shoeInner: 0.5,
+  /** Half-width of the straight pole body the coil is wound around. */
+  bodyHalf: 0.11,
+  /** Half-angle of the pole shoe at the rim. */
+  shoeHalfAngle: (TAU / 4) * 0.27,
+} as const;
+
+/**
+ * A wound-field rotor: salient poles with shoes on a round core, exactly the
+ * shape a coil can be wound around. Drawing it as a slotted drum hides the
+ * one thing this rotor has that a magnet rotor lacks — a bobbin of copper.
+ */
+export function woundRotorShape(poles = WOUND.poles): THREE.Shape {
   const { rotorOuter, shaftRadius } = MOTOR;
+  const { coreRadius, shoeInner, bodyHalf, shoeHalfAngle } = WOUND;
   const shape = new THREE.Shape();
-  shape.absarc(0, 0, rotorOuter, 0, TAU, false);
+  const pitch = TAU / poles;
+  const rootAngle = Math.asin(bodyHalf / coreRadius);
+  const rootX = Math.sqrt(coreRadius * coreRadius - bodyHalf * bodyHalf);
+  const shoeChord = shoeInner * Math.sin(shoeHalfAngle);
+  const shoeX = shoeInner * Math.cos(shoeHalfAngle);
+
+  // Local pole coordinates: x radial, y tangential, counter-clockwise order.
+  const local = (angle: number, x: number, y: number): [number, number] => [
+    x * Math.cos(angle) - y * Math.sin(angle),
+    x * Math.sin(angle) + y * Math.cos(angle),
+  ];
+
+  for (let pole = 0; pole < poles; pole += 1) {
+    const centre = pole * pitch;
+    const p1 = local(centre, rootX, -bodyHalf);
+    if (pole === 0) shape.moveTo(...p1);
+    else shape.lineTo(...p1);
+    shape.lineTo(...local(centre, shoeInner - 0.02, -bodyHalf));
+    shape.lineTo(...local(centre, shoeX, -shoeChord));
+    arcTo(shape, rotorOuter, centre - shoeHalfAngle, centre + shoeHalfAngle, 6);
+    shape.lineTo(...local(centre, shoeX, shoeChord));
+    shape.lineTo(...local(centre, shoeInner - 0.02, bodyHalf));
+    shape.lineTo(...local(centre, rootX, bodyHalf));
+    arcTo(shape, coreRadius, centre + rootAngle, centre + pitch - rootAngle, 8);
+  }
+  shape.closePath();
 
   const bore = new THREE.Path();
   bore.absarc(0, 0, shaftRadius, 0, TAU, true);
   shape.holes.push(bore);
+  return shape;
+}
 
+/** Cage proportions: bars lie in open grooves so they show along the rotor's length. */
+export const CAGE = {
+  bars: 34,
+  barRadius: 0.034,
+  /** Radius of the bar centres. */
+  barCentre: MOTOR.rotorOuter - 0.06,
+  /** Floor of the groove each bar sits in. */
+  grooveFloor: MOTOR.rotorOuter - 0.105,
+  /** Half-angle of the groove opening at the rim. */
+  grooveHalf: 0.045 / MOTOR.rotorOuter,
+} as const;
+
+/**
+ * A squirrel-cage rotor lamination: steel with an open groove for every bar.
+ * Real cages bury the bars under a thin bridge, which is exactly why a reader
+ * has never seen one; here the grooves are open so the bars read from outside.
+ */
+export function cageLaminationShape(bars = CAGE.bars): THREE.Shape {
+  const { rotorOuter, shaftRadius } = MOTOR;
+  const { grooveFloor, grooveHalf } = CAGE;
+  const shape = new THREE.Shape();
   const pitch = TAU / bars;
-  const radius = rotorOuter - 0.075;
 
   for (let bar = 0; bar < bars; bar += 1) {
-    const angle = bar * pitch;
-    const [cx, cy] = polar(radius, angle);
-    const slot = new THREE.Path();
-    slot.absarc(cx, cy, 0.033, 0, TAU, true);
-    shape.holes.push(slot);
+    const a = bar * pitch;
+    const [sx, sy] = polar(rotorOuter, a + grooveHalf);
+    if (bar === 0) shape.moveTo(sx, sy);
+    else shape.lineTo(sx, sy);
+    // Rim between this groove and the next.
+    arcTo(shape, rotorOuter, a + grooveHalf, a + pitch - grooveHalf, 3);
+    // Down into the next groove, across its floor, and back up.
+    shape.lineTo(...polar(grooveFloor, a + pitch - grooveHalf * 0.9));
+    arcTo(shape, grooveFloor, a + pitch - grooveHalf * 0.9, a + pitch + grooveHalf * 0.9, 2);
+    shape.lineTo(...polar(rotorOuter, a + pitch + grooveHalf));
   }
+  shape.closePath();
 
+  const bore = new THREE.Path();
+  bore.absarc(0, 0, shaftRadius, 0, TAU, true);
+  shape.holes.push(bore);
   return shape;
 }
 
 /** Bar centres for the cage conductors, matching `cageLaminationShape`. */
-export function cageBarPositions(bars = 34) {
-  const radius = MOTOR.rotorOuter - 0.075;
+export function cageBarPositions(bars = CAGE.bars) {
   return Array.from({ length: bars }, (_, bar) => {
     const angle = (bar / bars) * TAU;
-    return { angle, position: polar(radius, angle) };
+    return { angle, position: polar(CAGE.barCentre, angle) };
   });
 }
 
@@ -390,36 +522,22 @@ export function housingShape(): THREE.Shape {
   return shape;
 }
 
+/** The end cap sits inside the housing's rib line, a step smaller than the shell. */
+export const END_CAP_RADIUS = MOTOR.housingOuter - 0.1;
+
 /**
- * The end cap, as a real casting: a bolt flange, a bearing boss and lightening
- * holes between the spokes. The holes matter for more than accuracy — a solid
- * disc hides the machine behind it the moment the view is exploded.
+ * The end cap: a plain cast disc with a bearing boss, sized a step inside the
+ * housing. An earlier spoked version read as a bicycle wheel one frame after
+ * the car, and a solid disc hides nothing once the row is seen from the side.
  */
-export function endCapShape(spokes = 6): THREE.Shape {
-  const { housingOuter, shaftRadius } = MOTOR;
+export function endCapShape(): THREE.Shape {
+  const { shaftRadius } = MOTOR;
   const shape = new THREE.Shape();
-  shape.absarc(0, 0, housingOuter, 0, TAU, false);
+  shape.absarc(0, 0, END_CAP_RADIUS, 0, TAU, false);
 
   const bore = new THREE.Path();
   bore.absarc(0, 0, shaftRadius + 0.11, 0, TAU, true);
   shape.holes.push(bore);
-
-  const pitch = TAU / spokes;
-  const inner = shaftRadius + 0.2;
-  const outer = housingOuter - 0.19;
-  const spokeHalf = pitch * 0.13;
-
-  for (let i = 0; i < spokes; i += 1) {
-    const centre = i * pitch + pitch / 2;
-    const hole = new THREE.Path();
-    const from = centre - pitch / 2 + spokeHalf;
-    const to = centre + pitch / 2 - spokeHalf;
-    hole.moveTo(...polar(inner, from));
-    arcTo(hole, inner, from, to, 8);
-    arcTo(hole, outer, to, from, 8);
-    hole.closePath();
-    shape.holes.push(hole);
-  }
 
   return shape;
 }
@@ -462,15 +580,16 @@ export function laminationGeometry(shape: THREE.Shape, length: number, bevel = 0
  * the reader keeps a fixed reference while the rest moves.
  */
 export const EXPLODE_OFFSETS = {
-  frontCap: -2.05,
-  frontBearing: -1.7,
+  frontCap: -2.0,
+  frontBearing: -1.6,
   housing: 0,
   statorCore: 1.95,
   windings: 1.95,
-  rotor: 3.4,
-  rearBearing: 4.75,
-  rearCap: 5.1,
-  shaft: 6.5,
+  /** Far enough that at the tour's 0.55 the rotor clears the stator's end turns. */
+  rotor: 4.2,
+  rearBearing: 5.5,
+  rearCap: 5.9,
+  shaft: 7.5,
 } as const;
 
 export type ExplodePart = keyof typeof EXPLODE_OFFSETS;

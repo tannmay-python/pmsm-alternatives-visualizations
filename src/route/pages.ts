@@ -65,7 +65,7 @@ export const PAGES: readonly PageSpec[] = [
     transition: {
       act: "The mechanism",
       title: "Make a magnetic field move",
-      lede: "The stator stays still. Timed current makes its magnetic field rotate, and the rotor follows that field around the shaft.",
+      lede: "Nothing in the outer ring moves. Switch its coils on in the right order and the magnetism goes round anyway, and the rotor chases it.",
       nextLabel: "See how it turns",
     },
     stops: [
@@ -87,8 +87,8 @@ export const PAGES: readonly PageSpec[] = [
     transition: {
       act: "The material",
       title: "Why this magnet creates a supply risk",
-      lede: "Neodymium gives the rotor a strong field. Dysprosium and terbium help it survive heat. Those properties make the material hard to replace quickly.",
-      nextLabel: "Open the magnet",
+      lede: "Neodymium gives the magnet its pull. A pinch of dysprosium and terbium lets it survive a hot rotor. That pinch is the part that was restricted.",
+      nextLabel: "Look inside the magnet",
     },
     stops: [
       {
@@ -119,8 +119,8 @@ export const PAGES: readonly PageSpec[] = [
     transition: {
       act: "The alternatives",
       title: "Change what turns the rotor",
-      lede: "Induced current, a powered coil, shaped steel or a different magnet can all turn the rotor. Each route changes the rare-earth exposure and moves the engineering work somewhere else.",
-      nextLabel: "Compare the machines",
+      lede: "A cage of bars, a coil you power, shaped steel or a cheaper magnet can all turn the rotor. Each one removes some rare earth and moves the cost somewhere else.",
+      nextLabel: "Meet the alternatives",
     },
     stops: [
       {
@@ -147,8 +147,8 @@ export const PAGES: readonly PageSpec[] = [
     transition: {
       act: "The decision",
       title: "How much of the car must change?",
-      lede: "Several alternatives already work in vehicles. A manufacturer still has to decide how much efficiency, size, cooling, control work and production revalidation the vehicle can absorb.",
-      nextLabel: "Compare the trade-offs",
+      lede: "Several of these already drive cars. The question is how much of the car has to change to fit one, and how long that takes.",
+      nextLabel: "Weigh them up",
     },
     stops: [
       {

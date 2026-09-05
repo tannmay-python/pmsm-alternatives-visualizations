@@ -46,18 +46,42 @@
   visibility: hidden;
 }
 
+/*
+ * Two moments show text instead of a machine: while the stage chunk is still
+ * loading (the Suspense fallback in the shell, `.stage--loading`), and the
+ * second or so after that while the canvas builds its first frame
+ * (`.stage-fallback--loading`, laid over the canvas from inside Stage). Both
+ * centre the frame's label in the usable area, and nothing else.
+ */
 .stage--loading,
 .stage-fallback {
   display: grid;
   place-items: center;
   height: 100%;
+  min-height: 100%;
   padding: var(--gap-5);
   color: var(--ink-50);
   font-family: var(--mono);
-  font-size: var(--t-meta);
+  font-size: 12px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   text-align: center;
+}
+
+.stage--loading p,
+.stage-fallback p {
+  margin: 0;
+}
+
+.stage-fallback strong {
+  font-weight: 500;
+}
+
+.stage-fallback--loading {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
 }
 
 /* --------------------------------------------------------------------------
@@ -107,7 +131,7 @@
   letter-spacing: 0.02em;
   line-height: 1.35;
   width: max-content;
-  max-width: 190px;
+  max-width: 230px;
   white-space: normal;
   z-index: 2;
 }
@@ -246,10 +270,33 @@
   top: 12px;
 }
 
-@media (max-width: 720px) {
-  /* The explanatory card carries the words on narrow screens. Leaving the
-     projected labels on the canvas makes edge callouts clip against the
-     viewport, so retain the anchor dots and let the card do the reading. */
-  .stage .callout__stem,
-  .stage .callout__pill { display: none; }
+@media (max-width: 560px) {
+  /* The labels stay on the phone — they are the only words on the picture —
+     but a step smaller, and shorter on the stem, so they hug their part. */
+  .callout__pill {
+    font-size: 9.5px;
+    padding: 3px 6px 4px;
+    max-width: 150px;
+    letter-spacing: 0.01em;
+  }
+  .callout--top .callout__stem,
+  .callout--bottom .callout__stem { height: 14px; }
+  .callout--top .callout__pill { bottom: 14px; }
+  .callout--bottom .callout__pill { top: 14px; }
+  .callout--right .callout__stem,
+  .callout--left .callout__stem { width: 16px; }
+  .callout--right .callout__pill { left: 16px; }
+  .callout--left .callout__pill { right: 16px; }
+  .callout--top-right .callout__stem,
+  .callout--top-left .callout__stem,
+  .callout--bottom-right .callout__stem,
+  .callout--bottom-left .callout__stem { width: 14px; height: 14px; }
+  .callout--top-right .callout__pill,
+  .callout--bottom-right .callout__pill { left: 14px; }
+  .callout--top-left .callout__pill,
+  .callout--bottom-left .callout__pill { right: 14px; }
+  .callout--top-right .callout__pill,
+  .callout--top-left .callout__pill { bottom: 8px; }
+  .callout--bottom-right .callout__pill,
+  .callout--bottom-left .callout__pill { top: 8px; }
 }

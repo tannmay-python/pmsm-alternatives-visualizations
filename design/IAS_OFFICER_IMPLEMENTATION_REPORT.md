@@ -1,6 +1,6 @@
 # IAS officer walkthrough implementation report
 
-Last updated: 2 September 2026
+Last updated: 5 September 2026
 
 ## Non-negotiable constraint
 
@@ -16,7 +16,7 @@ Do not change the opening. It must continue to open with the Group 2 list of nin
 8. Lutetium
 9. Thulium
 
-The opening is implemented in `src/pages/Landing.tsx`. The September 2026 course pass deliberately left that file untouched.
+The opening is implemented in `src/pages/Landing.tsx`. Its substantive copy and mineral list remain locked. On 4 September 2026, the small eyebrow line `The Takshashila Institution · Mineralpolitik` was removed at the user's request; no opening content was otherwise changed.
 
 ## What the course must answer
 
@@ -71,28 +71,19 @@ Every family answers the same three questions: what turns the rotor, what rare-e
 
 ## Interaction and motion rules
 
-- Visual explanations autoplay for about 4.8 seconds.
-- User scrolling cancels the current motion immediately.
-- After scrolling stops, the selected frame resumes from its current visual state.
-- Semantic state changes land immediately, so the text cannot move ahead of the named component.
-- Each 3D frame resets to its authored camera shot, while direct drag remains available.
-- At tablet widths, the visual occupies the upper half and the active text card the lower half.
-- Inactive upcoming text is fully hidden.
-- Dense phone tables use a short horizontal strip so rows are not vertically cropped.
+- One frame at a time. A wheel tick, a swipe on the card, or an arrow key moves exactly one frame; a trackpad flick cannot skip a frame. Deep links (`#rotor`) open on that frame.
+- The card holds only the active frame's words and sizes itself to them. On the last frame of a chapter it also carries the next chapter's one-line lede and the "next" button.
+- Visual explanations autoplay for about 4.8 seconds when a frame arrives; angle-driven mechanisms then keep turning slowly. The grip rule is the one frame whose state changes only when tapped.
+- Each 3D frame resets to its authored camera shot; drag-to-orbit remains, wheel-zoom is off so the wheel always means "next frame".
+- Alternative rotors (cage, wound) are shown without their stator, with the sweeping field arrow in front.
+- At tablet and phone widths the visual takes the upper half and the card the lower half; 3D callouts keep their labels on phones.
 
 ## Verification record
 
-Verified locally on 2 September 2026:
+Verified locally on 5 September 2026:
 
 - Opening still shows all nine Group 2 minerals.
-- 21 public frames remain in place.
-- Rapid scrolling during animation stops motion without blocking scroll and restarts the selected demonstration after scroll idle.
-- Exploded-motor shaft label stays inside the viewport.
-- Rotor-following-field, SynRM, SRM and ferrite comparison views render at desktop and phone widths.
-- The six-route table fits at 900 px and keeps all six rows visible at 390 px.
-- Next chapter begins at the first frame.
-- Next chapter remains at the bottom of the chapter scroll.
-- TypeScript check passes.
-- 57 tests pass.
-- Production build passes.
-- ESLint reports no errors; one pre-existing Fast Refresh warning remains in `src/shell/MotorInspector.tsx`.
+- 21 public frames remain in place; copy rewritten in plain conversational voice, every line under 320 characters and through the copy lint.
+- ArrowRight/ArrowLeft, Enter, wheel and swipe each move one frame; deep links land on the named frame; Back from a chapter's first frame lands on the previous chapter's last frame.
+- No callout leaves the stage at 1440×900, 1280×720 or 390×844.
+- TypeScript check, ESLint (one pre-existing Fast Refresh warning), 64 tests and the production build pass.

@@ -274,3 +274,18 @@
   .tour-end { inset: 128px 0 0; padding: 32px var(--pad-x); }
   .tour-end__actions { align-items: flex-start; flex-direction: column; gap: 14px; }
 }
+
+/* Phone masthead: keep the chrome to a strip so the stage and card get the screen. */
+@media (max-width: 560px) {
+  .topbar { min-height: 0; padding: 8px var(--pad-x) 8px; gap: 10px; }
+  .topbar__brand { flex: 0 0 auto; }
+  .topbar__logo { height: 40px !important; }
+  .topbar__progress { flex: 1 1 auto; width: auto; gap: 10px; }
+  .progress-bar__hairline { display: none; }
+  .progress-bar__meta { flex-direction: row; align-items: center; gap: 8px; }
+  .progress-bar__readout { display: none; }
+  .contents-button { padding: 6px 8px; }
+  .stage-diagram { inset: 64px 0 54dvh; }
+  .tour-end { inset: 64px 0 0; }
+  .contents-overlay { padding-top: 76px; }
+}

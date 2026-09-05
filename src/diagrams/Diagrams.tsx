@@ -2691,7 +2691,7 @@ export function Diagram({
       )}
       {id === "rotating-field-clean" && <RotatingFieldDiagram controls={controls} />}
       {id === "rotor-follows-field-clean" && <RotorFollowsFieldDiagram controls={controls} />}
-      {id === "torque-combination-clean" && <TorqueCombinationDiagram />}
+      {id === "torque-combination-clean" && <TorqueCombinationDiagram controls={controls} />}
       {id === "magnet-jobs-clean" && <MagnetJobsDiagram />}
       {id === "rare-earth-split-clean" && <RareEarthSplitDiagram />}
       {id === "heat-protection-clean" && <HeatProtectionDiagram controls={controls} />}

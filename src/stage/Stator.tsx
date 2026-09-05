@@ -69,8 +69,8 @@ export function Stator({
         const z = -MOTOR.stackLength / 2 + (MOTOR.stackLength * (i + 1)) / 8;
         return (
           <mesh key={i} position={[0, 0, z]} renderOrder={1}>
-            <torusGeometry args={[MOTOR.statorOuter - 0.001, 0.0035, 4, 96]} />
-            <meshStandardMaterial color="#2a302e" roughness={0.9} metalness={0.4} />
+            <torusGeometry args={[MOTOR.statorOuter - 0.001, 0.003, 4, 96]} />
+            <meshStandardMaterial color={PALETTE.laminateRing} roughness={0.9} metalness={0.4} />
           </mesh>
         );
       })}

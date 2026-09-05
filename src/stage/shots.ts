@@ -80,5 +80,10 @@ export function fieldLessonFor(
   if (stop.id === "rotor-locks-to-field") {
     return "lock";
   }
+  // The alternative rotors are shown without their stator, so the sweeping
+  // field arrow is the only thing left to say where the stator field is.
+  if (stop.id === "swap-the-rotor" && (state.id === "induction-principle" || state.id === "wound-control")) {
+    return "sweep";
+  }
   return "none";
 }

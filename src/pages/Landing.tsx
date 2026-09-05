@@ -32,7 +32,7 @@ function GroupTwoDashboard() {
         <p className="group-two-dashboard__kicker">Heavy rare earths + Tellurium</p>
         <h2 id="group-two-title">One shared bottleneck</h2>
         <p>
-          These minerals sit together because refining, reserves and extraction are concentrated at the same time. Tellurium is not a rare earth, but it faces the same tight refining and substitution problem.
+          These minerals sit together because refining, reserves and extraction are concentrated at the same time.
         </p>
       </div>
       <ul className="group-two-dashboard__members" aria-label="Minerals in Group 2">
@@ -71,13 +71,12 @@ export function Landing({ onEnter }: { onEnter: () => void }) {
 
       <div className="landing__grid">
         <section className="landing__copy" aria-labelledby="landing-title">
-          <p className="eyebrow">The Takshashila Institution · Mineralpolitik</p>
-          <h1 id="landing-title">The rare-earth question, inside <em>one motor</em></h1>
+          <h1 id="landing-title">The EV motor’s <span className="landing__highlight">rare-earth</span> problem</h1>
           <p className="landing__paragraph">
-            One of the things that makes EVs such a critical technology is the motor. Most EV traction motors use permanent magnets that contain rare earths, especially the heavy rare earths dysprosium and terbium. Their presence creates a supply-chain vulnerability inside the drive unit.
+            Take an electric car apart and most of it is ordinary: steel, glass, a big battery. One part is not. The motor that turns the wheels is built around a fist-sized set of magnets, and those magnets need two elements, dysprosium and terbium, that almost all come from one country. In April 2025 China put them under export licence.
           </p>
           <p className="landing__paragraph">
-            We will look at which rare earths a motor uses, what a permanent magnet is—a material that holds its field without a continuous electrical input—and why 70–80% of EV traction motors are reported to use permanent-magnet machines. The refining bottleneck is concentrated in the same minerals we grouped in Group 2 of the <a href={DASHBOARD_URL} target="_blank" rel="noreferrer">India Critical Minerals Dashboard</a>.
+            This walkthrough is about that magnet: what it does inside the motor, what could replace it, and what each replacement would cost. It takes about fifteen minutes. The elements involved are the ones we grouped as Group 2 of the <a href={DASHBOARD_URL} target="_blank" rel="noreferrer">India Critical Minerals Dashboard</a>.
           </p>
           <p className="landing__authors" aria-label="Authors">
             <span>By </span>
@@ -95,7 +94,7 @@ export function Landing({ onEnter }: { onEnter: () => void }) {
             <GroupTwoDashboard />
           </div>
           <figcaption id="dashboard-caption">
-            Group 2 is the tightest group in the dashboard. The preview above is rendered in code; <a href={`${DASHBOARD_URL}#groups`} target="_blank" rel="noreferrer">open the source dashboard</a> for the full group view.
+            View more on the <a href={`${DASHBOARD_URL}#groups`} target="_blank" rel="noreferrer">dashboard</a>.
           </figcaption>
         </figure>
       </div>

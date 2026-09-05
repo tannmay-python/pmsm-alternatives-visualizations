@@ -1,4 +1,4 @@
-# The rare-earth question, inside one motor
+# The EV motor’s rare-earth problem
 
 A guided, interactive explanation of why EV traction motors depend on rare-earth
 magnets, what those magnets actually do, and what the alternatives cost.
@@ -86,6 +86,12 @@ contactless designs still in development.
 Mounting a `<Canvas>` per 3D stop creates a new WebGL context each time.
 Browsers cap those, and past the cap the stage silently goes blank. The canvas
 stays mounted for the whole session; SVG stops render on top of it.
+
+## Reading it
+
+One frame at a time: a wheel tick, a swipe, or an arrow key moves one frame, and the card
+holds only that frame's words. There are no controls to learn beyond that and the single
+tap on the grip-rule coil.
 
 ## Run locally
 

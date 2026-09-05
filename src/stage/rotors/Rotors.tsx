@@ -1,14 +1,19 @@
+import { useFrame } from "@react-three/fiber";
 import { useMemo } from "react";
 import * as THREE from "three";
 import {
+  CAGE,
   MOTOR,
   SRM,
+  WOUND,
   cageBarPositions,
   cageLaminationShape,
+  ipmMagnetPlacements,
   laminationGeometry,
   reluctanceLaminationShape,
   rotorLaminationShape,
   salientRotorShape,
+  woundRotorShape,
 } from "../geometry";
 import { PALETTE, type MotorMaterials } from "../materials";
 import type { RotorId } from "./registry";
@@ -23,61 +28,41 @@ export type RotorProps = {
   fieldLive?: boolean;
   dimmed?: boolean;
   explode?: number;
+  /**
+   * Where the stator field currently points, measured in the rotor's own
+   * frame and updated every frame by the motor. The cage reads it to light
+   * the bars the field is sweeping past.
+   */
+  fieldAngleRef?: React.RefObject<number>;
 };
 
 const POLES = 8;
+/** How far the magnets slide out of the +z face per unit of explode. */
+export const MAGNET_SLIDE = 0.3;
 
 /** Buried magnets in V pockets — the mainstream traction rotor. */
 function IpmRotor({ materials, intensity = 0, ferrite = false, explode = 0 }: RotorProps & { ferrite?: boolean }) {
+  const thickness = ferrite ? 0.1 : 0.05;
   const core = useMemo(
-    () =>
-      laminationGeometry(
-        rotorLaminationShape(POLES, { pocketWidth: ferrite ? 0.62 : 0.3 }),
-        MOTOR.stackLength,
-        0,
-      ),
-    [ferrite],
+    () => laminationGeometry(rotorLaminationShape(POLES, { magnetThickness: thickness }), MOTOR.stackLength, 0),
+    [thickness],
   );
-
-  const magnets = useMemo(() => {
-    const pitch = (Math.PI * 2) / POLES;
-    const items: {
-      key: string;
-      position: [number, number, number];
-      rotation: number;
-      isNorth: boolean;
-    }[] = [];
-    for (let pole = 0; pole < POLES; pole += 1) {
-      const centre = pole * pitch;
-      const isNorth = pole % 2 === 0;
-      for (const side of [-1, 1] as const) {
-        const angle = centre + side * pitch * 0.19 * 0.95;
-        const radius = MOTOR.rotorOuter * 0.66;
-        items.push({
-          key: `${pole}-${side}`,
-          position: [Math.cos(angle) * radius, Math.sin(angle) * radius, 0],
-          rotation: angle + (side * Math.PI) / 2.4,
-          isNorth,
-        });
-      }
-    }
-    return items;
-  }, []);
+  const magnets = useMemo(() => ipmMagnetPlacements(POLES, thickness), [thickness]);
 
   return (
     <group>
       <mesh geometry={core} material={materials.rotorLaminate} castShadow receiveShadow />
-      <group position={[0, 0, explode * 0.75]}>
-        {magnets.map(({ key, position, rotation, isNorth }) => {
+      <group position={[0, 0, explode * MAGNET_SLIDE]}>
+        {magnets.map(({ key, centre, rotation, length, isNorth }) => {
           const isHot = intensity > 0.65;
           const poleColor = isNorth ? materials.magnet.color : materials.magnetSouth.color;
           return (
-            <mesh key={key} position={position} rotation={[0, 0, rotation]} castShadow>
-              <boxGeometry args={[ferrite ? 0.13 : 0.075, 0.26, MOTOR.stackLength * 0.99]} />
+            <mesh key={key} position={[centre[0], centre[1], 0]} rotation={[0, 0, rotation]} castShadow>
+              <boxGeometry args={[length * 0.92, thickness, MOTOR.stackLength * 0.99]} />
               <meshStandardMaterial
                 color={isHot ? PALETTE.warn : ferrite ? materials.ferrite.color : poleColor}
-                roughness={ferrite ? materials.ferrite.roughness : 0.28}
-                metalness={ferrite ? materials.ferrite.metalness : 0.82}
+                roughness={ferrite ? materials.ferrite.roughness : 0.3}
+                metalness={ferrite ? materials.ferrite.metalness : 0.6}
                 emissive={isHot ? PALETTE.warn : "#000000"}
                 emissiveIntensity={isHot ? (intensity - 0.65) * 1.5 : 0}
               />
@@ -89,86 +74,179 @@ function IpmRotor({ materials, intensity = 0, ferrite = false, explode = 0 }: Ro
   );
 }
 
-/** Bare steel with shorted bars. The rotor makes its own field, on demand. */
-function CageRotor({ materials, intensity = 0, fieldLive = true }: RotorProps) {
+/**
+ * Bare steel with shorted aluminium bars. The rotor makes its own field, on
+ * demand: each bar lights as the stator field sweeps past it, which is the
+ * whole of induction in one picture.
+ */
+function CageRotor({ materials, intensity = 0, fieldLive = true, fieldAngleRef }: RotorProps) {
   const core = useMemo(
-    () => laminationGeometry(cageLaminationShape(34), MOTOR.stackLength, 0),
+    () => laminationGeometry(cageLaminationShape(), MOTOR.stackLength, 0),
     [],
   );
-  const bars = useMemo(() => cageBarPositions(34), []);
+  const bars = useMemo(() => cageBarPositions(), []);
   const barGeometry = useMemo(
-    () => new THREE.CylinderGeometry(0.031, 0.031, MOTOR.stackLength * 1.16, 10),
+    () => new THREE.CylinderGeometry(CAGE.barRadius, CAGE.barRadius, MOTOR.stackLength * 1.16, 12),
     [],
   );
+  const barMaterials = useMemo(
+    () =>
+      bars.map(
+        () =>
+          new THREE.MeshStandardMaterial({
+            color: PALETTE.aluminium,
+            roughness: 0.3,
+            metalness: 0.9,
+            emissive: new THREE.Color(PALETTE.accent),
+            emissiveIntensity: 0,
+          }),
+      ),
+    [bars],
+  );
+  const ringMaterial = useMemo(
+    () =>
+      new THREE.MeshStandardMaterial({
+        color: PALETTE.aluminium,
+        roughness: 0.32,
+        metalness: 0.88,
+        emissive: new THREE.Color(PALETTE.accent),
+        emissiveIntensity: 0,
+      }),
+    [],
+  );
+
+  const silver = useMemo(() => new THREE.Color(PALETTE.aluminium), []);
+  const hot = useMemo(() => new THREE.Color(PALETTE.accent), []);
+
+  useFrame(() => {
+    const base = fieldLive ? intensity * 0.5 : 0;
+    const field = fieldAngleRef?.current;
+    bars.forEach(({ angle }, i) => {
+      let lit = base;
+      if (fieldLive && field !== undefined) {
+        // Current in a cage under a two-pole field is a sine wave around the
+        // rotor, peaking under the field axis. The near side is the one the
+        // arrow is pointing at, so it gets the full glow.
+        const c = Math.cos(angle - field);
+        lit = c > 0 ? Math.pow(c, 2) : Math.pow(-c, 2) * 0.3;
+      }
+      // Pale silver plus a strong emissive tone-maps to white, not orange, so
+      // the bar's own colour warms toward copper as the current rises.
+      barMaterials[i].color.copy(silver).lerp(hot, Math.min(1, lit));
+      barMaterials[i].emissiveIntensity = lit * 0.35;
+    });
+    ringMaterial.emissiveIntensity = fieldLive ? (field !== undefined ? 0.2 : intensity * 0.3) : 0;
+  });
 
   return (
     <group>
       <mesh geometry={core} material={materials.rotorLaminate} castShadow receiveShadow />
-      {bars.map(({ angle, position }) => (
+      {bars.map(({ angle, position }, i) => (
         <mesh
           key={angle}
           geometry={barGeometry}
+          material={barMaterials[i]}
           position={[position[0], position[1], 0]}
           rotation={[Math.PI / 2, 0, 0]}
-        >
-          <meshStandardMaterial
-            color={PALETTE.aluminium}
-            roughness={0.34}
-            metalness={0.88}
-            emissive={PALETTE.accent}
-            emissiveIntensity={fieldLive ? intensity * 0.85 : 0}
-          />
-        </mesh>
+        />
       ))}
       {/* The end rings that short every bar — without them there is no current. */}
       {[-1, 1].map((side) => (
-        <mesh key={side} position={[0, 0, (side * MOTOR.stackLength) / 2 + side * 0.06]}>
-          <torusGeometry args={[MOTOR.rotorOuter - 0.075, 0.036, 8, 48]} />
-          <meshStandardMaterial
-            color={PALETTE.aluminium}
-            roughness={0.36}
-            metalness={0.86}
-            emissive={PALETTE.accent}
-            emissiveIntensity={fieldLive ? intensity * 0.6 : 0}
-          />
+        <mesh key={side} material={ringMaterial} position={[0, 0, (side * MOTOR.stackLength) / 2 + side * 0.06]}>
+          <torusGeometry args={[CAGE.barCentre, 0.042, 8, 48]} />
         </mesh>
       ))}
     </group>
   );
 }
 
+/** Where the slip rings sit along the shaft, past the rotor's +z face. */
+export const SLIP_RING = {
+  z: [MOTOR.stackLength / 2 + 0.2, MOTOR.stackLength / 2 + 0.36] as const,
+  radius: MOTOR.shaftRadius + 0.08,
+  width: 0.09,
+} as const;
+
 /**
- * Slip rings and brushes: the traditional way of getting current onto a
- * spinning rotor. Sliding contacts, so they wear — the objection usually raised
- * against wound-field machines, and the one BMW, Nissan and Renault ship anyway.
+ * Slip rings: two copper bands on the shaft, turning with it. The brushes
+ * that press on them do not turn, so they live in Brushes below and are
+ * mounted outside the rotor group.
  */
 function SlipRings({ live }: { live: boolean }) {
   return (
-    <group position={[0, 0, MOTOR.stackLength / 2 + 0.22]}>
-      {[0, 0.1].map((offset) => (
-        <mesh key={offset} position={[0, 0, offset]} rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[MOTOR.shaftRadius + 0.05, MOTOR.shaftRadius + 0.05, 0.06, 28]} />
+    <group>
+      {SLIP_RING.z.map((z) => (
+        <mesh key={z} position={[0, 0, z]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[SLIP_RING.radius, SLIP_RING.radius, SLIP_RING.width, 36]} />
           <meshStandardMaterial
             color={PALETTE.copper}
-            roughness={0.3}
+            roughness={0.28}
             metalness={0.85}
+            emissive={live ? PALETTE.accent : "#000000"}
+            emissiveIntensity={live ? 0.35 : 0}
+          />
+        </mesh>
+      ))}
+      {/* A dark spacer between the two bands, so they read as two. */}
+      <mesh position={[0, 0, (SLIP_RING.z[0] + SLIP_RING.z[1]) / 2]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[SLIP_RING.radius - 0.02, SLIP_RING.radius - 0.02, SLIP_RING.z[1] - SLIP_RING.z[0], 36]} />
+        <meshStandardMaterial color={PALETTE.seal} roughness={0.9} metalness={0.1} />
+      </mesh>
+    </group>
+  );
+}
+
+/**
+ * The stationary half of the brushed connection: two carbon brushes pressed
+ * onto the rings from above, with the feed lead that brings the current in.
+ */
+export function Brushes({ live }: { live: boolean }) {
+  const leads = useMemo(() => {
+    const top = SLIP_RING.radius + 0.2;
+    return SLIP_RING.z.map(
+      (z) =>
+        new THREE.TubeGeometry(
+          new THREE.CatmullRomCurve3([
+            new THREE.Vector3(0, top - 0.02, z),
+            new THREE.Vector3(0, top + 0.12, z + 0.02),
+            new THREE.Vector3(0, top + 0.3, z + 0.14),
+            new THREE.Vector3(0, top + 0.42, z + 0.34),
+          ]),
+          24,
+          0.018,
+          8,
+          false,
+        ),
+    );
+  }, []);
+
+  return (
+    <group>
+      {SLIP_RING.z.map((z) => (
+        <group key={z} position={[0, SLIP_RING.radius, z]}>
+          {/* Carbon block riding on the ring. */}
+          <mesh position={[0, 0.06, 0]}>
+            <boxGeometry args={[0.1, 0.13, 0.08]} />
+            <meshStandardMaterial color="#2f3335" roughness={0.92} metalness={0.05} />
+          </mesh>
+          {/* Holder that presses it down. */}
+          <mesh position={[0, 0.17, 0]}>
+            <boxGeometry args={[0.14, 0.06, 0.12]} />
+            <meshStandardMaterial color={PALETTE.steelMid} roughness={0.5} metalness={0.7} />
+          </mesh>
+        </group>
+      ))}
+      {leads.map((geometry, i) => (
+        <mesh key={i} geometry={geometry}>
+          <meshStandardMaterial
+            color={PALETTE.copper}
+            roughness={0.4}
+            metalness={0.7}
             emissive={live ? PALETTE.accent : "#000000"}
             emissiveIntensity={live ? 0.3 : 0}
           />
         </mesh>
       ))}
-      {/* The brushes themselves do not rotate; they are held against the rings. */}
-      {[0, 0.1].map((offset) =>
-        [-1, 1].map((side) => (
-          <mesh
-            key={`${offset}-${side}`}
-            position={[side * (MOTOR.shaftRadius + 0.12), 0, offset]}
-          >
-            <boxGeometry args={[0.1, 0.055, 0.05]} />
-            <meshStandardMaterial color="#3f4644" roughness={0.9} metalness={0.1} />
-          </mesh>
-        )),
-      )}
     </group>
   );
 }
@@ -183,7 +261,7 @@ function RotatingTransformer({ live }: { live: boolean }) {
     <group position={[0, 0, MOTOR.stackLength / 2 + 0.24]}>
       {/* Rotating half, keyed to the shaft. */}
       <mesh rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[MOTOR.shaftRadius + 0.09, 0.045, 10, 40]} />
+        <torusGeometry args={[MOTOR.shaftRadius + 0.11, 0.055, 10, 40]} />
         <meshStandardMaterial
           color={PALETTE.copper}
           roughness={0.34}
@@ -193,12 +271,30 @@ function RotatingTransformer({ live }: { live: boolean }) {
         />
       </mesh>
       {/* Stationary half, separated by the air gap that replaces the brushes. */}
-      <mesh position={[0, 0, 0.11]} rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[MOTOR.shaftRadius + 0.09, 0.05, 10, 40]} />
+      <mesh position={[0, 0, 0.14]} rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[MOTOR.shaftRadius + 0.11, 0.06, 10, 40]} />
         <meshStandardMaterial color={PALETTE.steelMid} roughness={0.45} metalness={0.7} />
       </mesh>
     </group>
   );
+}
+
+/** A closed loop of wire with rounded corners, lying in the y–z plane at x = 0. */
+function coilLoop(halfWidth: number, halfLength: number, corner: number): THREE.CatmullRomCurve3 {
+  const points: THREE.Vector3[] = [];
+  const arc = (cy: number, cz: number, from: number) => {
+    for (let i = 0; i <= 4; i += 1) {
+      const a = from + (i / 4) * (Math.PI / 2);
+      points.push(new THREE.Vector3(0, cy + Math.cos(a) * corner, cz + Math.sin(a) * corner));
+    }
+  };
+  const w = halfWidth - corner;
+  const l = halfLength - corner;
+  arc(w, l, 0);
+  arc(-w, l, Math.PI / 2);
+  arc(-w, -l, Math.PI);
+  arc(w, -l, Math.PI * 1.5);
+  return new THREE.CatmullRomCurve3(points, true, "catmullrom", 0.4);
 }
 
 /** Copper on the rotor, fed deliberately. A magnet you can switch off. */
@@ -208,65 +304,52 @@ function WoundRotor({
   fieldLive = true,
   excitation = "brushed",
 }: RotorProps) {
-  const poles = 4;
   const core = useMemo(
-    () => laminationGeometry(reluctanceLaminationShape(poles, 1), MOTOR.stackLength, 0),
+    () => laminationGeometry(woundRotorShape(WOUND.poles), MOTOR.stackLength, 0),
     [],
   );
 
-  const coils = useMemo(() => {
-    const pitch = (Math.PI * 2) / poles;
-    return Array.from({ length: poles }, (_, pole) => {
-      const angle = pole * pitch;
-      return {
-        angle,
-        position: [
-          Math.cos(angle) * MOTOR.rotorOuter * 0.62,
-          Math.sin(angle) * MOTOR.rotorOuter * 0.62,
-          0,
-        ] as [number, number, number],
-      };
-    });
+  // One bobbin per pole: two layers of three turns each, wound around the
+  // pole body between the core and the underside of the shoe.
+  const turns = useMemo(() => {
+    const wire = 0.028;
+    const xs = [0.375, 0.415, 0.455];
+    const layers = [WOUND.bodyHalf + wire + 0.012, WOUND.bodyHalf + wire * 3 + 0.02];
+    return layers.flatMap((halfWidth, layer) =>
+      xs.map((x) => ({
+        key: `${layer}-${x}`,
+        x,
+        geometry: new THREE.TubeGeometry(
+          coilLoop(halfWidth, MOTOR.stackLength / 2 + 0.05 + layer * 0.02, 0.06),
+          72,
+          wire,
+          8,
+          true,
+        ),
+      })),
+    );
   }, []);
+
+  const glow = fieldLive ? 0.3 + intensity * 0.6 : 0;
+  const poles = useMemo(
+    () => Array.from({ length: WOUND.poles }, (_, pole) => (pole * Math.PI * 2) / WOUND.poles),
+    [],
+  );
 
   return (
     <group>
       <mesh geometry={core} material={materials.rotorLaminate} castShadow receiveShadow />
-      {excitation === "brushed" ? (
-        <SlipRings live={fieldLive} />
-      ) : (
-        <RotatingTransformer live={fieldLive} />
-      )}
-      {coils.map(({ angle, position }) => (
-        <group key={angle} position={position} rotation={[0, 0, angle]}>
-          {/* A bundle of turns, not a single torus. */}
-          {[-0.09, -0.03, 0.03, 0.09].map((offset) =>
-            [-1, 1].map((side) => (
-              <mesh
-                key={`${offset}-${side}`}
-                position={[offset, 0, (side * MOTOR.stackLength) / 2 + side * 0.03]}
-                rotation={[Math.PI / 2, 0, 0]}
-              >
-                <torusGeometry args={[0.13, 0.016, 6, 18, Math.PI]} />
-                <meshStandardMaterial
-                  color={PALETTE.copper}
-                  roughness={0.38}
-                  metalness={0.72}
-                  emissive={PALETTE.accent}
-                  emissiveIntensity={fieldLive ? intensity * 0.7 : 0}
-                />
-              </mesh>
-            )),
-          )}
-          {[-0.09, -0.03, 0.03, 0.09].map((offset) => (
-            <mesh key={offset} position={[offset, 0, 0]} rotation={[Math.PI / 2, 0, 0]}>
-              <cylinderGeometry args={[0.016, 0.016, MOTOR.stackLength, 6]} />
+      {excitation === "brushed" ? <SlipRings live={fieldLive} /> : <RotatingTransformer live={fieldLive} />}
+      {poles.map((angle) => (
+        <group key={angle} rotation={[0, 0, angle]}>
+          {turns.map(({ key, x, geometry }) => (
+            <mesh key={key} geometry={geometry} position={[x, 0, 0]} castShadow>
               <meshStandardMaterial
                 color={PALETTE.copper}
-                roughness={0.38}
+                roughness={0.36}
                 metalness={0.72}
                 emissive={PALETTE.accent}
-                emissiveIntensity={fieldLive ? intensity * 0.7 : 0}
+                emissiveIntensity={glow}
               />
             </mesh>
           ))}

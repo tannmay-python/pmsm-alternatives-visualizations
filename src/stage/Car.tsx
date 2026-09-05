@@ -198,12 +198,12 @@ function Pulse({ curve, offset, flowing }: { curve: THREE.CatmullRomCurve3; offs
   const ref = useRef<THREE.Mesh>(null);
   const t = useRef(offset);
   useFrame((_, delta) => {
-    if (flowing) t.current = (t.current + delta * 0.42) % 1;
+    if (flowing) t.current = (t.current + delta * 0.3) % 1;
     ref.current?.position.copy(curve.getPointAt(t.current));
   });
   return (
     <mesh ref={ref}>
-      <sphereGeometry args={[0.055, 12, 12]} />
+      <sphereGeometry args={[0.085, 14, 14]} />
       <meshBasicMaterial color={PALETTE.accent} />
     </mesh>
   );
@@ -214,13 +214,22 @@ export function Car({
   flowing = false,
   spinning = false,
 }: CarProps) {
+  /**
+   * The power path: out of the battery pack, into the inverter box, through
+   * the motor barrel, down to the gearbox and out along the half-shaft to the
+   * near wheel. It stays on screen after the pulses so the route can be read
+   * at rest.
+   */
   const curve = useMemo(
     () =>
       new THREE.CatmullRomCurve3([
-        new THREE.Vector3(-0.2, 0.76, 0.5),
-        new THREE.Vector3(0.9, 0.82, 0.5),
-        new THREE.Vector3(1.6, 0.8, 0.42),
-        new THREE.Vector3(2.0, 0.72, 0.2),
+        new THREE.Vector3(-1.6, 0.76, 0.55),
+        new THREE.Vector3(0.6, 0.8, 0.55),
+        new THREE.Vector3(1.62, 0.9, 0.42),
+        new THREE.Vector3(2.05, 0.82, 0.3),
+        new THREE.Vector3(2.5, 0.62, 0.22),
+        new THREE.Vector3(2.25, 0.54, 0.5),
+        new THREE.Vector3(2.08, 0.52, 0.72),
       ]),
     [],
   );
@@ -235,20 +244,26 @@ export function Car({
       <Wheel x={-2.12} z={-0.78} spinning={spinning} />
       <Wheel x={2.06} z={-0.78} spinning={spinning} />
       <mesh>
-        <tubeGeometry args={[curve, 20, 0.022, 6, false]} />
-        <meshBasicMaterial color={PALETTE.accentDim} transparent opacity={0.5} />
+        <tubeGeometry args={[curve, 40, 0.028, 8, false]} />
+        <meshBasicMaterial color={PALETTE.accentDim} transparent opacity={0.55} />
       </mesh>
-      <Pulse curve={curve} offset={0} flowing={flowing} />
+      <Pulse curve={curve} offset={0.05} flowing={flowing} />
       <Pulse curve={curve} offset={0.4} flowing={flowing} />
-      <Pulse curve={curve} offset={0.75} flowing={flowing} />
+      <Pulse curve={curve} offset={0.72} flowing={flowing} />
 
       {focus === "battery" && (
         <>
-          <Callout position={[-0.35, 0.76, 0.85]} direction="top-left" accent>
-            battery pack · stores DC energy
+          <Callout position={[-1.25, 0.73, 0.83]} direction="top" accent>
+            battery · stores the electricity
           </Callout>
-          <Callout position={[2.05, 1.15, 0.45]} direction="top-right">
-            drive unit · motor &amp; inverter
+          <Callout position={[1.63, 1.02, 0.39]} direction="top">
+            inverter · turns it into pulses
+          </Callout>
+          <Callout position={[2.38, 0.98, 0.12]} direction="right" accent>
+            motor
+          </Callout>
+          <Callout position={[2.56, 0.46, 0.3]} direction="bottom-left">
+            gearbox · slows the spin down
           </Callout>
         </>
       )}
@@ -256,16 +271,16 @@ export function Car({
       {focus === "drive-unit" && (
         <>
           <Callout position={[1.55, 1.05, 0.42]} direction="top-left" accent>
-            inverter · DC to 3-phase AC
+            inverter · turns it into pulses
           </Callout>
           <Callout position={[2.05, 1.2, 0.45]} direction="top-right" accent>
-            motor · magnetic torque
+            motor · makes the turning force
           </Callout>
           <Callout position={[2.55, 0.72, -0.1]} direction="bottom-right">
-            reduction gear · speed to torque
+            gearbox · slows the spin down
           </Callout>
           <Callout position={[2.06, 0.2, 0.88]} direction="bottom-left">
-            wheel · torque to road
+            wheel · puts it on the road
           </Callout>
         </>
       )}

@@ -49,11 +49,11 @@ function TourEnd({ onRestart, onBack }: { onRestart: () => void; onBack: () => v
     <main className="tour-end" aria-labelledby="tour-end-title">
       <div className="tour-end__content">
         <p className="eyebrow">End of the walkthrough · {PAGE_LIST.length} of {PAGE_LIST.length} chapters</p>
-        <h1 id="tour-end-title">Three things to carry forward</h1>
+        <h1 id="tour-end-title">Three things to take with you</h1>
         <ol className="tour-end__summary">
-          <li><strong>The motor.</strong> In a permanent-magnet synchronous motor (PMSM), timed stator current creates a rotating field. A permanent-magnet rotor follows it and turns the shaft.</li>
-          <li><strong>The alternatives.</strong> Induced current, a powered rotor coil, shaped steel alignment, or a lower-risk magnet can turn the rotor instead.</li>
-          <li><strong>The decision.</strong> Supply resilience must be weighed against efficiency, size, cooling, controls and production validation.</li>
+          <li><strong>The motor.</strong> Coils that never move make a magnetic field go round. A magnet in the middle chases it and turns the wheels. That magnet needs a pinch of dysprosium to survive heat, and the pinch is the supply problem.</li>
+          <li><strong>The alternatives.</strong> A cage of bars, a coil you power, or steel shaped to line up with the field can all replace the magnet. Each moves the cost somewhere else: heat, hardware, size or noise.</li>
+          <li><strong>The decision.</strong> Low-dysprosium magnets now, with no change to the car. A wound-field or induction drive unit on the next platform. Ferrite and reluctance motors in test fleets first.</li>
         </ol>
         <div className="tour-end__actions">
           <button type="button" className="tour-end__restart" onClick={onRestart}>Start again</button>
@@ -74,7 +74,7 @@ function ContentsOverlay({
   onJump: (index: number) => void;
 }) {
   return (
-    <div className="contents-overlay" role="dialog" aria-modal="true" aria-labelledby="contents-title">
+    <div className="contents-overlay" role="dialog" aria-modal="true" aria-labelledby="contents-title" data-scrolls>
       <div className="contents-overlay__panel">
         <header>
           <div>
@@ -126,21 +126,16 @@ export default function App() {
   const [architecture, setArchitecture] = useState<ArchitectureId>("reduced-hree");
   const [reducedMotion, setReducedMotion] = useState(false);
   const [demoRunning, setDemoRunning] = useState(false);
-  const [scrollIdle, setScrollIdle] = useState(0);
   const autoplayToken = useRef(0);
-  const scrollIdleTimer = useRef(0);
   const controlsRef = useRef<StageControls>(DEFAULT_CONTROLS);
+  const demoRunningRef = useRef(false);
+  const frozenAngleRef = useRef(false);
 
   const position = BEATS[cursor];
   const { page, stop, beat, pageIndex } = position;
   const { sourceStop, sourceState } = useMemo(() => sourceOf(cursor), [cursor]);
   const chapterBeats = useMemo(() => BEATS.filter((item) => item.pageIndex === pageIndex), [pageIndex]);
   const chapterBeatIndex = Math.max(0, chapterBeats.findIndex((item) => item.beat.id === beat.id));
-  const selectChapterBeat = useCallback((index: number) => {
-    const target = chapterBeats[index];
-    const globalIndex = target ? BEATS.indexOf(target) : -1;
-    if (globalIndex >= 0 && globalIndex !== cursor) move({ type: "go", index: globalIndex });
-  }, [chapterBeats, cursor]);
 
   const setControls = useCallback((patch: Partial<StageControls>) => {
     autoplayToken.current += 1;
@@ -148,23 +143,56 @@ export default function App() {
     patchControls((current) => ({ ...current, ...patch }));
   }, []);
 
-  const markUserScroll = useCallback(() => {
-    autoplayToken.current += 1;
-    setDemoRunning(false);
-    window.clearTimeout(scrollIdleTimer.current);
-    scrollIdleTimer.current = window.setTimeout(() => {
-      setScrollIdle((value) => value + 1);
-    }, 160);
-  }, []);
+  useEffect(() => {
+    // The grip rule derives north from the angle; it must only change when tapped.
+    frozenAngleRef.current = sourceState.id === "electromagnet-rule";
+  }, [sourceState.id]);
 
-  useEffect(() => () => window.clearTimeout(scrollIdleTimer.current), []);
+  useEffect(() => {
+    // Warm the 3D chunk while the reader is on the landing page so the first
+    // frame is never a blank stage.
+    if (screen === "landing") void import("./stage/Stage");
+  }, [screen]);
 
   useEffect(() => {
     controlsRef.current = controls;
   }, [controls]);
 
   useEffect(() => {
-    document.title = "The rare-earth question, inside one motor";
+    demoRunningRef.current = demoRunning;
+  }, [demoRunning]);
+
+  useEffect(() => {
+    // Infinite motion while a stop is on screen: the shared angle advances
+    // continuously so every angle-driven visual (SVG diagrams and the 3D
+    // stage) loops instead of freezing after the arrival tween. The arrival
+    // tween owns the angle exclusively while it runs (demoRunning), so the
+    // two never fight. Scrolling away unmounts the stop's visual (killing
+    // its motion), landing/close teardown this loop, and coming back
+    // remounts + restarts it. Background tabs pause rAF for free.
+    // Throttled to ~30fps: halves React reconciliation with no visible
+    // difference at this speed.
+    if (screen !== "tour" || reducedMotion) return undefined;
+    const TAU = Math.PI * 2;
+    const SPEED = 0.5; // rad/s — one calm revolution ≈ 12.6 s
+    let frame = 0;
+    let last = performance.now();
+    const step = (now: number) => {
+      const elapsed = now - last;
+      if (elapsed >= 33 && !demoRunningRef.current && !frozenAngleRef.current) {
+        last = now;
+        const dt = Math.min(0.1, elapsed / 1000);
+        const current = controlsRef.current.angle ?? 0;
+        patchControls({ angle: (current + dt * SPEED) % TAU });
+      }
+      frame = requestAnimationFrame(step);
+    };
+    frame = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(frame);
+  }, [screen, reducedMotion]);
+
+  useEffect(() => {
+    document.title = "The EV motor’s rare-earth problem";
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
     const sync = () => setReducedMotion(media.matches);
     sync();
@@ -216,7 +244,7 @@ export default function App() {
       window.clearTimeout(kickoff);
       cancelAnimationFrame(frame);
     };
-  }, [screen, sourceStop.id, sourceState.id, reducedMotion, scrollIdle]);
+  }, [screen, sourceStop.id, sourceState.id, reducedMotion]);
 
   useEffect(() => {
     if (screen === "landing") window.history.replaceState(null, "", window.location.pathname);
@@ -320,13 +348,13 @@ export default function App() {
       </section>
 
       <BeatCard
-        key={page.id}
         page={page}
         positions={chapterBeats}
         activeIndex={chapterBeatIndex}
-        onSelect={selectChapterBeat}
-        onUserScroll={markUserScroll}
+        onPrev={goBack}
+        onNext={goNext}
         onNextChapter={goNextChapter}
+        nextTransition={PAGE_LIST[pageIndex + 1]?.transition}
         hasNextChapter={pageIndex < PAGE_LIST.length - 1}
       />
     </div>
