@@ -610,7 +610,7 @@ export const STOPS: readonly Stop[] = [
       {
         id: "srm-aluminium",
         label: "Switched reluctance",
-        line: "A switched reluctance motor pulses current through successive stator poles, pulling the rotor's steel teeth into line. It needs neither rotor magnets nor windings. Those pulses can also produce vibration and noise: reducing them takes control development and acoustic testing.\n\nTurntide sells switched-reluctance systems for building ventilation. Advanced Electric Machines in the UK builds them for trucks; its prototype lists 308 kW peak but 138 kW continuous, a gap that matters in a passenger car.",
+        line: "A switched reluctance motor pulses current through successive stator poles, pulling the rotor's steel teeth into line. It needs neither rotor magnets nor windings. Those pulses can also produce vibration and noise: reducing them takes control development and acoustic testing.\n\nTurntide sells switched-reluctance systems for building ventilation. Advanced Electric Machines in the UK builds them for trucks; its prototype lists 308 kW peak but 138 kW continuous, a gap that matters in a car.",
         action: "Watch the stator poles pull the toothed rotor into alignment.",
         stage: { kind: "svg", diagram: "srm-mechanism-clean" },
       },
