@@ -189,9 +189,6 @@ function Aside({ children }: { children: ReactNode }) {
 export function GripRuleDiagram({ controls, onPatchControls }: ControlProps) {
   const northUp = Math.cos(controls.angle) >= 0;
   const reverse = () => onPatchControls?.({ angle: northUp ? Math.PI : 0 });
-  const cx = 200;
-  const cy = 230;
-
   return (
     <button
       type="button"
@@ -200,43 +197,22 @@ export function GripRuleDiagram({ controls, onPatchControls }: ControlProps) {
       aria-label={`Reverse current direction. North currently points ${northUp ? "up" : "down"}.`}
     >
       <div className="clean-mech__figure">
-        <svg viewBox="0 0 400 460" role="img" aria-label="A right hand gripping an electromagnet coil, fingers along the current, thumb toward north">
+        <svg viewBox="0 0 400 600" role="img" aria-label="An illustrated right hand gripping a coil, four fingers curling around the rod and thumb pointing toward north">
           <Arrowheads id="grip" />
-
-          {/* One right hand and coil rotate together: never mirror the hand. */}
-          <g transform={northUp ? undefined : `rotate(180 ${cx} ${cy})`}>
-            {/* Wrist and palm sit behind the rod; the four fingers wrap in front. */}
-            <path d="M 53 340 L 68 282 C 60 258 65 218 86 192 L 123 166 C 149 155 169 170 174 192 L 175 297 C 160 321 130 335 121 367 Z"
-              fill="#ead6bf" stroke="var(--ink)" strokeWidth="2.5" strokeLinejoin="round" />
-            <rect x="157" y="102" width="82" height="256" rx="8" fill="var(--ink-10)" stroke="var(--ink-50)" strokeWidth="2" />
-            <ellipse cx="198" cy="102" rx="41" ry="9" fill="var(--paper)" stroke="var(--ink-50)" strokeWidth="2" />
-            {[126, 148, 170, 302, 324, 346].map((y) => (
-              <path key={y} d={`M 145 ${y - 8} C 145 ${y + 11} 251 ${y + 11} 251 ${y - 8}`}
-                fill="none" stroke="var(--cat-6)" strokeWidth="6" strokeLinecap="round" />
-            ))}
-            {/* Rounded knuckles turn away at the right edge; fingertips curl back. */}
-            {[{ y: 188, end: 259 }, { y: 215, end: 269 }, { y: 242, end: 265 }, { y: 269, end: 250 }].map(({ y, end }) => (
-              <g key={y} fill="#ead6bf" stroke="var(--ink)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d={`M 125 ${y} C 165 ${y - 7} 207 ${y - 3} ${end - 12} ${y + 1} C ${end + 15} ${y + 3} ${end + 15} ${y + 28} ${end - 6} ${y + 30} L ${end - 28} ${y + 29} C ${end - 39} ${y + 27} ${end - 36} ${y + 17} ${end - 26} ${y + 17} L ${end - 9} ${y + 17} C 211 ${y + 23} 166 ${y + 20} 132 ${y + 22}`} />
-                <path d={`M ${end - 18} ${y + 3} Q ${end - 10} ${y + 9} ${end - 14} ${y + 16}`} fill="none" strokeWidth="1.5" />
-              </g>
-            ))}
-            {/* The extended thumb is joined to the palm, parallel to the rod. */}
-            <path d="M 94 259 C 85 236 92 211 105 188 L 110 110 C 110 91 119 79 130 82 C 141 84 143 96 141 112 L 143 181 C 159 197 162 218 149 243"
-              fill="#ead6bf" stroke="var(--ink)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M 119 111 L 120 98 Q 126 90 133 98 L 134 112 Z M 113 167 Q 125 173 137 167 M 97 279 Q 104 299 124 304"
-              fill="none" stroke="var(--ink-50)" strokeWidth="1.5" strokeLinecap="round" />
-            {/* At the near side, rightward current produces an upward axial field. */}
-            <path d="M 161 231 C 190 238 222 238 245 232" fill="none" stroke="var(--gold)" strokeWidth="4" markerEnd="url(#grip-gold)" />
-            <path d="M 128 73 L 128 40" fill="none" stroke="var(--wine)" strokeWidth="4" markerEnd="url(#grip-wine)" />
-            <path d="M 198 96 L 198 78" fill="none" stroke="var(--wine)" strokeWidth="4" markerEnd="url(#grip-wine)" />
+          {/* Rotate the complete grip, never mirror a right hand into a left hand. */}
+          <g transform={northUp ? undefined : "rotate(180 200 300)"}>
+            <image href={`${import.meta.env.BASE_URL}images/right-hand-grip.png`} width="400" height="600" />
+            {/* Direction cues occupy clear space above the thumb and on exposed winding. */}
+            <path d="M 157 57 L 157 27" fill="none" stroke="var(--wine)" strokeWidth="3" markerEnd="url(#grip-wine)" />
+            <path d="M 214 178 Q 235 185 256 178" fill="none" stroke="var(--deep)" strokeWidth="7" strokeLinecap="round" />
+            <path d="M 214 178 Q 235 185 256 178" fill="none" stroke="var(--wine)" strokeWidth="3" markerEnd="url(#grip-wine)" />
           </g>
-
-          {/* Poles */}
-          <circle cx={cx} cy={northUp ? cy - 176 : cy + 176} r="20" fill="var(--wine)" />
-          <text x={cx} y={northUp ? cy - 171 : cy + 181} textAnchor="middle" fill="white" fontFamily="var(--mono)" fontWeight="700" fontSize="14">N</text>
-          <circle cx={cx} cy={northUp ? cy + 176 : cy - 176} r="20" fill="var(--ink)" />
-          <text x={cx} y={northUp ? cy + 181 : cy - 171} textAnchor="middle" fill="white" fontFamily="var(--mono)" fontWeight="700" fontSize="14">S</text>
+          <g fontFamily="var(--mono)" fontWeight="700" fontSize="14" textAnchor="middle">
+            <circle cx={northUp ? 235 : 165} cy={northUp ? 30 : 570} r="15" fill="var(--wine)" />
+            <text x={northUp ? 235 : 165} y={northUp ? 35 : 575} fill="white">N</text>
+            <circle cx={northUp ? 235 : 165} cy={northUp ? 530 : 70} r="15" fill="var(--ink)" />
+            <text x={northUp ? 235 : 165} y={northUp ? 535 : 75} fill="white">S</text>
+          </g>
         </svg>
         <p className="clean-hint-html">Tap the coil to reverse the current</p>
       </div>
