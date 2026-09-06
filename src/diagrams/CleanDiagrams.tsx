@@ -635,7 +635,7 @@ export function SRMMechanismDiagram({ controls }: ControlProps) {
         <p className="clean-aside__copy">None in the rotor.</p>
         <hr className="clean-aside__rule" />
         <h4 className="clean-aside__title">Engineering requirements</h4>
-        <p className="clean-aside__copy">Precise current timing and shaping smooth the torque pulses. Vehicle testing must also verify torque monitoring and safe responses to faults, as for other traction drives.</p>
+        <p className="clean-aside__copy">Current timing and shaping smooth torque. Vehicle validation must check noise, vibration, torque monitoring and fault protection.</p>
       </Aside>
     </div>
   );
