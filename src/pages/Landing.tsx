@@ -55,7 +55,7 @@ export function Landing({ onEnter }: { onEnter: () => void }) {
         <section className="landing__copy" aria-labelledby="landing-title">
           <h1 id="landing-title">The EV motor’s <span className="landing__highlight">rare-earth</span> problem</h1>
           <p className="landing__paragraph">
-            China placed seven medium and heavy rare earths, and the magnets made from them, under export licence on 4 April 2025. Carmakers in Europe and India that had no second source paused assembly lines within weeks while licence applications worked through the Ministry of Commerce in Beijing. The part that stopped those lines is a set of permanent magnets inside the traction motor, roughly one to two kilograms per car. Dysprosium and terbium, the elements the notice covered, are 1 to 4 per cent of that mass.
+            On 4 April 2025, China introduced export licensing requirements for seven medium and heavy rare earths and related magnets. The resulting supply delays disrupted some carmakers in Europe and India. These materials are used in permanent magnets inside EV traction motors. A typical motor contains roughly one to two kilograms of magnets, with dysprosium and terbium accounting for about 1 to 4 per cent of their mass.
           </p>
           <p className="landing__paragraph">
             This walkthrough explains EV motor technology, recent advances and possible ways to reduce reliance on rare-earth magnets. It examines how the motors work, where alternatives are already used, and the trade-offs that shape their commercial prospects.
