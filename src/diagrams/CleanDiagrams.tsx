@@ -201,17 +201,17 @@ export function GripRuleDiagram({ controls, onPatchControls }: ControlProps) {
           <Arrowheads id="grip" />
           {/* Rotate the complete grip, never mirror a right hand into a left hand. */}
           <g transform={northUp ? undefined : "rotate(180 200 300)"}>
-            <image href={`${import.meta.env.BASE_URL}images/right-hand-grip.png`} width="400" height="600" />
+            <image href={`${import.meta.env.BASE_URL}images/right-hand-grip-natural.png`} width="400" height="600" />
             {/* Direction cues occupy clear space above the thumb and on exposed winding. */}
-            <path d="M 157 57 L 157 27" fill="none" stroke="var(--wine)" strokeWidth="3" markerEnd="url(#grip-wine)" />
-            <path d="M 214 178 Q 235 185 256 178" fill="none" stroke="var(--deep)" strokeWidth="7" strokeLinecap="round" />
-            <path d="M 214 178 Q 235 185 256 178" fill="none" stroke="var(--wine)" strokeWidth="3" markerEnd="url(#grip-wine)" />
+            <path d="M 220 65 L 220 32" fill="none" stroke="var(--wine)" strokeWidth="3" markerEnd="url(#grip-wine)" />
+            <path d="M 137 185 Q 156 191 175 185" fill="none" stroke="var(--deep)" strokeWidth="7" strokeLinecap="round" />
+            <path d="M 137 185 Q 156 191 175 185" fill="none" stroke="var(--wine)" strokeWidth="3" markerEnd="url(#grip-wine)" />
           </g>
           <g fontFamily="var(--mono)" fontWeight="700" fontSize="14" textAnchor="middle">
-            <circle cx={northUp ? 235 : 165} cy={northUp ? 30 : 570} r="15" fill="var(--wine)" />
-            <text x={northUp ? 235 : 165} y={northUp ? 35 : 575} fill="white">N</text>
-            <circle cx={northUp ? 235 : 165} cy={northUp ? 530 : 70} r="15" fill="var(--ink)" />
-            <text x={northUp ? 235 : 165} y={northUp ? 535 : 75} fill="white">S</text>
+            <circle cx={northUp ? 156 : 244} cy={northUp ? 22 : 578} r="15" fill="var(--wine)" />
+            <text x={northUp ? 156 : 244} y={northUp ? 27 : 583} fill="white">N</text>
+            <circle cx={northUp ? 156 : 244} cy={northUp ? 575 : 25} r="15" fill="var(--ink)" />
+            <text x={northUp ? 156 : 244} y={northUp ? 580 : 30} fill="white">S</text>
           </g>
         </svg>
         <p className="clean-hint-html">Tap the coil to reverse the current</p>
