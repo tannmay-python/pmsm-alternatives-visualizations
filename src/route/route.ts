@@ -262,21 +262,21 @@ export const STOPS: readonly Stop[] = [
       {
         id: "three-phase-math",
         label: "Three coil groups",
-        line: "The stator carries three groups of coils, spaced evenly around the ring, and the inverter feeds them alternating currents a third of a cycle apart. At any instant one group carries the most current, and the combined north pole sits there. As the currents rise and fall in turn, that pole moves around the bore while every coil stays in its slot. The inverter sets how fast the field turns by setting the frequency.",
-        action: "Watch the strongest coil and the combined field move around the bore.",
+        line: "The stator has three coil groups. Their alternating currents are a third of a cycle apart. Each produces a magnetic field along its own axis; these fields add as vectors, so both strength and direction matter. Their sum rotates smoothly while the coils stay fixed. The inverter sets the electrical supply frequency; this and the number of pole pairs determine the field's synchronous speed.",
+        action: "Watch the three field vectors combine into one rotating field.",
         stage: { kind: "svg", diagram: "rotating-field-clean" },
       },
       {
         id: "no-part-moves",
         label: "The rotating field inside the bore",
-        line: "The field rotates at the inverter's frequency while every copper coil stays fixed in its slot.",
+        line: "Every copper coil stays fixed. The inverter's electrical supply frequency and the motor's number of pole pairs determine the rotating field's synchronous speed.",
         action: "Adjust inverter AC frequency to change field rotation speed.",
         stage: { kind: "three", scene: "motor", rotor: "ipm-ndfeb" },
       },
       {
         id: "rotor-locks",
         label: "Synchronous",
-        line: "Put a permanent-magnet rotor inside that turning field and it turns with it at the same speed, which is why the motor is called synchronous. The rotor trails the field by a small, steady angle, and the size of that angle sets the torque: a heavier load pulls the rotor further behind. When the driver presses the accelerator, the inverter raises the frequency and the rotor keeps pace.",
+        line: "A permanent-magnet rotor turns at the same steady speed as the rotating field: this is synchronous operation. Its magnetic axis has an angular offset from the field, called the torque angle. For a given excitation, a heavier load can increase this angle without changing the steady speed. In an EV, the inverter controls current to deliver the requested torque and keeps the rotating field synchronised with the rotor.",
         action: "Watch the stator field pull the rotor around the air gap.",
         stage: { kind: "svg", diagram: "rotor-follows-field-clean" },
       },
@@ -568,7 +568,7 @@ export const STOPS: readonly Stop[] = [
       {
         id: "induction-principle",
         label: "Induction",
-        line: "An induction motor replaces magnets with aluminium or copper bars. The stator field runs faster than the rotor; this difference, called slip, induces current that makes the rotor magnetic. The bars also heat up, so cooling and energy losses can offset the saving on magnets.\n\nAudi uses induction on the Q6 e-tron quattro's front axle, which switches off when its power is not needed. Tesla and Mercedes fit induction front motors for the same reason, and BMW's next all-wheel-drive cars will too.",
+        line: "An induction motor uses aluminium or copper rotor bars instead of magnets. The field turns faster than the rotor; this difference, called slip, induces current in the bars. That current creates the rotor's magnetic field and also produces heat that must be removed.\n\nAudi's Q6 e-tron quattro uses a front induction motor for additional power and all-wheel drive. It is inactive when not needed. The front motor adds performance when required, while the rear permanent-magnet motor handles most everyday driving.",
         action: "Watch the stator field induce current in the rotor cage.",
         stage: { kind: "three", scene: "motor", rotor: "squirrel-cage" },
       },
@@ -610,7 +610,7 @@ export const STOPS: readonly Stop[] = [
       {
         id: "srm-aluminium",
         label: "Switched reluctance",
-        line: "A switched reluctance motor pulses current through successive stator poles, pulling the rotor's steel teeth into line. It needs neither rotor magnets nor windings. Those pulses can also produce vibration and noise: reducing them takes control development and acoustic testing.\n\nTurntide sells switched-reluctance systems for building ventilation. Advanced Electric Machines in the UK builds them for trucks; its prototype lists 308 kW peak but 138 kW continuous, a gap that matters in a car.",
+        line: "A switched reluctance motor pulls steel rotor teeth into alignment by switching stator currents in sequence. It needs no rotor magnets or windings. Smooth torque requires complex control of current timing and shape, plus vibration and noise testing.\n\nTurntide sells these motors for building ventilation. Vehicle use also requires torque monitoring and fault protection against unintended torque changes, as with other traction drives. Commercial ventilation use alone does not establish passenger-car readiness.",
         action: "Watch the stator poles pull the toothed rotor into alignment.",
         stage: { kind: "svg", diagram: "srm-mechanism-clean" },
       },
@@ -745,7 +745,7 @@ export const STOPS: readonly Stop[] = [
       {
         id: "spectrum",
         label: "Three sizes of change",
-        line: "The saving on magnets is only one part of the bill. A new grade needs supplier and durability tests; a new rotor can need tooling, cooling and control changes. The carmaker and motor supplier must price that development work alongside the parts and energy used over the vehicle's life. Ferrite and magnet-free motors both remove rare-earth magnets, but neither is automatically the cheapest route for an existing car.",
+        line: "Reducing rare-earth use can mean changing a magnet grade, redesigning the rotor or adopting another motor family. The table shows the engineering work each route involves. Carmakers and motor suppliers must also check how the change affects range, packaging, cooling, smooth torque and durability in the intended vehicle. A motor already proven in one application can still need substantial development for another. The engineering priorities depend on how the vehicle will be used.",
         action: "Order the routes from supplier qualification to platform work.",
         stage: { kind: "svg", diagram: "change-burden-clean" },
       },

@@ -378,3 +378,19 @@
   .clean-diagram--pressable { transition: opacity 160ms var(--ease); }
   .clean-axis__flag { transition: none; }
 }
+
+/* Keep comparison controls visible while the entries scroll on small screens. */
+.clean-board-scroll { min-width: 0; width: 100%; overflow: auto; overscroll-behavior: contain; }
+.clean-board-nav { display: flex; align-items: center; gap: 12px; padding-top: 10px; color: var(--ink-70); font: 11px var(--mono); }
+.clean-board-nav input { flex: 1; min-width: 60px; accent-color: var(--wine); cursor: pointer; }
+@media (max-width: 1080px) {
+  .clean-family-map .clean-board-scroll,
+  .clean-burden .clean-board-scroll { max-height: max(100px, calc(var(--clean-phone-max) - 34px)); }
+}
+@media (max-width: 720px) {
+  .clean-family-map, .clean-burden { overflow: visible; }
+  .clean-family-map__grid { grid-template-columns: repeat(5, minmax(150px, 1fr)); width: max-content; }
+  .clean-family { width: 150px; }
+}
+
+.clean-family-map, .clean-burden { min-width: 0; max-width: 100%; }

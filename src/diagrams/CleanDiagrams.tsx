@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { StageControls } from "../stage/controls";
 import "./CleanDiagrams.css";
 
@@ -233,6 +233,15 @@ export function RotatingFieldDiagram({ controls }: ControlProps) {
   const field = toScreenDeg(controls.angle);
   const strengths = coilStrengths(field);
   const phases = ["A", "B", "C"].map((label, p) => ({ label, s: strengths[p] }));
+  // Three signed projections on axes 120 degrees apart sum to the resultant.
+  let tipX = C, tipY = C;
+  const vectors = [-90, 150, 30].map((axis, index) => {
+    const length = (2 / 3) * 88 * Math.cos(rad(field - axis));
+    const start = [tipX, tipY];
+    tipX += length * Math.cos(rad(axis));
+    tipY += length * Math.sin(rad(axis));
+    return { label: ["A", "B", "C"][index], start, end: [tipX, tipY] };
+  });
   const [nx, ny] = polar(C, C, 88, field);
   const [tx, ty] = polar(C, C, 76, field);
 
@@ -243,6 +252,12 @@ export function RotatingFieldDiagram({ controls }: ControlProps) {
           <Arrowheads id="rot" />
           <StatorRing strengths={strengths} />
           <RotorDisc />
+          {vectors.map(({ label, start, end }) => (
+            <g key={label}>
+              <line x1={start[0]} y1={start[1]} x2={end[0]} y2={end[1]} stroke="var(--ink-50)" strokeWidth="2" markerEnd="url(#rot-ink)" />
+              <text x={(start[0] + end[0]) / 2 + 9} y={(start[1] + end[1]) / 2 - 8} fill="var(--ink-70)" fontSize="12" fontFamily="var(--mono)">{label}</text>
+            </g>
+          ))}
           <line x1={C} y1={C} x2={nx} y2={ny} stroke="var(--wine)" strokeWidth="6" strokeLinecap="round" markerEnd="url(#rot-wine)" />
           <circle cx={C} cy={C} r="6" fill="var(--wine)" />
           <text x={tx - Math.sin(rad(field)) * 16} y={ty + Math.cos(rad(field)) * 16 + 4} textAnchor="middle" fill="var(--wine)" fontFamily="var(--mono)" fontWeight="700" fontSize="13">N</text>
@@ -259,7 +274,7 @@ export function RotatingFieldDiagram({ controls }: ControlProps) {
       </div>
       <Aside>
         <h4 className="clean-aside__title">The coils do not move.</h4>
-        <p className="clean-aside__copy">The inverter decides which coil group is strongest at each instant, so the combined pole sweeps around the bore at the frequency it sets.</p>
+        <p className="clean-aside__copy">The grey arrows are the three coil-group fields, added tip to tail. The wine arrow is their vector sum. Supply frequency and pole-pair count set its synchronous speed.</p>
       </Aside>
     </div>
   );
@@ -294,10 +309,10 @@ export function RotorFollowsFieldDiagram({ controls }: ControlProps) {
         <h4 className="clean-aside__title"><i className="clean-swatch clean-swatch--wine" />Stator field</h4>
         <p className="clean-aside__copy">leads by a small angle</p>
         <h4 className="clean-aside__title"><i className="clean-swatch clean-swatch--gold" />Rotor magnetic axis</h4>
-        <p className="clean-aside__copy">follows at exactly the same speed</p>
+        <p className="clean-aside__copy">follows at the same steady speed</p>
         <hr className="clean-aside__rule" />
-        <h4 className="clean-aside__title">The lag sets the torque.</h4>
-        <p className="clean-aside__copy">A heavier load pulls the rotor further behind the field, and the pull across that gap is what turns the shaft.</p>
+        <h4 className="clean-aside__title">An angle, not a speed difference.</h4>
+        <p className="clean-aside__copy">For a given excitation, a heavier load can increase the torque angle. In steady synchronous operation, both axes still turn at the same speed.</p>
       </Aside>
     </div>
   );
@@ -471,16 +486,49 @@ export function MitigationOptionsDiagram() {
 
 /* ── 13 · Alternatives map ──────────────────────────────────────────────── */
 
+function ScrollableBoard({ className, label, children }: { className: string; label: string; children: ReactNode }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [extent, setExtent] = useState(0);
+  const [position, setPosition] = useState(0);
+  useEffect(() => {
+    const node = scrollRef.current;
+    if (!node) return;
+    const update = () => {
+      setExtent(Math.max(0, node.scrollWidth - node.clientWidth));
+      setPosition(node.scrollLeft);
+    };
+    const observer = new ResizeObserver(update);
+    observer.observe(node);
+    for (const child of node.children) observer.observe(child);
+    node.addEventListener("scroll", update);
+    update();
+    return () => { observer.disconnect(); node.removeEventListener("scroll", update); };
+  }, []);
+  return (
+    <section className={`clean-diagram ${className}`} aria-label={label}>
+      <div className="clean-board-scroll" ref={scrollRef} data-scrolls tabIndex={0} aria-label={`${label}: scroll to read all entries`}>
+        {children}
+      </div>
+      {extent > 1 && <label className="clean-board-nav" data-scrolls>
+        <span>Slide to see all options</span>
+        <input type="range" min={0} max={extent} value={position} aria-label={`Scroll ${label}`} onChange={(event) => {
+          if (scrollRef.current) scrollRef.current.scrollLeft = Number(event.target.value);
+        }} />
+      </label>}
+    </section>
+  );
+}
+
 export function AlternativesMapDiagram() {
   const families = [
-    ["PM MOTOR", "Magnet follows the rotating field", "Cost: rare-earth magnets, unless ferrite is used", "Production EVs: Audi Q6 rear axle. Compactness and efficiency favour this route."],
-    ["INDUCTION", "Current induced in a rotor cage", "Cost: rotor cooling and energy lost as heat", "Production EVs: Audi Q6 quattro front axle. Suits an axle used for extra power."],
-    ["WOUND FIELD", "Rotor coil fed with current", "Cost: rotor power supply and cooling", "Production EVs: BMW eDrive. Avoids magnets while retaining a controllable rotor field."],
-    ["SynRM", "Shaped steel aligns with the field", "Cost: more inverter capacity may be needed", "Industrial drives: ABB. India: Chara offers mobility systems; its passenger-car production scale is not established."],
-    ["SRM", "Poles pull one tooth at a time", "Cost: control development and noise reduction", "Building ventilation: Turntide. Commercial use exists; this does not prove car-traction readiness."],
+    ["PM MOTOR", "Magnet follows the rotating field", "Trade-off: rare-earth magnets, unless ferrite is used", "Production EVs: Audi Q6 rear axle. Compactness and efficiency favour this route."],
+    ["INDUCTION", "Current induced in a rotor cage", "Trade-off: rotor cooling and energy lost as heat", "Production EVs: Audi Q6 quattro front axle. Suits an axle used for extra power."],
+    ["WOUND FIELD", "Rotor coil fed with current", "Trade-off: rotor power supply and cooling", "Production EVs: BMW eDrive. Avoids magnets while retaining a controllable rotor field."],
+    ["SynRM", "Shaped steel aligns with the field", "Trade-off: more inverter capacity may be needed", "Industrial drives: ABB. India: Chara offers mobility systems; its passenger-car production scale is not established."],
+    ["SRM", "Poles pull one tooth at a time", "Trade-off: control development and noise reduction", "Building ventilation: Turntide. Commercial use exists; this does not prove car-traction readiness."],
   ];
   return (
-    <div className="clean-diagram clean-family-map" role="img" aria-label="Five motor families: torque, costs and commercial applications">
+    <ScrollableBoard className="clean-family-map" label="Five motor families">
       <div className="clean-family-map__grid" data-scrolls>
         {families.map(([name, principle, trade, market], index) => (
           <div className={`clean-family ${name === "PM MOTOR" ? "is-reference" : ""}`} key={name}>
@@ -492,7 +540,7 @@ export function AlternativesMapDiagram() {
           </div>
         ))}
       </div>
-    </div>
+    </ScrollableBoard>
   );
 }
 
@@ -528,7 +576,7 @@ export function SynRMMechanismDiagram({ controls }: ControlProps) {
         <h4 className="clean-aside__title">Rare-earth exposure</h4>
         <p className="clean-aside__copy">None in the rotor.</p>
         <hr className="clean-aside__rule" />
-        <h4 className="clean-aside__title">Engineering cost</h4>
+        <h4 className="clean-aside__title">Engineering requirements</h4>
         <p className="clean-aside__copy">Lower power factor can require higher-current power electronics and more cooling capacity, adding parts cost.</p>
       </Aside>
     </div>
@@ -586,8 +634,8 @@ export function SRMMechanismDiagram({ controls }: ControlProps) {
         <h4 className="clean-aside__title">Rare-earth exposure</h4>
         <p className="clean-aside__copy">None in the rotor.</p>
         <hr className="clean-aside__rule" />
-        <h4 className="clean-aside__title">Engineering cost</h4>
-        <p className="clean-aside__copy">Smoothing the torque pulses takes control-software development and vibration/noise testing, adding engineering time.</p>
+        <h4 className="clean-aside__title">Engineering requirements</h4>
+        <p className="clean-aside__copy">Precise current timing and shaping smooth the torque pulses. Vehicle testing must also verify torque monitoring and safe responses to faults, as for other traction drives.</p>
       </Aside>
     </div>
   );
@@ -634,17 +682,17 @@ export function FerriteComparisonDiagram() {
 
 export function ChangeBurdenDiagram() {
   const routes = [
-    ["CHANGE THE MAGNET GRADE", "Low-dysprosium NdFeB", "Reduces dysprosium use; still needs neodymium.", "Pay for: supplier qualification and heat/demagnetisation tests. Added oil cooling requires hardware changes."],
-    ["REWORK THE MAGNET MOTOR", "Ferrite PMSM", "Removes rare earths from the magnets.", "Pay for: rotor tooling and tests; size or speed changes can also affect gearing, inverter and cooling."],
-    ["CHANGE THE MOTOR FAMILY", "Induction · wound field · reluctance", "Removes permanent magnets entirely.", "Pay for: motor development, matched electronics and cooling, control software and vehicle validation."],
+    ["CHANGE THE MAGNET GRADE", "Low-dysprosium NdFeB", "Reduces dysprosium use; still needs neodymium.", "Requires: supplier qualification and heat/demagnetisation tests. Added oil cooling requires hardware changes."],
+    ["REWORK THE MAGNET MOTOR", "Ferrite PMSM", "Removes rare earths from the magnets.", "Requires: rotor tooling and tests; size or speed changes can also affect gearing, inverter and cooling."],
+    ["CHANGE THE MOTOR FAMILY", "Induction · wound field · reluctance", "Removes permanent magnets entirely.", "Requires: motor development, matched electronics and cooling, control software and vehicle validation."],
   ];
   return (
-    <div className="clean-diagram clean-burden" role="img" aria-label="Implementation burden from material change to new motor architecture">
+    <ScrollableBoard className="clean-burden" label="Three sizes of change">
       <div className="clean-burden__axis" data-scrolls aria-hidden="true" />
       <div className="clean-burden__routes" data-scrolls>
-        {routes.map(([level, title, gain, burden], index) => (
+        {routes.map(([level, title, gain, burden]) => (
           <div className="clean-burden__route" data-scrolls key={level}>
-            <span className="clean-burden__dot" style={{ left: `${index * 50}%` }} />
+            <span className="clean-burden__dot" />
             <small>{level}</small>
             <strong>{title}</strong>
             <span>{gain}</span>
@@ -652,13 +700,13 @@ export function ChangeBurdenDiagram() {
           </div>
         ))}
       </div>
-    </div>
+    </ScrollableBoard>
   );
 }
 
 /* ── 20 · Readiness map ─────────────────────────────────────────────────── */
 
-const READINESS_HEAD = ["Route", "Rotor", "Evidence / named examples", "What adds cost", "Readiness"];
+const READINESS_HEAD = ["Route", "Rotor", "Evidence / named examples", "Engineering requirements", "Readiness"];
 
 export function ReadinessMapDiagram() {
   const routes: [string, string, ReactNode, string, string][] = [
