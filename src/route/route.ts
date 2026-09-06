@@ -656,7 +656,7 @@ export const STOPS: readonly Stop[] = [
       {
         id: "ferrite-limit",
         label: "Ferrite",
-        line: "Ferrite is iron oxide. It is cheap, mined everywhere, and contains no rare earths, and its remanence is about a third of NdFeB's. Put it in the same PMSM and the motor works at a third of the field, so recovering the output means more magnet, a larger rotor, a higher speed or a different geometry.\n\nProterial's prototype makes 102 kW at 15,000 rpm against a 110 kW NdFeB baseline at 10,000 rpm. Niron and the Indian motorcycle maker Matter showed an iron-nitride prototype at CES 2026. No production car uses either yet.",
+        line: "Ferrite is iron oxide. It is cheap, mined everywhere, and contains no rare earths, and its remanence is about a third of NdFeB's. Put it in the same PMSM and the motor works at a third of the field, so recovering the output means more magnet, a larger rotor, a higher speed or a different geometry.\n\nProterial's prototype makes 102 kW at 15,000 rpm against a 110 kW NdFeB baseline at 10,000 rpm. Niron and the Indian motorcycle maker Matter showed an iron-nitride prototype at CES 2026. No production car uses either.",
         action: "Compare enlarged ferrite pockets with the NdFeB rotor.",
         stage: { kind: "svg", diagram: "ferrite-comparison-clean" },
       },
