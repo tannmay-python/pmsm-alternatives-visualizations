@@ -63,7 +63,7 @@ export function Landing({ onEnter }: { onEnter: () => void }) {
           <p className="landing__paragraph">
             In our mineral-by-mineral analysis of India's critical minerals list, the nine minerals shown here formed the group with the most concentrated supply and the fewest alternatives. We published that analysis in the <a href={DASHBOARD_URL} target="_blank" rel="noreferrer">India Critical Minerals Dashboard</a>. Its Group 2 includes dysprosium and terbium, which connect that wider mineral picture to EV motors.
           </p>
-          <p className="landing__authors" aria-label="Authors">
+          <p className="landing__authors" aria-label="Authors and contributions">
             <span>By </span>
             {AUTHORS.map((author, index) => (
               <span key={author.name}>
@@ -71,6 +71,8 @@ export function Landing({ onEnter }: { onEnter: () => void }) {
                 {index < AUTHORS.length - 2 ? ", " : index === AUTHORS.length - 2 ? ", and " : ""}
               </span>
             ))}
+            <br />
+            With inputs from Avinash Nandakumar
           </p>
           <button type="button" className="landing__cta" onClick={onEnter}>Start the walkthrough <ArrowRight size={16} weight="bold" /></button>
         </section>
