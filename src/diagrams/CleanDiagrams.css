@@ -70,6 +70,9 @@
 .clean-mech__figure { flex: 0 0 46%; min-width: 0; }
 .clean-mech__aside { flex: 1 1 auto; min-width: 0; }
 .clean-mech.grip-rule .clean-mech__figure { flex-basis: 42%; }
+/* Blend the illustration's lighter backdrop into the stage without changing the artwork. */
+.grip-rule svg { background: var(--deep); isolation: isolate; }
+.grip-rule image { mix-blend-mode: darken; }
 
 .clean-pull + .clean-pull { margin-top: 26px; }
 .clean-pull__bar { display: block; height: 10px; margin: 8px 0 8px; background: var(--ink-10); }
