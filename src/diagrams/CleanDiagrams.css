@@ -235,6 +235,8 @@
 
 .clean-readiness { display: grid; align-content: center; gap: 0; }
 .clean-readiness__table { border-top: var(--hairline); }
+.clean-readiness a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.clean-readiness__note { margin: 12px 0 0; color: var(--ink-70); font-size: 11.5px; line-height: 1.45; }
 .clean-readiness__head,
 .clean-readiness__row {
   display: grid;

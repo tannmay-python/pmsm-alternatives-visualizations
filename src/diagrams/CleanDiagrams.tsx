@@ -203,40 +203,33 @@ export function GripRuleDiagram({ controls, onPatchControls }: ControlProps) {
         <svg viewBox="0 0 400 460" role="img" aria-label="A right hand gripping an electromagnet coil, fingers along the current, thumb toward north">
           <Arrowheads id="grip" />
 
-          {/* Core, winding and the field axis, all behind the hand */}
-          <rect x={cx - 40} y={cy - 122} width="80" height="244" fill="var(--ink-10)" stroke="var(--ink-20)" />
-          {[-100, -60, -20, 20, 60, 100].map((dy) => (
-            <ellipse key={dy} cx={cx} cy={cy + dy} rx="76" ry="16" fill="none" stroke="var(--cat-6)" strokeWidth="9" />
-          ))}
-          <line x1={cx} y1={northUp ? cy + 130 : cy - 130} x2={cx} y2={northUp ? cy - 150 : cy + 150} stroke="var(--wine)" strokeWidth="5" markerEnd="url(#grip-wine)" />
-
-          {/* Right hand, drawn for north-up. A half turn keeps it a right hand for north-down. */}
-          <g transform={northUp ? undefined : `rotate(180 ${cx} ${cy})`} fill="var(--paper)" stroke="var(--ink)" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round">
-            {/* thumb, pointing along the axis toward N */}
-            <path d={`M ${cx - 118} ${cy - 56} C ${cx - 128} ${cy - 90} ${cx - 120} ${cy - 132} ${cx - 102} ${cy - 154} C ${cx - 92} ${cy - 166} ${cx - 74} ${cy - 160} ${cx - 76} ${cy - 144} C ${cx - 80} ${cy - 118} ${cx - 82} ${cy - 90} ${cx - 78} ${cy - 60}`} />
-            {/* palm */}
-            <path d={`M ${cx - 128} ${cy - 58} C ${cx - 142} ${cy - 30} ${cx - 144} ${cy + 36} ${cx - 130} ${cy + 88} C ${cx - 122} ${cy + 108} ${cx - 84} ${cy + 108} ${cx - 74} ${cy + 88} L ${cx - 74} ${cy - 62} C ${cx - 84} ${cy - 76} ${cx - 116} ${cy - 76} ${cx - 128} ${cy - 58} Z`} />
-            {/* four fingers curling across the front of the coil */}
-            {[-56, -22, 12, 46].map((t, i) => {
-              const h = 26;
-              const sag = 9 + i * 1.5;
-              const x0 = cx - 76;
-              const x1 = cx + 70;
-              return (
-                <path
-                  key={t}
-                  d={`M ${x0} ${cy + t} C ${cx - 30} ${cy + t + sag} ${cx + 30} ${cy + t + sag} ${x1} ${cy + t + sag / 2} C ${x1 + 18} ${cy + t + sag / 2} ${x1 + 18} ${cy + t + h - sag / 2} ${x1} ${cy + t + h - sag / 2} C ${cx + 30} ${cy + t + h + sag} ${cx - 30} ${cy + t + h + sag} ${x0} ${cy + t + h}`}
-                />
-              );
-            })}
-            {/* current, running along the middle finger toward the fingertips */}
-            <path
-              d={`M ${cx - 62} ${cy - 6} C ${cx - 24} ${cy + 4} ${cx + 24} ${cy + 4} ${cx + 58} ${cy - 2}`}
-              fill="none"
-              stroke="var(--gold)"
-              strokeWidth="4"
-              markerEnd="url(#grip-gold)"
-            />
+          {/* One right hand and coil rotate together: never mirror the hand. */}
+          <g transform={northUp ? undefined : `rotate(180 ${cx} ${cy})`}>
+            {/* Wrist and palm sit behind the rod; the four fingers wrap in front. */}
+            <path d="M 53 340 L 68 282 C 60 258 65 218 86 192 L 123 166 C 149 155 169 170 174 192 L 175 297 C 160 321 130 335 121 367 Z"
+              fill="#ead6bf" stroke="var(--ink)" strokeWidth="2.5" strokeLinejoin="round" />
+            <rect x="157" y="102" width="82" height="256" rx="8" fill="var(--ink-10)" stroke="var(--ink-50)" strokeWidth="2" />
+            <ellipse cx="198" cy="102" rx="41" ry="9" fill="var(--paper)" stroke="var(--ink-50)" strokeWidth="2" />
+            {[126, 148, 170, 302, 324, 346].map((y) => (
+              <path key={y} d={`M 145 ${y - 8} C 145 ${y + 11} 251 ${y + 11} 251 ${y - 8}`}
+                fill="none" stroke="var(--cat-6)" strokeWidth="6" strokeLinecap="round" />
+            ))}
+            {/* Rounded knuckles turn away at the right edge; fingertips curl back. */}
+            {[{ y: 188, end: 259 }, { y: 215, end: 269 }, { y: 242, end: 265 }, { y: 269, end: 250 }].map(({ y, end }) => (
+              <g key={y} fill="#ead6bf" stroke="var(--ink)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d={`M 125 ${y} C 165 ${y - 7} 207 ${y - 3} ${end - 12} ${y + 1} C ${end + 15} ${y + 3} ${end + 15} ${y + 28} ${end - 6} ${y + 30} L ${end - 28} ${y + 29} C ${end - 39} ${y + 27} ${end - 36} ${y + 17} ${end - 26} ${y + 17} L ${end - 9} ${y + 17} C 211 ${y + 23} 166 ${y + 20} 132 ${y + 22}`} />
+                <path d={`M ${end - 18} ${y + 3} Q ${end - 10} ${y + 9} ${end - 14} ${y + 16}`} fill="none" strokeWidth="1.5" />
+              </g>
+            ))}
+            {/* The extended thumb is joined to the palm, parallel to the rod. */}
+            <path d="M 94 259 C 85 236 92 211 105 188 L 110 110 C 110 91 119 79 130 82 C 141 84 143 96 141 112 L 143 181 C 159 197 162 218 149 243"
+              fill="#ead6bf" stroke="var(--ink)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M 119 111 L 120 98 Q 126 90 133 98 L 134 112 Z M 113 167 Q 125 173 137 167 M 97 279 Q 104 299 124 304"
+              fill="none" stroke="var(--ink-50)" strokeWidth="1.5" strokeLinecap="round" />
+            {/* At the near side, rightward current produces an upward axial field. */}
+            <path d="M 161 231 C 190 238 222 238 245 232" fill="none" stroke="var(--gold)" strokeWidth="4" markerEnd="url(#grip-gold)" />
+            <path d="M 128 73 L 128 40" fill="none" stroke="var(--wine)" strokeWidth="4" markerEnd="url(#grip-wine)" />
+            <path d="M 198 96 L 198 78" fill="none" stroke="var(--wine)" strokeWidth="4" markerEnd="url(#grip-wine)" />
           </g>
 
           {/* Poles */}
@@ -504,11 +497,11 @@ export function MitigationOptionsDiagram() {
 
 export function AlternativesMapDiagram() {
   const families = [
-    ["PM MOTOR", "Permanent magnet follows the stator field", "Rare-earth supply exposure"],
-    ["INDUCTION", "Current induced in a rotor cage", "Rotor heat, part-load efficiency"],
-    ["WOUND FIELD", "Rotor coil fed with current", "Second supply, rotor cooling"],
-    ["SynRM", "Shaped steel aligns with the field", "Larger inverter or machine"],
-    ["SRM", "Poles pull one tooth at a time", "Torque ripple, noise, control"],
+    ["PM MOTOR", "Magnet follows the rotating field", "Cost: rare-earth magnets, unless ferrite is used"],
+    ["INDUCTION", "Current induced in a rotor cage", "Cost: rotor cooling and energy lost as heat"],
+    ["WOUND FIELD", "Rotor coil fed with current", "Cost: rotor power supply and cooling"],
+    ["SynRM", "Shaped steel aligns with the field", "Cost: more inverter capacity may be needed"],
+    ["SRM", "Poles pull one tooth at a time", "Cost: control development and noise reduction"],
   ];
   return (
     <div className="clean-diagram clean-family-map" role="img" aria-label="Five traction motor families and how each creates rotor torque">
@@ -559,7 +552,7 @@ export function SynRMMechanismDiagram({ controls }: ControlProps) {
         <p className="clean-aside__copy">None in the rotor.</p>
         <hr className="clean-aside__rule" />
         <h4 className="clean-aside__title">Engineering cost</h4>
-        <p className="clean-aside__copy">Poor power factor: more inverter current, or a larger machine, for the same output.</p>
+        <p className="clean-aside__copy">Lower power factor can require higher-current power electronics and more cooling capacity, adding parts cost.</p>
       </Aside>
     </div>
   );
@@ -617,7 +610,7 @@ export function SRMMechanismDiagram({ controls }: ControlProps) {
         <p className="clean-aside__copy">None in the rotor.</p>
         <hr className="clean-aside__rule" />
         <h4 className="clean-aside__title">Engineering cost</h4>
-        <p className="clean-aside__copy">Sequential pulses produce torque ripple and noise, and a heavier control burden.</p>
+        <p className="clean-aside__copy">Smoothing the torque pulses takes control-software development and vibration/noise testing, adding engineering time.</p>
       </Aside>
     </div>
   );
@@ -664,9 +657,9 @@ export function FerriteComparisonDiagram() {
 
 export function ChangeBurdenDiagram() {
   const routes = [
-    ["KEEP THE MOTOR", "Low-dysprosium NdFeB", "Gain: lower heavy-rare-earth exposure", "Work: supplier qualification, rotor cooling"],
-    ["REDESIGN THE MOTOR", "Ferrite PMSM", "Gain: no rare earths in the magnet", "Work: larger rotor, higher speed or new geometry"],
-    ["REDESIGN THE DRIVE UNIT", "Induction · wound field · reluctance", "Gain: no permanent magnet", "Work: motor, inverter, cooling and control software"],
+    ["CHANGE THE MAGNET GRADE", "Low-dysprosium NdFeB", "Reduces dysprosium use; still needs neodymium.", "Pay for: supplier qualification and heat/demagnetisation tests. Added oil cooling requires hardware changes."],
+    ["REWORK THE MAGNET MOTOR", "Ferrite PMSM", "Removes rare earths from the magnets.", "Pay for: rotor tooling and tests; size or speed changes can also affect gearing, inverter and cooling."],
+    ["CHANGE THE MOTOR FAMILY", "Induction · wound field · reluctance", "Removes permanent magnets entirely.", "Pay for: motor development, matched electronics and cooling, control software and vehicle validation."],
   ];
   return (
     <div className="clean-diagram clean-burden" role="img" aria-label="Implementation burden from material change to new motor architecture">
@@ -688,19 +681,19 @@ export function ChangeBurdenDiagram() {
 
 /* ── 20 · Readiness map ─────────────────────────────────────────────────── */
 
-const READINESS_HEAD = ["Route", "What turns the rotor", "Who ships it", "Engineering cost", "Horizon"];
+const READINESS_HEAD = ["Route", "Rotor", "Evidence / named examples", "What adds cost", "Readiness"];
 
 export function ReadinessMapDiagram() {
-  const routes = [
-    ["Low-dysprosium NdFeB", "Permanent magnet", "Most carmakers, in production", "Rotor cooling; a re-qualified magnet supplier", "Now, current platform"],
-    ["Ferrite PMSM", "Permanent magnet", "Proterial prototype; no production car", "Larger or faster-spinning motor for the same power", "Next platform"],
-    ["Induction", "Current induced in a cage", "Audi Q6 e-tron front axle; most industrial motors", "Lower part-load efficiency; heat in the rotor", "Now, on a secondary axle"],
-    ["Wound field", "Rotor coil fed with current", "BMW, Renault, Nissan, in production", "Brushes or a rotating transformer; oil through the shaft", "Next platform"],
-    ["SynRM", "Shaped steel", "ABB industrial drives; rare in cars", "Larger inverter or machine", "Targeted R&D"],
-    ["SRM", "Poles pull one tooth at a time", "Advanced Electric Machines, trucks", "Torque ripple, noise, control burden", "Targeted R&D"],
+  const routes: [string, string, ReactNode, string, string][] = [
+    ["Low-dysprosium NdFeB", "Permanent magnet", <><a href="https://www.proterial.com/e/press/2025/n0722b.html">Proterial</a>: reduced-heavy-rare-earth grades in production; newer zero-heavy grades sampled</>, "Magnet qualification; cooling changes if heat margin is insufficient", "Grade-specific qualification"],
+    ["Ferrite PMSM", "Permanent magnet", <><a href="https://www.proterial.com/e/press/2023/pdf/20230724en.pdf">Proterial</a>: tested traction prototype</>, "New rotor tooling; extra size or speed to recover output", "Prototype demonstrated"],
+    ["Induction", "Conducting cage", <><a href="https://www.audi-mediacenter.com/en/the-audi-q6-e-tron-electric-mobility-on-a-new-level-15929/download">Audi Q6 e-tron quattro</a>: front axle</>, "Rotor heat means cooling demand and energy losses", "Production cars"],
+    ["Wound field", "Powered rotor coil", <><a href="https://www.press.bmwgroup.com/canada/article/detail/T0440602EN?forceSitePreference=DESKTOP">BMW</a>: production eDrive</>, "Rotor supply, transfer hardware and cooling; brush life if fitted", "Production cars"],
+    ["SynRM", "Shaped steel", <><a href="https://new.abb.com/news/detail/80775/ie5-synchronous-reluctance-motors">ABB</a>: industrial drives. India: <a href="https://www.chara.co.in/">Chara</a> motor systems</>, "Lower power factor can require a higher-current inverter", "Industrial products; vehicle qualification varies"],
+    ["SRM", "Steel teeth", <><a href="https://turntide.com/products/motors/">Turntide</a>: building ventilation systems</>, "Noise and vibration testing; current-control development", "Commercial building systems"],
   ];
   return (
-    <div className="clean-diagram clean-readiness" role="img" aria-label="Who ships each motor route, what it costs, and when it matters">
+    <div className="clean-diagram clean-readiness" role="region" aria-label="Motor routes, evidence, engineering costs and readiness">
       <div className="clean-readiness__table" data-scrolls>
         <div className="clean-readiness__head" data-scrolls aria-hidden="true">
           {READINESS_HEAD.map((label) => <span key={label}>{label}</span>)}
@@ -715,6 +708,7 @@ export function ReadinessMapDiagram() {
           </div>
         ))}
       </div>
+      <p className="clean-readiness__note">India: <a href="https://nsearchives.nseindia.com/corporate/SONACOMS_27102025163456_InvestorPresentation.pdf#page=20">Sona Comstar reports a tested ferrite-assisted SynRM</a> — a hybrid that retains ferrite magnets. Testing does not establish passenger-car mass production.</p>
     </div>
   );
 }
@@ -723,9 +717,9 @@ export function ReadinessMapDiagram() {
 
 export function DecisionSummaryDiagram() {
   const points = [
-    ["NOW", "Specify low-dysprosium grades and oil-cooled rotors. Nothing else in the vehicle changes."],
-    ["NEXT PLATFORM", "A wound-field or induction drive unit. Proven abroad; a multi-year programme here."],
-    ["TARGETED R&D", "Ferrite, SynRM, SRM. Test fleets and funded research at this stage."],
+    ["CURRENT VEHICLES", "Carmaker + motor supplier: test a lower-dysprosium grade against existing heat limits. Procurement buys the approved grade. Add oil cooling only with a validated redesign."],
+    ["NEXT VEHICLE DESIGN", "Vehicle engineering team: compare complete induction, wound-field and magnet drives on range, sustained power and total cost. Existing production cars prove these are viable choices."],
+    ["FUND SPECIFIC TESTS", "Proposed role for carmakers and public R&D funders: back supplier–research lab trials of ferrite and reluctance drives, with measured efficiency, noise, durability and manufacturing targets."],
   ];
   return (
     <div className="clean-diagram clean-summary" role="img" aria-label="Three conclusions from the permanent magnet motor alternatives walkthrough">
