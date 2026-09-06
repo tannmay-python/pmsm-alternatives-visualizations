@@ -568,7 +568,7 @@ export const STOPS: readonly Stop[] = [
       {
         id: "induction-principle",
         label: "Induction",
-        line: "An induction motor replaces magnets with aluminium or copper bars. The stator field runs faster than the rotor; this difference, called slip, induces current that makes the rotor magnetic. The bars also heat up, so cooling and energy losses can offset the saving on magnets. Audi uses induction on the Q6 e-tron quattro's front axle, which switches off when its power is not needed. Tesla and Mercedes fit induction front motors for the same reason, and BMW's next all-wheel-drive cars will too.",
+        line: "An induction motor replaces magnets with aluminium or copper bars. The stator field runs faster than the rotor; this difference, called slip, induces current that makes the rotor magnetic. The bars also heat up, so cooling and energy losses can offset the saving on magnets.\n\nAudi uses induction on the Q6 e-tron quattro's front axle, which switches off when its power is not needed. Tesla and Mercedes fit induction front motors for the same reason, and BMW's next all-wheel-drive cars will too.",
         action: "Watch the stator field induce current in the rotor cage.",
         stage: { kind: "three", scene: "motor", rotor: "squirrel-cage" },
       },
@@ -582,7 +582,7 @@ export const STOPS: readonly Stop[] = [
       {
         id: "wound-control",
         label: "Wound field",
-        line: "A wound-field motor makes its rotor magnetic by feeding current into copper coils. This removes rare-earth magnets and lets the controller reduce the rotor field at high speed. The price is an extra electrical supply, power-transfer hardware and cooling for the spinning coils. Renault has sold this motor family since the 2012 Zoe, Nissan fitted one to the Ariya in 2022, and BMW uses it across its current range; Renault's next generation is announced for 2028. ZF and Valeo-Mahle are developing brushless versions.",
+        line: "A wound-field motor makes its rotor magnetic by feeding current into copper coils. This removes rare-earth magnets and lets the controller reduce the rotor field at high speed. The price is an extra electrical supply, power-transfer hardware and cooling for the spinning coils.\n\nRenault has sold this motor family since the 2012 Zoe, Nissan fitted one to the Ariya in 2022, and BMW uses it across its current range; Renault's next generation is announced for 2028. ZF and Valeo-Mahle are developing brushless versions.",
         action: "Trace the electrical supply into the rotor winding.",
         stage: { kind: "three", scene: "motor", rotor: "wound" },
       },
@@ -603,14 +603,14 @@ export const STOPS: readonly Stop[] = [
       {
         id: "reluctance-spectrum",
         label: "Synchronous reluctance",
-        line: "A synchronous reluctance motor uses steel with air barriers, without magnets or rotor windings. The stator field pulls the rotor's easy magnetic axis into line. The simple rotor saves parts, but lower power factor can mean more current and a larger inverter for the same output. ABB sells industrial SynRM drives. In India, Chara develops and offers reluctance motor-and-controller systems for mobility and industry, and Viridian Ingni and Matel Motion are working on reluctance and hybrid-ferrite designs.",
+        line: "A synchronous reluctance motor uses steel with air barriers, without magnets or rotor windings. The stator field pulls the rotor's easy magnetic axis into line. The simple rotor saves parts, but lower power factor can mean more current and a larger inverter for the same output.\n\nABB sells industrial SynRM drives. In India, Chara develops and offers reluctance motor-and-controller systems for mobility and industry, and Viridian Ingni and Matel Motion are working on reluctance and hybrid-ferrite designs.",
         action: "Inspect the shaped steel paths inside a pure reluctance rotor.",
         stage: { kind: "svg", diagram: "synrm-mechanism-clean" },
       },
       {
         id: "srm-aluminium",
         label: "Switched reluctance",
-        line: "A switched reluctance motor pulses current through successive stator poles, pulling the rotor's steel teeth into line. It needs neither rotor magnets nor windings. Those pulses can also produce vibration and noise: reducing them takes control development and acoustic testing. Turntide sells switched-reluctance systems for building ventilation. Advanced Electric Machines in the UK builds them for trucks; its prototype lists 308 kW peak but 138 kW continuous, a gap that matters in a passenger car.",
+        line: "A switched reluctance motor pulses current through successive stator poles, pulling the rotor's steel teeth into line. It needs neither rotor magnets nor windings. Those pulses can also produce vibration and noise: reducing them takes control development and acoustic testing.\n\nTurntide sells switched-reluctance systems for building ventilation. Advanced Electric Machines in the UK builds them for trucks; its prototype lists 308 kW peak but 138 kW continuous, a gap that matters in a passenger car.",
         action: "Watch the stator poles pull the toothed rotor into alignment.",
         stage: { kind: "svg", diagram: "srm-mechanism-clean" },
       },
@@ -656,7 +656,7 @@ export const STOPS: readonly Stop[] = [
       {
         id: "ferrite-limit",
         label: "Ferrite",
-        line: "Ferrite is iron oxide. It is cheap, mined everywhere, and contains no rare earths, and its remanence is about a third of NdFeB's. Put it in the same PMSM and the motor works at a third of the field, so recovering the output means more magnet, a larger rotor, a higher speed or a different geometry. Proterial's prototype makes 102 kW at 15,000 rpm against a 110 kW NdFeB baseline at 10,000 rpm. Niron and the Indian motorcycle maker Matter showed an iron-nitride prototype at CES 2026. No production car uses either yet.",
+        line: "Ferrite is iron oxide. It is cheap, mined everywhere, and contains no rare earths, and its remanence is about a third of NdFeB's. Put it in the same PMSM and the motor works at a third of the field, so recovering the output means more magnet, a larger rotor, a higher speed or a different geometry.\n\nProterial's prototype makes 102 kW at 15,000 rpm against a 110 kW NdFeB baseline at 10,000 rpm. Niron and the Indian motorcycle maker Matter showed an iron-nitride prototype at CES 2026. No production car uses either yet.",
         action: "Compare enlarged ferrite pockets with the NdFeB rotor.",
         stage: { kind: "svg", diagram: "ferrite-comparison-clean" },
       },

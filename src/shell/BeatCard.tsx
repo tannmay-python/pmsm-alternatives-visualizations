@@ -101,7 +101,7 @@ export function BeatCard({
           <h3 className="beat-card__title">{position.beat.label}</h3>
         </header>
         <div className="beat-card__body">
-          {position.beat.lines.map((line) => <p key={line}>{line}</p>)}
+          {position.beat.lines.flatMap((line) => line.split("\n\n")).map((para) => <p key={para}>{para}</p>)}
         </div>
         {isLast ? (
           <div className="beat-card__chapter-end">
