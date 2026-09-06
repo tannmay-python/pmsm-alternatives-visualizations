@@ -473,21 +473,22 @@ export function MitigationOptionsDiagram() {
 
 export function AlternativesMapDiagram() {
   const families = [
-    ["PM MOTOR", "Magnet follows the rotating field", "Cost: rare-earth magnets, unless ferrite is used"],
-    ["INDUCTION", "Current induced in a rotor cage", "Cost: rotor cooling and energy lost as heat"],
-    ["WOUND FIELD", "Rotor coil fed with current", "Cost: rotor power supply and cooling"],
-    ["SynRM", "Shaped steel aligns with the field", "Cost: more inverter capacity may be needed"],
-    ["SRM", "Poles pull one tooth at a time", "Cost: control development and noise reduction"],
+    ["PM MOTOR", "Magnet follows the rotating field", "Cost: rare-earth magnets, unless ferrite is used", "Production EVs: Audi Q6 rear axle. Compactness and efficiency favour this route."],
+    ["INDUCTION", "Current induced in a rotor cage", "Cost: rotor cooling and energy lost as heat", "Production EVs: Audi Q6 quattro front axle. Suits an axle used for extra power."],
+    ["WOUND FIELD", "Rotor coil fed with current", "Cost: rotor power supply and cooling", "Production EVs: BMW eDrive. Avoids magnets while retaining a controllable rotor field."],
+    ["SynRM", "Shaped steel aligns with the field", "Cost: more inverter capacity may be needed", "Industrial drives: ABB. India: Chara offers mobility systems; its passenger-car production scale is not established."],
+    ["SRM", "Poles pull one tooth at a time", "Cost: control development and noise reduction", "Building ventilation: Turntide. Commercial use exists; this does not prove car-traction readiness."],
   ];
   return (
-    <div className="clean-diagram clean-family-map" role="img" aria-label="Five traction motor families and how each creates rotor torque">
+    <div className="clean-diagram clean-family-map" role="img" aria-label="Five motor families: torque, costs and commercial applications">
       <div className="clean-family-map__grid" data-scrolls>
-        {families.map(([name, principle, trade], index) => (
+        {families.map(([name, principle, trade, market], index) => (
           <div className={`clean-family ${name === "PM MOTOR" ? "is-reference" : ""}`} key={name}>
             <span className="clean-family__index" aria-hidden="true">0{index + 1}</span>
             <strong>{name}</strong>
             <span>{principle}</span>
             <em>{trade}</em>
+            <span className="clean-family__market">{market}</span>
           </div>
         ))}
       </div>
@@ -693,9 +694,9 @@ export function ReadinessMapDiagram() {
 
 export function DecisionSummaryDiagram() {
   const points = [
-    ["CURRENT VEHICLES", "Carmaker + motor supplier: test a lower-dysprosium grade against existing heat limits. Procurement buys the approved grade. Add oil cooling only with a validated redesign."],
-    ["NEXT VEHICLE DESIGN", "Vehicle engineering team: compare complete induction, wound-field and magnet drives on range, sustained power and total cost. Existing production cars prove these are viable choices."],
-    ["FUND SPECIFIC TESTS", "Proposed role for carmakers and public R&D funders: back supplier–research lab trials of ferrite and reluctance drives, with measured efficiency, noise, durability and manufacturing targets."],
+    ["MAGNET MATERIALS", "Lower-dysprosium grades can reduce heavy-rare-earth use within the permanent-magnet family. Their suitability depends on heat and demagnetisation tests; adding oil cooling changes the hardware."],
+    ["PRODUCTION ALTERNATIVES", "Induction and wound-field motors already power production EVs. Their appeal depends on the application: an intermittently used axle, or a main drive with an electrically adjustable rotor field."],
+    ["NEXT COMMERCIAL STEPS", "Ferrite prototypes and commercial reluctance systems show technical progress. Wider car use depends on demonstrated range, sustained power, quiet operation, durability and repeatable manufacture."],
   ];
   return (
     <div className="clean-diagram clean-summary" role="img" aria-label="Three conclusions from the permanent magnet motor alternatives walkthrough">

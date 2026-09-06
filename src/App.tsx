@@ -53,7 +53,7 @@ function TourEnd({ onRestart, onBack }: { onRestart: () => void; onBack: () => v
         <ol className="tour-end__summary">
           <li><strong>The motor.</strong> A PMSM turns because the inverter makes the stator's field rotate and a magnet rotor follows it. The magnet keeps its strength at temperature only because of a few per cent of dysprosium and terbium, and those are the elements under licence.</li>
           <li><strong>The alternatives.</strong> A cage of bars, a rotor coil fed from outside, or shaped steel can each produce torque without rare earths. Each moves the cost elsewhere, to rotor heat, power-transfer hardware, machine size, or noise and control effort.</li>
-          <li><strong>The decision.</strong> Carmakers and suppliers must qualify lower-dysprosium grades for existing vehicles. For new designs, compare complete drives, including hardware, energy losses and validation costs. A tested prototype is a step toward production, not proof of readiness for every car.</li>
+          <li><strong>The outlook.</strong> Induction and wound-field motors already power production cars. Ferrite and reluctance designs have different levels of commercial maturity. Their prospects depend on complete-drive performance, cost and manufacturing readiness; a tested prototype alone does not establish mass production.</li>
         </ol>
         <div className="tour-end__actions">
           <button type="button" className="tour-end__restart" onClick={onRestart}>Start again</button>

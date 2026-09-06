@@ -174,8 +174,8 @@ export const STOPS: readonly Stop[] = [
       {
         id: "power-path",
         label: "Battery, inverter, motor, gear",
-        line: "A battery-electric drivetrain has four parts. The battery pack under the floor stores electricity as direct current. The inverter converts it to three-phase alternating current, and software decides the timing. The motor converts that current into rotation, and a single-speed reduction gear brings the motor's speed down to the wheels'. In most cars the inverter, motor and gear share one housing on the driven axle, which the industry calls the drive unit.",
-        action: "Follow the path from stored electricity to wheel torque.",
+        line: "A battery-electric drivetrain has four parts. The battery pack under the floor stores chemical energy and supplies direct current. The inverter converts this direct current into three-phase alternating current, with software controlling the timing. The motor turns electrical energy into rotation, and a reduction gear lowers the motor's speed to suit the wheels. The motor, inverter and gear are often integrated into a drive unit on the driven axle.",
+        action: "Follow the path from chemical energy to wheel torque.",
       },
       {
         id: "drive-unit",
@@ -561,7 +561,7 @@ export const STOPS: readonly Stop[] = [
       {
         id: "family-tree",
         label: "Five kinds of rotor",
-        line: "The choice is where to pay for the rotor's magnetic pull. Permanent magnets give a compact, efficient motor but can tie it to rare-earth suppliers. The four magnet-free families replace that exposure with rotor heat, extra electrical hardware, more inverter capacity, or noise-control work. Compare the whole drive unit: a cheaper rotor does not automatically mean a cheaper car.",
+        line: "These five motor families compete in different markets. Audi combines a permanent-magnet rear motor with an induction front motor; BMW uses wound field. Reluctance has commercial uses in industry and ventilation, with companies also developing mobility applications. Compactness, efficiency, intermittent use and noise requirements help explain these choices. A motor sold for a factory is not automatically ready for a passenger car.",
         action: "Compare where each motor family gets its rotor field.",
         stage: { kind: "svg", diagram: "alternatives-map-clean" },
       },
@@ -764,8 +764,8 @@ export const STOPS: readonly Stop[] = [
       },
       {
         id: "where-we-are",
-        label: "What to do, and when",
-        line: "Carmakers and motor suppliers should qualify changes against the vehicle's actual duty cycle before procurement teams place orders. For newer designs, the question is whether the complete drive meets range, heat, noise and durability requirements at a viable cost. In India, Sona Comstar reports testing a ferrite-assisted reluctance motor; Chara offers reluctance systems. These are concrete development paths, but their public evidence does not establish mass production in passenger cars.",
+        label: "Where the technology could go next",
+        line: "The market is developing along several paths: improved magnet grades, magnet-free motors already used in EVs, and ferrite or reluctance designs moving between prototypes and commercial applications. In India, Sona Comstar reports testing a ferrite-assisted reluctance motor, while Chara offers reluctance systems. Their public evidence does not establish passenger-car mass production. Wider adoption depends on whole-drive performance and manufacturing readiness, not the rotor alone.",
         action: "Review the three decisions the walkthrough has established.",
         stage: { kind: "svg", diagram: "decision-summary-clean" },
       },

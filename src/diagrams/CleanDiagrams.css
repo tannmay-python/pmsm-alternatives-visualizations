@@ -218,6 +218,7 @@
 .clean-family.is-reference .clean-family__index { color: var(--wine); }
 .clean-family strong { font-family: var(--mono); font-size: 12px; font-weight: 600; }
 .clean-family span:not(.clean-family__index) { color: var(--ink-70); font-size: 13px; line-height: 1.45; }
+.clean-family__market { border-top: var(--hairline); padding-top: 10px; }
 .clean-family em { align-self: end; color: var(--ink-50); font-family: var(--mono); font-size: 9px; font-style: normal; letter-spacing: 0.05em; text-transform: uppercase; }
 .clean-board-note { margin: 24px 0 0; color: var(--ink-70); font-size: 14px; }
 
