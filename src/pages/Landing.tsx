@@ -1,4 +1,5 @@
 import { ArrowRight, ArrowUpRight } from "@phosphor-icons/react";
+import { useEffect, useState } from "react";
 import { TakshashilaLogo } from "../components/TakshashilaLogo";
 import { AUTHORS, DASHBOARD_URL, MINERALPOLITIK_URL } from "../meta";
 import "./Landing.css";
@@ -37,9 +38,32 @@ function GroupTwoDashboard() {
   );
 }
 
+const NOTE_KEY = "pmsm-desktop-note";
+
+function DesktopNote() {
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    try {
+      if (window.innerWidth < 1080 && !sessionStorage.getItem(NOTE_KEY)) setOpen(true);
+    } catch { /* storage unavailable: show nothing */ }
+  }, []);
+  if (!open) return null;
+  const dismiss = () => {
+    try { sessionStorage.setItem(NOTE_KEY, "1"); } catch { /* ignore */ }
+    setOpen(false);
+  };
+  return (
+    <div className="landing__note" role="dialog" aria-live="polite" aria-label="Viewing note">
+      <p>This walkthrough is best viewed on a desktop or laptop. It works here too, but the motor is easier to read on a larger screen.</p>
+      <button type="button" onClick={dismiss}>Continue</button>
+    </div>
+  );
+}
+
 export function Landing({ onEnter }: { onEnter: () => void }) {
   return (
     <main className="landing">
+      <DesktopNote />
       <header className="landing__masthead">
         <a className="landing__logo" href="https://takshashila.org.in/" target="_blank" rel="noreferrer">
           <TakshashilaLogo height={65} />
