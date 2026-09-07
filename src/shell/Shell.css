@@ -289,3 +289,42 @@
   .tour-end { inset: 64px 0 0; }
   .contents-overlay { padding-top: 76px; }
 }
+
+/* Mobile scroll cues (shell/scrollCues.ts). Never rendered above 1080px. */
+.scroll-cue { display: none; }
+@media (max-width: 1080px) {
+  .scroll-cue { display: block; pointer-events: none; }
+  .scroll-cue--x { margin: 8px 0 0; }
+  .scroll-cue--y {
+    position: absolute;
+    top: var(--gap-4);
+    right: 6px;
+    bottom: var(--gap-4);
+    width: 4px;
+  }
+  .scroll-cue__label {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--ink-50);
+    font-family: var(--mono);
+    font-size: var(--t-meta);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    transition: opacity 400ms ease;
+  }
+  .scroll-cue--y .scroll-cue__label {
+    position: absolute;
+    right: 10px;
+    bottom: 0;
+    margin: 0;
+    white-space: nowrap;
+  }
+  .scroll-cue__label.is-done { opacity: 0; }
+  .scroll-cue__track { position: relative; display: block; background: var(--ink-10); }
+  .scroll-cue--x .scroll-cue__track { height: 3px; }
+  .scroll-cue--y .scroll-cue__track { position: absolute; inset: 0; width: 3px; }
+  .scroll-cue__thumb { position: absolute; top: 0; left: 0; background: var(--wine); }
+  .scroll-cue--x .scroll-cue__thumb { height: 100%; width: 30%; }
+  .scroll-cue--y .scroll-cue__thumb { width: 100%; height: 30%; }
+  .stage-diagram { position: absolute; }
+}

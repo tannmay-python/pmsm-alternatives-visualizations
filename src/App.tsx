@@ -8,6 +8,7 @@ import { Landing } from "./pages/Landing";
 import { STOPS, type Stop, type StopState } from "./route/route";
 import { BEATS, PAGE_LIST } from "./route/structure";
 import { presetFor } from "./route/presets";
+import { attachScrollCues } from "./shell/scrollCues";
 import { DEFAULT_CONTROLS, type StageControls } from "./stage/controls";
 import type { RotorId } from "./stage/rotors/registry";
 import type { ArchitectureId } from "./models/swapBurden";
@@ -131,6 +132,7 @@ export default function App() {
   const demoRunningRef = useRef(false);
   const frozenAngleRef = useRef(false);
 
+  const diagramRef = useRef<HTMLDivElement>(null);
   const position = BEATS[cursor];
   const { page, stop, beat, pageIndex } = position;
   const { sourceStop, sourceState } = useMemo(() => sourceOf(cursor), [cursor]);
@@ -190,6 +192,13 @@ export default function App() {
     frame = requestAnimationFrame(step);
     return () => cancelAnimationFrame(frame);
   }, [screen, reducedMotion]);
+
+  useEffect(() => {
+    if (screen !== "tour") return undefined;
+    let cleanup = () => {};
+    const timer = window.setTimeout(() => { cleanup = attachScrollCues(diagramRef.current); }, 250);
+    return () => { window.clearTimeout(timer); cleanup(); };
+  }, [screen, cursor]);
 
   useEffect(() => {
     document.title = "The EV motor’s rare-earth problem";
@@ -328,7 +337,7 @@ export default function App() {
             />
           </Suspense>
         ) : (
-          <div className="stage-diagram stage-diagram--left">
+          <div className="stage-diagram stage-diagram--left" ref={diagramRef}>
             <Diagram
               id={stage.diagram}
               stateId={sourceState.id}
