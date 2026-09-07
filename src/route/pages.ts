@@ -119,7 +119,7 @@ export const PAGES: readonly PageSpec[] = [
     transition: {
       act: "The alternatives",
       title: "Change what turns the rotor",
-      lede: "A current induced in a cage, a coil fed from outside, or steel shaped to align with the field can each turn a rotor. Each removes some rare-earth exposure and adds a cost elsewhere.",
+      lede: "Currents induced in rotor bars, powered rotor coils or shaped steel can each turn the wheels without rare-earth magnets. Each approach brings different cooling, power-supply and control requirements.",
       nextLabel: "The alternatives",
     },
     stops: [

@@ -524,8 +524,8 @@ export function AlternativesMapDiagram() {
     ["PM MOTOR", "Magnet follows the rotating field", "Trade-off: rare-earth magnets, unless ferrite is used", "Production EVs: Audi Q6 rear axle. Compactness and efficiency favour this route."],
     ["INDUCTION", "Current induced in a rotor cage", "Trade-off: rotor cooling and energy lost as heat", "Production EVs: Audi Q6 quattro front axle. Suits an axle used for extra power."],
     ["WOUND FIELD", "Rotor coil fed with current", "Trade-off: rotor power supply and cooling", "Production EVs: BMW eDrive. Avoids magnets while retaining a controllable rotor field."],
-    ["SynRM", "Shaped steel aligns with the field", "Trade-off: more inverter capacity may be needed", "Industrial drives: ABB. India: Chara offers mobility systems; its passenger-car production scale is not established."],
-    ["SRM", "Poles pull one tooth at a time", "Trade-off: control development and noise reduction", "Building ventilation: Turntide. Commercial use exists; this does not prove car-traction readiness."],
+    ["SynRM", "Shaped steel aligns with the field", "Trade-off: more inverter capacity may be needed", "Industrial drives: motor supplier ABB. India: motor developer Chara Technologies offers systems for mobility and industry."],
+    ["SRM", "Poles pull one tooth at a time", "Trade-off: control development and noise reduction", "Building ventilation: motor-system supplier Turntide. Vehicle applications require further development and validation."],
   ];
   return (
     <ScrollableBoard className="clean-family-map" label="Five motor families">
@@ -710,12 +710,12 @@ const READINESS_HEAD = ["Route", "Rotor", "Evidence / named examples", "Engineer
 
 export function ReadinessMapDiagram() {
   const routes: [string, string, ReactNode, string, string][] = [
-    ["Low-dysprosium NdFeB", "Permanent magnet", <><a href="https://www.proterial.com/e/press/2025/n0722b.html">Proterial</a>: reduced-heavy-rare-earth grades in production; newer zero-heavy grades sampled</>, "Magnet qualification; cooling changes if heat margin is insufficient", "Grade-specific qualification"],
-    ["Ferrite PMSM", "Permanent magnet", <><a href="https://www.proterial.com/e/press/2023/pdf/20230724en.pdf">Proterial</a>: tested traction prototype</>, "New rotor tooling; extra size or speed to recover output", "Prototype demonstrated"],
+    ["Low-dysprosium NdFeB", "Permanent magnet", <><a href="https://www.proterial.com/e/press/2025/n0722b.html">Proterial</a>, a Japanese materials maker: reduced-heavy-rare-earth grades in production; newer zero-heavy grades sampled</>, "Magnet qualification; cooling changes if heat margin is insufficient", "Grade-specific qualification"],
+    ["Ferrite PMSM", "Permanent magnet", <><a href="https://www.proterial.com/e/press/2023/pdf/20230724en.pdf">Proterial</a>, a Japanese materials maker: tested traction prototype</>, "New rotor tooling; extra size or speed to recover output", "Prototype demonstrated"],
     ["Induction", "Conducting cage", <><a href="https://www.audi-mediacenter.com/en/the-audi-q6-e-tron-electric-mobility-on-a-new-level-15929/download">Audi Q6 e-tron quattro</a>: front axle</>, "Rotor heat means cooling demand and energy losses", "Production cars"],
     ["Wound field", "Powered rotor coil", <><a href="https://www.press.bmwgroup.com/canada/article/detail/T0440602EN?forceSitePreference=DESKTOP">BMW</a>: production eDrive</>, "Rotor supply, transfer hardware and cooling; brush life if fitted", "Production cars"],
-    ["SynRM", "Shaped steel", <><a href="https://new.abb.com/news/detail/80775/ie5-synchronous-reluctance-motors">ABB</a>: industrial drives. India: <a href="https://www.chara.co.in/">Chara</a> motor systems</>, "Lower power factor can require a higher-current inverter", "Industrial products; vehicle qualification varies"],
-    ["SRM", "Steel teeth", <><a href="https://turntide.com/products/motors/">Turntide</a>: building ventilation systems</>, "Noise and vibration testing; current-control development", "Commercial building systems"],
+    ["SynRM", "Shaped steel", <><a href="https://new.abb.com/news/detail/80775/ie5-synchronous-reluctance-motors">ABB</a>, an industrial motor supplier. India: <a href="https://www.chara.co.in/">Chara Technologies</a>, a motor-and-controller developer</>, "Lower power factor can require a higher-current inverter", "Industrial products; vehicle qualification varies"],
+    ["SRM", "Steel teeth", <><a href="https://turntide.com/products/motors/">Turntide</a>, a motor-system supplier: building ventilation</>, "Noise and vibration testing; current-control development", "Commercial building systems"],
   ];
   return (
     <div className="clean-diagram clean-readiness" role="region" aria-label="Motor routes, evidence, engineering costs and readiness">
@@ -727,13 +727,13 @@ export function ReadinessMapDiagram() {
           <div className="clean-readiness__row" data-scrolls key={name}>
             <strong>{name}</strong>
             {[mechanism, ships, cost].map((value, index) => (
-              <span key={index}><small>{READINESS_HEAD[index + 1]}</small>{value}</span>
+              <span key={index}><small>{READINESS_HEAD[index + 1]}</small><span>{value}</span></span>
             ))}
             <em><small>{READINESS_HEAD[4]}</small>{when}</em>
           </div>
         ))}
       </div>
-      <p className="clean-readiness__note">India: <a href="https://nsearchives.nseindia.com/corporate/SONACOMS_27102025163456_InvestorPresentation.pdf#page=20">Sona Comstar reports a tested ferrite-assisted SynRM</a> — a hybrid that retains ferrite magnets. Testing does not establish passenger-car mass production.</p>
+      <p className="clean-readiness__note">India: <a href="https://nsearchives.nseindia.com/corporate/SONACOMS_27102025163456_InvestorPresentation.pdf#page=20">Automotive supplier Sona Comstar reports a tested and validated ferrite-assisted SynRM</a> — a hybrid that retains ferrite magnets. This development is a step toward wider commercial use.</p>
     </div>
   );
 }

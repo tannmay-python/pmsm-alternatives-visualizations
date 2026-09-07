@@ -458,7 +458,7 @@ export const STOPS: readonly Stop[] = [
       {
         id: "already-happened",
         label: "Three ways to use less",
-        line: "Three measures reduce heavy-rare-earth content without changing the motor. Cooling the rotor directly with oil lowers the temperature the magnet has to survive; Audi does this on the Q6 e-tron. Grain-boundary diffusion places dysprosium only at the crystal edges, where demagnetisation starts, instead of through the whole block. Dysprosium-free NdFeB grades exist and are going through qualification. None of the three is a drop-in, and each takes years of validation before a carmaker will fit it.",
+        line: "Three approaches reduce heavy-rare-earth use while keeping a permanent-magnet motor. Direct rotor oil cooling lowers the temperature the magnets face; Audi uses it on the Q6 e-tron. Grain-boundary diffusion concentrates dysprosium near crystal edges, where demagnetisation starts. Low- or zero-dysprosium grades reduce it further. Each approach needs checks for the intended vehicle, and some need cooling or manufacturing changes before deployment.",
         action: "Compare three low-disruption mitigation routes.",
         stage: { kind: "svg", diagram: "mitigation-options-clean" },
       },
@@ -582,7 +582,7 @@ export const STOPS: readonly Stop[] = [
       {
         id: "wound-control",
         label: "Wound field",
-        line: "A wound-field motor makes its rotor magnetic by feeding current into copper coils. This removes rare-earth magnets and lets the controller reduce the rotor field at high speed. The price is an extra electrical supply, power-transfer hardware and cooling for the spinning coils.\n\nRenault has sold this motor family since the 2012 Zoe, Nissan fitted one to the Ariya in 2022, and BMW uses it across its current range; Renault's next generation is announced for 2028. ZF and Valeo-Mahle are developing brushless versions.",
+        line: "A wound-field motor feeds current into rotor coils instead of using magnets. Its field can be reduced at high speed. It needs a rotor power supply, transfer hardware and cooling.\n\nRenault used it in the 2012 Zoe model; Nissan's Ariya followed in 2022, and BMW also uses it. Renault has announced a new generation for 2028. Automotive suppliers ZF, Valeo and Mahle are developing brushless versions, with Valeo and Mahle working together.",
         action: "Trace the electrical supply into the rotor winding.",
         stage: { kind: "three", scene: "motor", rotor: "wound" },
       },
@@ -596,21 +596,21 @@ export const STOPS: readonly Stop[] = [
       {
         id: "contactless-frontier",
         label: "Contactless excitation is the new lane",
-        line: "ZF I2SM, Mahle MCT and Valeo/Mahle iBEE pass field power across a rotating transformer instead of brushes. They are development paths; virtual-magnet machines are the same wound-field family.",
+        line: "Automotive suppliers ZF, Mahle and Valeo are developing I2SM, MCT and the joint Valeo/Mahle iBEE system. These pass field power across a rotating transformer instead of brushes. They are development paths; virtual-magnet machines are the same wound-field family.",
         action: "Swap brushes for the rotating transformer.",
         stage: { kind: "three", scene: "motor", rotor: "wound", excitation: "contactless" },
       },
       {
         id: "reluctance-spectrum",
         label: "Synchronous reluctance",
-        line: "A synchronous reluctance motor uses steel with air barriers, without magnets or rotor windings. The stator field pulls the rotor's easy magnetic axis into line. The simple rotor saves parts, but lower power factor can mean more current and a larger inverter for the same output.\n\nABB sells industrial SynRM drives. In India, Chara develops and offers reluctance motor-and-controller systems for mobility and industry, and Viridian Ingni and Matel Motion are working on reluctance and hybrid-ferrite designs.",
+        line: "A synchronous reluctance motor uses shaped steel, without magnets or rotor windings. The stator field pulls its easy magnetic axis into line. Lower power factor can require a larger inverter.\n\nIndustrial motor supplier ABB sells these drives. Indian motor developer Chara Technologies offers motor-and-controller systems for mobility and industry. Indian motor companies Viridian Ingni Propulsion and Matel Motion also work on reluctance and hybrid-ferrite designs.",
         action: "Inspect the shaped steel paths inside a pure reluctance rotor.",
         stage: { kind: "svg", diagram: "synrm-mechanism-clean" },
       },
       {
         id: "srm-aluminium",
         label: "Switched reluctance",
-        line: "A switched reluctance motor pulls steel rotor teeth into alignment by switching stator currents in sequence. It needs no rotor magnets or windings. Smooth torque requires complex control of current timing and shape, plus vibration and noise testing.\n\nTurntide sells these motors for building ventilation. Vehicle use also requires torque monitoring and fault protection against unintended torque changes, as with other traction drives. Commercial ventilation use alone does not establish passenger-car readiness.",
+        line: "A switched reluctance motor pulls steel rotor teeth into alignment by switching stator currents in sequence. It needs no rotor magnets or windings. Smooth torque requires complex control of current timing and shape, plus vibration and noise testing.\n\nMotor-system supplier Turntide sells these motors for building ventilation. Cars require torque monitoring and fault protection against unintended torque changes, as with other traction drives. Adapting these systems for cars requires vehicle-specific validation.",
         action: "Watch the stator poles pull the toothed rotor into alignment.",
         stage: { kind: "svg", diagram: "srm-mechanism-clean" },
       },
@@ -650,13 +650,13 @@ export const STOPS: readonly Stop[] = [
       {
         id: "a-different-layer",
         label: "This is a layer, not a branch",
-        line: "A ferrite or iron-nitride motor is still a PMSM. Change the magnet chemistry and the architecture stays; Niron's automotive work is with carmakers rather than a motor of its own.",
+        line: "A ferrite or iron-nitride motor is still a PMSM. Change the magnet chemistry and the architecture stays; magnet developer Niron Magnetics' automotive work is with carmakers rather than a motor of its own.",
         action: "Separate chemistry from architecture.",
       },
       {
         id: "ferrite-limit",
         label: "Ferrite",
-        line: "Ferrite is iron oxide. It is cheap, mined everywhere, and contains no rare earths, and its remanence is about a third of NdFeB's. Put it in the same PMSM and the motor works at a third of the field, so recovering the output means more magnet, a larger rotor, a higher speed or a different geometry.\n\nProterial's prototype makes 102 kW at 15,000 rpm against a 110 kW NdFeB baseline at 10,000 rpm. Niron and the Indian motorcycle maker Matter showed an iron-nitride prototype at CES 2026. No production car uses either.",
+        line: "Ferrite magnets use iron oxide and no rare earths. Their weaker field than NdFeB means recovering output through more magnet material, a larger rotor, higher speed or different geometry.\n\nJapanese materials maker Proterial tested a 102 kW ferrite prototype at 15,000 rpm against a 110 kW NdFeB baseline at 10,000 rpm. Magnet developer Niron Magnetics and Indian motorcycle maker Matter showed an iron-nitride prototype at CES 2026. These projects are steps toward commercial vehicle applications.",
         action: "Compare enlarged ferrite pockets with the NdFeB rotor.",
         stage: { kind: "svg", diagram: "ferrite-comparison-clean" },
       },
@@ -670,20 +670,20 @@ export const STOPS: readonly Stop[] = [
       {
         id: "independent-geometry",
         label: "Which is a second, separate choice",
-        line: "Axial flux is a geometry; ferrite is a chemistry. Conifer uses both, so they are not competing options.",
+        line: "Axial flux is a geometry; ferrite is a chemistry. Motor developer Conifer uses both, so they are not competing options.",
         action: "Switch the axial machine's magnets to neodymium.",
         stage: { kind: "three", scene: "axial", chemistry: "ndfeb" },
       },
       {
         id: "proterial-numbers",
         label: "Read both numbers together",
-        line: "Proterial's ferrite prototype makes 102 kW at 15,000 rpm against a 110 kW at 10,000 rpm neodymium baseline: lower power at 50% more speed, not parity.",
+        line: "Japanese materials maker Proterial's ferrite prototype makes 102 kW at 15,000 rpm against a 110 kW at 10,000 rpm neodymium baseline: lower power at 50% more speed, not parity.",
         action: "Show power with its speed.",
       },
       {
         id: "iron-nitride-gates",
         label: "Iron nitride must clear four gates",
-        line: "Fe16N2 offers about 2.5 T saturation and reported 1 T remanence. Hardness below one, a stated 4,000–5,000 Oe coercivity ceiling and 216–250 °C decomposition work remain development gates, not a drop-in traction claim.",
+        line: "Fe16N2 offers about 2.5 T saturation and reported 1 T remanence. Hardness below one, a stated 4,000–5,000 Oe coercivity ceiling and 216–250 °C decomposition work remain development gates, requiring further validation for vehicle use.",
         action: "Compare saturation, hardness, coercivity and thermal margin together.",
       },
       {
@@ -695,7 +695,7 @@ export const STOPS: readonly Stop[] = [
       {
         id: "stackable-layers",
         label: "These stack rather than compete",
-        line: "Conifer is ferrite and axial flux at once. PM-assisted SynRM and IPM-SynRM combine reluctance with magnets. These layers can coexist.",
+        line: "Motor developer Conifer uses ferrite and axial flux at once. PM-assisted SynRM and IPM-SynRM combine reluctance with magnets. These layers can coexist.",
         action: "Build a configuration across all five axes.",
       },
     ],
@@ -759,13 +759,13 @@ export const STOPS: readonly Stop[] = [
       {
         id: "two-markets",
         label: "Two markets, two reasons",
-        line: "In EV traction, supply is the reason to look beyond the NdFeB motor. In industrial drives, induction already avoids neodymium; efficiency regulation is the reason to change. ABB sells reluctance there for energy savings.",
+        line: "In EV traction, supply is the reason to look beyond the NdFeB motor. In industrial drives, induction already avoids neodymium; efficiency regulation is the reason to change. Industrial motor supplier ABB sells reluctance there for energy savings.",
         action: "Switch the market filter.",
       },
       {
         id: "where-we-are",
         label: "Where the technology could go next",
-        line: "The market is developing along several paths: improved magnet grades, magnet-free motors already used in EVs, and ferrite or reluctance designs moving between prototypes and commercial applications. In India, Sona Comstar reports testing a ferrite-assisted reluctance motor, while Chara offers reluctance systems. Their public evidence does not establish passenger-car mass production. Wider adoption depends on whole-drive performance and manufacturing readiness, not the rotor alone.",
+        line: "Technology substitution is opening more ways to reduce rare-earth dependence. In India, automotive supplier Sona Comstar reports a tested and validated ferrite-assisted reluctance motor. Motor developer Chara Technologies offers reluctance systems for mobility and industry. This testing and product development is building a path to wider commercial use. As these approaches mature, they can help the world diversify away from rare-earth magnets while meeting vehicles' performance needs.",
         action: "Review the three decisions the walkthrough has established.",
         stage: { kind: "svg", diagram: "decision-summary-clean" },
       },

@@ -52,8 +52,8 @@ function TourEnd({ onRestart, onBack }: { onRestart: () => void; onBack: () => v
         <h1 id="tour-end-title">Three things to carry forward</h1>
         <ol className="tour-end__summary">
           <li><strong>The motor.</strong> A PMSM turns because the inverter makes the stator's field rotate and a magnet rotor follows it. The magnet keeps its strength at temperature only because of a few per cent of dysprosium and terbium, and those are the elements under licence.</li>
-          <li><strong>The alternatives.</strong> A cage of bars, a rotor coil fed from outside, or shaped steel can each produce torque without rare earths. Each moves the cost elsewhere, to rotor heat, power-transfer hardware, machine size, or noise and control effort.</li>
-          <li><strong>The outlook.</strong> Induction and wound-field motors already power production cars. Ferrite and reluctance designs have different levels of commercial maturity. Their prospects depend on complete-drive performance, cost and manufacturing readiness; a tested prototype alone does not establish mass production.</li>
+          <li><strong>The alternatives.</strong> Induction motors use currents induced in aluminium or copper rotor bars. Wound-field motors supply current to rotor coils, while reluctance motors use shaped steel. All three can turn the wheels without rare-earth magnets, with different cooling, power-supply and control requirements.</li>
+          <li><strong>The outlook.</strong> Induction and wound-field motors already power production cars. Ferrite and reluctance designs are opening further options, with testing and development for wider commercial use underway. Over time, technology substitution will be a key way for the world to diversify away from these minerals. Progress in motor design, materials and manufacturing is expanding the paths available.</li>
         </ol>
         <div className="tour-end__actions">
           <button type="button" className="tour-end__restart" onClick={onRestart}>Start again</button>
