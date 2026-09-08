@@ -41,6 +41,7 @@ export function shotFor(
   if (stage.scene === "car") {
     return state.id === "one-part" || state.id === "drive-unit" ? "car-close" : "car";
   }
+  if (["induction-principle", "induction-duty", "wound-control", "wound-hardware", "contactless-frontier"].includes(state.id)) return "rotor-hardware";
   if (isolate === "air-gap") return "motor-face";
   if (isolate === "rotor" || isolate === "shaft") return "rotor";
   if (explode > 0.15 && isolate === "none") return "motor-exploded";

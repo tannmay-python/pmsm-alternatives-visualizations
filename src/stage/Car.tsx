@@ -235,7 +235,7 @@ export function Car({
   );
 
   return (
-    <group rotation={[0, 0.5, 0]} position={[0, -0.9, 0]}>
+    <group position={[0, -0.9, 0]}>
       <Body />
       <Skateboard focus={focus} />
       <DriveUnit x={2.05} lit={focus === "drive-unit"} spinning={spinning} />
@@ -253,10 +253,10 @@ export function Car({
 
       {focus === "battery" && (
         <>
-          <Callout position={[-1.25, 0.73, 0.83]} direction="top" accent>
+          <Callout position={[-1.25, 0.73, 0.83]} direction="left" accent>
             battery pack · direct current
           </Callout>
-          <Callout position={[1.63, 1.02, 0.39]} direction="top">
+          <Callout position={[1.63, 1.02, 0.39]} direction="top-left">
             inverter · three-phase AC
           </Callout>
           <Callout position={[2.38, 0.98, 0.12]} direction="right" accent>

@@ -25,8 +25,8 @@ export type Shot = {
 };
 
 export const SHOTS = {
-  /** Three-quarter from the front, the way a car is normally photographed. */
-  car: { dir: [0.86, 0.36, 0.9], margin: 0.98 },
+  /** Near top-down, with the car length vertical and all drivetrain parts exposed. */
+  car: { dir: [0.025, 1, 0], margin: 1.08 },
   "car-close": { dir: [0.74, 0.3, 0.78], margin: 0.86 },
   /** Near-perpendicular to the axis, so an exploded row reads left to right. */
   motor: { dir: [-0.86, 0.32, 0.4], margin: 1.02 },
@@ -36,11 +36,12 @@ export const SHOTS = {
    */
   "motor-exploded": { dir: [-0.88, 0.3, 0.4], margin: 0.94 },
   /** Down the bore, for anything about the rotating field. */
-  "motor-face": { dir: [0.1, 0.2, 1], margin: 1.0 },
+  "motor-face": { dir: [0, 0, 1], margin: 1.16 },
   /** Three-quarter end-on: the end face carries the V pockets, so it leads. */
-  rotor: { dir: [-0.5, 0.36, 0.85], margin: 0.86 },
+  rotor: { dir: [-0.5, 0.25, 1], margin: 1.02 },
+  "rotor-hardware": { dir: [-0.85, 0.3, 0.65], margin: 1.05 },
   /** Axial machines are wide and shallow, so they are read from the front. */
-  axial: { dir: [0.86, 0.34, 0.5], margin: 1.06 },
+  axial: { dir: [0.45, 0.2, 1], margin: 1.12 },
 } as const satisfies Record<string, Shot>;
 
 export type ShotName = keyof typeof SHOTS;

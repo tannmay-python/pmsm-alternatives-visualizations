@@ -149,7 +149,7 @@
   top: 0;
   width: 22px;
   height: 1px;
-  background: var(--ink-30);
+  background: var(--ink-50);
   z-index: 1;
 }
 .callout--right .callout__pill {
@@ -165,7 +165,7 @@
   top: 0;
   width: 22px;
   height: 1px;
-  background: var(--ink-30);
+  background: var(--ink-50);
   z-index: 1;
 }
 .callout--left .callout__pill {
@@ -181,7 +181,7 @@
   bottom: 0;
   width: 1px;
   height: 20px;
-  background: var(--ink-30);
+  background: var(--ink-50);
   z-index: 1;
 }
 .callout--top .callout__pill {
@@ -197,7 +197,7 @@
   top: 0;
   width: 1px;
   height: 20px;
-  background: var(--ink-30);
+  background: var(--ink-50);
   z-index: 1;
 }
 .callout--bottom .callout__pill {
@@ -213,8 +213,8 @@
   bottom: 0;
   width: 20px;
   height: 20px;
-  border-left: 1px solid var(--ink-30);
-  border-top: 1px solid var(--ink-30);
+  border-left: 1px solid var(--ink-50);
+  border-top: 1px solid var(--ink-50);
   z-index: 1;
 }
 .callout--top-right .callout__pill {
@@ -229,8 +229,8 @@
   bottom: 0;
   width: 20px;
   height: 20px;
-  border-right: 1px solid var(--ink-30);
-  border-top: 1px solid var(--ink-30);
+  border-right: 1px solid var(--ink-50);
+  border-top: 1px solid var(--ink-50);
   z-index: 1;
 }
 .callout--top-left .callout__pill {
@@ -245,8 +245,8 @@
   top: 0;
   width: 20px;
   height: 20px;
-  border-right: 1px solid var(--ink-30);
-  border-bottom: 1px solid var(--ink-30);
+  border-right: 1px solid var(--ink-50);
+  border-bottom: 1px solid var(--ink-50);
   z-index: 1;
 }
 .callout--bottom-left .callout__pill {
@@ -261,8 +261,8 @@
   top: 0;
   width: 20px;
   height: 20px;
-  border-left: 1px solid var(--ink-30);
-  border-bottom: 1px solid var(--ink-30);
+  border-left: 1px solid var(--ink-50);
+  border-bottom: 1px solid var(--ink-50);
   z-index: 1;
 }
 .callout--bottom-right .callout__pill {
@@ -299,4 +299,28 @@
   .callout--top-left .callout__pill { bottom: 8px; }
   .callout--bottom-right .callout__pill,
   .callout--bottom-left .callout__pill { top: 8px; }
+}
+
+.stage-interaction {
+  position: absolute;
+  z-index: 5;
+  left: calc(50% + var(--scene-shift-x));
+  top: 108px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  white-space: nowrap;
+  color: var(--ink-70);
+  font: 11px var(--mono);
+}
+.stage-interaction span, .stage-interaction button { display: inline-flex; align-items: center; gap: 6px; }
+.stage-interaction button { color: var(--wine); padding: 8px 4px; }
+.stage-interaction button:focus-visible { outline: 2px solid var(--wine); outline-offset: 3px; }
+@media (max-width: 1080px) {
+  .stage-interaction { top: 80px; bottom: auto; font-size: 10px; gap: 14px; }
+}
+
+@media (max-width: 560px) {
+  .stage[data-scene="car"] .callout__pill { max-width: 128px; }
 }

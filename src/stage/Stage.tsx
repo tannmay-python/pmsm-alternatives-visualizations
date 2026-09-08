@@ -1,3 +1,4 @@
+import { ArrowCounterClockwise, ArrowsClockwise } from "@phosphor-icons/react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { ContactShadows, Environment, Lightformer, OrbitControls } from "@react-three/drei";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
@@ -494,7 +495,7 @@ export function Stage({
 }) {
   const [failed, setFailed] = useState(false);
   const [ready, setReady] = useState(false);
-  const [autoRotate, setAutoRotate] = useState(!reducedMotion);
+  const [viewReset, setViewReset] = useState(0);
   const controlsRef = useRef<OrbitControlsImpl>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [size, setSize] = useState({ width: 1440, height: 900 });
@@ -585,9 +586,6 @@ export function Stage({
     };
   }, [failed]);
 
-  useEffect(() => {
-    setAutoRotate(!paused && !reducedMotion);
-  }, [stop.id, state.id, paused, reducedMotion]);
 
   if (failed) {
     return (
@@ -606,6 +604,7 @@ export function Stage({
       ref={shell}
       aria-hidden={hidden}
       data-hidden={hidden || undefined}
+      data-scene={stage.kind === "three" ? stage.scene : undefined}
       style={
         {
           "--scene-shift-x": `${(frame.shiftX * 100).toFixed(3)}%`,
@@ -640,7 +639,7 @@ export function Stage({
             target={view.target}
             controlsRef={controlsRef}
             animate={!reducedMotion}
-            resetKey={`${stop.id}/${state.id}`}
+            resetKey={`${stop.id}/${state.id}/${viewReset}`}
           />
           <SceneContents
             stop={stop}
@@ -662,15 +661,19 @@ export function Stage({
             enableDamping
             dampingFactor={0.06}
             rotateSpeed={0.42}
-            autoRotate={autoRotate}
-            autoRotateSpeed={0.35}
-            onStart={() => setAutoRotate(false)}
-            minPolarAngle={Math.PI / 6}
-            maxPolarAngle={Math.PI / 1.8}
+            autoRotate={false}
+            minPolarAngle={0.01}
+            maxPolarAngle={Math.PI - 0.01}
           />
           <FirstFrame onReady={() => setReady(true)} />
         </Suspense>
       </Canvas>
+      {ready && !hidden && <aside className="stage-interaction" aria-label="3D view controls" data-scrolls>
+        <span><ArrowsClockwise size={17} aria-hidden="true" /> Drag to rotate</span>
+        <button type="button" onClick={() => setViewReset((value) => value + 1)} aria-label="Reset to the clearest view" title="Reset view">
+          <ArrowCounterClockwise size={16} aria-hidden="true" /> Reset view
+        </button>
+      </aside>}
       {!ready && (
         <div className="stage-fallback stage-fallback--loading" aria-live="polite">
           <strong>{state.label}</strong>
