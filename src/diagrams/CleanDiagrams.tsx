@@ -173,13 +173,6 @@ function TurnArrow({ id, r = 90 }: { id: string; r?: number }) {
   return <path d={`M ${x0} ${y0} A ${r} ${r} 0 0 0 ${x1} ${y1}`} fill="none" stroke="var(--ink-50)" strokeWidth="2" markerEnd={`url(#${id}-ink)`} />;
 }
 
-/** Dashed arc between the leading field and the following rotor axis. */
-function LagArc({ from, to, r = 112 }: { from: number; to: number; r?: number }) {
-  const [x0, y0] = polar(C, C, r, from);
-  const [x1, y1] = polar(C, C, r, to);
-  return <path d={`M ${x0} ${y0} A ${r} ${r} 0 0 1 ${x1} ${y1}`} fill="none" stroke="var(--ink-50)" strokeWidth="2" strokeDasharray="4 4" />;
-}
-
 function Aside({ children }: { children: ReactNode }) {
   return <div className="clean-mech__aside" data-scrolls>{children}</div>;
 }
@@ -287,7 +280,7 @@ export function RotorFollowsFieldDiagram({ controls }: ControlProps) {
   const rotor = field + 26;
 
   return (
-    <div className="clean-diagram clean-mech" role="img" aria-label="A permanent-magnet rotor following a rotating stator field at a small constant angle">
+    <div className="clean-diagram clean-mech" role="img" aria-label="A permanent-magnet rotor following a rotating stator field at the same speed">
       <div className="clean-mech__figure">
         <svg viewBox={`0 0 ${FIG} ${FIG}`}>
           <Arrowheads id="fol" />
@@ -301,18 +294,17 @@ export function RotorFollowsFieldDiagram({ controls }: ControlProps) {
           <TurnArrow id="fol" />
           <AxisArrow deg={rotor} id="fol" from={54} />
           <FieldArrow deg={field} id="fol" />
-          <LagArc from={field} to={rotor} />
           <circle cx={C} cy={C} r="6" fill="var(--ink)" />
         </svg>
       </div>
       <Aside>
         <h4 className="clean-aside__title"><i className="clean-swatch clean-swatch--wine" />Stator field</h4>
-        <p className="clean-aside__copy">leads by a small angle</p>
+        <p className="clean-aside__copy">rotates as the coil currents change</p>
         <h4 className="clean-aside__title"><i className="clean-swatch clean-swatch--gold" />Rotor magnetic axis</h4>
         <p className="clean-aside__copy">follows at the same steady speed</p>
         <hr className="clean-aside__rule" />
-        <h4 className="clean-aside__title">An angle, not a speed difference.</h4>
-        <p className="clean-aside__copy">For a given excitation, a heavier load can increase the torque angle. In steady synchronous operation, both axes still turn at the same speed.</p>
+        <h4 className="clean-aside__title">Turning together.</h4>
+        <p className="clean-aside__copy">The rotor keeps pace with the rotating field. This is synchronous operation.</p>
       </Aside>
     </div>
   );
@@ -351,13 +343,11 @@ export function TorqueCombinationDiagram({ controls }: ControlProps) {
       <Aside>
         <div className="clean-pull">
           <h4 className="clean-aside__title">Magnet torque</h4>
-          <span className="clean-pull__bar"><i style={{ width: "100%", background: "var(--wine)" }} /></span>
           <p className="clean-aside__copy">Embedded magnets follow the stator field.</p>
         </div>
         <div className="clean-pull">
           <h4 className="clean-aside__title">Reluctance torque</h4>
-          <span className="clean-pull__bar"><i style={{ width: "50%", background: "var(--cat-5)" }} /></span>
-          <p className="clean-aside__copy">Shaped steel turns toward the path of least magnetic resistance. Roughly a third of the total.</p>
+          <p className="clean-aside__copy">Shaped steel aligns with the magnetic field, adding turning force.</p>
         </div>
       </Aside>
     </div>

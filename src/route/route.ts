@@ -276,7 +276,7 @@ export const STOPS: readonly Stop[] = [
       {
         id: "rotor-locks",
         label: "Synchronous",
-        line: "A permanent-magnet rotor turns at the same steady speed as the rotating field: this is synchronous operation. Its magnetic axis has an angular offset from the field, called the torque angle. For a given excitation, a heavier load can increase this angle without changing the steady speed. In an EV, the inverter controls current to deliver the requested torque and keeps the rotating field synchronised with the rotor.",
+        line: "The permanent-magnet rotor turns at the same speed as the stator's rotating field. This is why the motor is called synchronous. The inverter controls current to produce the turning force, or torque, the driver requests.",
         action: "Watch the stator field pull the rotor around the air gap.",
         stage: { kind: "svg", diagram: "rotor-follows-field-clean" },
       },
@@ -310,7 +310,7 @@ export const STOPS: readonly Stop[] = [
       {
         id: "already-both",
         label: "Reluctance torque",
-        line: "Steel on its own is pulled toward the position where magnetic flux passes through it most easily, in the same way a nail turns toward a magnet. Rotor designers shape the steel around the magnet pockets so that this pull adds to the magnets', and in a typical traction rotor it contributes something like a third of the total torque. This is also why the magnets are buried rather than glued to the surface: the steel around them is doing work.",
+        line: "Shaped steel also turns toward the position where magnetic flux passes through it most easily. This produces reluctance torque, which adds to the magnets' turning force. Reluctance motors use this effect to turn the rotor without permanent magnets.",
         action: "Compare magnet pull with steel alignment.",
         stage: { kind: "svg", diagram: "torque-combination-clean" },
       },
