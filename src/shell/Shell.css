@@ -330,4 +330,5 @@
 }
 
 .tour-end .tour-end__india { max-width: none; margin: 18px 0 0; font: inherit; }
-.tour-end__india a { color: var(--wine); text-decoration: underline; text-underline-offset: 3px; }
+.tour-end__india a { color: var(--wine); text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--wine) 35%, transparent); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.tour-end__india a:hover, .tour-end__india a:focus-visible { text-decoration-color: currentColor; }
