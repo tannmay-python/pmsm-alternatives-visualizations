@@ -328,3 +328,6 @@
   .scroll-cue--y .scroll-cue__thumb { width: 100%; height: 30%; }
   .stage-diagram { position: absolute; }
 }
+
+.tour-end .tour-end__india { max-width: none; margin: 18px 0 0; font: inherit; }
+.tour-end__india a { color: var(--wine); text-decoration: underline; text-underline-offset: 3px; }
