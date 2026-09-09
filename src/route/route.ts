@@ -218,7 +218,7 @@ export const STOPS: readonly Stop[] = [
       {
         id: "rotor",
         label: "The magnets",
-        line: "This rotor carries sixteen strips of magnet in V-shaped pockets, and steel bridges over each pocket hold them in against the forces at 15,000 rpm. The material is neodymium-iron-boron, written NdFeB. It stays magnetised with no electrical input, which is what a permanent magnet is, and the machine built around it is a permanent-magnet synchronous motor, PMSM in the industry's shorthand.",
+        line: "This rotor carries sixteen strips of magnet in V-shaped pockets, and steel bridges over each pocket hold them in against the forces of high-speed rotation. The material is neodymium-iron-boron, written NdFeB. It stays magnetised with no electrical input, which is what a permanent magnet is, and the machine built around it is a permanent-magnet synchronous motor, PMSM in the industry's shorthand.",
         action: "Locate the permanent magnets inside the spinning rotor.",
       },
       {
@@ -230,7 +230,7 @@ export const STOPS: readonly Stop[] = [
       {
         id: "air-gap",
         label: "The air gap",
-        line: "The stator and the rotor do not touch. An air gap of under a millimetre separates them, and the torque that turns the wheels crosses it as magnetic force. The question for the rest of this walkthrough is what produces the magnetic field on the rotor side of that gap, since a permanent magnet is only one of the ways to do it.",
+        line: "The stator and the rotor do not touch. A narrow air gap separates them, and the torque that turns the wheels crosses it as magnetic force. The question for the rest of this walkthrough is what produces the magnetic field on the rotor side of that gap, since a permanent magnet is only one of the ways to do it.",
         action: "Look down the bore at the gap where the magnetic fields meet.",
       },
     ],
@@ -337,7 +337,7 @@ export const STOPS: readonly Stop[] = [
       {
         id: "division-of-labour",
         label: "Neodymium, iron, boron",
-        line: "NdFeB is neodymium, iron and boron, and in practice praseodymium is used alongside the neodymium. Iron supplies most of the magnetic strength. Neodymium and praseodymium supply the coercivity, the resistance to being demagnetised when the stator's field pushes against the magnet. Boron stabilises the crystal structure that lets iron and neodymium coexist. No other commercial material gives as much field from as small a block, and that is why it is in the car.",
+        line: "NdFeB is neodymium, iron and boron, and in practice praseodymium is used alongside the neodymium. Iron supplies most of the magnetic strength. Neodymium and praseodymium help the crystal favour one direction of magnetisation. This, together with the magnet's microstructure, helps it resist demagnetisation. Boron stabilises the crystal structure. Together they make a strong, compact permanent magnet suited to traction motors.",
         action: "Compare the two jobs inside one magnet.",
         stage: { kind: "svg", diagram: "magnet-jobs-clean" },
       },
@@ -386,7 +386,7 @@ export const STOPS: readonly Stop[] = [
       {
         id: "hot-margin",
         label: "Heat and reverse field spend the same margin",
-        line: "A traction rotor can reach 150–180 °C, where its resistance to reversal has fallen. Hard acceleration then pushes the stator field back against the magnet and toward the knee.",
+        line: "Heat reduces a magnet's resistance to reversal. A sufficiently strong opposing stator field can then push its operating point beyond the knee, causing irreversible demagnetisation.",
         action: "Raise temperature and opposing field independently, then together.",
         stage: { kind: "svg", diagram: "hot-margin" },
       },
@@ -400,14 +400,14 @@ export const STOPS: readonly Stop[] = [
       {
         id: "dysprosium-tradeoff",
         label: "Why the heavy pair is there",
-        line: "A magnet can be demagnetised. A strong enough opposing field flips part of it, and the loss is permanent. Heat reduces the field needed to do that, and a traction rotor runs at 150–180 °C under full load, which is also when the stator pushes hardest. Dysprosium and terbium raise the temperature at which the magnet holds. A motor without them either has to run cooler or has to be rated for less.",
+        line: "A strong opposing field can leave a magnet permanently weaker. Heat makes this easier by reducing its resistance to demagnetisation. Dysprosium and terbium improve that resistance. Better control of the magnet's grain structure and effective rotor cooling can also help, allowing some designs to use less of these elements or avoid them. The magnet grade must suit the motor's temperatures and opposing fields.",
         action: "Watch protection return to a hot magnet.",
         stage: { kind: "svg", diagram: "heat-protection-clean" },
       },
       {
         id: "diffusion-evolution",
         label: "Put the patch only at the vulnerable edge",
-        line: "Grain-boundary diffusion puts a Dy-rich shell at the surface where reversal starts instead of filling the whole core. The magnet remains about 69% iron, 30% Nd/Pr and 1–4% Dy by mass.",
+        line: "Grain-boundary diffusion puts a Dy-rich shell at the surface where reversal starts instead of filling the whole core. The amount required depends on the magnet grade and processing method.",
         action: "Change shell depth and compare it with uniform doping.",
         stage: { kind: "svg", diagram: "grain-diffusion" },
       },
@@ -432,7 +432,7 @@ export const STOPS: readonly Stop[] = [
       {
         id: "the-split",
         label: "What the notice covered",
-        line: "By mass a traction magnet is roughly 69 per cent iron, 30 per cent neodymium and praseodymium, and 1 to 4 per cent dysprosium and terbium. Neodymium and praseodymium are light rare earths, mined in several countries. Dysprosium and terbium are heavy rare earths, added for heat resistance, and almost all of the world's supply is refined in China. The April 2025 notice covered dysprosium and terbium. It did not cover neodymium.",
+        line: "An NdFeB magnet is mostly iron, with neodymium, praseodymium and a small amount of boron. Some grades also contain dysprosium or terbium to improve resistance to demagnetisation when hot. The proportions vary by grade. The April 2025 notice covered these two heavy rare earths and NdFeB magnets containing them. It did not cover neodymium or praseodymium themselves.",
         action: "Separate the magnet by material role and control exposure.",
         stage: { kind: "svg", diagram: "rare-earth-split-clean" },
       },
@@ -445,7 +445,7 @@ export const STOPS: readonly Stop[] = [
       {
         id: "the-cheapest-move",
         label: "The smallest credible change",
-        line: "Dysprosium is only 1–4% of the magnet, and diffusion already uses less of it. Cut it and the motor still runs, but with less temperature headroom.",
+        line: "Dysprosium content varies by grade, and diffusion can reduce the amount needed. Reducing it requires checking the magnet’s resistance to demagnetisation in the intended motor.",
         action: "Climb the mitigation ladder one rung at a time.",
         stage: { kind: "svg", diagram: "mitigation-ladder" },
       },
@@ -459,7 +459,7 @@ export const STOPS: readonly Stop[] = [
       {
         id: "already-happened",
         label: "Three ways to use less",
-        line: "Three approaches reduce heavy-rare-earth use while keeping a permanent-magnet motor. Direct rotor oil cooling lowers the temperature the magnets face; Audi uses it on the Q6 e-tron. Grain-boundary diffusion concentrates dysprosium near crystal edges, where demagnetisation starts. Low- or zero-dysprosium grades reduce it further. Each approach needs checks for the intended vehicle, and some need cooling or manufacturing changes before deployment.",
+        line: "Three approaches reduce heavy-rare-earth use while keeping a permanent-magnet motor. Direct rotor oil cooling lowers the temperature the magnets face; Audi uses it on the Q6 e-tron. Grain-boundary diffusion concentrates dysprosium near crystal edges, where demagnetisation starts. Heavy-rare-earth-free grades offer another route. Each approach needs checks for the intended vehicle, and some need cooling or manufacturing changes before deployment.",
         action: "Compare three low-disruption mitigation routes.",
         stage: { kind: "svg", diagram: "mitigation-options-clean" },
       },
@@ -583,7 +583,7 @@ export const STOPS: readonly Stop[] = [
       {
         id: "wound-control",
         label: "Wound field",
-        line: "A wound-field motor feeds current into rotor coils instead of using magnets. Its field can be reduced at high speed. It needs a rotor power supply, transfer hardware and cooling.\n\nRenault used it in the 2012 Zoe model; Nissan's Ariya followed in 2022, and BMW also uses it. Renault has announced a new generation for 2028. Automotive suppliers ZF, Valeo and Mahle are developing brushless versions, with Valeo and Mahle working together.",
+        line: "A wound-field motor feeds current into rotor coils instead of using magnets. Its field can be reduced at high speed. It needs a rotor power supply, transfer hardware and cooling.\n\nRenault used it in the 2012 Zoe model; Nissan's Ariya followed in 2022, and BMW also uses it. Renault is developing a new generation. Automotive suppliers ZF, Valeo and Mahle are developing brushless versions, with Valeo and Mahle working together.",
         action: "Trace the electrical supply into the rotor winding.",
         stage: { kind: "three", scene: "motor", rotor: "wound" },
       },
@@ -604,7 +604,7 @@ export const STOPS: readonly Stop[] = [
       {
         id: "reluctance-spectrum",
         label: "Synchronous reluctance",
-        line: "A synchronous reluctance motor uses shaped steel, without magnets or rotor windings. The stator field pulls its easy magnetic axis into line. Lower power factor can require a larger inverter.\n\nIndustrial motor supplier ABB sells these drives. Indian motor developer Chara Technologies offers motor-and-controller systems for mobility and industry. Indian motor companies Viridian Ingni Propulsion and Matel Motion also work on reluctance and hybrid-ferrite designs.",
+        line: "A synchronous reluctance motor uses shaped steel, without magnets or rotor windings. The stator field pulls its easy magnetic axis into line. Lower power factor can require a larger inverter.\n\nIndustrial motor supplier ABB sells these drives. Indian motor developer Chara Technologies offers motor-and-controller systems for mobility and industry.",
         action: "Inspect the shaped steel paths inside a pure reluctance rotor.",
         stage: { kind: "svg", diagram: "synrm-mechanism-clean" },
       },
@@ -657,7 +657,7 @@ export const STOPS: readonly Stop[] = [
       {
         id: "ferrite-limit",
         label: "Ferrite",
-        line: "Ferrite magnets use iron oxide and no rare earths. Their weaker field than NdFeB means recovering output through more magnet material, a larger rotor, higher speed or different geometry.\n\nJapanese materials maker Proterial tested a 102 kW ferrite prototype at 15,000 rpm against a 110 kW NdFeB baseline at 10,000 rpm. Magnet developer Niron Magnetics and Indian motorcycle maker Matter showed an iron-nitride prototype at CES 2026. These projects are steps toward commercial vehicle applications.",
+        line: "Ferrite magnets use iron oxide and no rare earths. Their weaker field than NdFeB means recovering output through more magnet material, a larger rotor, higher speed or different geometry.\n\nProterial's ferrite prototype has a maximum output of 102 kW and maximum speed of 15,000 rpm; its NdFeB baseline has 110 kW and 10,000 rpm respectively. Magnet developer Niron Magnetics and Indian motorcycle maker Matter showed an iron-nitride prototype at CES 2026. These projects are steps toward commercial vehicle applications.",
         action: "Compare enlarged ferrite pockets with the NdFeB rotor.",
         stage: { kind: "svg", diagram: "ferrite-comparison-clean" },
       },
@@ -685,7 +685,7 @@ export const STOPS: readonly Stop[] = [
       {
         id: "proterial-numbers",
         label: "Read both numbers together",
-        line: "Japanese materials maker Proterial's ferrite prototype makes 102 kW at 15,000 rpm against a 110 kW at 10,000 rpm neodymium baseline: lower power at 50% more speed, not parity.",
+        line: "Japanese materials maker Proterial's ferrite prototype has a maximum output of 102 kW and a maximum speed of 15,000 rpm; its neodymium baseline has a maximum output of 110 kW and a maximum speed of 10,000 rpm.",
         action: "Show power with its speed.",
       },
       {
@@ -760,7 +760,7 @@ export const STOPS: readonly Stop[] = [
       {
         id: "validation",
         label: "What is proven, and where",
-        line: "Induction and wound-field motors already power production cars: Renault since 2012, Nissan since 2022, BMW across its current range, with Renault's next generation announced for 2028. Reluctance motors have industrial uses; ferrite traction motors have tested prototypes. What remains differs by design: proving range, sustained power, noise and durability in the intended vehicle, then repeatable manufacture. The table separates those stages. Its costs are hardware, losses and engineering work, not quoted prices.",
+        line: "Induction and wound-field motors already power production cars: Renault's Zoe from 2012, Nissan's Ariya from 2022 and BMW's fifth-generation eDrive are wound-field examples. Reluctance motors have industrial uses; ferrite traction motors have tested prototypes. What remains differs by design: proving range, sustained power, noise and durability in the intended vehicle, then repeatable manufacture. The table separates those stages. Its costs are hardware, losses and engineering work, not quoted prices.",
         action: "Compare mechanism, rare-earth exposure, penalty and automotive state.",
         stage: { kind: "svg", diagram: "readiness-map-clean" },
       },

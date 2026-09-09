@@ -397,3 +397,14 @@
 }
 
 .clean-family-map, .clean-burden { min-width: 0; max-width: 100%; }
+
+/* Chemistry labels, not a universal composition-by-mass chart. */
+.clean-split__materials { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-block: var(--hairline); }
+.clean-split__materials > div { display: flex; flex-direction: column; gap: 8px; padding: 20px 12px; }
+.clean-split__materials > div + div { border-left: var(--hairline); }
+.clean-split__materials b { color: var(--wine); font-size: clamp(18px, 2.5vw, 30px); font-weight: 500; }
+.clean-split__materials span { color: var(--ink-60); font-size: 12px; line-height: 1.4; }
+@media (max-width: 700px) {
+  .clean-split__materials > div { padding: 10px 6px; gap: 4px; }
+  .clean-split__materials span { font-size: 10px; }
+}

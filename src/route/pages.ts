@@ -88,7 +88,7 @@ export const PAGES: readonly PageSpec[] = [
     transition: {
       act: "The material",
       title: "Why this magnet creates a supply risk",
-      lede: "Neodymium provides the field. A small addition of dysprosium and terbium lets the magnet survive a hot rotor, and those two elements are what the April notice restricted.",
+      lede: "Neodymium-iron-boron makes a strong, compact magnet. Dysprosium and terbium can improve its resistance to demagnetisation when hot; both were covered by the April notice.",
       nextLabel: "Inside the magnet",
     },
     stops: [

@@ -34,7 +34,6 @@ const toScreenDeg = (radians: number) => (-radians * 180) / Math.PI;
 const rad = (deg: number) => (deg * Math.PI) / 180;
 const polar = (cx: number, cy: number, r: number, deg: number) =>
   [cx + Math.cos(rad(deg)) * r, cy + Math.sin(rad(deg)) * r] as const;
-const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
 
 /** Coil brightness for a field pointing at `fieldDeg`: bright along its axis, dim across it. */
 const coilStrengths = (fieldDeg: number) =>
@@ -387,23 +386,21 @@ export function MagnetJobsDiagram() {
 
 export function RareEarthSplitDiagram() {
   return (
-    <div className="clean-diagram clean-split" role="img" aria-label="Light and heavy rare earth shares of an NdFeB traction magnet: about 69 percent iron, 30 percent neodymium and praseodymium, one to four percent dysprosium and terbium">
-      <div className="clean-split__bar" aria-hidden="true">
-        <span className="clean-split__seg clean-split__seg--iron" style={{ flexBasis: "67%" }}>Iron <b>≈69%</b></span>
-        <span className="clean-split__seg clean-split__seg--nd" style={{ flexBasis: "29%" }}>Nd/Pr <b>≈30%</b></span>
-        <span className="clean-split__seg clean-split__seg--dy" style={{ flexBasis: "4%" }} />
-      </div>
-      <div className="clean-split__leader" aria-hidden="true">
-        <span>Dy/Tb <b>1–4%</b></span>
+    <div className="clean-diagram clean-split" role="img" aria-label="NdFeB contains iron, neodymium and praseodymium, and boron. Some grades also use dysprosium or terbium. Composition varies by grade.">
+      <div className="clean-split__materials" aria-hidden="true">
+        <div><b>Fe</b><span>Iron</span></div>
+        <div><b>Nd / Pr</b><span>Light rare earths</span></div>
+        <div><b>B</b><span>Boron</span></div>
+        <div><b>Dy / Tb</b><span>Used in some grades</span></div>
       </div>
       <div className="clean-split__notes">
         <div className="clean-split__note">
           <h4 className="clean-aside__title">Light rare earths</h4>
-          <p className="clean-aside__copy">Neodymium and praseodymium, about 30 per cent by mass, mined in several countries. Not covered by the notice.</p>
+          <p className="clean-aside__copy">Neodymium and praseodymium are part of the magnet’s base chemistry. Neither was listed in the April 2025 notice.</p>
         </div>
         <div className="clean-split__note clean-split__note--heavy">
           <h4 className="clean-aside__title">Heavy rare earths</h4>
-          <p className="clean-aside__copy">Dysprosium and terbium, 1 to 4 per cent by mass, added for heat. Almost entirely refined in China. Covered by the notice.</p>
+          <p className="clean-aside__copy">Dysprosium and terbium improve resistance to demagnetisation when hot. Both, and NdFeB magnets containing them, were covered.</p>
         </div>
       </div>
     </div>
@@ -412,39 +409,23 @@ export function RareEarthSplitDiagram() {
 
 /* ── 11 · Heat and protection ───────────────────────────────────────────── */
 
-const AXIS_MIN = 20;
-const AXIS_MAX = 180;
-const axisPercent = (celsius: number) => ((celsius - AXIS_MIN) / (AXIS_MAX - AXIS_MIN)) * 100;
-
-export function HeatProtectionDiagram({ controls }: ControlProps) {
-  const heat = clamp01(controls.heat);
-  const dysprosium = clamp01(controls.dysprosium);
-  const unprotected = 150 - 70 * heat;
-  const safeUpTo = Math.round(unprotected + (AXIS_MAX - unprotected) * dysprosium);
-  const rotorToday = 160;
-  const rotorShown = heat >= 0.5;
-
+export function HeatProtectionDiagram() {
+  const rows = [
+    ["01", "Higher temperature", "Makes an NdFeB magnet easier to demagnetise", "less resistance"],
+    ["02", "Dy/Tb additions", "Help the magnet resist an opposing magnetic field", "more resistance"],
+    ["03", "Grain design and cooling", "Can reduce the need for heavy rare earths", "other ways to protect"],
+  ];
   return (
-    <div className="clean-diagram clean-heat" role="img" aria-label={`Magnet temperature axis from 20 to 180 degrees. Safe up to ${safeUpTo} degrees.${rotorShown ? " Rotor today at 160 degrees." : ""}`}>
-      <p className="clean-axis__label">magnet temperature, °C</p>
-      <div className="clean-axis">
-        <div className={`clean-axis__flag clean-axis__flag--safe ${axisPercent(safeUpTo) > 62 ? "is-right" : ""}`} style={{ left: `${axisPercent(safeUpTo)}%` }}>
-          <span>safe up to · {safeUpTo} °C</span>
-          <i />
-        </div>
-        <div className="clean-axis__line">
-          {[20, 60, 100, 140, 180].map((t) => (
-            <span key={t} className="clean-axis__tick" style={{ left: `${axisPercent(t)}%` }}><b>{t}</b></span>
-          ))}
-        </div>
-        <div className="clean-axis__flag clean-axis__flag--rotor is-right" style={{ left: `${axisPercent(rotorToday)}%` }} hidden={!rotorShown}>
-          <i />
-          <span>rotor today · {rotorToday} °C</span>
-        </div>
-      </div>
-      <div className="clean-heat__copy">
-        <p className="clean-aside__copy">Heat lowers the field needed to demagnetise the magnet.</p>
-        <p className="clean-aside__copy">Dysprosium and terbium raise the temperature at which it holds.</p>
+    <div className="clean-diagram clean-list-board" role="img" aria-label="Heat reduces resistance to demagnetisation. Dysprosium and terbium increase it. Grain design and cooling can reduce the need for these additions.">
+      <div className="clean-list-board__rows" data-scrolls>
+        {rows.map(([n, title, copy, effect]) => (
+          <div className="clean-list-row" key={n}>
+            <span className="clean-list-row__number">{n}</span>
+            <strong>{title}</strong>
+            <span>{copy}</span>
+            <em>{effect}</em>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -456,7 +437,7 @@ export function MitigationOptionsDiagram() {
   const rows = [
     ["1", "Cool the rotor", "Direct oil cooling lowers the temperature the magnet must survive", "adds cooling hardware"],
     ["2", "Diffuse dysprosium to the grain edges", "Protect where demagnetisation starts rather than the whole block", "new magnet process"],
-    ["3", "Qualify dysprosium-free NdFeB", "Same motor, no heavy rare earths, years of validation", "long qualification"],
+    ["3", "Qualify heavy-rare-earth-free NdFeB", "Check heat tolerance and resistance to opposing fields in the intended motor", "grade qualification"],
   ];
   return (
     <div className="clean-diagram clean-list-board" role="img" aria-label="Three low-disruption ways to reduce heavy rare earths">
@@ -700,12 +681,12 @@ const READINESS_HEAD = ["Route", "Rotor", "Evidence / named examples", "Engineer
 
 export function ReadinessMapDiagram() {
   const routes: [string, string, ReactNode, string, string][] = [
-    ["Low-dysprosium NdFeB", "Permanent magnet", <><a href="https://www.proterial.com/e/press/2025/n0722b.html">Proterial</a>, a Japanese materials maker: reduced-heavy-rare-earth grades in production; newer zero-heavy grades sampled</>, "Magnet qualification; cooling changes if heat margin is insufficient", "Grade-specific qualification"],
+    ["Low-dysprosium NdFeB", "Permanent magnet", <><a href="https://www.proterial.com/e/press/2025/n0722b.html">Proterial</a>, a Japanese materials maker: heavy-rare-earth-free grades in production; a newer traction grade offered as pre-production samples</>, "Magnet qualification; cooling changes if heat margin is insufficient", "Grade-specific qualification"],
     ["Ferrite PMSM", "Permanent magnet", <><a href="https://www.proterial.com/e/press/2023/pdf/20230724en.pdf">Proterial</a>, a Japanese materials maker: tested traction prototype</>, "New rotor tooling; extra size or speed to recover output", "Prototype demonstrated"],
-    ["Induction", "Conducting cage", <><a href="https://www.audi-mediacenter.com/en/the-audi-q6-e-tron-electric-mobility-on-a-new-level-15929/download">Audi Q6 e-tron quattro</a>: front axle</>, "Rotor heat means cooling demand and energy losses", "Production cars"],
+    ["Induction", "Conducting cage", <><a href="https://www.audi.com/en/the-audi-q6-e-tron-electric-mobility-on-a-new-level-15929/sporty-performance-powerful-drives-15932">Audi Q6 e-tron quattro</a>: front axle</>, "Rotor heat means cooling demand and energy losses", "Production cars"],
     ["Wound field", "Powered rotor coil", <><a href="https://www.press.bmwgroup.com/canada/article/detail/T0440602EN?forceSitePreference=DESKTOP">BMW</a>: production eDrive</>, "Rotor supply, transfer hardware and cooling; brush life if fitted", "Production cars"],
     ["SynRM", "Shaped steel", <><a href="https://new.abb.com/news/detail/80775/ie5-synchronous-reluctance-motors">ABB</a>, an industrial motor supplier. India: <a href="https://www.chara.co.in/">Chara Technologies</a>, a motor-and-controller developer</>, "Lower power factor can require a higher-current inverter", "Industrial products; vehicle qualification varies"],
-    ["SRM", "Steel teeth", <><a href="https://turntide.com/products/motors/">Turntide</a>, a motor-system supplier: building ventilation</>, "Noise and vibration testing; current-control development", "Commercial building systems"],
+    ["SRM", "Steel teeth", <><a href="https://support.turntide.com/hc/en-us/article_attachments/45903905133332">Turntide</a>, a motor-system supplier: building ventilation</>, "Noise and vibration testing; current-control development", "Commercial building systems"],
   ];
   return (
     <div className="clean-diagram clean-readiness" role="region" aria-label="Motor routes, evidence, engineering costs and readiness">
