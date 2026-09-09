@@ -2,7 +2,7 @@
  * The public walkthrough spine.
  *
  * route.ts keeps the full research and engineering source material. This file
- * deliberately selects a 21-frame course that answers only the three questions
+ * deliberately selects a 22-frame course that answers only the three questions
  * the reader needs: what a permanent-magnet motor is and how it works, what can
  * replace it, and what each replacement costs in engineering effort.
  */
@@ -37,6 +37,7 @@ export type StopSpec = {
   from: string;
   id?: string;
   title?: string;
+  question?: string;
   groups: readonly BeatGroup[];
 };
 
@@ -136,6 +137,13 @@ export const PAGES: readonly PageSpec[] = [
       {
         from: "change-the-magnet",
         groups: [["ferrite-limit"]],
+      },
+      {
+        from: "change-the-magnet",
+        id: "displacement-outlook",
+        title: "Rare-earth magnet displacement",
+        question: "Which routes are best placed to replace rare-earth magnets?",
+        groups: [["rare-earth-displacement"]],
       },
     ],
   },

@@ -278,6 +278,11 @@ export const stateGuides: Record<string, StateGuide> = {
     takeaway: "Ferrite removes rare-earth exposure but supplies about one third of NdFeB remanence; cold demagnetisation is its automotive guard.",
     next: "See how geometry compensates for that weak field.",
   },
+  "change-the-magnet/rare-earth-displacement": {
+    lookFor: "Compare the five bars, then open each route for benefits, engineering costs and evidence.",
+    takeaway: "Wound field has the strongest near-term case for wider passenger-car use; ferrite also removes rare earths while retaining permanent magnets.",
+    next: "See how each alternative changes the drive unit.",
+  },
   "change-the-magnet/compensate-geometry": {
     lookFor: "Grow, speed up or axialise the machine; watch active volume and packaging change.",
     takeaway: "Lower magnet strength is paid in steel, copper, diameter, stack length or higher rotational speed.",

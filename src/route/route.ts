@@ -44,6 +44,7 @@ export const diagramIds = [
   "heat-protection-clean",
   "mitigation-options-clean",
   "alternatives-map-clean",
+  "displacement-prospects",
   "synrm-mechanism-clean",
   "srm-mechanism-clean",
   "ferrite-comparison-clean",
@@ -659,6 +660,13 @@ export const STOPS: readonly Stop[] = [
         line: "Ferrite magnets use iron oxide and no rare earths. Their weaker field than NdFeB means recovering output through more magnet material, a larger rotor, higher speed or different geometry.\n\nJapanese materials maker Proterial tested a 102 kW ferrite prototype at 15,000 rpm against a 110 kW NdFeB baseline at 10,000 rpm. Magnet developer Niron Magnetics and Indian motorcycle maker Matter showed an iron-nitride prototype at CES 2026. These projects are steps toward commercial vehicle applications.",
         action: "Compare enlarged ferrite pockets with the NdFeB rotor.",
         stage: { kind: "svg", diagram: "ferrite-comparison-clean" },
+      },
+      {
+        id: "rare-earth-displacement",
+        label: "Where rare-earth magnets could lose ground",
+        line: "Wound-field motors have the clearest near-term path to wider use in passenger cars: they already power main drives and their field is adjustable. Induction is also established, especially for an additional axle. Ferrite opens a route within the permanent-magnet family, while reluctance designs offer simpler rotors with more work in the inverter and controls. All five can remove rare-earth magnets; the difference is how readily they can meet the car’s performance, packaging and manufacturing needs.",
+        action: "Open each route to compare its benefits, engineering costs and commercial progress.",
+        stage: { kind: "svg", diagram: "displacement-prospects" },
       },
       {
         id: "compensate-geometry",

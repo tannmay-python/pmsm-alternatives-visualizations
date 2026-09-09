@@ -292,7 +292,7 @@ export default function App() {
   useEffect(() => {
     if (screen !== "tour") return undefined;
     const onKey = (event: KeyboardEvent) => {
-      if (event.target instanceof HTMLElement && event.target.closest("button, a, input, select, textarea, [contenteditable='true']")) return;
+      if (event.target instanceof HTMLElement && event.target.closest("button, a, input, select, textarea, summary, [contenteditable='true']")) return;
       if (event.key === "ArrowRight" || event.key === "Enter") { event.preventDefault(); goNext(); }
       if (event.key === "ArrowLeft") { event.preventDefault(); goBack(); }
       if (event.key === "Escape") setContentsOpen(false);

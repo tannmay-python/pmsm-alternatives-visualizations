@@ -52,6 +52,7 @@ describe("route structure", () => {
     expect(idsFor("change-the-magnet")).toEqual([
       "a-different-layer",
       "ferrite-limit",
+      "rare-earth-displacement",
       "compensate-geometry",
       "independent-geometry",
       "proterial-numbers",

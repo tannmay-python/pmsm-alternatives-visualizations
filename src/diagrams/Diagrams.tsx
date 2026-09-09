@@ -26,6 +26,7 @@ import {
   SynRMMechanismDiagram,
   TorqueCombinationDiagram,
 } from "./CleanDiagrams";
+import { DisplacementDiagram } from "./DisplacementDiagram";
 import "./Diagrams.css";
 
 const W = 820;
@@ -2697,6 +2698,7 @@ export function Diagram({
       {id === "heat-protection-clean" && <HeatProtectionDiagram controls={controls} />}
       {id === "mitigation-options-clean" && <MitigationOptionsDiagram />}
       {id === "alternatives-map-clean" && <AlternativesMapDiagram />}
+      {id === "displacement-prospects" && <DisplacementDiagram />}
       {id === "synrm-mechanism-clean" && <SynRMMechanismDiagram controls={controls} />}
       {id === "srm-mechanism-clean" && <SRMMechanismDiagram controls={controls} />}
       {id === "ferrite-comparison-clean" && <FerriteComparisonDiagram />}

@@ -128,7 +128,7 @@ const buildStop = (spec: StopSpec, source: Stop): PageStop => {
   return {
     id,
     title: spec.title ?? source.title,
-    question: source.question,
+    question: spec.question ?? source.question,
     sourceStopId: source.id,
     beats,
   };
