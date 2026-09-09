@@ -25,7 +25,7 @@ These are editorial judgements from the cited examples and engineering constrain
 | Replacement | The replacement drive must match the rotor supply, inverter and control calibration as well as mounting and gearing. |
 | Technology readiness | Established in production passenger-car main drives. Contactless excitation has a different development and validation path. |
 | Control and safety | Controls manage stator torque and rotor excitation together. Fault handling must cover both electrical circuits. |
-| Market readiness — cars | BMW’s Gen6 rear drive provides current production evidence. |
+| Market readiness — cars | BMW’s Gen6 announcement retains the wound-field approach used in its Gen5 cars. |
 | Market readiness — light | Car deployment does not establish a scooter service network or a competitive small-vehicle package. |
 | Market readiness — commercial | Car experience is useful, but continuous truck-duty operation and fleet servicing need separate validation. |
 
@@ -63,7 +63,7 @@ These are editorial judgements from the cited examples and engineering constrain
 | Maintenance and repair | No rotor windings, magnets or brushes. Bearings, stator insulation, cooling and controller diagnostics still matter. |
 | Replacement | Requires a matched inverter, current rating and control map, plus compatible mechanical mounting and gearing. |
 | Technology readiness | Established industrial products; vehicle integration is a distinct development task. |
-| Control and safety | Field-oriented control regulates current and torque; current demand and rotor-position estimation must work across the duty cycle. |
+| Control and safety | Field-oriented control regulates current and torque; current demand and rotor-position sensing or estimation must work across the duty cycle. |
 | Market readiness — cars | Industrial sales demonstrate the technology, while compact traction torque density remains a hurdle. |
 | Market readiness — light | Chara lists motor-and-controller systems for scooters and passenger/cargo three-wheelers. Supplier availability is distinct from a fleet service record. |
 | Market readiness — commercial | Industrial continuous-duty experience is relevant, but road-duty overloads, packaging and service support need validation. |
@@ -83,7 +83,7 @@ These are editorial judgements from the cited examples and engineering constrain
 
 ## Volume, performance and displacement
 
-The IEA’s 2026 outlook reports Indian electric two- and three-wheeler sales growth above 30% in Q1 2026, global electric car sales above 20 million in 2025, and more than a doubling of global electric truck sales in 2025. These are different markets and periods, so they are not directly comparable growth rates.
+The IEA’s 2026 outlook reports Indian electric two- and three-wheeler sales growth above 30% year-on-year in Q1 2026, global electric car sales above 20 million in 2025, and more than a doubling of global electric truck sales in 2025. These are different markets and periods, so they are not directly comparable growth rates.
 
 To estimate mineral displacement, combine vehicles adopting each route with motors replaced per vehicle and magnet mass per replaced motor. Do not multiply the indicative bars by vehicle sales.
 
@@ -107,3 +107,11 @@ Improved batteries may change vehicle design choices, but do not automatically c
 - [impact.ornl.gov](https://impact.ornl.gov/en/publications/a-framework-for-multiple-objective-co-optimization-of-switched-re/)
 - [www.iea.org](https://www.iea.org/reports/global-ev-outlook-2026/executive-summary)
 - [www.proterial.com](https://www.proterial.com/e/press/2025/n0722b.html)
+
+## Follow-up verification — 10 September 2026
+
+All 14 links in the section were clicked again. The 11 HTML destinations were readable in the browser, including the IEEE abstract and the IEA executive summary after loading. The three PDF files (Ola, Proterial and Turntide) returned valid documents and were downloaded and text-checked. IEA blocks some automated HTTP requests; IEEE initially returns an intermediate response. Neither was a broken browser destination during this check. IEEE full text may require subscription access; its abstract supports the cited finding.
+
+Corrections: BMW's linked February 2025 announcement supports Gen6 architecture and continuity with Gen5, rather than independently proving a production-start date. Indian Q1 2026 sales growth is explicitly year-on-year. Rotor position can be sensed or estimated. Ola certification is a historical milestone; the text does not assert that subsequent deployment has not occurred.
+
+The attribute tables describe engineering implications, not measured dimensions, repair costs or safety rankings. The relative adoption bands are the authors' application-specific synthesis of readiness and integration constraints. Sources support the underlying examples, not a published ranking of these five technologies.
