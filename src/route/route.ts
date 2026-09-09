@@ -664,8 +664,8 @@ export const STOPS: readonly Stop[] = [
       {
         id: "rare-earth-displacement",
         label: "Where rare-earth magnets could lose ground",
-        line: "Wound-field motors have the clearest near-term path to wider use in passenger cars: they already power main drives and their field is adjustable. Induction is also established, especially for an additional axle. Ferrite opens a route within the permanent-magnet family, while reluctance designs offer simpler rotors with more work in the inverter and controls. All five can remove rare-earth magnets; the difference is how readily they can meet the car’s performance, packaging and manufacturing needs.",
-        action: "Open each route to compare its benefits, engineering costs and commercial progress.",
+        line: "The strongest route depends on the vehicle. Wound field has production experience in car main drives; ferrite and reluctance systems offer different paths for scooters and three-wheelers. Commercial vehicles put more weight on continuous power and service uptime. Choose an application to compare the adoption case, then open a motor for the reasoning. Size, efficiency, control and readiness must be assessed together across the complete drive.",
+        action: "Choose a vehicle type and open each route to see why its adoption case differs.",
         stage: { kind: "svg", diagram: "displacement-prospects" },
       },
       {
