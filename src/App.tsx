@@ -5,6 +5,7 @@ import { TakshashilaLogo } from "./components/TakshashilaLogo";
 import { BeatCard } from "./shell/BeatCard";
 import { ProgressBar } from "./shell/ProgressBar";
 import { Landing } from "./pages/Landing";
+import { Takeaways } from "./pages/Takeaways";
 import { STOPS, type Stop, type StopState } from "./route/route";
 import { BEATS, PAGE_LIST } from "./route/structure";
 import { presetFor } from "./route/presets";
@@ -17,13 +18,14 @@ import "./shell/Shell.css";
 
 const Stage = lazy(() => import("./stage/Stage").then((m) => ({ default: m.Stage })));
 
-type Screen = "landing" | "tour" | "close";
+type Screen = "landing" | "tour" | "close" | "outlook";
 type Action = { type: "next" } | { type: "prev" } | { type: "go"; index: number };
 
-const positionFromHash = (hash: string): number | "close" | null => {
+const positionFromHash = (hash: string): number | "close" | "outlook" | null => {
   const clean = hash.replace(/^#/, "");
   if (!clean || clean === "landing") return null;
   if (clean === "close") return "close";
+  if (clean === "outlook") return "outlook";
   const index = BEATS.findIndex((b) => b.beat.id === clean || b.beat.sourceIds.includes(clean));
   if (index !== -1) return index;
   const pageIndex = PAGE_LIST.findIndex((p) => p.id === clean);
@@ -34,7 +36,7 @@ const positionFromHash = (hash: string): number | "close" | null => {
 const initialFromHash = (): { screen: Screen; index: number } => {
   const target = typeof window !== "undefined" ? positionFromHash(window.location.hash) : null;
   if (target === null) return { screen: "landing", index: 0 };
-  if (target === "close") return { screen: "close", index: BEATS.length - 1 };
+  if (target === "close" || target === "outlook") return { screen: target, index: BEATS.length - 1 };
   return { screen: "tour", index: target };
 };
 
@@ -44,28 +46,6 @@ const sourceOf = (index: number): { sourceStop: Stop; sourceState: StopState } =
   const sourceState = sourceStop.states.find((s) => s.id === pos.beat.frameStateId) ?? sourceStop.states[0];
   return { sourceStop, sourceState };
 };
-
-function TourEnd({ onRestart, onBack }: { onRestart: () => void; onBack: () => void }) {
-  return (
-    <main className="tour-end" aria-labelledby="tour-end-title">
-      <div className="tour-end__content">
-        <p className="eyebrow">End of the walkthrough · {PAGE_LIST.length} of {PAGE_LIST.length} chapters</p>
-        <h1 id="tour-end-title">Three things to carry forward</h1>
-        <ol className="tour-end__summary">
-          <li><strong>The motor.</strong> A PMSM turns because the inverter makes the stator's field rotate and a magnet rotor follows it. Dysprosium and terbium can help its magnets resist demagnetisation when hot. These licensed elements can be reduced or avoided through changes to magnet grades and motor design.</li>
-          <li><strong>The alternatives.</strong> Induction motors use currents induced in aluminium or copper rotor bars. Wound-field motors supply current to rotor coils, while reluctance motors use shaped steel. All three can turn the wheels without rare-earth magnets, with different cooling, power-supply and control requirements.</li>
-          <li><strong>The outlook.</strong> Induction and wound-field motors already power production cars. Ferrite and reluctance designs are opening further options, with testing and development for wider commercial use underway. Over time, technology substitution will be a key way for the world to diversify away from these minerals. Progress in motor design, materials and manufacturing is expanding the paths available.
-            <p className="tour-end__india">Indian motor startups are helping turn this shift into practical options. <a href="https://www.chara.co.in/technology">Chara Technologies</a> offers magnet-free reluctance motor systems; <a href="https://vi-mag.com/">Vimag Labs</a> is developing motors that create and control the rotor field electronically; and <a href="https://viridianingnipropulsion.com/">Viridian Ingni Propulsion</a> develops rare-earth-free motors and controllers for mobility. Vehicle makers are progressing too: <a href="https://cdn.olaelectric.com/sites/evdp/pages/investor/announcement/Intimation_of_Press_Release_titled_Ola_Electric_Becomes_India_First_Automotive_OEM_to_Get_Government_Certification_For_its_In-House_Developed_Ferrite_Motor_dated_October_06_2025.pdf">Ola Electric</a> announced government certification of its rare-earth-free ferrite motor in October 2025. <a href="https://media.atherenergy.com/Deferring-claims-PM-E-DRIVE-scheme-Sep-25-2025.pdf">Ather</a> announced type approval for its heavy-rare-earth-free motor in September 2025, a route that reduces dependence on the heavy rare earths covered by the export controls. Together, these efforts give India several ways to reduce mineral dependence.</p>
-          </li>
-        </ol>
-        <div className="tour-end__actions">
-          <button type="button" className="tour-end__restart" onClick={onRestart}>Start again</button>
-          <button type="button" className="tour-end__back" onClick={onBack}>← Back</button>
-        </div>
-      </div>
-    </main>
-  );
-}
 
 function ContentsOverlay({
   pageIndex,
@@ -259,21 +239,24 @@ export default function App() {
 
   useEffect(() => {
     if (screen === "landing") window.history.replaceState(null, "", window.location.pathname);
-    else if (screen === "close") window.history.replaceState(null, "", "#close");
+    else if (screen === "close" || screen === "outlook") window.history.replaceState(null, "", `#${screen}`);
     else if (window.location.hash !== `#${beat.id}`) window.history.replaceState(null, "", `#${beat.id}`);
   }, [screen, beat.id]);
 
   const goBack = useCallback(() => {
     if (contentsOpen) { setContentsOpen(false); return; }
+    if (screen === "outlook") { setScreen("close"); return; }
     if (screen === "close") { setScreen("tour"); return; }
     if (cursor === 0) { setScreen("landing"); return; }
     move({ type: "prev" });
   }, [contentsOpen, cursor, screen]);
 
   const goNext = useCallback(() => {
+    if (screen === "outlook") return;
+    if (screen === "close") { setScreen("outlook"); return; }
     if (cursor === BEATS.length - 1) { setScreen("close"); return; }
     move({ type: "next" });
-  }, [cursor]);
+  }, [cursor, screen]);
 
   const goNextChapter = useCallback(() => {
     const next = BEATS.findIndex((item) => item.pageIndex === pageIndex + 1);
@@ -290,7 +273,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (screen !== "tour") return undefined;
+    if (screen === "landing") return undefined;
     const onKey = (event: KeyboardEvent) => {
       if (event.target instanceof HTMLElement && event.target.closest("button, a, input, select, textarea, summary, [contenteditable='true']")) return;
       if (event.key === "ArrowRight" || event.key === "Enter") { event.preventDefault(); goNext(); }
@@ -305,8 +288,8 @@ export default function App() {
     return <Landing onEnter={() => { move({ type: "go", index: 0 }); setScreen("tour"); }} />;
   }
 
-  if (screen === "close") {
-    return <TourEnd onRestart={() => { setScreen("landing"); move({ type: "go", index: 0 }); }} onBack={() => setScreen("tour")} />;
+  if (screen === "close" || screen === "outlook") {
+    return <Takeaways key={screen} outlook={screen === "outlook"} onNext={goNext} onRestart={() => { setScreen("landing"); move({ type: "go", index: 0 }); }} onBack={goBack} />;
   }
 
   const stage = beat.stage;

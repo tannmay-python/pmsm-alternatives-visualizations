@@ -1,0 +1,51 @@
+.takeaways { position: fixed; inset: 0; z-index: 5; overflow-y: auto; background: var(--deep); padding: 30px var(--pad-x) 36px; }
+.takeaways__sheet { width: min(100%, 940px); margin: 0 auto; }
+.takeaways__masthead { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--ink-20); }
+.takeaways__masthead > span { font: 11px var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--ink-50); white-space: nowrap; }
+.takeaways__masthead b { color: var(--wine); font-weight: 500; margin-left: 12px; }
+.takeaways h1 { margin: 28px 0 22px; font-size: clamp(27px, 3vw, 36px); font-weight: 400; line-height: 1.15; letter-spacing: -.025em; }
+.takeaways__points { list-style: none; padding: 0; margin: 0; }
+.takeaways__points li { position: relative; padding: 14px 0 14px 21px; border-top: 1px solid var(--ink-10); color: var(--ink-70); font-size: 17px; line-height: 1.55; font-weight: 400; }
+.takeaways__points li::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--wine); position: absolute; top: 25px; left: 0; }
+.takeaways__points strong { color: var(--ink); font-weight: 600; }
+.takeaways__points--summary li { padding-top: 24px; padding-bottom: 24px; font-size: 19px; line-height: 1.6; }
+.takeaways__points--summary li::before { top: 37px; }
+.takeaways__india { padding: 18px 0 0 21px; margin-top: 12px; border-top: 1px solid var(--ink-20); }
+.takeaways__india h2 { font-size: 14px; font-weight: 600; margin: 0 0 6px; }
+.takeaways__india p { font-size: 14px; line-height: 1.6; color: var(--ink-70); margin: 0; }
+.takeaways__india a { color: inherit; text-decoration-color: var(--ink-20); text-underline-offset: 3px; }
+.takeaways__india a:hover { color: var(--wine); text-decoration-color: var(--wine); }
+.takeaways__nav { margin-top: 26px; padding-top: 20px; border-top: 1px solid var(--ink-20); display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.takeaways__nav button { display: inline-flex; align-items: center; gap: 10px; color: var(--ink-70); font-size: 13px; padding: 10px 0; background: transparent; }
+.takeaways__nav .takeaways__next { color: var(--wine); font-weight: 600; }
+.takeaways__nav button:hover { color: var(--wine); }
+.takeaways :focus-visible { outline: 2px solid var(--wine); outline-offset: 5px; }
+@media (max-width: 560px) {
+  .takeaways { padding: 20px 22px 28px; }
+  .takeaways__masthead svg { max-width: 140px; }
+  .takeaways__masthead > span { font-size: 9px; }
+  .takeaways h1 { margin-top: 26px; }
+  .takeaways__points li { font-size: 16px; }
+  .takeaways__points--summary li { padding-top: 20px; padding-bottom: 20px; font-size: 17px; }
+  .takeaways__nav { align-items: flex-start; }
+  .takeaways__nav button { font-size: 12px; max-width: 48%; text-align: left; }
+  .takeaways__nav svg { flex-shrink: 0; }
+}
+
+/* Put the assessment and its reasoning in separate reading columns. */
+.takeaways__points li { display: grid; grid-template-columns: minmax(200px, .85fr) minmax(0, 1.65fr); gap: 30px; padding: 21px 0; }
+.takeaways__points li::before { display: none; }
+.takeaways__points h2 { margin: 0; color: var(--ink); font-size: 17px; font-weight: 600; line-height: 1.45; letter-spacing: -.01em; }
+.takeaways__points p { margin: 0; font-size: 17px; line-height: 1.6; }
+.takeaways__points--summary li { grid-template-columns: minmax(140px, .55fr) minmax(0, 1.95fr); }
+.takeaways__india { padding: 18px 22px; margin-top: 18px; border: 0; border-left: 2px solid var(--wine); background: var(--ink-10); }
+.takeaways__nav .takeaways__next { border: 1px solid var(--ink-20); padding: 12px 16px; }
+.takeaways__nav .takeaways__next:hover { border-color: var(--wine); }
+@media (max-width: 640px) {
+  .takeaways__points li { grid-template-columns: 1fr; gap: 7px; padding: 19px 0; }
+  .takeaways__points h2, .takeaways__points p { font-size: 16px; }
+  .takeaways__india { padding: 16px; }
+  .takeaways__nav .takeaways__next { padding: 10px; }
+}
+
+.takeaways__source { font-size: 12px; color: var(--ink-50); text-underline-offset: 3px; }
