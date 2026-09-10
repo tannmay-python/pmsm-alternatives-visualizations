@@ -138,13 +138,6 @@ export const PAGES: readonly PageSpec[] = [
         from: "change-the-magnet",
         groups: [["ferrite-limit"]],
       },
-      {
-        from: "change-the-magnet",
-        id: "displacement-outlook",
-        title: "Rare-earth magnet displacement",
-        question: "Which routes are best placed to replace rare-earth magnets?",
-        groups: [["rare-earth-displacement"]],
-      },
     ],
   },
   {

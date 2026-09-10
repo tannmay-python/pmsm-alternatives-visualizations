@@ -27,7 +27,6 @@ const requiredSpine = [
   "swap-the-rotor/reluctance-spectrum",
   "swap-the-rotor/srm-aluminium",
   "change-the-magnet/ferrite-limit",
-  "change-the-magnet/rare-earth-displacement",
   "what-must-change/spectrum",
   "what-must-change/validation",
   "what-must-change/where-we-are",
@@ -42,7 +41,7 @@ describe("page structure", () => {
     expect(() => buildPages()).not.toThrow();
   });
 
-  it("keeps the complete 22-frame learning spine", () => {
+  it("keeps the complete 21-frame learning spine", () => {
     const selected = BEATS.flatMap((p) =>
       p.beat.sourceIds.map((id) => `${p.stop.sourceStopId}/${id}`),
     ).sort();
